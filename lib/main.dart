@@ -10,7 +10,7 @@ import '';
 void main() {
   runApp(ChangeNotifierProvider(
     create: (context) => CartProvider(),
-      child: Cart(),
+      child: ListTenant(),
     )
   );
 }

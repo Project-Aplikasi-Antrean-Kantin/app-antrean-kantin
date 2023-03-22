@@ -139,6 +139,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  open_whatsapp:
+    dependency: "direct main"
+    description:
+      name: open_whatsapp
+      sha256: "799530b27ee35515be510be6771ffe13d574ab99df38471899f0ef2fb9ce49a6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   path:
     dependency: transitive
     description:
