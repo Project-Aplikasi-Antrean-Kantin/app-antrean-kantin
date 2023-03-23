@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:open_whatsapp/open_whatsapp.dart';
+// import 'package:open_whatsapp/open_whatsapp.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/component/list_cart.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/model/cart_model.dart';
-import 'package:testgetdata/views/list_tenant.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class Cart extends StatefulWidget {
   const Cart({Key? key}) : super(key: key);
@@ -40,18 +41,26 @@ class _CartState extends State<Cart> {
               SizedBox(height: 10),
               Consumer<CartProvider>(
                 builder: (contex, data, _){
-                  return ElevatedButton(onPressed: () async{
-                    String strPesanan = '';
-                    data.cart.forEach((element) {
-                      strPesanan += '${element.menuNama.toString()} (${element.count}) --> {TENANT M-1}\n';
-                    });
-                    String pesanan =
-                        'Nama : ${namaPembeli.text} \n'
-                        'Ruangan : ${ruanganPembeli.text} \n'
-                        'Pesanan : ${strPesanan} \n'
-                    ;
-                    await FlutterOpenWhatsapp.sendSingleMessage('6285706015892', pesanan);
-                  }, child: Text("Kirim"));
+                  return Expanded(
+                    child: ElevatedButton(onPressed: () async{
+                      var url = 'whatsapp://send?phone=6285706015892';
+                      String strPesanan = '';
+                      data.cart.forEach((element) {
+                        strPesanan += '${element.menuNama.toString()} (${element.count}) --> {TENANT M-1}\n';
+                      });
+                      String pesanan =
+                          'Nama : ${namaPembeli.text} \n'
+                          'Ruangan : ${ruanganPembeli.text} \n'
+                          'Pesanan : ${strPesanan} \n'
+                      ;
+                      url = '${url}&text=${pesanan}';
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(url);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    }, child: Text("Kirim")),
+                  );
                 },
               ),
             ],

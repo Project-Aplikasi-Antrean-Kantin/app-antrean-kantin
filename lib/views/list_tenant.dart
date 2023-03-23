@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/http/fetch_data_tenant.dart';
-import 'package:testgetdata/model/tenant.dart';
+import 'package:testgetdata/model/tenant_foods.dart';
 import 'package:testgetdata/views/cart.dart';
 
 import '../provider/cart_provider.dart';
 
 class ListTenant extends StatefulWidget{
-  ListTenant({Key? key}) : super(key: key);
+  final String url;
+  ListTenant({Key? key, required this.url}) : super(key: key);
 
   @override
   _ListTenantState createState() => _ListTenantState();
 }
 
 class _ListTenantState extends State<ListTenant>{
-  late Future<tenant> futureTenant;
+  late Future<TenantFoods> futureTenant;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    futureTenant = fetchTenant();
+    futureTenant = fetchTenantFoods(widget.url);
   }
 
   Widget build(BuildContext context){
@@ -32,10 +34,11 @@ class _ListTenantState extends State<ListTenant>{
               icon: Icon(Icons.arrow_back_ios_rounded),
               color: Colors.red,
               onPressed: (){
+                Navigator.pop(context);
               },
             ),
           ),
-          body: FutureBuilder<tenant>(
+          body: FutureBuilder<TenantFoods>(
             future: futureTenant,
             builder: (context, snapshot){
               if(snapshot.hasData){

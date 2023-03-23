@@ -1,6 +1,3 @@
-// MASIH ERROR DI CART.REMOVE
-//
-
 import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/model/cart_model.dart';
 
