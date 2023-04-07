@@ -45,8 +45,8 @@ class ListCart extends StatelessWidget{
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                image: const DecorationImage(
-                image: NetworkImage('https://picsum.photos/1024/768'),
+                image: DecorationImage(
+                image: NetworkImage(cart.menuGambar),
                 ),
               ),
               height: 80,

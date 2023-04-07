@@ -12,6 +12,7 @@ class TenantFoods{
   });
 
   factory TenantFoods.fromJson(Map<String, dynamic> json){
-    return TenantFoods(id: json['id'], name: json['name'], gambar: json['gambar'], foods: json['foods']);
+    final data = json['data'];
+    return TenantFoods(id: data['id'], name: data['name'], gambar: data['gambar'], foods: data['foods']);
   }
 }

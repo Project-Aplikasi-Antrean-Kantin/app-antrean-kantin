@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 // import 'package:open_whatsapp/open_whatsapp.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/component/list_cart.dart';
+import 'package:testgetdata/http/post_transaction.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/model/cart_model.dart';
+import 'package:testgetdata/views/last.dart';
+import 'package:testgetdata/views/tenant.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -31,33 +34,50 @@ class _CartState extends State<Cart> {
               TextFormField(
                 controller: namaPembeli,
                 decoration: InputDecoration(border: OutlineInputBorder()),
+                validator: (value){
+                  if (value == null || value.isEmpty) {
+                    return 'Harap isi data terlebih dahulu';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 20),
               Text("Ruangan"),
               TextFormField(
                 controller: ruanganPembeli,
                 decoration: InputDecoration(border: OutlineInputBorder()),
+                validator: (value){
+                  if (value == null || value.isEmpty) {
+                    return 'Harap isi data terlebih dahulu';
+                  }
+                  return null;
+                },
              ),
               SizedBox(height: 10),
               Consumer<CartProvider>(
                 builder: (contex, data, _){
                   return Expanded(
-                    child: ElevatedButton(onPressed: () async{
-                      var url = 'whatsapp://send?phone=6285706015892';
-                      String strPesanan = '';
-                      data.cart.forEach((element) {
-                        strPesanan += '${element.menuNama.toString()} (${element.count}) --> {TENANT M-1}\n';
-                      });
-                      String pesanan =
-                          'Nama : ${namaPembeli.text} \n'
-                          'Ruangan : ${ruanganPembeli.text} \n'
-                          'Pesanan : ${strPesanan} \n'
-                      ;
-                      url = '${url}&text=${pesanan}';
-                      if (await canLaunchUrlString(url)) {
-                        await launchUrlString(url);
-                      } else {
-                        throw 'Could not launch $url';
+                    child: ElevatedButton(onPressed: () {
+                      if (namaPembeli.text.isEmpty || ruanganPembeli.text.isEmpty) {
+                        // Menampilkan pesan error jika input kosong
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Harap isi data terlebih dahulu")),
+                        );
+                      }else{
+                        createTransaction(data.cart.map((e) => e.menuId).toList()).then((value) {
+                          String strPesanan = '';
+                          data.cart.forEach((element) {
+                            strPesanan += '${element.menuNama.toString()} (${element.count}) --> Tenant (${element.tenantName})\n';
+                          });
+                          String pesanan =
+                              'Nama : ${namaPembeli.text} \n'
+                              'Ruangan : ${ruanganPembeli.text} \n'
+                              'Pesanan : ${strPesanan} \n'
+                          ;
+                          Navigator.push(context, MaterialPageRoute(builder: (contex){
+                            return Last(pesanan);
+                          }));
+                        });
                       }
                     }, child: Text("Kirim")),
                   );
@@ -90,16 +110,18 @@ class _CartState extends State<Cart> {
           children: [
             Consumer<CartProvider>(
               builder: (context, data, _){
-                return ListView.separated(
-                    separatorBuilder: (context, index){
-                      return Divider();
-                    },
-                    shrinkWrap: true,
-                    itemCount: data.cart.length,
-                    itemBuilder: (context, i){
-                      // print(cart.length);
-                      return ListCart(cart: data.cart[i]);
-                    }
+                return Expanded(
+                  child: ListView.separated(
+                      separatorBuilder: (context, index){
+                        return Divider();
+                      },
+                      shrinkWrap: true,
+                      itemCount: data.cart.length,
+                      itemBuilder: (context, i){
+                        // print(cart.length);
+                        return ListCart(cart: data.cart[i]);
+                      }
+                  ),
                 );
               },
             ),

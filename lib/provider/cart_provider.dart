@@ -8,7 +8,7 @@ class CartProvider extends ChangeNotifier{
   int cost = 0;
   bool isCartShow = false;
 
-  void addRemove(menuId, name, price, gambar, bool isAdd){
+  void addRemove(menuId, name, price, gambar, tenantName, bool isAdd){
     //Jika sudah ada maka yang diupdate cuma count
     if(_cart.where((element) => menuId == element.menuId).isNotEmpty){
       var index = _cart.indexWhere((element) => menuId == element.menuId);
@@ -39,7 +39,7 @@ class CartProvider extends ChangeNotifier{
     }else{
       //jika belum ada di cart'
       if(isAdd){
-        _cart.add(CartModel(menuId: menuId, count: 1, menuGambar: gambar, menuNama: name, menuPrice: price));
+        _cart.add(CartModel(menuId: menuId, count: 1, menuGambar: gambar, menuNama: name, menuPrice: price, tenantName: tenantName));
         setBottomNavVisible(true);
         total += 1;
         getTotalBelanja(isAdd, _cart[_cart.length-1]);

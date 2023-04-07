@@ -1,4 +1,5 @@
 class CartModel{
+  final String tenantName;
   final int menuId;
   final String menuNama;
   final int menuPrice;
@@ -6,6 +7,7 @@ class CartModel{
   var count;
 
   CartModel({
+    required this.tenantName,
     required this.menuId,
     required this.menuGambar,
     required this.menuNama,

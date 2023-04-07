@@ -12,7 +12,7 @@ class Tenant extends StatefulWidget {
 
 class _TenantState extends State<Tenant> {
   late Future<List<TenantModel>> futureTenant;
-  String url = "http://192.168.1.36:8000/api/tenant";
+  String url = "https://www.masbrocanteen.my.id/public/api/tenant";
 
   @override
   void initState() {
@@ -27,6 +27,7 @@ class _TenantState extends State<Tenant> {
       home: Scaffold(
           body: SafeArea(
             child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               child: Column(
                 children: <Widget> [
                   Padding(
@@ -47,8 +48,8 @@ class _TenantState extends State<Tenant> {
                           return Container(
                             margin: const EdgeInsets.all (20.0),
                             child: GridView.builder(
-                              shrinkWrap: true,
                               physics: const ScrollPhysics(),
+                              shrinkWrap: true,
                               itemCount: snapshot.data!.length,
                               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
@@ -66,7 +67,7 @@ class _TenantState extends State<Tenant> {
                                         children: <Widget> [
                                           ClipRRect(
                                               borderRadius: BorderRadius.circular(25.0),
-                                              child: Image.asset('assets/images/tenant.png')
+                                              child: Image.network(snapshot.data![index].gambar),
                                           ),
                                           Positioned(
                                             bottom: 0,

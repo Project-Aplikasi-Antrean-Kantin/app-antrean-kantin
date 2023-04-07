@@ -1,4 +1,4 @@
-package com.example.testgetdata
+package com.masbro.canteen
 
 import io.flutter.embedding.android.FlutterActivity
 
