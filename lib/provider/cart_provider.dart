@@ -6,6 +6,7 @@ class CartProvider extends ChangeNotifier{
   List<CartModel> get cart => _cart;
   int total = 0;
   int cost = 0;
+  int service = 2000;
   bool isCartShow = false;
 
   void addRemove(menuId, name, price, gambar, tenantName, bool isAdd){

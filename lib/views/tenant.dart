@@ -23,11 +23,9 @@ class _TenantState extends State<Tenant> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
           body: SafeArea(
             child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               child: Column(
                 children: <Widget> [
                   Padding(
@@ -48,8 +46,8 @@ class _TenantState extends State<Tenant> {
                           return Container(
                             margin: const EdgeInsets.all (20.0),
                             child: GridView.builder(
-                              physics: const ScrollPhysics(),
                               shrinkWrap: true,
+                              physics: const ScrollPhysics(),
                               itemCount: snapshot.data!.length,
                               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
@@ -60,7 +58,7 @@ class _TenantState extends State<Tenant> {
                                     child: InkWell(
                                       onTap: (){
                                         Navigator.push(context, MaterialPageRoute(builder: (context){
-                                          return ListTenant(url: '${url}/${index+1}',);
+                                          return ListTenant(url: '$url/${index+1}',);
                                         }));
                                       },
                                       child: Stack(
@@ -83,7 +81,7 @@ class _TenantState extends State<Tenant> {
                                                     left: 4.0
                                                 ),
                                                 child: Text(
-                                                  '${snapshot.data![index].name}',
+                                                  snapshot.data![index].name,
                                                   style: const TextStyle(
                                                       fontSize: 18.0,
                                                       fontWeight: FontWeight.bold,
@@ -110,7 +108,6 @@ class _TenantState extends State<Tenant> {
               ),
             ),
           ),
-      ),
     );
   }
 }
