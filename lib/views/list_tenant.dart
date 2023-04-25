@@ -5,6 +5,7 @@ import '../http/fetch_data_tenant.dart';
 import '../model/tenant_foods.dart';
 import '../provider/cart_provider.dart';
 import 'cart.dart';
+import 'package:intl/intl.dart';
 
 class ListTenant extends StatefulWidget {
   final String url;
@@ -225,14 +226,18 @@ class _ListTenantState extends State<ListTenant> {
                                   ),
                                 ),
                                 Text(
-                                  'Rp${dataFoods['price']}',
-                                  style:
-                                    GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.redAccent,
-                                    ),
-                                )
+                                  NumberFormat.currency(
+                                    symbol: 'Rp',
+                                    decimalDigits: 0,
+                                    locale: 'id-ID',
+                                  ).format(dataFoods['price']),
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
+
                               ],
                             ),
                           ),
@@ -359,7 +364,12 @@ class _ListTenantState extends State<ListTenant> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Rp${data.cost}',
+                    Text(
+                      NumberFormat.currency(
+                      symbol: 'Rp',
+                      decimalDigits: 0,
+                      locale: 'id-ID',
+                    ).format(data.cost),
                       style:
                       GoogleFonts.poppins(
                         fontSize: 20,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/model/cart_model.dart';
 
@@ -104,14 +105,18 @@ class ListCart extends StatelessWidget{
                 ),
               ),
               Text(
-                'Rp${cart.menuPrice} x ${cart.count}',
+                '${NumberFormat.currency(
+                  symbol: 'Rp',
+                  decimalDigits: 0,
+                  locale: 'id-ID',
+                ).format(cart.menuPrice)} x ${cart.count}',
                 style:
                 GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: Colors.redAccent,
                 ),
-              )
+              ),
             ],
           ),
         ),

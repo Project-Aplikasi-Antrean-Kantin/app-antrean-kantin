@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:open_whatsapp/open_whatsapp.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/component/list_cart.dart';
 import 'package:testgetdata/http/post_transaction.dart';
@@ -181,7 +182,11 @@ class _CartState extends State<Cart> {
                             Column(
                               children: cart.map((e) {
                                 return Text(
-                                    'Rp${e.menuPrice * e.count}',
+                                    NumberFormat.currency(
+                                      symbol: 'Rp',
+                                      decimalDigits: 0,
+                                      locale: 'id-ID',
+                                    ).format(e.menuPrice * e.count),
                                     style:
                                     GoogleFonts.poppins(
                                       fontSize: 16,
@@ -206,7 +211,7 @@ class _CartState extends State<Cart> {
                               ),
                             ),
                             Text(
-                                'Rp2000',
+                                'Rp2.000',
                                 style:
                                 GoogleFonts.poppins(
                                   fontSize: 16,
@@ -235,7 +240,11 @@ class _CartState extends State<Cart> {
                               ),
                             ),
                             Text(
-                              'Rp${Provider.of<CartProvider>(context).cost+Provider.of<CartProvider>(context).service}',
+                              NumberFormat.currency(
+                                symbol: 'Rp',
+                                decimalDigits: 0,
+                                locale: 'id-ID',
+                              ).format(Provider.of<CartProvider>(context).cost+Provider.of<CartProvider>(context).service),
                               style:
                               GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
