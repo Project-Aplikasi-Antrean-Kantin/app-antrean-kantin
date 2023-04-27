@@ -14,7 +14,6 @@ class ListFoodsByCategory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final keysMenu = listMenu.keys;
-    print(listMenu['Makanan']![0]);
     return Expanded(
       child: ScrollablePositionedList.builder(
         itemScrollController: ScrollPositionedControl.itemController,

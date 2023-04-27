@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
 import 'package:testgetdata/theme/judul_font.dart';
 import 'package:testgetdata/views/list_makanan.dart';
+import 'package:testgetdata/views/list_tenant.dart';
 
 class ListTenantBaru extends StatelessWidget {
   final url;
@@ -22,7 +23,7 @@ class ListTenantBaru extends StatelessWidget {
           return InkWell(
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return ListMakanan(
+                return ListTenant(
                   url: '${url}/${foundTenant[index].id}',
                 );
               }));
@@ -50,11 +51,11 @@ class ListTenantBaru extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${foundTenant[index].name}',
+                            foundTenant[index].name,
                             style: Judul(),
                           ),
                           Text(
-                            foundTenant[index],
+                            foundTenant[index].subname,
                             // style: SubJudul(),
                           ),
                           Divider(
