@@ -1,0 +1,382 @@
+// return Center(
+                                //     child: InkWell(
+                                //       onTap: (){
+                                //         Navigator.push(context, MaterialPageRoute(builder: (context){
+                                //           return ListTenant(url: '${url}/${index+1}',);
+                                //         }));
+                                //       },
+                                //       child: Stack(
+                                //         children: <Widget> [
+                                //           ClipRRect(
+                                //               borderRadius: BorderRadius.circular(25.0),
+                                //               child: Image.network(snapshot.data![index].gambar),
+                                //           ),
+                                //           Positioned(
+                                //             bottom: 0,
+                                //             right: 10,
+                                //             child: Container(
+                                //               decoration: BoxDecoration(
+                                //                 color: Colors.black12, // warna background
+                                //                 borderRadius: BorderRadius.circular(10), // radius border
+                                //               ),
+                                //               child: Padding(
+                                //                 padding: const EdgeInsets.only(
+                                //                     right: 4.0,
+                                //                     left: 4.0
+                                //                 ),
+                                //                 child: Text(
+                                //                   '${snapshot.data![index].name}',
+                                //                   style: const TextStyle(
+                                //                       fontSize: 18.0,
+                                //                       fontWeight: FontWeight.bold,
+                                //                       fontFamily: 'Oxygen'
+                                //                   ),
+                                //                 ),
+                                //               ),
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     ),
+                                // );
+
+
+
+
+
+
+// return Column(
+                //   children: [
+                //     Padding(
+                //       padding: const EdgeInsets.all(20.0),
+                //       child: Container(
+                //         margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                //         height: 0.4 * 0.9 * MediaQuery.of(context).size.width,
+                //         width: 0.9 * MediaQuery.of(context).size.width,
+                //         decoration: BoxDecoration(
+                //           borderRadius: BorderRadius.circular(12),
+                //           image: DecorationImage(
+                //             image: NetworkImage('https://picsum.photos/1024/768'),
+                //             fit: BoxFit.cover
+                //           )
+                //         ),
+                //       ),
+                //     ),
+                //     Expanded(
+                //       child: ListView.separated(
+                //         scrollDirection: Axis.vertical,
+                //         separatorBuilder: (context, index){
+                //           return Divider();
+                //         },
+                //         shrinkWrap: true,
+                //         itemBuilder: (context, index){
+                //           final dataFoods = snapshot.data!.foods[index];
+                //           return Padding(
+                //               padding: const EdgeInsets.only(left: 20, right: 20),
+                //               child: Row(
+                //                 crossAxisAlignment: CrossAxisAlignment.center,
+                //                 children: [
+                //                   Container(
+                //                     decoration: BoxDecoration(
+                //                       borderRadius: BorderRadius.circular(20),
+                //                       image: const DecorationImage(
+                //                         image: NetworkImage('https://picsum.photos/1024/768'),
+                //                       ),
+                //                     ),
+                //                     height: 80,
+                //                     width: 80,
+                //                   ),
+                //                   const SizedBox(width: 20,),
+                //                   Expanded(
+                //                     flex: 1,
+                //                     child: Column(
+                //                       crossAxisAlignment: CrossAxisAlignment.start,
+                //                       mainAxisAlignment: MainAxisAlignment.center,
+                //                       children: [
+                //                         Text(
+                //                           dataFoods['name'],
+                //                           style: const TextStyle(
+                //                             fontSize: 16,
+                //                             fontWeight: FontWeight.bold
+                //                           ),
+                //                         ),
+                //                         const SizedBox(height: 5,),
+                //                         Text(dataFoods['price'].toString())
+                //                       ],
+                //                     ),
+                //                   ),
+                //                   Container(
+                //                     decoration: BoxDecoration(
+                //                         color: Colors.white,
+                //                         borderRadius: BorderRadius.circular(10),
+                //                       boxShadow: [
+                //                         BoxShadow(
+                //                           color: Colors.black26.withOpacity(0.3),
+                //                           offset: Offset.fromDirection(100),
+                //                           blurRadius: 5
+                //                         )
+                //                       ]
+                //                     ),
+                //                       height: 40,
+                //                       child: Row(
+                //                         children: [
+                //                           IconButton(onPressed: (){
+                //                             Provider.of<CartProvider>(context, listen: false).addRemove(dataFoods['id'], dataFoods['name'], dataFoods['price'], dataFoods['gambar'], false);
+                //                           }, icon: Icon(Icons.remove_circle, color: Colors.red,)),
+                //                           Consumer<CartProvider>(builder: (context, data, widget){
+                //                             var id = data.cart.indexWhere((element) => element.menuId == dataFoods['id']);
+                //                             return Text(
+                //                                 (id == -1) ? "0" : data.cart[id].count.toString(),
+                //                             );
+                //                           }),
+                //                           IconButton(onPressed: (){
+                //                             Provider.of<CartProvider>(context, listen: false).addRemove(dataFoods['id'], dataFoods['name'], dataFoods['price'], dataFoods['gambar'], true);
+                //                           }, icon: Icon(Icons.add_circle,color: Colors.green,)),
+                //                         ]
+                //                       )
+                //                   )
+                //                 ],
+                //               ),
+                //             );
+                //         },
+                //       itemCount: snapshot.data!.foods.length,
+                //       ),
+                //     ),
+                //   ],
+                // );
+
+
+
+//card
+
+Card(
+                    child: ListTile(
+                      leading: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          height: 200,
+                          width: 200,
+                          child: Image(
+                            image: NetworkImage(makanan[i]['gambar']),
+                            fit: BoxFit.cover,
+                          )),
+                      title: Text(makanan[i]['name']),
+                      subtitle: Text(makanan[i]['price'].toString()),
+                      contentPadding: EdgeInsets.symmetric(vertical: 20),
+                    ),
+                  )
+
+// return Column(
+                //   children: [
+                //     Padding(
+                //       padding: const EdgeInsets.all(20.0),
+                //       child: Container(
+                //         margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                //         height: 0.4 * 0.9 * MediaQuery.of(context).size.width,
+                //         width: 0.9 * MediaQuery.of(context).size.width,
+                //         decoration: BoxDecoration(
+                //           borderRadius: BorderRadius.circular(12),
+                //           image: DecorationImage(
+                //             image: NetworkImage('https://picsum.photos/1024/768'),
+                //             fit: BoxFit.cover
+                //           )
+                //         ),
+                //       ),
+                //     ),
+                //     Expanded(
+                //       child: ListView.separated(
+                //         scrollDirection: Axis.vertical,
+                //         separatorBuilder: (context, index){
+                //           return Divider();
+                //         },
+                //         shrinkWrap: true,
+                //         itemBuilder: (context, index){
+                //           final dataFoods = snapshot.data!.foods[index];
+                //           return Padding(
+                //               padding: const EdgeInsets.only(left: 20, right: 20),
+                //               child: Row(
+                //                 crossAxisAlignment: CrossAxisAlignment.center,
+                //                 children: [
+                //                   Container(
+                //                     decoration: BoxDecoration(
+                //                       borderRadius: BorderRadius.circular(20),
+                //                       image: const DecorationImage(
+                //                         image: NetworkImage('https://picsum.photos/1024/768'),
+                //                       ),
+                //                     ),
+                //                     height: 80,
+                //                     width: 80,
+                //                   ),
+                //                   const SizedBox(width: 20,),
+                //                   Expanded(
+                //                     flex: 1,
+                //                     child: Column(
+                //                       crossAxisAlignment: CrossAxisAlignment.start,
+                //                       mainAxisAlignment: MainAxisAlignment.center,
+                //                       children: [
+                //                         Text(
+                //                           dataFoods['name'],
+                //                           style: const TextStyle(
+                //                             fontSize: 16,
+                //                             fontWeight: FontWeight.bold
+                //                           ),
+                //                         ),
+                //                         const SizedBox(height: 5,),
+                //                         Text(dataFoods['price'].toString())
+                //                       ],
+                //                     ),
+                //                   ),
+                //                   Container(
+                //                     decoration: BoxDecoration(
+                //                         color: Colors.white,
+                //                         borderRadius: BorderRadius.circular(10),
+                //                       boxShadow: [
+                //                         BoxShadow(
+                //                           color: Colors.black26.withOpacity(0.3),
+                //                           offset: Offset.fromDirection(100),
+                //                           blurRadius: 5
+                //                         )
+                //                       ]
+                //                     ),
+                //                       height: 40,
+                //                       child: Row(
+                //                         children: [
+                //                           IconButton(onPressed: (){
+                //                             Provider.of<CartProvider>(context, listen: false).addRemove(dataFoods['id'], dataFoods['name'], dataFoods['price'], dataFoods['gambar'], false);
+                //                           }, icon: Icon(Icons.remove_circle, color: Colors.red,)),
+                //                           Consumer<CartProvider>(builder: (context, data, widget){
+                //                             var id = data.cart.indexWhere((element) => element.menuId == dataFoods['id']);
+                //                             return Text(
+                //                                 (id == -1) ? "0" : data.cart[id].count.toString(),
+                //                             );
+                //                           }),
+                //                           IconButton(onPressed: (){
+                //                             Provider.of<CartProvider>(context, listen: false).addRemove(dataFoods['id'], dataFoods['name'], dataFoods['price'], dataFoods['gambar'], true);
+                //                           }, icon: Icon(Icons.add_circle,color: Colors.green,)),
+                //                         ]
+                //                       )
+                //                   )
+                //                 ],
+                //               ),
+                //             );
+                //         },
+                //       itemCount: snapshot.data!.foods.length,
+                //       ),
+                //     ),
+                //   ],
+                // );
+
+import 'package:flutter/material.dart';
+import 'package:testgetdata/component/list_tenant.dart';
+import 'package:testgetdata/http/fetch_all_tenant.dart';
+import 'package:testgetdata/model/tenant_model.dart';
+import 'package:testgetdata/theme/deskripsi_theme.dart';
+import 'package:testgetdata/theme/judul_font.dart';
+import 'package:testgetdata/theme/sub_judul_theme.dart';
+import 'package:testgetdata/views/list_makanan.dart';
+import 'package:testgetdata/views/list_tenant.dart';
+
+class Tenant extends StatefulWidget {
+  const Tenant({Key? key}) : super(key: key);
+
+  @override
+  State<Tenant> createState() => _TenantState();
+}
+
+class _TenantState extends State<Tenant> {
+  late Future<List<TenantModel>> futureTenant;
+  String url = "http://masbrocanteen.me/api/tenant";
+  List<TenantModel> foundTenant = [];
+  List<TenantModel> fullTenant = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    futureTenant = fetchTenant(url);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color.fromARGB(255, 235, 235, 235),
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                "Mau Makan Apa \nHari Ini ?",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                margin: const EdgeInsets.only(
+                  left: 20.0,
+                  right: 20.0,
+                ),
+                height: 47,
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: TextField(
+                    onChanged: (value) {
+                      List<TenantModel> result = [];
+                      if (value.isEmpty) {
+                        result = [];
+                      } else {
+                        result = fullTenant
+                            .where((tenant) => tenant.name
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      }
+                      setState(() {
+                        foundTenant = result;
+                      });
+                    },
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.search_rounded),
+                        border: InputBorder.none),
+                  ),
+                )),
+            Padding(
+              padding:
+                  const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(25.0),
+                child: Image.asset('assets/images/ads.png'),
+              ),
+            ),
+            FutureBuilder<List<TenantModel>>(
+              future: futureTenant,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  fullTenant = snapshot.data!;
+                  if (foundTenant.length == 0) {
+                    foundTenant = snapshot.data!;
+                    return ListTenantBaru(url: url, foundTenant: foundTenant);
+                  } else {
+                    return ListTenantBaru(url: url, foundTenant: foundTenant);
+                  }
+                } else if (snapshot.hasError) {
+                  return Text(snapshot.error.toString());
+                }
+                return const Center(
+                    child: CircularProgressIndicator(
+                  color: Colors.red,
+                ));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
