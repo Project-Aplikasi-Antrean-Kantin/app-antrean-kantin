@@ -35,6 +35,8 @@ dependencies:
   google_fonts: any
   scroll_to_index: any
   scrollable_positioned_list: any
+  intl: ^0.17.0
+
 
 
   # The following adds the Cupertino Icons font to your application.
