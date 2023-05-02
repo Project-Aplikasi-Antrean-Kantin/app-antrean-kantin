@@ -8,7 +8,6 @@ class CartProvider extends ChangeNotifier {
   int cost = 0;
   int service = 2000;
   bool isCartShow = false;
-  bool isKatalogInCart = false;
 
   void addRemove(menuId, name, price, gambar, tenantName, bool isAdd) {
     //Jika sudah ada maka yang diupdate cuma count
@@ -63,12 +62,21 @@ class CartProvider extends ChangeNotifier {
   }
 
   cekKatalogSudahAda(menuId) {
-    var index = _cart.indexWhere((element) => menuId == element.menuId);
-    if (index < 0) {
+    // var cartSudahAda = _cart.length;
+    // var index = _cart.indexWhere((element) => menuId == element.menuId);
+    if (_cart.length == 0) {
       isCartShow = false;
     } else {
       isCartShow = true;
     }
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _cart = [];
+    isCartShow = false;
+    cost = 0;
+    total = 0;
     notifyListeners();
   }
 }

@@ -20,7 +20,7 @@ class _katalogState extends State<katalog> {
   var isadd = false;
   @override
   Widget build(BuildContext context) {
-    bool isKatalogInCart = Provider.of<CartProvider>(context).isKatalogInCart;
+    // bool isKatalogInCart = Provider.of<CartProvider>(context).isKatalogInCart;
 
     return Card(
         margin: EdgeInsets.only(bottom: 15),
