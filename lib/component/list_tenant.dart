@@ -1,6 +1,8 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
 import 'package:testgetdata/theme/judul_font.dart';
 import 'package:testgetdata/views/list_makanan.dart';
@@ -22,6 +24,7 @@ class ListTenantBaru extends StatelessWidget {
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {
+              Provider.of<CartProvider>(context, listen: false).clearCart();
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return ListTenant(
                   url: '$url/${foundTenant[index].id}',

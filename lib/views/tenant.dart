@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/component/list_tenant.dart';
 import 'package:testgetdata/http/fetch_all_tenant.dart';
 import 'package:testgetdata/model/tenant_model.dart';
@@ -7,6 +8,8 @@ import 'package:testgetdata/theme/judul_font.dart';
 import 'package:testgetdata/theme/sub_judul_theme.dart';
 import 'package:testgetdata/views/list_makanan.dart';
 import 'package:testgetdata/views/list_tenant.dart';
+
+import '../provider/cart_provider.dart';
 
 class Tenant extends StatefulWidget {
   const Tenant({Key? key}) : super(key: key);
@@ -23,7 +26,7 @@ class _TenantState extends State<Tenant> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    // TODO: implement initState'
     super.initState();
     futureTenant = fetchTenant(url);
   }
@@ -66,7 +69,9 @@ class _TenantState extends State<Tenant> {
                           result = [];
                         } else {
                           result = fullTenant
-                              .where((tenant) => tenant.name
+                              .where((tenant) => (tenant.name +
+                                      tenant.subname +
+                                      tenant.foods.toString())
                                   .toLowerCase()
                                   .contains(value.toLowerCase()))
                               .toList();
