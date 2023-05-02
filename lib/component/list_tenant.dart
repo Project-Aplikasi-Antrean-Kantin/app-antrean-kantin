@@ -1,6 +1,7 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
@@ -52,7 +53,7 @@ class ListTenantBaru extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Container(
-                        margin: EdgeInsets.only(left: 20),
+                        margin: const EdgeInsets.only(left: 20),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,8 +66,8 @@ class ListTenantBaru extends StatelessWidget {
                               foundTenant[index].subname,
                               // style: SubJudul(),
                             ),
-                            Divider(
-                              color: Colors.red,
+                            const Divider(
+                              color: Colors.redAccent,
                               height: 10,
                             ),
                             Text(
@@ -74,7 +75,11 @@ class ListTenantBaru extends StatelessWidget {
                               style: Deskripsi(),
                             ),
                             Text(
-                              foundTenant[index].range.toString(),
+                              NumberFormat.currency(
+                                symbol: 'Rp',
+                                decimalDigits: 0,
+                                locale: 'id-ID',
+                              ).format(foundTenant[index].range),
                               style: Deskripsi(),
                             ),
                           ],

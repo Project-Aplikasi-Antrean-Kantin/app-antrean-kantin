@@ -61,7 +61,7 @@ class _TenantState extends State<Tenant> {
                   ),
                   height: 47,
                   child: Padding(
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.fromLTRB(15,0,15,0),
                     child: TextField(
                       onChanged: (value) {
                         List<TenantModel> result = [];
@@ -82,7 +82,7 @@ class _TenantState extends State<Tenant> {
                       },
                       decoration: const InputDecoration(
                           icon: Icon(
-                              Icons.search_rounded),
+                              Icons.search),
                           border: InputBorder.none
                       ),
                     ),
@@ -111,9 +111,10 @@ class _TenantState extends State<Tenant> {
                     return Text(snapshot.error.toString());
                   }
                   return const Center(
-                      child: CircularProgressIndicator(
-                    color: Colors.red,
-                  ));
+                    child: CircularProgressIndicator(
+                      color: Colors.red,
+                    )
+                  );
                 },
               ),
             ],
