@@ -52,7 +52,7 @@ class ListTenantBaru extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Container(
-                        margin: const EdgeInsets.only(left: 20),
+                        margin: EdgeInsets.only(left: 20),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +65,7 @@ class ListTenantBaru extends StatelessWidget {
                               foundTenant[index].subname,
                               // style: SubJudul(),
                             ),
-                            const Divider(
+                            Divider(
                               color: Colors.red,
                               height: 10,
                             ),
@@ -74,7 +74,7 @@ class ListTenantBaru extends StatelessWidget {
                               style: Deskripsi(),
                             ),
                             Text(
-                              "Data",
+                              foundTenant[index].range.toString(),
                               style: Deskripsi(),
                             ),
                           ],
