@@ -61,8 +61,10 @@ class _TenantState extends State<Tenant> {
                   ),
                   height: 47,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(15,0,15,0),
+                    padding: const EdgeInsets.all(10),
                     child: TextField(
+                      textAlign: TextAlign.start,
+                      textAlignVertical: TextAlignVertical.center,
                       onChanged: (value) {
                         List<TenantModel> result = [];
                         if (value.isEmpty) {
@@ -81,6 +83,7 @@ class _TenantState extends State<Tenant> {
                         });
                       },
                       decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(vertical: 10),
                           icon: Icon(
                               Icons.search),
                           border: InputBorder.none
