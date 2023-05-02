@@ -27,8 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Image(
           width: MediaQuery.of(context).size.width,
-          image: const AssetImage('assets/images/Frame 1.jpg'),
-          fit: BoxFit.cover,
+          image: const AssetImage('assets/images/Frame 1.png'),
         ),
       ),
     );

@@ -23,6 +23,8 @@ class _ListTenantState extends State<ListTenant> {
   late Future<TenantFoods> futureTenant;
   Map<String, dynamic> jumlahOffset = {};
 
+  int? selected;
+
   @override
   void initState() {
     super.initState();
@@ -95,13 +97,21 @@ class _ListTenantState extends State<ListTenant> {
                                             .0,
                                         duration: const Duration(seconds: 1),
                                         curve: Curves.linear);
+                                        setState(() {
+                                          if (selected == i)
+                                            selected = null;
+                                          else
+                                            selected = i;
+                                        });
                                   }, // buat auto scroll
                                   child: Text(
                                     "${snapshot.data!.category[i]}\t\t",
                                     style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 16,
-                                        color: Colors.black),
+                                        color: selected == i
+                                                ? Colors.black
+                                                : Colors.grey),
                                   ),
                                 ),
                             ],
@@ -157,23 +167,49 @@ class _ListTenantState extends State<ListTenant> {
                                   for (int i = 0;
                                       i < snapshot.data!.category.length;
                                       i++)
-                                    InkWell(
-                                      onTap: () {
+                                    TextButton(
+                                      onPressed: () {
                                         _scrollController.animateTo(
                                             jumlahOffset[snapshot
                                                     .data!.category[i]] +
                                                 .0,
-                                            duration: const Duration(seconds: 1),
+                                            duration:
+                                                const Duration(seconds: 1),
                                             curve: Curves.linear);
-                                      }, // buat auto scroll
+                                        setState(() {
+                                          if (selected == i)
+                                            selected = null;
+                                          else
+                                            selected = i;
+                                        });
+                                      },
                                       child: Text(
                                         "${snapshot.data!.category[i]}\t\t",
                                         style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 16,
-                                            color: Colors.black),
+                                            color: selected == i
+                                                ? Colors.black
+                                                : Colors.grey),
                                       ),
-                                    ),
+                                    )
+                                  // InkWell(
+                                  //   onTap: () {
+                                  //     _scrollController.animateTo(
+                                  //         jumlahOffset[snapshot
+                                  //                 .data!.category[i]] +
+                                  //             .0,
+                                  //         duration: const Duration(seconds: 1),
+                                  //         curve: Curves.linear);
+                                  //   }, // buat auto scroll
+                                  //   child: Text(
+                                  //     "${snapshot.data!.category[i]}\t\t",
+                                  //     style: GoogleFonts.poppins(
+                                  //         fontWeight: FontWeight.w500,
+                                  //         fontSize: 16,
+                                  //         color: Colors.black),
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             ],
