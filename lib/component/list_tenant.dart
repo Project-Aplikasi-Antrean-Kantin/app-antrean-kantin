@@ -9,7 +9,7 @@ import 'package:testgetdata/views/list_tenant.dart';
 class ListTenantBaru extends StatelessWidget {
   final url;
   final foundTenant;
-  const ListTenantBaru({required this.url, required this.foundTenant});
+  const ListTenantBaru({super.key, required this.url, required this.foundTenant});
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +24,12 @@ class ListTenantBaru extends StatelessWidget {
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return ListTenant(
-                  url: '${url}/${foundTenant[index].id}',
+                  url: '$url/${foundTenant[index].id}',
                 );
               }));
             },
             child: Card(
-              margin: EdgeInsets.only(bottom: 15),
+              margin: const EdgeInsets.only(bottom: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
               ),
@@ -37,40 +37,45 @@ class ListTenantBaru extends StatelessWidget {
                 padding: const EdgeInsets.all(15.0),
                 child: Row(
                   children: [
-                    ClipRRect(
-                      child: Image(
-                        image: NetworkImage(foundTenant[index].gambar),
-                        height: 111,
+                    Expanded(
+                    flex: 1,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image(
+                          image: NetworkImage(foundTenant[index].gambar),
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(20),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(left: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            foundTenant[index].name,
-                            style: Judul(),
-                          ),
-                          Text(
-                            foundTenant[index].subname,
-                            // style: SubJudul(),
-                          ),
-                          Divider(
-                            color: Colors.red,
-                            height: 10,
-                          ),
-                          Text(
-                            "Start From",
-                            style: Deskripsi(),
-                          ),
-                          Text(
-                            "Data",
-                            style: Deskripsi(),
-                          ),
-                        ],
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              foundTenant[index].name,
+                              style: Judul(),
+                            ),
+                            Text(
+                              foundTenant[index].subname,
+                              // style: SubJudul(),
+                            ),
+                            const Divider(
+                              color: Colors.red,
+                              height: 10,
+                            ),
+                            Text(
+                              "Start From",
+                              style: Deskripsi(),
+                            ),
+                            Text(
+                              "Data",
+                              style: Deskripsi(),
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   ],

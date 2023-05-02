@@ -93,12 +93,11 @@ class _ListTenantState extends State<ListTenant> {
                                         jumlahOffset[
                                                 snapshot.data!.category[i]] +
                                             .0,
-                                        duration: Duration(seconds: 1),
+                                        duration: const Duration(seconds: 1),
                                         curve: Curves.linear);
                                   }, // buat auto scroll
                                   child: Text(
-                                    snapshot.data!.category[i].toString() +
-                                        "\t\t",
+                                    "${snapshot.data!.category[i]}\t\t",
                                     style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 16,
@@ -164,12 +163,11 @@ class _ListTenantState extends State<ListTenant> {
                                             jumlahOffset[snapshot
                                                     .data!.category[i]] +
                                                 .0,
-                                            duration: Duration(seconds: 1),
+                                            duration: const Duration(seconds: 1),
                                             curve: Curves.linear);
                                       }, // buat auto scroll
                                       child: Text(
-                                        snapshot.data!.category[i].toString() +
-                                            "\t\t",
+                                        "${snapshot.data!.category[i]}\t\t",
                                         style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 16,
@@ -179,7 +177,6 @@ class _ListTenantState extends State<ListTenant> {
                                 ],
                               ),
                             ],
-// >>>>>>> 6bca1ae84da46731acf6c21b9926048d8aeba190
                           ),
                         ),
                       ],

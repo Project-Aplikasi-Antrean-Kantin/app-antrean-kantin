@@ -33,9 +33,10 @@ dependencies:
   http: ^0.13.5
   provider: ^6.0.4
   google_fonts: any
-  scroll_to_index: any
   scrollable_positioned_list: any
   intl: ^0.17.0
+  scroll_to_index: any
+  get: any
 
 
 
