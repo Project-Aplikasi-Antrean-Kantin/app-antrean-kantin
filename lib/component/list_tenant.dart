@@ -25,7 +25,6 @@ class ListTenantBaru extends StatelessWidget {
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {
-              Provider.of<CartProvider>(context, listen: false).clearCart();
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return ListTenant(
                   url: '$url/${foundTenant[index].id}',

@@ -25,8 +25,10 @@ class _LastState extends State<Last> {
       } catch (e) {
         debugPrint(e.toString());
       }
-
     });
+
+    Provider.of<CartProvider>(context).clearCart();
+
     return Scaffold(
       body: Center(
         child: Column(

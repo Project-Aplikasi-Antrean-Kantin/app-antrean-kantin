@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/views/login.dart';
 import 'package:testgetdata/views/splash_screen.dart';
 
 void main() {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: GoogleFonts.poppins().fontFamily,
         ),
-        home: const SplashScreen(),
+        home: Login(),
       ),
     );
   }
