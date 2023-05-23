@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<String> LoginFuture(String email, String password) async {
-  print('${email}k ${password}k');
-  final response = await http.post(Uri.parse("http://192.168.1.31:8000/api/login"),
+  print('${email} ${password}');
+  final response = await http.post(Uri.parse("http://masbrocanteen.me/api/login"),
       body: jsonEncode({"email": email, "password": password}),
       // Uri.parse('http://masbrocanteen.me/api/transaction'),
       headers: {"content-type": "application/json"},

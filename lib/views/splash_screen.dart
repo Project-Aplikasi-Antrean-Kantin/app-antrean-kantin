@@ -10,20 +10,20 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration(seconds: 3), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
-        return Tenant();
-      }));
-      // Navigator.pushReplacementNamed(context, '/home');
-    });
-  }
+  // void initState() {
+  //   super.initState();
+  //   Future.delayed(Duration(seconds: 3), () {
+  //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
+  //       return Tenant();
+  //     }));
+  //     // Navigator.pushReplacementNamed(context, '/home');
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xF8F8F8F8),
       body: Center(
         child: Image(
           width: MediaQuery.of(context).size.width,

@@ -8,9 +8,13 @@ import 'package:testgetdata/model/tenant_model.dart';
 
 // const String uri = 'http://192.168.1.36:8000/api/tenant/1';
 
-Future<List<TenantModel>> fetchTenant(String uri) async {
+Future<List<TenantModel>> fetchTenant(String uri, String token) async {
 
-  final response = await http.get(Uri.parse(uri));
+  print(token);
+
+  final response = await http.get(Uri.parse(uri), headers: {
+    "Authorization": "Bearer $token"
+  });
 
   if(response.statusCode == 200){
     final jsonData = jsonDecode(response.body)['data'] as List<dynamic>;

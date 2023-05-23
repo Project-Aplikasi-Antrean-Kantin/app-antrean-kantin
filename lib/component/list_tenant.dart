@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
 import 'package:testgetdata/theme/judul_font.dart';
+import 'package:testgetdata/theme/sub_judul_theme.dart';
 import 'package:testgetdata/views/list_makanan.dart';
 import 'package:testgetdata/views/list_tenant.dart';
 
@@ -36,6 +37,7 @@ class ListTenantBaru extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
               ),
+              shadowColor: Colors.transparent,
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Row(
@@ -45,6 +47,8 @@ class ListTenantBaru extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Image(
+                          fit: BoxFit.fitHeight,
+                          height: 120,
                           image: NetworkImage(foundTenant[index].gambar),
                         ),
                       ),
@@ -63,7 +67,7 @@ class ListTenantBaru extends StatelessWidget {
                             ),
                             Text(
                               foundTenant[index].subname,
-                              // style: SubJudul(),
+                              style: SubJudul(),
                             ),
                             const Divider(
                               color: Colors.redAccent,

@@ -9,17 +9,17 @@ import 'package:testgetdata/theme/sub_judul_theme.dart';
 import 'package:testgetdata/views/list_makanan.dart';
 import 'package:testgetdata/views/list_tenant.dart';
 
-import '../provider/cart_provider.dart';
+import 'package:testgetdata/provider/cart_provider.dart';
 
-class Tenant extends StatefulWidget {
+class HomePage extends StatefulWidget {
   final token;
-  const Tenant({Key? key, required this.token}) : super(key: key);
+  const HomePage({Key? key, required this.token}) : super(key: key);
 
   @override
-  State<Tenant> createState() => _TenantState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _TenantState extends State<Tenant> {
+class _HomePageState extends State<HomePage> {
   late Future<List<TenantModel>> futureTenant;
   String url = "http://masbrocanteen.me/api/tenant";
   List<TenantModel> foundTenant = [];
@@ -36,7 +36,7 @@ class _TenantState extends State<Tenant> {
   Widget build(BuildContext context) {
     print(widget.token);
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 235, 235, 235),
+      backgroundColor: const Color.fromARGB(255, 250, 250, 250),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(
@@ -74,10 +74,10 @@ class _TenantState extends State<Tenant> {
                         } else {
                           result = fullTenant
                               .where((tenant) => (tenant.name +
-                                      tenant.subname +
-                                      tenant.foods.toString())
-                                  .toLowerCase()
-                                  .contains(value.toLowerCase()))
+                              tenant.subname +
+                              tenant.foods.toString())
+                              .toLowerCase()
+                              .contains(value.toLowerCase()))
                               .toList();
                         }
                         setState(() {
@@ -94,7 +94,7 @@ class _TenantState extends State<Tenant> {
                   )),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+                const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
                   child: Image.asset('assets/images/ads.png'),
@@ -116,9 +116,9 @@ class _TenantState extends State<Tenant> {
                     return Text(snapshot.error.toString());
                   }
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.red,
-                    )
+                      child: CircularProgressIndicator(
+                        color: Colors.red,
+                      )
                   );
                 },
               ),

@@ -53,13 +53,14 @@ class _ListTenantState extends State<ListTenant> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 250, 250, 250),
       body: FutureBuilder<TenantFoods>(
           future: futureTenant,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               final dataTenant = snapshot.data!.name;
               final listMenu = GetByCategoryController(
-                      dataListMakananTenant: snapshot.data!.foods)
+                  dataListMakananTenant: snapshot.data!.foods)
                   .getMenu();
               final keysMenu = listMenu.keys;
               int acuan = 0;
@@ -85,37 +86,37 @@ class _ListTenantState extends State<ListTenant> {
                     title: _isAppBarTransparent
                         ? null
                         : Row(
-                            children: [
-                              for (int i = 0;
-                                  i < snapshot.data!.category.length;
-                                  i++)
-                                InkWell(
-                                  onTap: () {
-                                    _scrollController.animateTo(
-                                        jumlahOffset[
-                                                snapshot.data!.category[i]] +
-                                            .0,
-                                        duration: const Duration(seconds: 1),
-                                        curve: Curves.linear);
-                                        setState(() {
-                                          if (selected == i)
-                                            selected = null;
-                                          else
-                                            selected = i;
-                                        });
-                                  }, // buat auto scroll
-                                  child: Text(
-                                    "${snapshot.data!.category[i]}\t\t",
-                                    style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 16,
-                                        color: selected == i
-                                                ? Colors.black
-                                                : Colors.grey),
-                                  ),
-                                ),
-                            ],
+                      children: [
+                        for (int i = 0;
+                        i < snapshot.data!.category.length;
+                        i++)
+                          InkWell(
+                            onTap: () {
+                              _scrollController.animateTo(
+                                  jumlahOffset[
+                                  snapshot.data!.category[i]] +
+                                      .0,
+                                  duration: const Duration(seconds: 1),
+                                  curve: Curves.linear);
+                              setState(() {
+                                if (selected == i)
+                                  selected = null;
+                                else
+                                  selected = i;
+                              });
+                            }, // buat auto scroll
+                            child: Text(
+                              "${snapshot.data!.category[i]}\t\t",
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
+                                  color: selected == i
+                                      ? Colors.black
+                                      : Colors.grey),
+                            ),
                           ),
+                      ],
+                    ),
                     leading: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -127,9 +128,9 @@ class _ListTenantState extends State<ListTenant> {
                           height: 90,
                           decoration: _isAppBarTransparent
                               ? BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.black.withOpacity(0.3),
-                                )
+                            shape: BoxShape.circle,
+                            color: Colors.black.withOpacity(0.3),
+                          )
                               : null,
                           child: IconButton(
                             icon: Icon(
@@ -165,16 +166,16 @@ class _ListTenantState extends State<ListTenant> {
                               Row(
                                 children: [
                                   for (int i = 0;
-                                      i < snapshot.data!.category.length;
-                                      i++)
+                                  i < snapshot.data!.category.length;
+                                  i++)
                                     TextButton(
                                       onPressed: () {
                                         _scrollController.animateTo(
                                             jumlahOffset[snapshot
-                                                    .data!.category[i]] +
+                                                .data!.category[i]] +
                                                 .0,
                                             duration:
-                                                const Duration(seconds: 1),
+                                            const Duration(seconds: 1),
                                             curve: Curves.linear);
                                         setState(() {
                                           if (selected == i)
@@ -193,23 +194,6 @@ class _ListTenantState extends State<ListTenant> {
                                                 : Colors.grey),
                                       ),
                                     )
-                                  // InkWell(
-                                  //   onTap: () {
-                                  //     _scrollController.animateTo(
-                                  //         jumlahOffset[snapshot
-                                  //                 .data!.category[i]] +
-                                  //             .0,
-                                  //         duration: const Duration(seconds: 1),
-                                  //         curve: Curves.linear);
-                                  //   }, // buat auto scroll
-                                  //   child: Text(
-                                  //     "${snapshot.data!.category[i]}\t\t",
-                                  //     style: GoogleFonts.poppins(
-                                  //         fontWeight: FontWeight.w500,
-                                  //         fontSize: 16,
-                                  //         color: Colors.black),
-                                  //   ),
-                                  // ),
                                 ],
                               ),
                             ],
@@ -220,165 +204,165 @@ class _ListTenantState extends State<ListTenant> {
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
+                          (BuildContext context, int index) {
                         final dataTenant = snapshot.data!.name;
                         final dataFoods = snapshot.data!.foods[index];
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(11),
-                                  image: DecorationImage(
-                                      image: NetworkImage(dataFoods['gambar']),
-                                      fit: BoxFit.cover),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black26.withOpacity(0.3),
-                                        offset: const Offset(0, 3),
-                                        spreadRadius: 2,
-                                        blurRadius: 5)
-                                  ],
+                        return Card(
+                          margin: const EdgeInsets.fromLTRB(20,20,20,0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          shadowColor: Colors.transparent,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(11),
+                                    image: DecorationImage(
+                                        image: NetworkImage(dataFoods['gambar']),
+                                        fit: BoxFit.cover),
+                                  ),
+                                  height: 83,
+                                  width: 89,
+                                  margin: const EdgeInsets.only(right: 15),
                                 ),
-                                height: 83,
-                                width: 89,
-                                margin: const EdgeInsets.only(right: 15),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      dataFoods['name'],
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        dataFoods['name'],
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      NumberFormat.currency(
-                                        symbol: 'Rp',
-                                        decimalDigits: 0,
-                                        locale: 'id-ID',
-                                      ).format(dataFoods['price']),
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Colors.redAccent,
+                                      Text(
+                                        NumberFormat.currency(
+                                          symbol: 'Rp',
+                                          decimalDigits: 0,
+                                          locale: 'id-ID',
+                                        ).format(dataFoods['price']),
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: Colors.redAccent,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Consumer<CartProvider>(
-                                builder: (context, data, widget) {
-                                  var id = data.cart.indexWhere((element) =>
-                                      element.menuId == dataFoods['id']);
-                                  if (id == -1) {
-                                    // item belum ditambahkan ke dalam keranjang belanja
-                                    return Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Colors.redAccent,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Center(
-                                        child: IconButton(
-                                          onPressed: () {
-                                            Provider.of<CartProvider>(context,
+                                Consumer<CartProvider>(
+                                  builder: (context, data, widget) {
+                                    var id = data.cart.indexWhere((element) =>
+                                    element.menuId == dataFoods['id']);
+                                    if (id == -1) {
+                                      // item belum ditambahkan ke dalam keranjang belanja
+                                      return Container(
+                                        width: 30,
+                                        height: 30,
+                                        decoration: BoxDecoration(
+                                          color: Colors.redAccent,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Center(
+                                          child: IconButton(
+                                            onPressed: () {
+                                              Provider.of<CartProvider>(context,
+                                                  listen: false)
+                                                  .addRemove(
+                                                  dataFoods['id'],
+                                                  dataFoods['name'],
+                                                  dataFoods['price'],
+                                                  dataFoods['gambar'],
+                                                  dataTenant,
+                                                  true);
+                                            },
+                                            icon: const Icon(
+                                              Icons.add,
+                                              size: 15,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      // item sudah ditambahkan ke dalam keranjang belanja
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white70,
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.black26
+                                                    .withOpacity(0.3),
+                                                offset: const Offset(0, 3),
+                                                blurRadius: 5)
+                                          ],
+                                        ),
+                                        height: 35,
+                                        child: Row(children: [
+                                          IconButton(
+                                              onPressed: () {
+                                                Provider.of<CartProvider>(context,
                                                     listen: false)
-                                                .addRemove(
+                                                    .addRemove(
+                                                    dataFoods['id'],
+                                                    dataFoods['name'],
+                                                    dataFoods['price'],
+                                                    dataFoods['gambar']
+                                                        .toString(),
+                                                    dataTenant,
+                                                    false);
+                                              },
+                                              icon: const Icon(
+                                                Icons.remove_circle,
+                                                color: Colors.grey,
+                                                size: 20,
+                                              )),
+                                          Consumer<CartProvider>(
+                                              builder: (context, data, widget) {
+                                                var id = data.cart.indexWhere(
+                                                        (element) =>
+                                                    element.menuId ==
+                                                        dataFoods['id']);
+                                                return Text(
+                                                    (id == -1)
+                                                        ? "0"
+                                                        : data.cart[id].count
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.bold));
+                                              }),
+                                          IconButton(
+                                              onPressed: () {
+                                                Provider.of<CartProvider>(context,
+                                                    listen: false)
+                                                    .addRemove(
                                                     dataFoods['id'],
                                                     dataFoods['name'],
                                                     dataFoods['price'],
                                                     dataFoods['gambar'],
                                                     dataTenant,
                                                     true);
-                                          },
-                                          icon: const Icon(
-                                            Icons.add,
-                                            size: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    // item sudah ditambahkan ke dalam keranjang belanja
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white70,
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Colors.black26
-                                                  .withOpacity(0.3),
-                                              offset: const Offset(0, 3),
-                                              blurRadius: 5)
-                                        ],
-                                      ),
-                                      height: 35,
-                                      child: Row(children: [
-                                        IconButton(
-                                            onPressed: () {
-                                              Provider.of<CartProvider>(context,
-                                                      listen: false)
-                                                  .addRemove(
-                                                      dataFoods['id'],
-                                                      dataFoods['name'],
-                                                      dataFoods['price'],
-                                                      dataFoods['gambar']
-                                                          .toString(),
-                                                      dataTenant,
-                                                      false);
-                                            },
-                                            icon: const Icon(
-                                              Icons.remove_circle,
-                                              color: Colors.grey,
-                                              size: 20,
-                                            )),
-                                        Consumer<CartProvider>(
-                                            builder: (context, data, widget) {
-                                          var id = data.cart.indexWhere(
-                                              (element) =>
-                                                  element.menuId ==
-                                                  dataFoods['id']);
-                                          return Text(
-                                              (id == -1)
-                                                  ? "0"
-                                                  : data.cart[id].count
-                                                      .toString(),
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold));
-                                        }),
-                                        IconButton(
-                                            onPressed: () {
-                                              Provider.of<CartProvider>(context,
-                                                      listen: false)
-                                                  .addRemove(
-                                                      dataFoods['id'],
-                                                      dataFoods['name'],
-                                                      dataFoods['price'],
-                                                      dataFoods['gambar'],
-                                                      dataTenant,
-                                                      true);
-                                            },
-                                            icon: const Icon(
-                                              Icons.add_circle,
-                                              color: Colors.redAccent,
-                                              size: 20,
-                                            )),
-                                      ]),
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
+                                              },
+                                              icon: const Icon(
+                                                Icons.add_circle,
+                                                color: Colors.redAccent,
+                                                size: 20,
+                                              )),
+                                        ]),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -394,54 +378,54 @@ class _ListTenantState extends State<ListTenant> {
           }),
       bottomNavigationBar: context.watch<CartProvider>().isCartShow
           ? Consumer<CartProvider>(
-              builder: (context, data, _) {
-                return Container(
-                  margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                  height: 63,
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const Cart();
-                      }));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            NumberFormat.currency(
-                              symbol: 'Rp',
-                              decimalDigits: 0,
-                              locale: 'id-ID',
-                            ).format(data.cost),
-                            style: GoogleFonts.poppins(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            data.total >= 2
-                                ? "${data.total} items"
-                                : "${data.total} item",
-                            style: GoogleFonts.poppins(
-                              fontSize: 20,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+        builder: (context, data, _) {
+          return Container(
+            margin: const EdgeInsets.all(20),
+            height: 63,
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return const Cart();
+                    }));
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      NumberFormat.currency(
+                        symbol: 'Rp',
+                        decimalDigits: 0,
+                        locale: 'id-ID',
+                      ).format(data.cost),
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
                       ),
                     ),
-                  ),
-                );
-              },
-            )
+                    Text(
+                      data.total >= 2
+                          ? "${data.total} items"
+                          : "${data.total} item",
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      )
           : null,
     );
   }

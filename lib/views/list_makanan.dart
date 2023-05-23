@@ -104,13 +104,7 @@ class _ListMakananState extends State<ListMakanan> {
                   decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          offset: Offset.zero,
-                          blurRadius: 2,
-                          color: Colors.black26.withOpacity(0.3),
-                        )
-                      ]),
+                  ),
                   child: InkWell(
                     onTap: () {
                       Navigator.push(context,
