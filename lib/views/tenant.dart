@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/component/list_tenant.dart';
 import 'package:testgetdata/http/fetch_all_tenant.dart';
 import 'package:testgetdata/model/tenant_model.dart';
+import 'package:testgetdata/provider/user_provider.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
 import 'package:testgetdata/theme/judul_font.dart';
 import 'package:testgetdata/theme/sub_judul_theme.dart';
@@ -12,7 +16,7 @@ import 'package:testgetdata/views/list_tenant.dart';
 import '../provider/cart_provider.dart';
 
 class Tenant extends StatefulWidget {
-  const Tenant({Key? key}) : super(key: key);
+  Tenant({Key? key}) : super(key: key);
 
   @override
   State<Tenant> createState() => _TenantState();
@@ -33,13 +37,14 @@ class _TenantState extends State<Tenant> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user.role;
+    print(user);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 235, 235, 235),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()
-          ),
+              parent: AlwaysScrollableScrollPhysics()),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -84,10 +89,8 @@ class _TenantState extends State<Tenant> {
                       },
                       decoration: const InputDecoration(
                           contentPadding: EdgeInsets.symmetric(vertical: 10),
-                          icon: Icon(
-                              Icons.search),
-                          border: InputBorder.none
-                      ),
+                          icon: Icon(Icons.search),
+                          border: InputBorder.none),
                     ),
                   )),
               Padding(
@@ -114,10 +117,9 @@ class _TenantState extends State<Tenant> {
                     return Text(snapshot.error.toString());
                   }
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.red,
-                    )
-                  );
+                      child: CircularProgressIndicator(
+                    color: Colors.red,
+                  ));
                 },
               ),
             ],

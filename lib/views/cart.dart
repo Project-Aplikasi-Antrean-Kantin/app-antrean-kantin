@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 // import 'package:open_whatsapp/open_whatsapp.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/component/list_cart.dart';
 import 'package:testgetdata/http/post_transaction.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
@@ -24,9 +27,34 @@ class _CartState extends State<Cart> {
   TextEditingController ruanganPembeli = TextEditingController();
   TextEditingController catatan = TextEditingController();
 
+  setPreferences() async {
+    final jembatan = await SharedPreferences.getInstance();
+
+    if (jembatan.containsKey('data')) {
+      jembatan.clear();
+    }
+
+    final data =
+        jsonEncode({"nama": namaPembeli.text, "ruangan": ruanganPembeli.text});
+    jembatan.setString('data', data);
+  }
+
+  getPreferences() async {
+    final jembatan = await SharedPreferences.getInstance();
+
+    if (jembatan.containsKey('data')) {
+      final data = jsonDecode(jembatan.getString('data').toString())
+          as Map<String, dynamic>;
+
+      namaPembeli.text = data['nama'];
+      ruanganPembeli.text = data['ruangan'];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<CartModel> cart = Provider.of<CartProvider>(context).cart;
+    getPreferences();
     return Scaffold(
       appBar: AppBar(
           toolbarHeight: 70,
@@ -263,6 +291,7 @@ class _CartState extends State<Cart> {
                               content: Text("Harap isi data terlebih dahulu")),
                         );
                       } else {
+                        setPreferences();
                         createTransaction(
                                 data.cart.map((e) => e.menuId).toList())
                             .then((value) {

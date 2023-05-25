@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/http/login.dart';
+import 'package:testgetdata/provider/user_provider.dart';
+import 'package:testgetdata/views/splash_screen.dart';
 import 'package:testgetdata/views/tenant.dart';
 
 class Login extends StatefulWidget {
@@ -16,6 +22,18 @@ class _LoginState extends State<Login> {
   var showPassword = true;
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+
+  halamanDirect(isDosen) {
+    isDosen
+        ? Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+            return Tenant();
+          }))
+        : Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+            return const SplashScreen();
+          }));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,18 +102,19 @@ class _LoginState extends State<Login> {
                       content: Text("Harap isi data terlebih dahulu")),
                 );
               } else {
-                LoginFuture(email.text, password.text).then((value) {
-                  print(value);
-                  if (value != 'gagal')
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) {
-                      return Tenant();
-                    }));
+                LoginFuture(email.text, password.text).then((user) {
+                  Provider.of<UserProvider>(context, listen: false)
+                      .setUserModel(user);
+                  print(user.role);
+                  final isDosen = user.role == "Dosen" ? true : false;
+                  if (user.token.isNotEmpty)
+                    halamanDirect(isDosen);
                   else
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Email or password cannot find in own records")),
-                  );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              "Email or password cannot find in own records")),
+                    );
                 });
               }
             },

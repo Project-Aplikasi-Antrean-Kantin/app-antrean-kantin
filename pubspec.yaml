@@ -37,6 +37,7 @@ dependencies:
   intl: ^0.17.0
   scroll_to_index: any
   get: any
+  shared_preferences: any
 
 
 

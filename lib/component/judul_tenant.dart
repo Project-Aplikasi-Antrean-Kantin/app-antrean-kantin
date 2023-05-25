@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/controller/scroll_controller_positionerd.dart';
 import 'package:testgetdata/model/cart_model.dart';
-import 'package:testgetdata/provider/scrollable_positioned_item_provider.dart';
 import 'package:testgetdata/theme/judul_font.dart';
 
 class JudulTenant extends StatelessWidget {
