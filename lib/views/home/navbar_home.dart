@@ -27,7 +27,7 @@ class _NavbarHomeState extends State<NavbarHome> {
   void initState() {
     // TODO: implement initState'
     super.initState();
-    futureTenant = fetchTenant(url, widget.token);
+    futureTenant = fetchTenant(url);
   }
 
   @override
