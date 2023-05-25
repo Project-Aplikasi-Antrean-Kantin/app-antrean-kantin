@@ -275,7 +275,7 @@ class _CartState extends State<Cart> {
           ? Consumer<CartProvider>(
               builder: (context, data, _) {
                 return Container(
-                  margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  margin: const EdgeInsets.all(20),
                   height: 63,
                   decoration: BoxDecoration(
                     color: Colors.redAccent,

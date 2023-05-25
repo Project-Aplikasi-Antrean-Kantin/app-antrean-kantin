@@ -1,56 +1,47 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/component/list_tenant.dart';
 import 'package:testgetdata/http/fetch_all_tenant.dart';
 import 'package:testgetdata/model/tenant_model.dart';
-import 'package:testgetdata/provider/user_provider.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
 import 'package:testgetdata/theme/judul_font.dart';
 import 'package:testgetdata/theme/sub_judul_theme.dart';
 import 'package:testgetdata/views/list_makanan.dart';
 import 'package:testgetdata/views/list_tenant.dart';
 
-import '../provider/cart_provider.dart';
+import 'package:testgetdata/provider/cart_provider.dart';
 
-class Tenant extends StatefulWidget {
-// <<<<<<< HEAD
-  Tenant({Key? key}) : super(key: key);
-// =======
-//   final token;
-//   const Tenant({Key? key, required this.token}) : super(key: key);
-// >>>>>>> 8bc57d4e98bddb6121351cf79e84c72a983a3db6
+class HomePage extends StatefulWidget {
+  final token;
+  const HomePage({Key? key, required this.token}) : super(key: key);
 
   @override
-  State<Tenant> createState() => _TenantState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _TenantState extends State<Tenant> {
+class _HomePageState extends State<HomePage> {
+  late Future<List<TenantModel>> futureTenant;
   String url = "http://masbrocanteen.me/api/tenant";
   List<TenantModel> foundTenant = [];
   List<TenantModel> fullTenant = [];
-  late Future<List<TenantModel>> futureTenant;
 
   @override
   void initState() {
     // TODO: implement initState'
     super.initState();
-    futureTenant = fetchTenant(url);
+    futureTenant = fetchTenant(url, widget.token);
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserProvider>(context).user.role;
-    print(user);
+    print(widget.token);
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 235, 235, 235),
+      backgroundColor: const Color.fromARGB(255, 250, 250, 250),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()),
+              parent: AlwaysScrollableScrollPhysics()
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -83,10 +74,10 @@ class _TenantState extends State<Tenant> {
                         } else {
                           result = fullTenant
                               .where((tenant) => (tenant.name +
-                                      tenant.subname +
-                                      tenant.foods.toString())
-                                  .toLowerCase()
-                                  .contains(value.toLowerCase()))
+                              tenant.subname +
+                              tenant.foods.toString())
+                              .toLowerCase()
+                              .contains(value.toLowerCase()))
                               .toList();
                         }
                         setState(() {
@@ -95,13 +86,15 @@ class _TenantState extends State<Tenant> {
                       },
                       decoration: const InputDecoration(
                           contentPadding: EdgeInsets.symmetric(vertical: 10),
-                          icon: Icon(Icons.search),
-                          border: InputBorder.none),
+                          icon: Icon(
+                              Icons.search),
+                          border: InputBorder.none
+                      ),
                     ),
                   )),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+                const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
                   child: Image.asset('assets/images/ads.png'),
@@ -124,8 +117,9 @@ class _TenantState extends State<Tenant> {
                   }
                   return const Center(
                       child: CircularProgressIndicator(
-                    color: Colors.red,
-                  ));
+                        color: Colors.red,
+                      )
+                  );
                 },
               ),
             ],
