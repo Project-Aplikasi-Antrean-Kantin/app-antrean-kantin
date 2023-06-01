@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/views/home/home_page.dart';
 import 'package:testgetdata/views/home/navbar_home.dart';
 import 'package:testgetdata/views/tenant.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -52,7 +53,7 @@ class _LastState extends State<Last> {
                 Navigator.pushAndRemoveUntil(context,
                     MaterialPageRoute(builder: (BuildContext context) {
                   //    perlu diganti
-                  return NavbarHome(token: "aksdkaslda",);
+                  return HomePage();
                 }), (route) => false);
               },
               child: Text(

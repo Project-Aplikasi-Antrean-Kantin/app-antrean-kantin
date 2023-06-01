@@ -37,7 +37,10 @@ class _ListMakananState extends State<ListMakanan> {
             print(snapshots.data);
             final namaTenant = snapshots.data!.subname;
             final gambarTenant = snapshots.data!.gambar;
-            final listMakananTenant = snapshots.data!.foods;
+            final listMakananTenant = snapshots.data!.foods
+                .where((element) => element['status'] == 1)
+                .toList();
+            print(listMakananTenant);
             final category = snapshots.data!.category;
             final listMenu = GetByCategoryController(
                     dataListMakananTenant: listMakananTenant)
@@ -102,8 +105,8 @@ class _ListMakananState extends State<ListMakanan> {
                   margin: EdgeInsets.only(bottom: 20, right: 20, left: 20),
                   height: 63,
                   decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: InkWell(
                     onTap: () {

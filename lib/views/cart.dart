@@ -10,6 +10,7 @@ import 'package:testgetdata/component/list_cart.dart';
 import 'package:testgetdata/http/post_transaction.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/model/cart_model.dart';
+import 'package:testgetdata/provider/user_provider.dart';
 import 'package:testgetdata/views/last.dart';
 import 'package:testgetdata/views/tenant.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -274,6 +275,10 @@ class _CartState extends State<Cart> {
       bottomNavigationBar: context.watch<CartProvider>().isCartShow
           ? Consumer<CartProvider>(
               builder: (context, data, _) {
+                // var userId = Provider.of<UserProvider>(context).getUserId();
+                // var token = Provider.of<UserProvider>(context).getToken();
+                // print(token);
+                // print(userId);
                 return Container(
                   margin: const EdgeInsets.all(20),
                   height: 63,
@@ -295,6 +300,7 @@ class _CartState extends State<Cart> {
                         createTransaction(
                                 data.cart.map((e) => e.menuId).toList())
                             .then((value) {
+                          print(value);
                           String strPesanan = '';
                           data.cart.forEach((element) {
                             strPesanan +=

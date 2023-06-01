@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/component/list_tenant.dart';
 import 'package:testgetdata/http/fetch_all_tenant.dart';
 import 'package:testgetdata/model/tenant_model.dart';
+import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/user_provider.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
 import 'package:testgetdata/theme/judul_font.dart';
@@ -43,8 +44,8 @@ class _TenantState extends State<Tenant> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserProvider>(context).user.role;
-    print(user);
+    // final user = Provider.of<UserProvider>(context).user.role;
+    // print(user);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 235, 235, 235),
       body: SafeArea(
@@ -112,8 +113,10 @@ class _TenantState extends State<Tenant> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     fullTenant = snapshot.data!;
+                    print(fullTenant);
                     if (foundTenant.isEmpty) {
                       foundTenant = snapshot.data!;
+                      print(foundTenant);
                       return ListTenantBaru(url: url, foundTenant: foundTenant);
                     } else {
                       print(foundTenant);

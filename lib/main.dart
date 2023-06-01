@@ -3,10 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/provider/user_provider.dart';
+import 'package:testgetdata/views/home/home_page.dart';
 import 'package:testgetdata/views/login.dart';
+import 'package:testgetdata/views/masbro.dart';
 import 'package:testgetdata/views/splash_screen.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
@@ -26,7 +28,26 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: GoogleFonts.poppins().fontFamily,
         ),
-        home: Login(),
+        home: Consumer<UserProvider>(builder: (context, provider, child) {
+          return FutureBuilder<String>(
+              future: provider.token,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  print(snapshot.data!);
+                  if (snapshot.data!.isEmpty)
+                    return Login();
+                  else if (snapshot.data! == 'Dosen') {
+                    return HomePage();
+                  } else {
+                    // massbro
+                    return Masbro();
+                  }
+                } else {
+                  // halaman masbro
+                  return Login();
+                }
+              });
+        }),
       ),
     );
   }

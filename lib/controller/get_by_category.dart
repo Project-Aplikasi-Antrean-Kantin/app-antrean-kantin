@@ -38,11 +38,4 @@ class GetByCategoryController {
 
     return menu;
   }
-
-  List getCategorySnack() {
-    final snack = dataListMakananTenant
-        .where((element) => element['category'] == 2)
-        .toList();
-    return snack;
-  }
 }

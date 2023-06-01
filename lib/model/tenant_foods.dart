@@ -21,12 +21,11 @@ class TenantFoods {
     final data = json['data'];
     final category = json['category'];
     return TenantFoods(
-      id: data['id'],
-      name: data['name'],
-      subname: data['subname'],
-      gambar: data['gambar'],
-      foods: data['foods'],
-      category: category
-    );
+        id: data['id'],
+        name: data['name'],
+        subname: data['subname'],
+        gambar: data['gambar'],
+        foods: data['foods'],
+        category: category);
   }
 }

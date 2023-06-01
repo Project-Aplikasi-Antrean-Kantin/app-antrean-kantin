@@ -60,8 +60,12 @@ class _ListTenantState extends State<ListTenant> {
             if (snapshot.hasData) {
               final dataTenant = snapshot.data!.name;
               final listMenu = GetByCategoryController(
-                  dataListMakananTenant: snapshot.data!.foods)
+                      dataListMakananTenant: snapshot.data!.foods
+                          .where((element) => element['status'] == 1)
+                          .toList())
                   .getMenu();
+              final dataFoodsReady = snapshot.data!.foods.where((element) => element['status'] == 1).toList();
+              // print('COBA LAGI $listMenu');
               final keysMenu = listMenu.keys;
               int acuan = 0;
               for (var kategori in keysMenu) {
@@ -86,37 +90,37 @@ class _ListTenantState extends State<ListTenant> {
                     title: _isAppBarTransparent
                         ? null
                         : Row(
-                      children: [
-                        for (int i = 0;
-                        i < snapshot.data!.category.length;
-                        i++)
-                          InkWell(
-                            onTap: () {
-                              _scrollController.animateTo(
-                                  jumlahOffset[
-                                  snapshot.data!.category[i]] +
-                                      .0,
-                                  duration: const Duration(seconds: 1),
-                                  curve: Curves.linear);
-                              setState(() {
-                                if (selected == i)
-                                  selected = null;
-                                else
-                                  selected = i;
-                              });
-                            }, // buat auto scroll
-                            child: Text(
-                              "${snapshot.data!.category[i]}\t\t",
-                              style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
-                                  color: selected == i
-                                      ? Colors.black
-                                      : Colors.grey),
-                            ),
+                            children: [
+                              for (int i = 0;
+                                  i < snapshot.data!.category.length;
+                                  i++)
+                                InkWell(
+                                  onTap: () {
+                                    _scrollController.animateTo(
+                                        jumlahOffset[
+                                                snapshot.data!.category[i]] +
+                                            .0,
+                                        duration: const Duration(seconds: 1),
+                                        curve: Curves.linear);
+                                    setState(() {
+                                      if (selected == i)
+                                        selected = null;
+                                      else
+                                        selected = i;
+                                    });
+                                  }, // buat auto scroll
+                                  child: Text(
+                                    "${snapshot.data!.category[i]}\t\t",
+                                    style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16,
+                                        color: selected == i
+                                            ? Colors.black
+                                            : Colors.grey),
+                                  ),
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
                     leading: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,9 +132,9 @@ class _ListTenantState extends State<ListTenant> {
                           height: 90,
                           decoration: _isAppBarTransparent
                               ? BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black.withOpacity(0.3),
-                          )
+                                  shape: BoxShape.circle,
+                                  color: Colors.black.withOpacity(0.3),
+                                )
                               : null,
                           child: IconButton(
                             icon: Icon(
@@ -166,16 +170,16 @@ class _ListTenantState extends State<ListTenant> {
                               Row(
                                 children: [
                                   for (int i = 0;
-                                  i < snapshot.data!.category.length;
-                                  i++)
+                                      i < snapshot.data!.category.length;
+                                      i++)
                                     TextButton(
                                       onPressed: () {
                                         _scrollController.animateTo(
                                             jumlahOffset[snapshot
-                                                .data!.category[i]] +
+                                                    .data!.category[i]] +
                                                 .0,
                                             duration:
-                                            const Duration(seconds: 1),
+                                                const Duration(seconds: 1),
                                             curve: Curves.linear);
                                         setState(() {
                                           if (selected == i)
@@ -204,11 +208,11 @@ class _ListTenantState extends State<ListTenant> {
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                          (BuildContext context, int index) {
+                      (BuildContext context, int index) {
                         final dataTenant = snapshot.data!.name;
-                        final dataFoods = snapshot.data!.foods[index];
+                        final dataFoods = dataFoodsReady[index];
                         return Card(
-                          margin: const EdgeInsets.fromLTRB(20,20,20,0),
+                          margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15.0),
                           ),
@@ -222,7 +226,8 @@ class _ListTenantState extends State<ListTenant> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11),
                                     image: DecorationImage(
-                                        image: NetworkImage(dataFoods['gambar']),
+                                        image:
+                                            NetworkImage(dataFoods['gambar']),
                                         fit: BoxFit.cover),
                                   ),
                                   height: 83,
@@ -231,7 +236,8 @@ class _ListTenantState extends State<ListTenant> {
                                 ),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -259,7 +265,7 @@ class _ListTenantState extends State<ListTenant> {
                                 Consumer<CartProvider>(
                                   builder: (context, data, widget) {
                                     var id = data.cart.indexWhere((element) =>
-                                    element.menuId == dataFoods['id']);
+                                        element.menuId == dataFoods['id']);
                                     if (id == -1) {
                                       // item belum ditambahkan ke dalam keranjang belanja
                                       return Container(
@@ -267,20 +273,21 @@ class _ListTenantState extends State<ListTenant> {
                                         height: 30,
                                         decoration: BoxDecoration(
                                           color: Colors.redAccent,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Center(
                                           child: IconButton(
                                             onPressed: () {
                                               Provider.of<CartProvider>(context,
-                                                  listen: false)
+                                                      listen: false)
                                                   .addRemove(
-                                                  dataFoods['id'],
-                                                  dataFoods['name'],
-                                                  dataFoods['price'],
-                                                  dataFoods['gambar'],
-                                                  dataTenant,
-                                                  true);
+                                                      dataFoods['id'],
+                                                      dataFoods['name'],
+                                                      dataFoods['price'],
+                                                      dataFoods['gambar'],
+                                                      dataTenant,
+                                                      true);
                                             },
                                             icon: const Icon(
                                               Icons.add,
@@ -295,7 +302,8 @@ class _ListTenantState extends State<ListTenant> {
                                       return Container(
                                         decoration: BoxDecoration(
                                           color: Colors.white70,
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           boxShadow: [
                                             BoxShadow(
                                                 color: Colors.black26
@@ -308,16 +316,17 @@ class _ListTenantState extends State<ListTenant> {
                                         child: Row(children: [
                                           IconButton(
                                               onPressed: () {
-                                                Provider.of<CartProvider>(context,
-                                                    listen: false)
+                                                Provider.of<CartProvider>(
+                                                        context,
+                                                        listen: false)
                                                     .addRemove(
-                                                    dataFoods['id'],
-                                                    dataFoods['name'],
-                                                    dataFoods['price'],
-                                                    dataFoods['gambar']
-                                                        .toString(),
-                                                    dataTenant,
-                                                    false);
+                                                        dataFoods['id'],
+                                                        dataFoods['name'],
+                                                        dataFoods['price'],
+                                                        dataFoods['gambar']
+                                                            .toString(),
+                                                        dataTenant,
+                                                        false);
                                               },
                                               icon: const Icon(
                                                 Icons.remove_circle,
@@ -326,30 +335,32 @@ class _ListTenantState extends State<ListTenant> {
                                               )),
                                           Consumer<CartProvider>(
                                               builder: (context, data, widget) {
-                                                var id = data.cart.indexWhere(
-                                                        (element) =>
+                                            var id = data.cart.indexWhere(
+                                                (element) =>
                                                     element.menuId ==
-                                                        dataFoods['id']);
-                                                return Text(
-                                                    (id == -1)
-                                                        ? "0"
-                                                        : data.cart[id].count
+                                                    dataFoods['id']);
+                                            return Text(
+                                                (id == -1)
+                                                    ? "0"
+                                                    : data.cart[id].count
                                                         .toString(),
-                                                    style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold));
-                                              }),
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold));
+                                          }),
                                           IconButton(
                                               onPressed: () {
-                                                Provider.of<CartProvider>(context,
-                                                    listen: false)
+                                                Provider.of<CartProvider>(
+                                                        context,
+                                                        listen: false)
                                                     .addRemove(
-                                                    dataFoods['id'],
-                                                    dataFoods['name'],
-                                                    dataFoods['price'],
-                                                    dataFoods['gambar'],
-                                                    dataTenant,
-                                                    true);
+                                                        dataFoods['id'],
+                                                        dataFoods['name'],
+                                                        dataFoods['price'],
+                                                        dataFoods['gambar'],
+                                                        dataTenant,
+                                                        true);
                                               },
                                               icon: const Icon(
                                                 Icons.add_circle,
@@ -378,54 +389,54 @@ class _ListTenantState extends State<ListTenant> {
           }),
       bottomNavigationBar: context.watch<CartProvider>().isCartShow
           ? Consumer<CartProvider>(
-        builder: (context, data, _) {
-          return Container(
-            margin: const EdgeInsets.all(20),
-            height: 63,
-            decoration: BoxDecoration(
-              color: Colors.redAccent,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) {
-                      return const Cart();
-                    }));
+              builder: (context, data, _) {
+                return Container(
+                  margin: const EdgeInsets.all(20),
+                  height: 63,
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const Cart();
+                      }));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            NumberFormat.currency(
+                              symbol: 'Rp',
+                              decimalDigits: 0,
+                              locale: 'id-ID',
+                            ).format(data.cost),
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            data.total >= 2
+                                ? "${data.total} items"
+                                : "${data.total} item",
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               },
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      NumberFormat.currency(
-                        symbol: 'Rp',
-                        decimalDigits: 0,
-                        locale: 'id-ID',
-                      ).format(data.cost),
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      data.total >= 2
-                          ? "${data.total} items"
-                          : "${data.total} item",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      )
+            )
           : null,
     );
   }

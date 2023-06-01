@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/http/login.dart';
 import 'package:testgetdata/provider/user_provider.dart';
+import 'package:testgetdata/views/home/home_page.dart';
+import 'package:testgetdata/views/masbro.dart';
 import 'package:testgetdata/views/splash_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/http/login.dart';
@@ -30,11 +32,11 @@ class _LoginState extends State<Login> {
     isDosen
         ? Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) {
-            return Tenant();
+            return HomePage();
           }))
         : Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) {
-            return const SplashScreen();
+            return Masbro();
           }));
   }
 
@@ -143,7 +145,6 @@ class _LoginState extends State<Login> {
                 LoginFuture(email.text, password.text).then((user) {
                   Provider.of<UserProvider>(context, listen: false)
                       .setUserModel(user);
-                  print(user.role);
                   final isDosen = user.role == "Dosen" ? true : false;
                   if (user.token.isNotEmpty)
                     halamanDirect(isDosen);
