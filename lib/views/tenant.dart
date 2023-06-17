@@ -72,9 +72,11 @@ class _TenantState extends State<Tenant> {
                     right: 20.0,
                   ),
                   height: 47,
-                  child: Padding(
+                  child:
+                  Padding(
                     padding: const EdgeInsets.all(10),
-                    child: TextField(
+                    child:
+                    TextFormField(
                       textAlign: TextAlign.start,
                       textAlignVertical: TextAlignVertical.center,
                       onChanged: (value) {
@@ -95,11 +97,14 @@ class _TenantState extends State<Tenant> {
                         });
                       },
                       decoration: const InputDecoration(
+                        filled: true,
                           contentPadding: EdgeInsets.symmetric(vertical: 10),
-                          icon: Icon(Icons.search),
-                          border: InputBorder.none),
+                          prefixIcon: Icon(Icons.search),
+                          border: InputBorder.none
+                      ),
                     ),
-                  )),
+                  )
+                  ),
               Padding(
                 padding:
                     const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
@@ -135,6 +140,7 @@ class _TenantState extends State<Tenant> {
           ),
         ),
       ),
+
     );
   }
 }

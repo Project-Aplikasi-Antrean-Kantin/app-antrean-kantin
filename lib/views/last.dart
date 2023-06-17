@@ -17,7 +17,8 @@ class Last extends StatefulWidget {
 
 class _LastState extends State<Last> {
   @override
-  Widget build(BuildContext context) {
+  void initState(){
+    super.initState();
     Future.delayed(Duration(seconds: 1), () async {
       var url = 'whatsapp://send?phone=6285706015892';
       url = '${url}&text=${widget.pesanan}';
@@ -28,8 +29,12 @@ class _LastState extends State<Last> {
         debugPrint(e.toString());
       }
     });
+  }
 
-    Provider.of<CartProvider>(context).clearCart();
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<CartProvider>(context);
+
 
     return Scaffold(
       body: Center(
@@ -50,6 +55,7 @@ class _LastState extends State<Last> {
             ),
             ElevatedButton(
               onPressed: () {
+                provider.clearCart();
                 Navigator.pushAndRemoveUntil(context,
                     MaterialPageRoute(builder: (BuildContext context) {
                   //    perlu diganti

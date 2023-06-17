@@ -15,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/http/login.dart';
 import 'package:testgetdata/views/home/navbar_home.dart';
 import 'package:testgetdata/views/tenant.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class Login extends StatefulWidget {
   Login({super.key});
@@ -124,14 +125,7 @@ class _LoginState extends State<Login> {
               return null;
             },
           ),
-          const SizedBox(height: 10),
-          Text('Forgot Password?',
-            style: GoogleFonts.poppins(
-                color: Colors.redAccent,
-                fontWeight: FontWeight.normal,
-                fontSize: 15),
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 40),
           InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () {
@@ -187,8 +181,43 @@ class _LoginState extends State<Login> {
                             fontSize: 16))),
               ),
             ),
-          )
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () async{
+                var url = 'whatsapp://send?phone=6285706015892';
+                const text = "Halo Masbro, saya izin meminta akses untuk login ke aplikasi Masbro Canteen";
+                url = '$url&text=$text';
+
+                try {
+                  await launchUrlString(url);
+                } catch (e) {
+                  debugPrint(e.toString());
+                }
+              },
+              style: TextButton.styleFrom(
+                  foregroundColor: Colors.pink,
+                  alignment: Alignment.center
+              ),
+              child: Text('Minta Akses',
+                style: GoogleFonts.poppins(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 15),),
+            ),
+          ),
         ]),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text("Tahan tombol")),
+                  );
+        },
+        backgroundColor: Colors.white,
+        child: Icon(Icons.info_outline, color: Colors.redAccent),
+        tooltip: 'Aplikasi Masbro hanya bisa digunakan oleh beberapa orang yang sudah terdaftar, jika anda ingin mencobanya, klik "Minta Akses"',
       ),
     );
   }

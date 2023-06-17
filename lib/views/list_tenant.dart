@@ -70,7 +70,7 @@ class _ListTenantState extends State<ListTenant> {
               int acuan = 0;
               for (var kategori in keysMenu) {
                 jumlahOffset[kategori] = acuan;
-                acuan = (acuan + listMenu[kategori]!.length) * 124;
+                acuan = (acuan + listMenu[kategori]!.length) * 155;
               }
               return CustomScrollView(
                 controller: _scrollController,

@@ -31,10 +31,6 @@ class _CartState extends State<Cart> {
   setPreferences() async {
     final jembatan = await SharedPreferences.getInstance();
 
-    if (jembatan.containsKey('data')) {
-      jembatan.clear();
-    }
-
     final data =
         jsonEncode({"nama": namaPembeli.text, "ruangan": ruanganPembeli.text});
     jembatan.setString('data', data);
@@ -79,7 +75,7 @@ class _CartState extends State<Cart> {
           )),
       body: SingleChildScrollView(
         child: Container(
-          margin: const EdgeInsets.all(20),
+          margin: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 85),
           child: Column(
             children: [
               Consumer<CartProvider>(
@@ -151,6 +147,8 @@ class _CartState extends State<Cart> {
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: catatan,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: 4,
                     decoration: InputDecoration(
                       labelText: 'Catatan',
                       hintText: 'Masukkan catatan jika ada',
@@ -272,78 +270,151 @@ class _CartState extends State<Cart> {
           ),
         ),
       ),
-      bottomNavigationBar: context.watch<CartProvider>().isCartShow
+      floatingActionButton: context.watch<CartProvider>().isCartShow
           ? Consumer<CartProvider>(
-              builder: (context, data, _) {
-                // var userId = Provider.of<UserProvider>(context).getUserId();
-                // var token = Provider.of<UserProvider>(context).getToken();
-                // print(token);
-                // print(userId);
-                return Container(
-                  margin: const EdgeInsets.all(20),
-                  height: 63,
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      if (namaPembeli.text.isEmpty ||
-                          ruanganPembeli.text.isEmpty) {
-                        // Menampilkan pesan error jika input kosong
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Harap isi data terlebih dahulu")),
-                        );
-                      } else {
-                        setPreferences();
-                        createTransaction(
-                                data.cart.map((e) => e.menuId).toList())
-                            .then((value) {
-                          print(value);
-                          String strPesanan = '';
-                          data.cart.forEach((element) {
-                            strPesanan +=
-                                '-  Nama Makanan : ${element.menuNama.toString()}\n'
-                                '   ${element.tenantName} \n'
-                                '   Banyaknya : ${element.count} \n'
-                                '   Harga Satuan : ${element.menuPrice} \n'
-                                '   Total : ${element.menuPrice * element.count} \n\n';
-                          });
+        builder: (context, data, _) {
+          // var userId = Provider.of<UserProvider>(context).getUserId();
+          // var token = Provider.of<UserProvider>(context).getToken();
+          // print(token);
+          // print(userId);
+          return Container(
+            // margin: const EdgeInsets.all(20),
+            height: 63,
+            width: 355,
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: InkWell(
+              onTap: () {
+                if (namaPembeli.text.isEmpty ||
+                    ruanganPembeli.text.isEmpty) {
+                  // Menampilkan pesan error jika input kosong
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text("Harap isi data terlebih dahulu")),
+                  );
+                } else {
+                  setPreferences();
+                  createTransaction(
+                      data.cart.map((e) => e.menuId).toList())
+                      .then((value) {
+                    print(value);
+                    String strPesanan = '';
+                    data.cart.forEach((element) {
+                      strPesanan +=
+                      '-  Nama Makanan : ${element.menuNama.toString()}\n'
+                          '   ${element.tenantName} \n'
+                          '   Banyaknya : ${element.count} \n'
+                          '   Harga Satuan : ${element.menuPrice} \n'
+                          '   Total : ${element.menuPrice * element.count} \n\n';
+                    });
 
-                          String pesanan = '*Halo MasBro* \n'
-                              'Saya ingin memesan makanan sebagai berikut:\n\n'
-                              '$strPesanan'
-                              'Biaya Penanganan : 2000\n'
-                              'Total Harga : *${data.cost + 2000}* \n\n'
-                              '*) Catatan : ${catatan.text} \n'
-                              'Mohon diantar ke *${ruanganPembeli.text}*. Terima kasih atas pelayanannya \n'
-                              '\nSalam,\n'
-                              '${namaPembeli.text}';
+                    String pesanan = '*Halo MasBro* \n'
+                        'Saya ingin memesan makanan sebagai berikut:\n\n'
+                        '$strPesanan'
+                        'Biaya Penanganan : 2000\n'
+                        'Total Harga : *${data.cost + 2000}* \n\n'
+                        '*) Catatan : ${catatan.text} \n'
+                        'Mohon diantar ke *${ruanganPembeli.text}*. Terima kasih atas pelayanannya \n'
+                        '\nSalam,\n'
+                        '${namaPembeli.text}';
 
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return Last(pesanan);
-                          }));
-                        });
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text(
-                        "Pesan sekarang",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return Last(pesanan);
+                        }));
+                  });
+                }
               },
-            )
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  "Pesan sekarang",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      )
           : null,
+      // bottomNavigationBar: context.watch<CartProvider>().isCartShow
+      //     ? Consumer<CartProvider>(
+      //         builder: (context, data, _) {
+      //           // var userId = Provider.of<UserProvider>(context).getUserId();
+      //           // var token = Provider.of<UserProvider>(context).getToken();
+      //           // print(token);
+      //           // print(userId);
+      //           return Container(
+      //             margin: const EdgeInsets.all(20),
+      //             height: 63,
+      //             decoration: BoxDecoration(
+      //               color: Colors.redAccent,
+      //               borderRadius: BorderRadius.circular(10),
+      //             ),
+      //             child: InkWell(
+      //               onTap: () {
+      //                 if (namaPembeli.text.isEmpty ||
+      //                     ruanganPembeli.text.isEmpty) {
+      //                   // Menampilkan pesan error jika input kosong
+      //                   ScaffoldMessenger.of(context).showSnackBar(
+      //                     const SnackBar(
+      //                         content: Text("Harap isi data terlebih dahulu")),
+      //                   );
+      //                 } else {
+      //                   setPreferences();
+      //                   createTransaction(
+      //                           data.cart.map((e) => e.menuId).toList())
+      //                       .then((value) {
+      //                     print(value);
+      //                     String strPesanan = '';
+      //                     data.cart.forEach((element) {
+      //                       strPesanan +=
+      //                           '-  Nama Makanan : ${element.menuNama.toString()}\n'
+      //                           '   ${element.tenantName} \n'
+      //                           '   Banyaknya : ${element.count} \n'
+      //                           '   Harga Satuan : ${element.menuPrice} \n'
+      //                           '   Total : ${element.menuPrice * element.count} \n\n';
+      //                     });
+      //
+      //                     String pesanan = '*Halo MasBro* \n'
+      //                         'Saya ingin memesan makanan sebagai berikut:\n\n'
+      //                         '$strPesanan'
+      //                         'Biaya Penanganan : 2000\n'
+      //                         'Total Harga : *${data.cost + 2000}* \n\n'
+      //                         '*) Catatan : ${catatan.text} \n'
+      //                         'Mohon diantar ke *${ruanganPembeli.text}*. Terima kasih atas pelayanannya \n'
+      //                         '\nSalam,\n'
+      //                         '${namaPembeli.text}';
+      //
+      //                     Navigator.push(context,
+      //                         MaterialPageRoute(builder: (context) {
+      //                       return Last(pesanan);
+      //                     }));
+      //                   });
+      //                 }
+      //               },
+      //               child: Padding(
+      //                 padding: const EdgeInsets.all(15.0),
+      //                 child: Text(
+      //                   "Pesan sekarang",
+      //                   textAlign: TextAlign.center,
+      //                   style: GoogleFonts.poppins(
+      //                     fontSize: 20,
+      //                     color: Colors.white,
+      //                   ),
+      //                 ),
+      //               ),
+      //             ),
+      //           );
+      //         },
+      //       )
+      //     : null,
     );
   }
 }

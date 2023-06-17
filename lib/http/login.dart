@@ -21,6 +21,12 @@ Future<UserModel> LoginFuture(String email, String password) async {
         role: json['data']['role']['name']);
     return user;
   } else {
-    throw "err";
+    return UserModel(
+      id: 0,
+      name: '',
+      token: '',
+      email: '',
+      role: ''
+    );
   }
 }

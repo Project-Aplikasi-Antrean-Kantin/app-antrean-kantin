@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/http/update_food_tenant.dart';
 
 import '../http/fetch_data_tenant.dart';
 import '../model/tenant_foods.dart';
+import 'package:http/http.dart' as http;
+
+import 'login.dart';
 
 class Masbro extends StatefulWidget {
   @override
@@ -236,7 +241,7 @@ class _Masbro extends State<Masbro> with SingleTickerProviderStateMixin {
                                           image: DecorationImage(
                                             fit: BoxFit.cover,
                                             image:
-                                                AssetImage(foodItem['gambar']),
+                                                NetworkImage(foodItem['gambar']),
                                           ),
                                         ),
                                       ),
@@ -338,6 +343,22 @@ class _Masbro extends State<Masbro> with SingleTickerProviderStateMixin {
           ));
         }
       },
-    ));
+    ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final response = await http.post(
+              Uri.parse("http://masbrocanteen.me/api/logout"),
+              headers: {"content-type": "application/json"},
+              body: jsonEncode({"id": 2}));
+          print(response.body);
+          if (response.statusCode == 200) {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => Login()));
+          }
+        },
+        backgroundColor: Colors.white,
+        child: Icon(Icons.logout, color: Colors.redAccent,),
+      ),
+    );
   }
 }

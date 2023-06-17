@@ -15,7 +15,7 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) {
     return const Scaffold(
         body: Center(
-          child: Text("Ini HistoryPage"),
+          child: Text("Coming Soon"),
         ),
         bottomNavigationBar: NavbarHome(pageIndex: HistoryPage.historyIndex,));
   }
