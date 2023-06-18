@@ -37,44 +37,54 @@ class _LastState extends State<Last> {
 
 
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Stack(
-              children: [
-                Image.asset(
-                  'assets/images/pic1.jpg',
-                  width: MediaQuery.of(context).size.width,
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.all(15),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                provider.clearCart();
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  //    perlu diganti
-                  return HomePage();
-                }), (route) => false);
-              },
-              child: Text(
-                'SELESAI',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+      body: WillPopScope(
+        onWillPop: () async{
+          provider.clearCart();
+          Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context){
+            return HomePage();
+          }), (route) => false);
+          return false;
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Stack(
+                children: [
+                  Image.asset(
+                    'assets/images/pic1.jpg',
+                    width: MediaQuery.of(context).size.width,
+                  ),
+                ],
               ),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                backgroundColor: Colors.redAccent,
+              Padding(
+                padding: EdgeInsets.all(15),
               ),
-            ),
-          ],
+              ElevatedButton(
+                onPressed: () {
+                  provider.clearCart();
+                  Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    //    perlu diganti
+                    return HomePage();
+                  }), (route) => false);
+                },
+                child: Text(
+                  'SELESAI',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  backgroundColor: Colors.redAccent,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
