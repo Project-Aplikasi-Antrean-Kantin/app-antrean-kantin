@@ -38,6 +38,7 @@ dependencies:
   scroll_to_index: any
   get: any
   shared_preferences: any
+  image_picker: ^0.8.4+2
 
 
 
