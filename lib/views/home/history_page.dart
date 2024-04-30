@@ -10,12 +10,6 @@ class RiwayatPage extends StatelessWidget {
   const RiwayatPage({Key? key}) : super(key: key);
   static const int PageIndex = 1;
 
-  // List Tab = [
-  //   "read riwayat",
-  //   "read riwayat",
-  //   "read riwayat",
-  // ];
-
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider =
