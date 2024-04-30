@@ -171,14 +171,20 @@ class PesananMasuk extends StatelessWidget {
                                     // PERHATIKAN
                                     if (e is ApiException) {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(CustomSnackBar(
-                                              status: e.status,
-                                              message: e.message));
+                                          .showSnackBar(
+                                        CustomSnackBar(
+                                          status: e.status,
+                                          message: e.message,
+                                        ),
+                                      );
                                     } else {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(CustomSnackBar(
-                                              status: 'failed',
-                                              message: e.toString()));
+                                          .showSnackBar(
+                                        CustomSnackBar(
+                                          status: 'failed',
+                                          message: e.toString(),
+                                        ),
+                                      );
                                     }
                                   }
                                 },

@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // FocusNode myfokus = new FocusNode();
-  bool ispertama = true;
+  bool isPertama = true;
 
   @override
   Widget build(BuildContext context) {
@@ -212,9 +212,9 @@ class _HomePageState extends State<HomePage> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     fullTenant = snapshot.data!;
-                    if (ispertama) {
+                    if (isPertama) {
                       foundTenant = fullTenant;
-                      ispertama = false;
+                      isPertama = false;
                     } else {
                       if (foundTenant.isEmpty) {
                         foundTenant = [];

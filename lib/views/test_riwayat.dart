@@ -225,40 +225,41 @@ class _TestRiwayatState extends State<TestRiwayat> {
                                     const SizedBox(
                                       height: 7,
                                     ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Ongkir",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
+                                    if (entry.isAntar == 1)
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Ongkir",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                            ),
                                           ),
-                                        ),
-                                        // Menampilkan jumlah menu dikalikan dengan 10000
-                                        Text.rich(
-                                          TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: "${totalItem}x ",
-                                                style: GoogleFonts.poppins(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
+                                          // Menampilkan jumlah menu dikalikan dengan 10000
+                                          Text.rich(
+                                            TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: "${totalItem}x ",
+                                                  style: GoogleFonts.poppins(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
-                                              ),
-                                              TextSpan(
-                                                text: " Rp 1.000",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14,
+                                                TextSpan(
+                                                  text: " Rp 1.000",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
+                                        ],
+                                      ),
                                     const SizedBox(
                                       height: 15,
                                     ),
