@@ -1,19 +1,23 @@
-class CartModel{
-  final String tenantName;
-  final int menuId;
-  final String menuNama;
-  final int menuPrice;
-  final String menuGambar;
-  var count;
+class CartMenuModel {
+  final int id;
+  final int jumlah;
+  final int harga;
 
-  CartModel({
-    required this.tenantName,
-    required this.menuId,
-    required this.menuGambar,
-    required this.menuNama,
-    required this.menuPrice,
-    required this.count,
+  CartMenuModel({
+    required this.id,
+    required this.jumlah,
+    required this.harga,
   });
 
+  factory CartMenuModel.fromJson(Map<String, dynamic> json) => CartMenuModel(
+        id: json["id"],
+        jumlah: json["jumlah"],
+        harga: json["harga"],
+      );
 
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "jumlah": jumlah,
+        "harga": harga,
+      };
 }

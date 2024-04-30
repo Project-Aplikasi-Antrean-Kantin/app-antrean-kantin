@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/model/cart_model.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
-import 'package:testgetdata/theme/deskripsi_theme.dart';
-import 'package:testgetdata/theme/judul_font.dart';
 import 'package:testgetdata/theme/sub_judul_theme.dart';
 
 class katalog extends StatefulWidget {
   final makanan;
   final namaTenant;
-
   const katalog({required this.makanan, required this.namaTenant});
 
   @override

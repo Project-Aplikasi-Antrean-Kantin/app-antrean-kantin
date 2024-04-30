@@ -1,31 +1,52 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:testgetdata/views/home/navbar_home.dart';
+import 'package:provider/provider.dart';
+import 'package:testgetdata/http/add_menu_kelola.dart';
+import 'package:testgetdata/model/kategori_menu_model.dart';
+import 'package:testgetdata/model/user_model.dart';
+import 'package:testgetdata/provider/auth_provider.dart';
 
-class TambahMenu extends StatefulWidget {
-  const TambahMenu({Key? key}) : super(key: key);
-  static const int TambahMenuIndex = 0;
+class TambahMenuPage extends StatefulWidget {
+  const TambahMenuPage({Key? key}) : super(key: key);
+  // static const int TambahMenuPageIndex = 0;
 
   @override
-  State<TambahMenu> createState() => _TambahMenuState();
+  State<TambahMenuPage> createState() => _TambahMenuPageState();
+}
+
+Future<int> _getImageSize(String imagePath) async {
+  File imageFile = File(imagePath);
+  int sizeInBytes = await imageFile.length();
+  int sizeInKB = sizeInBytes ~/ 1024; // Convert bytes to KB
+  return sizeInKB;
 }
 
 class MenuItem {
   final String value;
-  final String label;
-
-  MenuItem(this.value, this.label);
+  MenuItem(this.value);
 }
 
-class _TambahMenuState extends State<TambahMenu> {
-  String? selectedCategory;
-  String? selectedMenu;
-  bool customMenu = false;
+class _TambahMenuPageState extends State<TambahMenuPage> {
+  int? selectedCategory;
   late ImagePicker _imagePicker;
   String? selectedImagePath;
+  bool isLoading = false;
+  TextEditingController namaMenuController = TextEditingController();
+  TextEditingController deskripsiMenuController = TextEditingController();
+  TextEditingController hargaMenuController = TextEditingController();
+
+  List<KategoriMenu> kategoriMenu = [
+    KategoriMenu(id: 1, nama: 'Martabak', kategoriId: 1),
+    KategoriMenu(id: 2, nama: 'Telur gulung', kategoriId: 1),
+    KategoriMenu(id: 3, nama: 'Es Teh', kategoriId: 2),
+    KategoriMenu(id: 4, nama: 'Bakso', kategoriId: 1),
+    KategoriMenu(id: 5, nama: 'Mie Ayam', kategoriId: 1),
+  ];
 
   @override
   void initState() {
@@ -43,20 +64,59 @@ class _TambahMenuState extends State<TambahMenu> {
   }
 
   Future<void> _refresh() async {
-    // Tambahkan logika pembaruan di sini
-    // Misalnya, memperbarui daftar kategori atau menu
-    await Future.delayed(Duration(seconds: 1)); // Contoh penundaan palsu
-    setState(() {}); // Setelah selesai pembaruan, panggil setState
+    await Future.delayed(Duration(seconds: 1));
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    UserModel user = authProvider.user;
+
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 220, 220, 220),
       appBar: AppBar(
-        title: const Text("Tambah menu"),
-        actions: <Widget>[
-          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications))
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 50,
+        title: Text(
+          'Tambah Menu',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            color: Colors.black,
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.black,
+              size: 24,
+            ),
+            onPressed: () {
+              // Navigator.pop(context);
+            },
+          ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          child: Container(
+            color: Colors.grey,
+            height: 0.5,
+          ),
+        ),
       ),
       body: GestureDetector(
         onTap: () {
@@ -67,14 +127,16 @@ class _TambahMenuState extends State<TambahMenu> {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Container(
+              margin: EdgeInsets.all(10),
               padding: const EdgeInsets.all(20),
-              // decoration: BoxDecoration(
-              //   border: Border.all(
-              //     color: Colors.grey,
-              //     width: 1.0,
-              //   ),
-              //   borderRadius: BorderRadius.circular(5.0),
-              // ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                // border: Border.all(
+                //   color: Colors.grey,
+                //   width: 1.0,
+                // ),
+                borderRadius: BorderRadius.circular(5.0),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -84,10 +146,10 @@ class _TambahMenuState extends State<TambahMenu> {
                       Row(
                         children: [
                           Container(
-                            width: 100,
-                            height: 100,
+                            width: 250,
+                            height: 150,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(8),
                               image: selectedImagePath != null
                                   ? DecorationImage(
                                       image:
@@ -105,80 +167,184 @@ class _TambahMenuState extends State<TambahMenu> {
                           IconButton(
                             onPressed: () async {
                               await _getImageFromGallery();
-                              // Navigator.pop(context, true);
+                              if (selectedImagePath != null) {
+                                int imageSizeKB =
+                                    await _getImageSize(selectedImagePath!);
+                                if (imageSizeKB > 1024) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Warning'),
+                                        content: Text(
+                                            'Gambar yang kamu pilih lebih dari 1MB'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  selectedImagePath = null;
+                                } else {
+                                  setState(() {});
+                                }
+                              }
                             },
-                            icon: const Icon(Icons.edit),
+                            icon: const Icon(Icons.edit_square),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
-                      const Text(
-                        'Nama Menu',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Text(
+                            'Kategori Menu',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const Text(
+                            ' *',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
-                      DropdownButton<String>(
-                        value: selectedMenu,
-                        items: <String>[
-                          'Nasi goreng',
-                          'Nasi Pecel',
-                          'Nasi Padang',
-                          'Nasi uduk',
-                          'Nasi Campur'
-                        ].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          // Perbarui nilai yang dipilih saat dropdown berubah
-                          setState(() {
-                            selectedMenu = newValue;
-                          });
-                        },
-                        hint: const Text('Pilih Nama Menu'),
-                        isExpanded: true,
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Harga Menu',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          hintText: 'Masukkan Harga Menu',
-                          border: OutlineInputBorder(),
+                      Container(
+                        height: 62,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 12.0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: DropdownButton<int>(
+                            value: selectedCategory,
+                            items: kategoriMenu.map((value) {
+                              return DropdownMenuItem<int>(
+                                value: value.id,
+                                child: Text(value.nama),
+                              );
+                            }).toList(),
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                selectedCategory = newValue;
+                              });
+                            },
+                            hint: const Text(
+                              'Pilih kategori menu',
+                            ),
+                            isExpanded: true,
+                            // elevation: 0,
+                            dropdownColor: Color.fromARGB(255, 236, 236, 236),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Kategori Makanan',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(
+                            'Nama Menu',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const Text(
+                            ' *',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
-                      DropdownButton<String>(
-                        value: selectedCategory,
-                        items: <String>[
-                          'Makanan Ringan',
-                          'Makanan Berat',
-                          'Minuman'
-                        ].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedCategory = newValue;
-                          });
-                        },
-                        hint: const Text('Pilih Kategori'),
-                        isExpanded: true,
+                      TextFormField(
+                        controller: namaMenuController,
+                        keyboardType: TextInputType.name,
+                        decoration: InputDecoration(
+                          hintText: 'Tuliskan nama menu',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(
+                            'Deskripsi Menu',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const Text(
+                            ' *',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      TextField(
+                        controller: deskripsiMenuController,
+                        maxLines: 3, // Atau jumlah baris yang diinginkan
+                        keyboardType: TextInputType.multiline,
+                        decoration: InputDecoration(
+                          // labelText: 'Deskripsi',
+                          hintText: 'Masukkan deskripsi',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(
+                            'Harga Menu',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const Text(
+                            ' *',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      TextFormField(
+                        controller: hargaMenuController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: 'Rp. ',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 180),
+                  const SizedBox(height: 80),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -190,11 +356,12 @@ class _TambahMenuState extends State<TambahMenu> {
                           ),
                           child: OutlinedButton(
                             onPressed: () {
-                              // Tombol Batal hanya perlu melakukan navigasi kembali ke Menu
                               Navigator.pop(context);
                             },
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Colors.black),
+                              side: const BorderSide(
+                                color: Color.fromARGB(255, 68, 68, 68),
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -202,37 +369,120 @@ class _TambahMenuState extends State<TambahMenu> {
                             child: const Text(
                               'Batal',
                               style: TextStyle(
-                                color: Color.fromARGB(255, 74, 74, 74),
+                                color: Color.fromARGB(255, 68, 68, 68),
                               ),
                             ),
                           ),
                         ),
                       ),
+                      // Expanded(
+                      //   child: Container(
+                      //     margin: const EdgeInsets.only(left: 5),
+                      //     decoration: BoxDecoration(
+                      //       borderRadius: BorderRadius.circular(10),
+                      //     ),
+                      //     child: ElevatedButton(
+                      //       onPressed: () {
+                      //         // Navigator.pop(context, true);
+                      //         final menu_id = selectedCategory;
+                      //         final nama_menu = namaMenuController.text;
+                      //         final harga_menu = hargaMenuController.text;
+                      //         final deskripsi_menu =
+                      //             deskripsiMenuController.text;
+
+                      //         final data = {
+                      //           "menu_id": menu_id,
+                      //           "nama_menu": nama_menu,
+                      //           "deskripsi_menu": deskripsi_menu,
+                      //           "harga": harga_menu,
+                      //           "gambar": selectedImagePath,
+                      //         };
+                      //         addMenuKelolaFile(user.token, (data))
+                      //             .then((value) {
+                      //           if (value) {
+                      //             Navigator.pushReplacementNamed(
+                      //                 context, '/katalog_menu');
+                      //           } else {
+                      //             // Navigator.pop(context);
+                      //           }
+                      //         });
+                      //       },
+                      //       style: ElevatedButton.styleFrom(
+                      //         side: const BorderSide(
+                      //           color: Colors.redAccent,
+                      //         ),
+                      //         backgroundColor: Colors.redAccent,
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(10),
+                      //         ),
+                      //       ),
+                      //       child: const Text(
+                      //         'Simpan',
+                      //         style: TextStyle(
+                      //           color: Colors.white,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.only(left: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context, true);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              side: const BorderSide(
-                                  color: Color.fromARGB(255, 22, 68, 105)),
-                              primary: Color.fromARGB(255, 22, 68, 105),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Show CircularProgressIndicator when button is pressed
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            final menu_id = selectedCategory;
+                            final nama_menu = namaMenuController.text;
+                            final harga_menu = hargaMenuController.text;
+                            final deskripsi_menu = deskripsiMenuController.text;
+
+                            final data = {
+                              "menu_id": menu_id,
+                              "nama_menu": nama_menu,
+                              "deskripsi_menu": deskripsi_menu,
+                              "harga": harga_menu,
+                              "gambar": selectedImagePath,
+                            };
+
+                            addMenuKelolaFile(user.token, (data)).then((value) {
+                              if (value) {
+                                Navigator.pushReplacementNamed(
+                                    context, '/katalog_menu');
+                              } else {
+                                // Handle failure
+                              }
+                            }).whenComplete(() {
+                              // Hide CircularProgressIndicator when operation is completed
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            side: BorderSide(color: Colors.redAccent),
+                            backgroundColor: Colors.redAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Text(
-                              'Simpan',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
                           ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Simpan',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
                         ),
                       ),
                     ],
@@ -242,9 +492,6 @@ class _TambahMenuState extends State<TambahMenu> {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: const NavbarHome(
-        pageIndex: TambahMenu.TambahMenuIndex,
       ),
     );
   }

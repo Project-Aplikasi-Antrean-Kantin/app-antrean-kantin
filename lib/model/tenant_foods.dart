@@ -1,31 +1,26 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
+
+import 'package:testgetdata/model/detail_menu_model.dart';
 
 class TenantFoods {
   final int id;
-  final String name;
-  final String subname;
-  final String gambar;
-  final category;
-  final List<dynamic> foods;
+  final String nama;
+  final int kategoriId;
+  DetailMenu? detailMenu;
 
   TenantFoods({
     required this.id,
-    required this.name,
-    required this.subname,
-    required this.gambar,
-    required this.foods,
-    required this.category,
+    required this.nama,
+    required this.kategoriId,
+    this.detailMenu,
   });
 
-  factory TenantFoods.fromJson(Map<String, dynamic> json) {
-    final data = json['data'];
-    final category = json['category'];
-    return TenantFoods(
-        id: data['id'],
-        name: data['name'],
-        subname: data['subname'],
-        gambar: data['gambar'],
-        foods: data['foods'],
-        category: category);
-  }
+  factory TenantFoods.fromJson(Map<String, dynamic> json) => TenantFoods(
+        id: json["id"],
+        nama: json["nama"],
+        kategoriId: json["kategori_id"],
+        detailMenu: json["detail_menu"] != null
+            ? DetailMenu.fromJson(json["detail_menu"])
+            : null,
+      );
 }

@@ -1,20 +1,18 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-// import 'package:open_whatsapp/open_whatsapp.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testgetdata/component/list_cart.dart';
-import 'package:testgetdata/http/post_transaction.dart';
+import 'package:testgetdata/components/bottom_sheet_keranjang.dart';
+import 'package:testgetdata/components/list_cart.dart';
+import 'package:testgetdata/components/pilih_tipe_pembayaran.dart';
+import 'package:testgetdata/components/pilih_tipe_pemesanan.dart';
+import 'package:testgetdata/components/pilihan_lokasi_ruangan.dart';
+import 'package:testgetdata/components/ringkasan_pembayaran_cart.dart';
+import 'package:testgetdata/http/fetch_data_ruangan.dart';
+import 'package:testgetdata/model/ruangan_model.dart';
+import 'package:testgetdata/model/user_model.dart';
+import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
-import 'package:testgetdata/model/cart_model.dart';
-import 'package:testgetdata/provider/user_provider.dart';
-import 'package:testgetdata/views/last.dart';
-import 'package:testgetdata/views/tenant.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:testgetdata/model/cart_menu_modelllll.dart';
 
 class Cart extends StatefulWidget {
   const Cart({Key? key}) : super(key: key);
@@ -27,394 +25,353 @@ class _CartState extends State<Cart> {
   TextEditingController namaPembeli = TextEditingController();
   TextEditingController ruanganPembeli = TextEditingController();
   TextEditingController catatan = TextEditingController();
+  List<Ruangan> listRuangan = [];
+  bool isLoading = false;
 
-  setPreferences() async {
-    final jembatan = await SharedPreferences.getInstance();
+  List<String> tipePemesanan = [
+    'Ambil Sendiri',
+    'Pesan Antar',
+  ];
+  List<String> tipePembayaran = [
+    'Ambil Sendiri',
+    'Pesan Antar',
+  ];
 
-    final data =
-        jsonEncode({"nama": namaPembeli.text, "ruangan": ruanganPembeli.text});
-    jembatan.setString('data', data);
-  }
+  int? plihPengantaran;
+  int? pilihRuangan;
+  String? plihPembayaran;
 
-  getPreferences() async {
-    final jembatan = await SharedPreferences.getInstance();
+  @override
+  void initState() {
+    super.initState();
 
-    if (jembatan.containsKey('data')) {
-      final data = jsonDecode(jembatan.getString('data').toString())
-          as Map<String, dynamic>;
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    UserModel user = authProvider.user;
+    plihPengantaran = null;
+    pilihRuangan = null;
+    pilihPembayaran = null;
 
-      namaPembeli.text = data['nama'];
-      ruanganPembeli.text = data['ruangan'];
-    }
+    fetchDataRuangan(user.token).then((value) {
+      setState(() {
+        listRuangan = value;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<CartModel> cart = Provider.of<CartProvider>(context).cart;
-    getPreferences();
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    UserModel user = authProvider.user;
+
+    final List<CartMenuModel> cart = Provider.of<CartProvider>(context).cart;
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 248, 248, 248),
       appBar: AppBar(
-          toolbarHeight: 70,
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          title: Text(
-            'Notes',
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold, fontSize: 24, color: Colors.black),
+        scrolledUnderElevation: 0,
+        toolbarHeight: 50,
+        title: Text(
+          'Keranjang',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.black,
           ),
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_rounded,
-              color: Colors.black,
-              size: 30,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          )),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            color: Colors.black,
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: Container(
-          margin: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 85),
+          margin: const EdgeInsets.all(15),
           child: Column(
             children: [
               Consumer<CartProvider>(
                 builder: (context, data, _) {
-                  return ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return const Divider();
-                      },
-                      shrinkWrap: true,
-                      physics: const ScrollPhysics(),
-                      itemCount: data.cart.length,
-                      itemBuilder: (context, i) {
-                        return ListCart(cart: data.cart[i]);
-                      });
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const ScrollPhysics(),
+                    itemCount: data.cart.length,
+                    itemBuilder: (context, i) {
+                      // List item pembeli
+                      return ListCart(cart: data.cart[i]);
+                    },
+                  );
                 },
               ),
               const SizedBox(
-                height: 40,
+                height: 15,
               ),
-              Column(
-                children: [
-                  TextFormField(
-                    controller: namaPembeli,
-                    decoration: InputDecoration(
-                      label: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text('Nama'),
-                          Text('*', style: TextStyle(color: Colors.red)),
-                        ],
-                      ),
-                      hintText: 'Masukkan nama Anda',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+              Consumer<CartProvider>(builder: (context, data, _) {
+                return Column(
+                  children: [
+                    // Tipe Pemesanan
+                    PilihTipePemesanan(
+                      tipePemesanan: tipePemesanan,
+                      plihPengantaran: plihPengantaran,
+                      onPemesananSelected: (option) {
+                        setState(() {
+                          plihPengantaran = option;
+                          data.setIsAntar(option!);
+                        });
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi nama terlebih dahulu';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: ruanganPembeli,
-                    decoration: InputDecoration(
-                      label: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text('Ruangan'),
-                          Text('*', style: TextStyle(color: Colors.red)),
-                        ],
+                    const SizedBox(height: 8),
+
+                    // Lokasi Pengantaran
+                    if (plihPengantaran == 1)
+                      PilihLokasiRuangan(
+                        listRuangan: listRuangan,
+                        token: user.token,
+                        selectedLocation: pilihRuangan,
+                        onLocationSelected: (option) {
+                          setState(() {
+                            pilihRuangan = option;
+                            data.setRuanganId(option!);
+                          });
+                        },
                       ),
-                      hintText: 'Masukkan tujuan pengiriman',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                    const SizedBox(height: 8),
+
+                    // Tipe pembayaran
+                    PilihTipePembayaran(
+                      tipePembayaran: tipePembayaran,
+                      pilihTipePembayaran: pilihPembayaran,
+                      selectedPembayaran: (option2) {
+                        setState(() {
+                          plihPembayaran = option2;
+                          data.setMetodePembayaran(option2!);
+                        });
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi ruangan terlebih dahulu';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: catatan,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      labelText: 'Catatan',
-                      hintText: 'Masukkan catatan jika ada',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                );
+              }),
               const SizedBox(
-                height: 30,
+                height: 20,
               ),
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1,
-                    )),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Ringkasan pembayaran",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Harga",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Column(
-                            children: cart.map((e) {
-                              return Text(
-                                  NumberFormat.currency(
-                                    symbol: 'Rp',
-                                    decimalDigits: 0,
-                                    locale: 'id-ID',
-                                  ).format(e.menuPrice * e.count),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ));
-                            }).toList(),
-                          )
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Biaya penanganan",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text('Rp2.000',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ))
-                        ],
-                      ),
-                      const Divider(
-                        color: Colors.black,
-                        thickness: 1,
-                        indent: 0,
-                        endIndent: 0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Total",
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Text(
-                            NumberFormat.currency(
-                              symbol: 'Rp',
-                              decimalDigits: 0,
-                              locale: 'id-ID',
-                            ).format(Provider.of<CartProvider>(context).cost +
-                                Provider.of<CartProvider>(context).service),
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.redAccent,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
+
+              // Ringkasan Pembayaran
+              RingkasanPembayaranCart(),
+              const SizedBox(height: 5),
             ],
           ),
         ),
       ),
-      floatingActionButton: context.watch<CartProvider>().isCartShow
+      bottomNavigationBar: context.watch<CartProvider>().isCartShow
           ? Consumer<CartProvider>(
-        builder: (context, data, _) {
-          // var userId = Provider.of<UserProvider>(context).getUserId();
-          // var token = Provider.of<UserProvider>(context).getToken();
-          // print(token);
-          // print(userId);
-          return Container(
-            // margin: const EdgeInsets.all(20),
-            height: 63,
-            width: 355,
-            decoration: BoxDecoration(
-              color: Colors.redAccent,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: InkWell(
-              onTap: () {
-                if (namaPembeli.text.isEmpty ||
-                    ruanganPembeli.text.isEmpty) {
-                  // Menampilkan pesan error jika input kosong
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Harap isi data terlebih dahulu")),
-                  );
-                } else {
-                  setPreferences();
-                  createTransaction(
-                      data.cart.map((e) => e.menuId).toList())
-                      .then((value) {
-                    print(value);
-                    String strPesanan = '';
-                    data.cart.forEach((element) {
-                      strPesanan +=
-                      '-  Nama Makanan : ${element.menuNama.toString()}\n'
-                          '   ${element.tenantName} \n'
-                          '   Banyaknya : ${element.count} \n'
-                          '   Harga Satuan : ${element.menuPrice} \n'
-                          '   Total : ${element.menuPrice * element.count} \n\n';
-                    });
-
-                    String pesanan = '*Halo MasBro* \n'
-                        'Saya ingin memesan makanan sebagai berikut:\n\n'
-                        '$strPesanan'
-                        'Biaya Penanganan : 2000\n'
-                        'Total Harga : *${data.cost + 2000}* \n\n'
-                        '*) Catatan : ${catatan.text} \n'
-                        'Mohon diantar ke *${ruanganPembeli.text}*. Terima kasih atas pelayanannya \n'
-                        '\nSalam,\n'
-                        '${namaPembeli.text}';
-
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                          return Last(pesanan);
-                        }));
-                  });
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Text(
-                  "Pesan sekarang",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    color: Colors.white,
+              builder: (context, data, _) {
+                return Container(
+                  margin: const EdgeInsets.all(15),
+                  height: 63,
+                  decoration: BoxDecoration(
+                    color: isLoading ? Colors.grey : Colors.redAccent,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-              ),
-            ),
-          );
-        },
-      )
+                  // child: InkWell(
+                  //   onTap: () {
+                  //     setState(() {
+                  //       isLoading = true;
+                  //     });
+                  //     Navigator.push(context, MaterialPageRoute(
+                  //       builder: (context) {
+                  //         return const Cart();
+                  //       },
+                  //     ));
+                  //   },
+                  child: InkWell(
+                    enableFeedback: !isLoading,
+                    onTap: isLoading
+                        ? () {}
+                        : () {
+                            if (plihPengantaran == null ||
+                                (plihPengantaran == 1 &&
+                                    pilihRuangan == null) ||
+                                plihPembayaran == null) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(25),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        // crossAxisAlignment:
+                                        //     CrossAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            "Lengkapi informasi pesanan!",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 15),
+                                          const Text(
+                                            "Informasi pesanan anda belum lengkap, harap lengkapi terlebih dahulu",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                style: ButtonStyle(
+                                                  shape:
+                                                      MaterialStateProperty.all<
+                                                          RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5.0),
+                                                      side: const BorderSide(
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  minimumSize:
+                                                      MaterialStateProperty.all(
+                                                          Size(100, 30)),
+                                                ),
+                                                child: const Text(
+                                                  "OK",
+                                                  style: TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 99, 99, 99),
+                                                  ),
+                                                ),
+                                              ),
+                                              // const SizedBox(width: 16),
+                                              // TextButton(
+                                              //   onPressed: () {
+                                              //     Provider.of<CartProvider>(
+                                              //             context,
+                                              //             listen: false)
+                                              //         .clearCart();
+                                              //     Navigator.of(context).pop();
+                                              //     Navigator.pop(
+                                              //         context); // Kembali ke halaman sebelumnya
+                                              //   },
+                                              //   style: ButtonStyle(
+                                              //     shape:
+                                              //         MaterialStateProperty.all<
+                                              //             RoundedRectangleBorder>(
+                                              //       RoundedRectangleBorder(
+                                              //         borderRadius:
+                                              //             BorderRadius.circular(
+                                              //                 5.0),
+                                              //       ),
+                                              //     ),
+                                              //     backgroundColor:
+                                              //         MaterialStateProperty.all<
+                                              //             Color>(
+                                              //       Color.fromARGB(
+                                              //           227, 244, 67, 54),
+                                              //     ),
+                                              //     minimumSize:
+                                              //         MaterialStateProperty.all(
+                                              //             Size(100, 30)),
+                                              //   ),
+                                              //   child: const Text(
+                                              //     "Keluar",
+                                              //     style: TextStyle(
+                                              //       color: Colors.white,
+                                              //     ),
+                                              //   ),
+                                              // ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              Provider.of<CartProvider>(context, listen: false)
+                                  .buatTransaksi(context, user.token)
+                                  .then(
+                                (value) {
+                                  if (value) {
+                                    print(value);
+                                    print('berhasil');
+                                    Provider.of<CartProvider>(context,
+                                            listen: false)
+                                        .clearCart();
+                                    Navigator.pushNamed(context, '/beranda');
+                                  } else {
+                                    print('gagal brooo');
+                                  }
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                },
+                              );
+                            }
+                          },
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: isLoading
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 4,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "Tunggu sebentar",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              "Pesan sekarang",
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                  // ),
+                );
+              },
+            )
           : null,
-      // bottomNavigationBar: context.watch<CartProvider>().isCartShow
-      //     ? Consumer<CartProvider>(
-      //         builder: (context, data, _) {
-      //           // var userId = Provider.of<UserProvider>(context).getUserId();
-      //           // var token = Provider.of<UserProvider>(context).getToken();
-      //           // print(token);
-      //           // print(userId);
-      //           return Container(
-      //             margin: const EdgeInsets.all(20),
-      //             height: 63,
-      //             decoration: BoxDecoration(
-      //               color: Colors.redAccent,
-      //               borderRadius: BorderRadius.circular(10),
-      //             ),
-      //             child: InkWell(
-      //               onTap: () {
-      //                 if (namaPembeli.text.isEmpty ||
-      //                     ruanganPembeli.text.isEmpty) {
-      //                   // Menampilkan pesan error jika input kosong
-      //                   ScaffoldMessenger.of(context).showSnackBar(
-      //                     const SnackBar(
-      //                         content: Text("Harap isi data terlebih dahulu")),
-      //                   );
-      //                 } else {
-      //                   setPreferences();
-      //                   createTransaction(
-      //                           data.cart.map((e) => e.menuId).toList())
-      //                       .then((value) {
-      //                     print(value);
-      //                     String strPesanan = '';
-      //                     data.cart.forEach((element) {
-      //                       strPesanan +=
-      //                           '-  Nama Makanan : ${element.menuNama.toString()}\n'
-      //                           '   ${element.tenantName} \n'
-      //                           '   Banyaknya : ${element.count} \n'
-      //                           '   Harga Satuan : ${element.menuPrice} \n'
-      //                           '   Total : ${element.menuPrice * element.count} \n\n';
-      //                     });
-      //
-      //                     String pesanan = '*Halo MasBro* \n'
-      //                         'Saya ingin memesan makanan sebagai berikut:\n\n'
-      //                         '$strPesanan'
-      //                         'Biaya Penanganan : 2000\n'
-      //                         'Total Harga : *${data.cost + 2000}* \n\n'
-      //                         '*) Catatan : ${catatan.text} \n'
-      //                         'Mohon diantar ke *${ruanganPembeli.text}*. Terima kasih atas pelayanannya \n'
-      //                         '\nSalam,\n'
-      //                         '${namaPembeli.text}';
-      //
-      //                     Navigator.push(context,
-      //                         MaterialPageRoute(builder: (context) {
-      //                       return Last(pesanan);
-      //                     }));
-      //                   });
-      //                 }
-      //               },
-      //               child: Padding(
-      //                 padding: const EdgeInsets.all(15.0),
-      //                 child: Text(
-      //                   "Pesan sekarang",
-      //                   textAlign: TextAlign.center,
-      //                   style: GoogleFonts.poppins(
-      //                     fontSize: 20,
-      //                     color: Colors.white,
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //           );
-      //         },
-      //       )
-      //     : null,
     );
   }
 }

@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:testgetdata/views/home/history_page.dart';
-import 'package:testgetdata/views/home/home_page.dart';
-import 'package:testgetdata/views/home/profile_page.dart';
-
-import '../../http/fetch_all_tenant.dart';
-import '../../model/tenant_model.dart';
+import 'package:provider/provider.dart';
+import 'package:testgetdata/model/fitur_model.dart';
+import 'package:testgetdata/provider/auth_provider.dart';
 
 class NavbarHome extends StatefulWidget {
   final int pageIndex;
@@ -16,67 +13,50 @@ class NavbarHome extends StatefulWidget {
 }
 
 class _NavbarHomeState extends State<NavbarHome> {
-  late Future<List<TenantModel>> futureTenant;
-  String url = "http://masbrocanteen.me/api/tenant";
-  List<TenantModel> foundTenant = [];
-  List<TenantModel> fullTenant = [];
-
   @override
   void initState() {
-    // TODO: implement initState'
     super.initState();
-    futureTenant = fetchTenant(url);
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget? halaman(int selectedIndex) {
-      if (selectedIndex == widget.pageIndex) return null;
-      switch (selectedIndex) {
-        case HomePage.homeIndex:
-          return HomePage(); // Contoh: Halaman Beranda
-        case HistoryPage.historyIndex:
-          return HistoryPage(); // Contoh: Halaman Pencarian
-        case ProfilePage.profileIndex:
-          return ProfilePage(); // Contoh: Halaman Profil// Jika indeks tidak valid, kembalikan widget kosong
-        default:
-          return null;
-      }
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    List<FiturModel> listFitur = authProvider.user.menu;
+
+    List<BottomNavigationBarItem> fiturNavigation(List<FiturModel> listFitur) {
+      final fiturMap = listFitur.map((e) {
+        return BottomNavigationBarItem(
+            icon: const Icon(
+              Icons.home,
+            ),
+            label: e.nama);
+      }).toList();
+      return fiturMap;
     }
 
     return BottomNavigationBar(
       elevation: 0,
-      selectedFontSize: 1,
+      selectedFontSize: 12,
+      unselectedFontSize: 12,
+      unselectedItemColor: Colors.grey,
+      selectedItemColor: Colors.redAccent,
       currentIndex: widget.pageIndex,
+      showUnselectedLabels: true,
       onTap: (value) {
-        print(value);
-        setState(() {
-          Widget? nextWidget = halaman(value);
-          if (nextWidget != null)
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => nextWidget!));
-        });
+        final fitur = listFitur[value];
+        print(fitur.url);
+        Navigator.pushReplacementNamed(context, fitur.url!);
       },
-      items: [
-        BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home,
-              color: widget.pageIndex == 0 ? Colors.red : Colors.grey,
+      items: listFitur.map((e) {
+        return BottomNavigationBarItem(
+            icon: const Icon(
+              IconData(
+                0xe88a,
+                fontFamily: 'MaterialIcons',
+              ),
             ),
-            label: ''),
-        BottomNavigationBarItem(
-            icon: Icon(
-              Icons.description,
-              color: widget.pageIndex == 1 ? Colors.red : Colors.grey,
-            ),
-            label: ''),
-        BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person,
-              color: widget.pageIndex == 2 ? Colors.red : Colors.grey,
-            ),
-            label: ''),
-      ],
+            label: e.nama);
+      }).toList(),
     );
   }
 }

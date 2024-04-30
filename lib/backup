@@ -149,23 +149,23 @@
 
 //card
 
-Card(
-                    child: ListTile(
-                      leading: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          height: 200,
-                          width: 200,
-                          child: Image(
-                            image: NetworkImage(makanan[i]['gambar']),
-                            fit: BoxFit.cover,
-                          )),
-                      title: Text(makanan[i]['name']),
-                      subtitle: Text(makanan[i]['price'].toString()),
-                      contentPadding: EdgeInsets.symmetric(vertical: 20),
-                    ),
-                  )
+// Card(
+//                     child: ListTile(
+//                       leading: Container(
+//                           decoration: BoxDecoration(
+//                             borderRadius: BorderRadius.circular(20),
+//                           ),
+//                           height: 200,
+//                           width: 200,
+//                           child: Image(
+//                             image: NetworkImage(makanan[i]['gambar']),
+//                             fit: BoxFit.cover,
+//                           )),
+//                       title: Text(makanan[i]['name']),
+//                       subtitle: Text(makanan[i]['price'].toString()),
+//                       contentPadding: EdgeInsets.symmetric(vertical: 20),
+//                     ),
+//                   )
 
 // return Column(
                 //   children: [

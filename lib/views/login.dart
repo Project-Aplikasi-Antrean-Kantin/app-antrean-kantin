@@ -1,223 +1,226 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testgetdata/http/login.dart';
-import 'package:testgetdata/provider/user_provider.dart';
-import 'package:testgetdata/views/home/home_page.dart';
-import 'package:testgetdata/views/masbro.dart';
-import 'package:testgetdata/views/splash_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:testgetdata/http/login.dart';
-import 'package:testgetdata/views/home/navbar_home.dart';
-import 'package:testgetdata/views/tenant.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:provider/provider.dart';
+import 'package:testgetdata/components/custom_snackbar.dart';
+import 'package:testgetdata/exceptions/api_exception.dart';
+import 'package:testgetdata/provider/auth_provider.dart';
+import 'package:testgetdata/views/home/home_page.dart';
 
-class Login extends StatefulWidget {
-  Login({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginPageState extends State<LoginPage> {
   var showPassword = true;
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
-
-  halamanDirect(isDosen) {
-    isDosen
-        ? Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-            return HomePage();
-          }))
-        : Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-            return Masbro();
-          }));
-  }
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    print(showPassword);
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       backgroundColor: const Color(0xF8F8F8F8),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Welcome Back',
-          style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              fontSize: 32),
-          ),
-          Text('Sign in to your account',
-          style: GoogleFonts.poppins(
-              color: Colors.black45,
-              fontWeight: FontWeight.normal,
-              fontSize: 15),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Text('Email',
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.normal,
-                fontSize: 16),
-          ),
-          const SizedBox(height: 3),
-          TextFormField(
-            cursorColor: Colors.redAccent,
-            controller: email,
-            decoration: InputDecoration(
-              fillColor: Colors.white,
-              hintText: 'Your email',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome Back',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold, fontSize: 32),
               ),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Harap isi email terlebih dahulu';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Text('Password',
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.normal,
-                fontSize: 16),
-          ),
-          const SizedBox(height: 3),
-          TextFormField(
-            obscureText: showPassword,
-            controller: password,
-            decoration: InputDecoration(
-              fillColor: Colors.white,
-              suffixIcon: showPassword
-                  ? IconButton(
-                      icon: const Icon(Icons.remove_red_eye),
-                      onPressed: () => setState(() {
-                        showPassword = !showPassword;
-                      }),
-                    )
-                  : IconButton(
-                      icon: const Icon(Icons.remove_red_eye_outlined),
-                      onPressed: () => setState(() {
-                        showPassword = !showPassword;
-                      }),
-                    ),
-              hintText: 'Your password',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+              Text(
+                'Sign in to your account',
+                style: GoogleFonts.poppins(
+                    color: Colors.black45,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 15),
               ),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Harap isi password terlebih dahulu';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 40),
-          InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              if (email.text.isEmpty || password.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("Harap isi data terlebih dahulu")),
-                );
-              } else {
-// <<<<<<< HEAD
-                LoginFuture(email.text, password.text).then((user) {
-                  Provider.of<UserProvider>(context, listen: false)
-                      .setUserModel(user);
-                  final isDosen = user.role == "Dosen" ? true : false;
-                  if (user.token.isNotEmpty)
-                    halamanDirect(isDosen);
-                  else
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Email',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.normal, fontSize: 16),
+              ),
+              const SizedBox(height: 3),
+              TextFormField(
+                cursorColor: Colors.redAccent,
+                controller: email,
+                decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  hintText: 'Your email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Harap isi email terlebih dahulu';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Password',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.normal, fontSize: 16),
+              ),
+              const SizedBox(height: 3),
+              TextFormField(
+                obscureText: showPassword,
+                controller: password,
+                decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  suffixIcon: showPassword
+                      ? IconButton(
+                          icon: const Icon(Icons.remove_red_eye),
+                          onPressed: () => setState(() {
+                            showPassword = !showPassword;
+                          }),
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.remove_red_eye_outlined),
+                          onPressed: () => setState(() {
+                            showPassword = !showPassword;
+                          }),
+                        ),
+                  hintText: 'Your password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Harap isi password terlebih dahulu';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () async {
+                  String? token = await FirebaseMessaging.instance.getToken();
+                  print("ini token $token");
+                  if (email.text.isEmpty || password.text.isEmpty) {
+                    setState(() {
+                      isLoading = true;
+                    });
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text(
-                              "Email or password cannot find in own records")),
+                          content: Text("Harap isi data terlebih dahulu")),
                     );
-// =======
-//                 LoginFuture(email.text, password.text).then((value) {
-//                   print(value);
-//                   if (value != 'gagal') {
-//                     Navigator.pushReplacement(context,
-//                         MaterialPageRoute(builder: (context) {
-//                       return NavbarHome(token: value);
-//                     }));
-//                   } else {
-//                     ScaffoldMessenger.of(context).showSnackBar(
-//                     const SnackBar(
-//                         content: Text("Email or password cannot find in own records")),
-//                   );
-//                   }
-// >>>>>>> 8bc57d4e98bddb6121351cf79e84c72a983a3db6
-                });
-              }
-            },
-            child: Center(
-              child: Container(
-                height: 47,
-                width: 213,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.redAccent),
-                child: Center(
-                    child: Text("LOGIN",
-                        style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16))),
+                    setState(() {
+                      isLoading = false;
+                    });
+                  } else {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    // if (await authProvider.login(
+                    //     email.text, password.text, token!)) {
+                    //   print('hahaha');
+                    //   // Navigator.pushReplacement(
+                    //   //     context,
+                    //   //     MaterialPageRoute(
+                    //   //       builder: (context) => HomePage(),
+                    //   //     ));
+                    // }
+                    try {
+                      await authProvider.login(
+                          email.text, password.text, token!);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(),
+                        ),
+                      );
+                    } catch (e) {
+                      if (e is ApiException) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          CustomSnackBar(
+                            status: e.status,
+                            message: e.message,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          CustomSnackBar(
+                            status: 'failedP',
+                            message: e.toString(),
+                          ),
+                        );
+                      }
+                    }
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(double.infinity, 40)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: isLoading
+                      ? [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 3, // Mengatur ketebalan garis
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text("Tunggu sebentar"),
+                        ]
+                      : [
+                          Text(
+                            "Masuk",
+                            style: GoogleFonts.poppins(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                ),
               ),
-            ),
-          ),
-          Center(
-            child: TextButton(
-              onPressed: () async{
-                var url = 'whatsapp://send?phone=6285706015892';
-                const text = "Halo Masbro, saya izin meminta akses untuk login ke aplikasi Masbro Canteen";
-                url = '$url&text=$text';
-
-                try {
-                  await launchUrlString(url);
-                } catch (e) {
-                  debugPrint(e.toString());
-                }
-              },
-              style: TextButton.styleFrom(
-                  foregroundColor: Colors.pink,
-                  alignment: Alignment.center
+              ElevatedButton(
+                onPressed: () {
+                  print('object');
+                  Navigator.of(context).pushNamed('/daftar');
+                },
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  fixedSize: const Size(
+                    double.infinity,
+                    40,
+                  ),
+                  backgroundColor: Colors.transparent,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Daftar",
+                      style: GoogleFonts.poppins(
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Text('Minta Akses',
-                style: GoogleFonts.poppins(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 15),),
-            ),
-          ),
-        ]),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Tahan tombol")),
-                  );
-        },
-        backgroundColor: Colors.white,
-        child: Icon(Icons.info_outline, color: Colors.redAccent),
-        tooltip: 'Aplikasi Masbro hanya bisa digunakan oleh beberapa orang yang sudah terdaftar, jika anda ingin mencobanya, klik "Minta Akses"',
+            ]),
       ),
     );
   }

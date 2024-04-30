@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1040677308224",
+    "project_id": "masbro-canteen",
+    "storage_bucket": "masbro-canteen.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040677308224:android:8134a2dfee32e0184d5ca5",
+        "android_client_info": {
+          "package_name": "com.example.masbro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1040677308224-ipu57q50e7a7bta0d4dkt73ljf6998cu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBovZvdTwDG8xbhYTyfc9ffTZui62GrWUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1040677308224-ipu57q50e7a7bta0d4dkt73ljf6998cu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040677308224:android:eb0444f670c6471c4d5ca5",
+        "android_client_info": {
+          "package_name": "com.masbro.canteen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1040677308224-ipu57q50e7a7bta0d4dkt73ljf6998cu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBovZvdTwDG8xbhYTyfc9ffTZui62GrWUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1040677308224-ipu57q50e7a7bta0d4dkt73ljf6998cu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

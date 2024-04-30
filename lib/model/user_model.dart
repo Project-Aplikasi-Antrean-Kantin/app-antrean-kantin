@@ -1,25 +1,28 @@
+import 'package:testgetdata/model/fitur_model.dart';
+
 class UserModel {
-  final int id;
-  final String name;
+  final String nama;
   final String email;
   final String token;
-  final String role;
+  final List<String> permission;
+  final List<FiturModel> menu;
 
   UserModel({
-    required this.id,
-    required this.name,
-    required this.token,
+    required this.nama,
     required this.email,
-    required this.role
+    required this.token,
+    required this.permission,
+    required this.menu,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'],
-      name: json['name'],
-      token: json['token'],
-      email: json['email'],
-      role: json['role'],
-    );
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+        nama: json["nama"],
+        email: json["email"],
+        // url: json["url"],
+        token: json["token"],
+        menu: json['menu']
+            .map<FiturModel>((menu) => FiturModel.fromJson(menu))
+            .toList(),
+        permission: json["permission"].cast<String>(),
+      );
 }
