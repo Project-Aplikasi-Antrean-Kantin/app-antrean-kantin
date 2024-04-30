@@ -441,7 +441,7 @@ void bottomSheetTipePembayaran(
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: pilihPembayaran == 'Transfer'
+                            backgroundColor: pilihPembayaran == 'Transfer'
                                 ? Colors.redAccent
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
@@ -472,7 +472,7 @@ void bottomSheetTipePembayaran(
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: pilihPembayaran == 'Bayar tunai'
+                            backgroundColor: pilihPembayaran == 'Bayar tunai'
                                 ? Colors.redAccent
                                 : Colors.white,
                             shape: RoundedRectangleBorder(

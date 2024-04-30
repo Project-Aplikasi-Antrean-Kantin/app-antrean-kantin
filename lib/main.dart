@@ -10,6 +10,7 @@ import 'package:testgetdata/views/home/profile_page.dart';
 import 'package:testgetdata/views/login.dart';
 import 'package:testgetdata/views/masbro/pengantaran.dart';
 import 'package:testgetdata/views/register_page.dart';
+import 'package:testgetdata/views/splash_screen.dart';
 import 'package:testgetdata/views/tenant/pages/pesanan_page.dart';
 import 'package:testgetdata/views/tenant/pages/katalog_menu_page.dart';
 import 'package:testgetdata/views/tenant/tambah_menu.dart';
@@ -84,15 +85,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
+        home: const SplashScreen(),
         debugShowCheckedModeBanner: false,
         title: 'MasBro',
         theme: ThemeData(
           fontFamily: GoogleFonts.poppins().fontFamily,
         ),
         // home: ProfilePage(),
-        initialRoute: '/',
+        // initialRoute: '/',
         routes: {
-          '/': (context) => const LoginPage(),
+          // '/': (context) => const SplashScreen(),
           '/login': (context) => const LoginPage(),
           '/daftar': (context) => const RegisterPage(),
           '/beranda': (context) => const HomePage(),

@@ -9,7 +9,7 @@ class ListTransaksiDetail {
   String? catatan;
   final int menusKelolaId;
   final String namaMenu;
-  String? createdAt;
+  final DateTime createdAt;
   final String kategoriMenu;
   final MenusKelola menusKelola;
 
@@ -22,7 +22,7 @@ class ListTransaksiDetail {
     this.catatan,
     required this.menusKelolaId,
     required this.namaMenu,
-    this.createdAt,
+    required this.createdAt,
     required this.kategoriMenu,
     required this.menusKelola,
   });
@@ -35,6 +35,7 @@ class ListTransaksiDetail {
         harga: json["harga"],
         status: json["status"],
         catatan: json["catatan"],
+        createdAt: DateTime.parse(json["created_at"]),
         menusKelolaId: json["menus_kelola_id"],
         namaMenu: json["nama_menu"],
         kategoriMenu: json["kategori_menu"],

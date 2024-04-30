@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/model/fitur_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
@@ -49,13 +50,26 @@ class _NavbarHomeState extends State<NavbarHome> {
       },
       items: listFitur.map((e) {
         return BottomNavigationBarItem(
-            icon: const Icon(
-              IconData(
-                0xe88a,
-                fontFamily: 'MaterialIcons',
-              ),
+          // icon: const Icon(
+          //   IconData(
+          //     0xe88a,
+          //     fontFamily: 'MaterialIcons',
+          //   ),
+          // ),
+          icon: SvgPicture.network(
+            e.ikon!,
+            height: 20,
+          ),
+          activeIcon: SvgPicture.network(
+            e.ikon!,
+            height: 20,
+            colorFilter: const ColorFilter.mode(
+              Colors.redAccent,
+              BlendMode.srcIn,
             ),
-            label: e.nama);
+          ),
+          label: e.nama,
+        );
       }).toList(),
     );
   }

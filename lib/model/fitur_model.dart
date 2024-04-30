@@ -25,7 +25,7 @@ class FiturModel {
         nama: json["nama"],
         url: json["url"],
         kategori: json["kategori"],
-        ikon: json["ikon"],
+        ikon: json["link_gambar"],
         urutan: json["urutan"],
         aktif: json["aktif"],
       );
