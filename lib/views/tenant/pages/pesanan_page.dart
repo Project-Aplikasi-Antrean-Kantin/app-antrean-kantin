@@ -73,10 +73,6 @@ class _PesananTenantState extends State<PesananTenant> {
         isLoading = false;
         pesananMasuk = value;
       }),
-      // (value) => setState(() {
-      //   print(value);
-      //   pesananMasuk = value;
-      // }),
     );
   }
 
@@ -162,18 +158,18 @@ class _PesananTenantState extends State<PesananTenant> {
           key: UniqueKey(),
           children: [
             isLoading
-                ? Center(
-                    child:
-                        CircularProgressIndicator()) // Show CircularProgressIndicator while loading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  ) // Show CircularProgressIndicator while loading
                 : PesananMasuk(
                     pesananMasuk: pesananMasuk,
                     terimaPesanan: terimaPesanan,
                     tolakPesanan: tolakPesanan,
                   ),
             isLoading
-                ? Center(
-                    child:
-                        CircularProgressIndicator()) // Show CircularProgressIndicator while loading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  ) // Show CircularProgressIndicator while loading
                 : HomeDiproses(
                     pesananDiproses: pesananDiproses,
                     removePesanan: removePesananDiproses,

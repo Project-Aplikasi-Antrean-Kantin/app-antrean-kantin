@@ -8,7 +8,7 @@ import 'package:testgetdata/views/home/history_page.dart';
 import 'package:testgetdata/views/home/home_page.dart';
 import 'package:testgetdata/views/home/profile_page.dart';
 import 'package:testgetdata/views/login.dart';
-import 'package:testgetdata/views/masbro/pengantaran.dart';
+import 'package:testgetdata/views/masbro/pengantaran_page.dart';
 import 'package:testgetdata/views/register_page.dart';
 import 'package:testgetdata/views/splash_screen.dart';
 import 'package:testgetdata/views/tenant/pages/pesanan_page.dart';

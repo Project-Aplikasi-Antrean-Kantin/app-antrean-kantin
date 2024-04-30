@@ -23,6 +23,7 @@ class PerluPengantaran extends StatefulWidget {
 class _PerluPengantaranState extends State<PerluPengantaran> {
   List<Pesanan> pesananSiapDiantar = [];
   List<Pesanan> pesananDiantar = [];
+  bool isLoading = false;
 
   void diantar(int idPesanan, Pesanan pesanan, auth) async {
     updatePengantaran('diantar', auth, idPesanan).then((value) {
@@ -50,15 +51,19 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
   @override
   void initState() {
     super.initState();
+    isLoading = true;
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
-    fetchPengantaran(user.token, 'siap_diantar').then((value) => setState(
-          () {
-            print(value);
-            pesananSiapDiantar = value;
-          },
-        ));
+    fetchPengantaran(user.token, 'siap_diantar').then(
+      (value) => setState(
+        () {
+          isLoading = false;
+          print(value);
+          pesananSiapDiantar = value;
+        },
+      ),
+    );
   }
 
   @override
@@ -142,14 +147,22 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
           physics: NeverScrollableScrollPhysics(),
           key: UniqueKey(),
           children: [
-            PesananMenunggu(
-              pesananSiapDiantar: pesananSiapDiantar,
-              pesananDiantar: diantar,
-            ),
-            PesananDiantar(
-              pesananDiantar: pesananDiantar,
-              pesananSelesai: removePesananDiantar,
-            ),
+            isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : PesananMenunggu(
+                    pesananSiapDiantar: pesananSiapDiantar,
+                    pesananDiantar: diantar,
+                  ),
+            isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : PesananDiantar(
+                    pesananDiantar: pesananDiantar,
+                    pesananSelesai: removePesananDiantar,
+                  ),
           ],
         ),
         bottomNavigationBar: NavbarHome(
