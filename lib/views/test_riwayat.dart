@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/components/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/http/fetch_riwayat_transaksi.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
@@ -183,11 +184,9 @@ class _TestRiwayatState extends State<TestRiwayat> {
                                         ),
                                         Column(children: [
                                           Text(
-                                            NumberFormat.currency(
-                                              symbol: 'Rp ',
-                                              decimalDigits: 0,
-                                              locale: 'id-ID',
-                                            ).format(subtotal),
+                                            FormatCurrency.intToStringCurrency(
+                                              subtotal,
+                                            ),
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
                                             ),
@@ -211,11 +210,9 @@ class _TestRiwayatState extends State<TestRiwayat> {
                                           ),
                                         ),
                                         Text(
-                                          NumberFormat.currency(
-                                            symbol: 'Rp ',
-                                            decimalDigits: 0,
-                                            locale: 'id-ID',
-                                          ).format(entry.biayaLayanan),
+                                          FormatCurrency.intToStringCurrency(
+                                            entry.biayaLayanan,
+                                          ),
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                           ),
@@ -277,11 +274,9 @@ class _TestRiwayatState extends State<TestRiwayat> {
                                           ),
                                         ),
                                         Text(
-                                          NumberFormat.currency(
-                                            symbol: 'Rp ',
-                                            decimalDigits: 0,
-                                            locale: 'id-ID',
-                                          ).format(entry.total),
+                                          FormatCurrency.intToStringCurrency(
+                                            entry.total,
+                                          ),
                                           style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,

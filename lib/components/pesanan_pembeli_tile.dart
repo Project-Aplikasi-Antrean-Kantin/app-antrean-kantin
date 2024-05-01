@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/model/transaksi_detail_model.dart';
 
 class PesananItemWidget extends StatelessWidget {
@@ -62,12 +63,7 @@ class PesananItemWidget extends StatelessWidget {
                 flex: 1,
               ),
               Text(
-                // 'Rp. $harga',
-                NumberFormat.currency(
-                  symbol: 'Rp ',
-                  decimalDigits: 0,
-                  locale: 'id-ID',
-                ).format(harga),
+                FormatCurrency.intToStringCurrency(harga),
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                 ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/components/search_widget.dart';
 
 import '../cart.dart';
@@ -345,11 +346,9 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            NumberFormat.currency(
-                              symbol: 'Rp',
-                              decimalDigits: 0,
-                              locale: 'id-ID',
-                            ).format(data.cost),
+                            FormatCurrency.intToStringCurrency(
+                              data.cost,
+                            ),
                             style: GoogleFonts.poppins(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,

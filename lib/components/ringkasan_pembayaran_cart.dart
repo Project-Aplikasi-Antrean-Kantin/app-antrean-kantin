@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 
 class RingkasanPembayaranCart extends StatelessWidget {
@@ -70,11 +71,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 Column(
                   children: [
                     Text(
-                      NumberFormat.currency(
-                        symbol: 'Rp. ',
-                        decimalDigits: 0,
-                        locale: 'id-ID',
-                      ).format(cartProvider.cost),
+                      FormatCurrency.intToStringCurrency(
+                        cartProvider.cost,
+                      ),
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                       ),
@@ -97,11 +96,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  NumberFormat.currency(
-                    symbol: 'Rp. ',
-                    decimalDigits: 0,
-                    locale: 'id-ID',
-                  ).format(cartProvider.service),
+                  FormatCurrency.intToStringCurrency(
+                    cartProvider.service,
+                  ),
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                   ),
@@ -165,11 +162,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  NumberFormat.currency(
-                    symbol: 'Rp',
-                    decimalDigits: 0,
-                    locale: 'id-ID',
-                  ).format(cartProvider.getTotal()),
+                  FormatCurrency.intToStringCurrency(
+                    cartProvider.getTotal(),
+                  ),
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/components/bottom_sheet_catatan.dart';
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/tenant_model.dart';
@@ -551,12 +552,9 @@ class _MenuTenantState extends State<MenuTenant> {
                                             ),
                                           ),
                                           Text(
-                                            NumberFormat.currency(
-                                              symbol: 'Rp. ',
-                                              decimalDigits: 0,
-                                              locale: 'id-ID',
-                                            ).format(
-                                                dataFoods.detailMenu?.harga),
+                                            FormatCurrency.intToStringCurrency(
+                                              dataFoods.detailMenu!.harga,
+                                            ),
                                             style: GoogleFonts.poppins(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 14,
@@ -905,11 +903,9 @@ class _MenuTenantState extends State<MenuTenant> {
                             ),
                             Expanded(
                               child: Text(
-                                NumberFormat.currency(
-                                  symbol: 'Rp. ',
-                                  decimalDigits: 0,
-                                  locale: 'id-ID',
-                                ).format(data.cost),
+                                FormatCurrency.intToStringCurrency(
+                                  data.cost,
+                                ),
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,

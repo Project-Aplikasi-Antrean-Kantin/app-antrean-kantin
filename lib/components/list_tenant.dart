@@ -1,6 +1,7 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/model/tenant_model.dart';
 import 'package:testgetdata/theme/deskripsi_theme.dart';
 import 'package:testgetdata/theme/judul_font.dart';
@@ -23,11 +24,9 @@ class ListTenant extends StatelessWidget {
         shrinkWrap: true,
         itemCount: foundTenant.length,
         itemBuilder: (context, index) {
-          final range = NumberFormat.currency(
-            symbol: 'Rp',
-            decimalDigits: 0,
-            locale: 'id-ID',
-          ).format(foundTenant[index].range ?? 0);
+          final range = FormatCurrency.intToStringCurrency(
+            foundTenant[index].range ?? 0,
+          );
           return Column(
             children: [
               GestureDetector(
@@ -103,17 +102,9 @@ class ListTenant extends StatelessWidget {
                                     style: SubJudul(),
                                   ),
                                   Text(
-                                    "Start From $range",
+                                    "Mulai harga $range",
                                     style: Deskripsi(),
                                   ),
-                                  // Text(
-                                  //   NumberFormat.currency(
-                                  //     symbol: 'Rp',
-                                  //     decimalDigits: 0,
-                                  //     locale: 'id-ID',
-                                  //   ).format(foundTenant[index].range ?? 0),
-                                  //   style: Deskripsi(),
-                                  // ),
                                 ],
                               ),
                             ),

@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 class FormatCurrency {
-  String intToStringCurrency(int amount) {
+  static String intToStringCurrency(int amount) {
     final formatCurrency = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp',
