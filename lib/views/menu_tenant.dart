@@ -512,11 +512,11 @@ class _MenuTenantState extends State<MenuTenant> {
                                     child: GestureDetector(
                                       onTap: () {
                                         // todo: tampilin bootomsheet detail menu
-                                        // bottomSheetCatatan(context, dataTenant);
-
                                         showDetailMenuBottomSheet(
                                           context,
                                           DetailMenu(
+                                            namaTenant: dataTenant,
+                                            idMenu: dataFoods.detailMenu!.id,
                                             title: dataFoods.detailMenu!.nama ??
                                                 dataFoods.nama,
                                             gambar:
@@ -590,7 +590,8 @@ class _MenuTenantState extends State<MenuTenant> {
                                             height: 10,
                                           ),
                                           Text(
-                                            'Deskripis produk Deskripis produk Deskripis produk Deskripis produk Deskripis produk Deskripis produk',
+                                            dataFoods.detailMenu?.deskripsi ??
+                                                '-',
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: GoogleFonts.poppins(

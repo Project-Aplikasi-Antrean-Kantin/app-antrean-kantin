@@ -1,23 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/constants.dart';
+import 'package:testgetdata/provider/cart_provider.dart';
 
 class DetailMenu {
+  final String namaTenant;
+  final int idMenu;
   final String title;
   final String gambar;
   final String? description;
   final int price;
+  bool? isTambah;
 
   DetailMenu({
+    required this.namaTenant,
+    required this.idMenu,
     required this.title,
     required this.gambar,
     this.description,
     required this.price,
+    this.isTambah,
   });
 }
 
 Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu) {
+  final CartProvider cartProvider =
+      Provider.of<CartProvider>(context, listen: false);
+  // final detailmenu = DetailMenu;
+
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -101,11 +113,21 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu) {
               const SizedBox(height: 50),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: Colors.redAccent,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    cartProvider.addRemove(
+                      menu.idMenu,
+                      menu.title,
+                      menu.price,
+                      menu.gambar,
+                      menu.namaTenant,
+                      true,
+                    );
+                    Navigator.of(context).pop();
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 12.0,
