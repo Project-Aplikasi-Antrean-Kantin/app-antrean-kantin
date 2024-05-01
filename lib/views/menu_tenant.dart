@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/components/bottom_sheet_catatan.dart';
+import 'package:testgetdata/components/bottom_sheet_detail_menu.dart';
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/tenant_model.dart';
 import 'package:testgetdata/model/user_model.dart';
@@ -77,6 +78,7 @@ class _MenuTenantState extends State<MenuTenant> {
           if (snapshot.hasData) {
             final dataTenant = snapshot.data!.namaTenant;
             final List<TenantFoods>? listMenu = snapshot.data!.tenantFoods;
+
             // final listMenu = GetByCategoryController(
             //         dataListMakananTenant: snapshot.data!.tenantFoods
             //             .map((element) => element['status'] == 1)
@@ -92,6 +94,7 @@ class _MenuTenantState extends State<MenuTenant> {
             //   jumlahOffset[kategori] = acuan;
             //   acuan = (acuan + listMenu[kategori]!.length) * 155;
             // }
+
             return WillPopScope(
               // todo: pindah jadikan widget jika memungkinkan
               onWillPop: () async {
@@ -336,6 +339,8 @@ class _MenuTenantState extends State<MenuTenant> {
                         }
                       },
                     ),
+
+                    // Icon notifikasi
                     // actions: [
                     //   IconButton(
                     //     icon: const Icon(
@@ -364,6 +369,7 @@ class _MenuTenantState extends State<MenuTenant> {
                               ),
 
                               // kategori menu
+
                               // SingleChildScrollView(
                               //   scrollDirection: Axis.horizontal,
                               //   child: Container(
@@ -503,33 +509,53 @@ class _MenuTenantState extends State<MenuTenant> {
                                     height: 100,
                                     width: 100,
                                     margin: const EdgeInsets.only(right: 15),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: dataFoods.detailMenu!.gambar !=
-                                              null
-                                          ? Image.network(
-                                              "${MasbroConstants.baseUrl}${dataFoods.detailMenu!.gambar}",
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return const Center(
-                                                  child: Icon(
-                                                    Icons.photo,
-                                                    color: Color.fromARGB(
-                                                        255, 120, 120, 120),
-                                                    size: 30,
-                                                  ),
-                                                );
-                                              },
-                                            )
-                                          : const Center(
-                                              child: Icon(
-                                                Icons.photo,
-                                                color: Color.fromARGB(
-                                                    255, 120, 120, 120),
-                                                size: 30,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        // todo: tampilin bootomsheet detail menu
+                                        // bottomSheetCatatan(context, dataTenant);
+
+                                        showDetailMenuBottomSheet(
+                                          context,
+                                          DetailMenu(
+                                            title: dataFoods.detailMenu!.nama ??
+                                                dataFoods.nama,
+                                            gambar:
+                                                dataFoods.detailMenu!.gambar,
+                                            description: dataFoods
+                                                    .detailMenu?.deskripsi ??
+                                                '-',
+                                            price: dataFoods.detailMenu!.harga,
+                                          ),
+                                        );
+                                      },
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: dataFoods.detailMenu!.gambar !=
+                                                null
+                                            ? Image.network(
+                                                "${MasbroConstants.baseUrl}${dataFoods.detailMenu!.gambar}",
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Center(
+                                                    child: Icon(
+                                                      Icons.photo,
+                                                      color: Color.fromARGB(
+                                                          255, 120, 120, 120),
+                                                      size: 30,
+                                                    ),
+                                                  );
+                                                },
+                                              )
+                                            : const Center(
+                                                child: Icon(
+                                                  Icons.photo,
+                                                  color: Color.fromARGB(
+                                                      255, 120, 120, 120),
+                                                  size: 30,
+                                                ),
                                               ),
-                                            ),
+                                      ),
                                     ),
                                   ),
                                   Expanded(

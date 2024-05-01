@@ -37,5 +37,6 @@ class DetailMenu {
         "gambar": gambar,
         "id": id,
         "isReady": isReady,
+        "deskripsi": deskripsi,
       };
 }
