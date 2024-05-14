@@ -131,7 +131,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                           ),
                         ),
                         TextSpan(
-                          text: "Rp.1.000",
+                          text: FormatCurrency.intToStringCurrency(
+                            1000,
+                          ),
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                           ),

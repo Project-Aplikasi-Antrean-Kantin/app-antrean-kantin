@@ -19,7 +19,8 @@ class PesananItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String food = pesanan.menusKelola.namaMenu;
+    final String food =
+        pesanan.menusKelola.nama ?? pesanan.menusKelola.menus.nama;
     final int harga = pesanan.harga;
     final int jumlah = pesanan.jumlah;
     final String catatan = pesanan.catatan ?? '-';

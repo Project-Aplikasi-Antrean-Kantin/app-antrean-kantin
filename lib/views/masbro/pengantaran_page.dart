@@ -87,18 +87,18 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
             ),
           ),
           centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications,
-                color: Colors.black,
-                size: 24,
-              ),
-              onPressed: () {
-                // Navigator.pop(context);
-              },
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //     icon: const Icon(
+          //       Icons.notifications,
+          //       color: Colors.black,
+          //       size: 24,
+          //     ),
+          //     onPressed: () {
+          //       // Navigator.pop(context);
+          //     },
+          //   ),
+          // ],
           bottom: TabBar(
             onTap: (value) {
               if (value == 0) {

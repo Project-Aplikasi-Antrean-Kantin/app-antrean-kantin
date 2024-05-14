@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/components/katalog_menu_tile.dart';
+import 'package:testgetdata/components/search_widget.dart';
 import 'package:testgetdata/http/update_menu_tenant.dart';
-import 'package:testgetdata/model/dummy/food_item_dummy.dart';
 import 'package:testgetdata/model/tenant_foods.dart';
-import 'package:testgetdata/model/tenant_model.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 // import 'package:testgetdata/model/food_item.dart';
@@ -22,6 +21,14 @@ class MenuHabis extends StatefulWidget {
 }
 
 class _MenuHabisState extends State<MenuHabis> {
+  late List<TenantFoods> searchResult;
+
+  @override
+  void initState() {
+    super.initState();
+    searchResult = widget.data;
+  }
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider =
@@ -34,82 +41,37 @@ class _MenuHabisState extends State<MenuHabis> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           child: Column(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      cursorColor: Colors.grey,
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration: InputDecoration(
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 10),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Colors.grey,
-                        ),
-                        hintText: "Cari menu...",
-                        hintStyle: GoogleFonts.poppins(
-                          color: Colors.grey,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 75, 75, 75),
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.grey,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent,
-                        border: Border.all(
-                          color: Colors.redAccent,
-                          width: 1.5,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(15),
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Filter',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Icon(
-                            Icons.filter_list,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+              SearchWidget(
+                paddingHorizontal: 0,
+                onChanged: (value) {
+                  List<TenantFoods> result = widget.data;
+                  if (value.isEmpty) {
+                    result = result;
+                  } else {
+                    result = result
+                        .where(
+                          (tenanfoods) =>
+                              (tenanfoods.detailMenu?.nama != null &&
+                                  tenanfoods.detailMenu!.nama!
+                                      .toLowerCase()
+                                      .contains(value.toLowerCase())) ||
+                              (tenanfoods.nama != null &&
+                                  tenanfoods.nama!
+                                      .toLowerCase()
+                                      .contains(value.toLowerCase())),
+                        )
+                        .toList();
+                  }
+                  print("ini Result : $result");
+                  print("value : $value");
+                  setState(
+                    () {
+                      searchResult = result;
+                    },
+                  );
+                  print("ini SearchResult : $searchResult");
+                },
+                tittle: "Cari menu . . . ",
               ),
               const SizedBox(
                 height: 10,
@@ -146,7 +108,7 @@ class _MenuHabisState extends State<MenuHabis> {
                         ),
                       ),
                     ),
-                    ...widget.data
+                    ...searchResult
                         .map((item) => KatalogMenuTile(
                               item: item,
                               onChanged: (value) {

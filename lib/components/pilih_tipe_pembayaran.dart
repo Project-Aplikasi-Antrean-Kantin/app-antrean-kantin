@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/components/bottom_sheet_keranjang.dart';
 
 class PilihTipePembayaran extends StatelessWidget {
@@ -75,8 +76,12 @@ class PilihTipePembayaran extends StatelessWidget {
             ),
             child: Row(
               children: [
-                if (pilihTipePembayaran == 0) Icon(Icons.back_hand),
-                if (pilihTipePembayaran == 1) Icon(Icons.motorcycle),
+                if (pilihTipePembayaran != null)
+                  Icon(
+                    pilihTipePembayaran == 'Bayar tunai'
+                        ? Icons.payments_outlined
+                        : Icons.credit_card,
+                  ),
                 Expanded(
                   child: Container(
                     padding: EdgeInsets.symmetric(
@@ -90,11 +95,15 @@ class PilihTipePembayaran extends StatelessWidget {
                           pilihTipePembayaran == null
                               ? 'Pilih Tipe Pembayaran'
                               : pilihTipePembayaran!,
-                          style: TextStyle(fontSize: 16),
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                          ),
                         ),
                         if (pilihTipePembayaran != null)
-                          const Text(
-                            'Tunggu pesananmu sampai...',
+                          Text(
+                            pilihTipePembayaran == 'Bayar tunai'
+                                ? 'Siapkan uang tunai kamu'
+                                : 'Pastikan saldo kamu cukup',
                             style: TextStyle(
                               fontSize: 12,
                             ),

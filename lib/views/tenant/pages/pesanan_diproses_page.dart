@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/components/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
 import 'package:testgetdata/model/transaksi_detail_model.dart';
@@ -62,7 +63,7 @@ class _HomeDiprosesState extends State<HomeDiproses> {
                     ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
-                      vertical: 10,
+                      vertical: 20,
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(
@@ -74,24 +75,28 @@ class _HomeDiprosesState extends State<HomeDiproses> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 10,
-                            bottom: 5,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
                           ),
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Color.fromARGB(255, 31, 31, 31),
-                                width: 1,
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              bottom: 5,
+                            ),
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Color.fromARGB(255, 31, 31, 31),
+                                  width: 1,
+                                ),
                               ),
                             ),
-                          ),
-                          child: Text(
-                            'Pesanan No-$idPesanan',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                            child: Text(
+                              'Pesanan No-$idPesanan',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -139,7 +144,9 @@ class _HomeDiprosesState extends State<HomeDiproses> {
                                       ),
                                       Column(children: [
                                         Text(
-                                          'Rp. $subtotal',
+                                          FormatCurrency.intToStringCurrency(
+                                            subtotal,
+                                          ),
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                           ),
@@ -164,7 +171,9 @@ class _HomeDiprosesState extends State<HomeDiproses> {
                                         ),
                                       ),
                                       Text(
-                                        'Rp. $subtotal',
+                                        FormatCurrency.intToStringCurrency(
+                                          subtotal,
+                                        ),
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
@@ -176,37 +185,38 @@ class _HomeDiprosesState extends State<HomeDiproses> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Spacer(
-                                  flex: 1,
-                                ),
-                                Expanded(
-                                  child: ElevatedButton(
+                            const SizedBox(height: 20),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 9,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
                                     onPressed: () {
                                       widget.removePesanan(pesanan, user.token);
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      side: const BorderSide(
-                                        color: Colors.redAccent,
-                                      ),
-                                      backgroundColor: Colors.redAccent,
-                                      minimumSize: const Size(20, 30),
-                                    ),
-                                    child: const Text(
-                                      'Antar',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        side: const BorderSide(
+                                          color: Colors.redAccent,
+                                        ),
+                                        backgroundColor: Colors.redAccent,
+                                        minimumSize: const Size(20, 30),
+                                        fixedSize: Size(180, 30)),
+                                    child: Text(
+                                      'Pesanan Siap',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),

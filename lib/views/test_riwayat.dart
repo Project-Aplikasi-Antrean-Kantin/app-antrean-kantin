@@ -102,46 +102,47 @@ class _TestRiwayatState extends State<TestRiwayat> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.only(
-                                  top: 10,
-                                  left: 5,
-                                  right: 5,
-                                ),
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Color.fromARGB(255, 31, 31, 31),
-                                      width: 1,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.only(
+                                    top: 10,
+                                  ),
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Color.fromARGB(255, 31, 31, 31),
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '${entry.listTransaksiDetail[0].menusKelola.tenants.namaTenant}',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
-                                child: Text(
-                                  '${entry.listTransaksiDetail[0].menusKelola.tenants.namaTenant}',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                const Spacer(
+                                  flex: 1,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.only(
+                                    top: 10,
+                                  ),
+                                  child: Text(
+                                    '${entry.namaRuangan ?? 'Ambil Sendiri'}',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const Spacer(
-                                flex: 1,
-                              ),
-                              Container(
-                                padding: const EdgeInsets.only(
-                                  top: 10,
-                                ),
-                                child: Text(
-                                  '${entry.namaRuangan ?? 'Ambil Sendiri'}',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           ...pesananPembeli.map((item) {
                             int harga = item.harga;
@@ -247,7 +248,10 @@ class _TestRiwayatState extends State<TestRiwayat> {
                                                   ),
                                                 ),
                                                 TextSpan(
-                                                  text: " Rp 1.000",
+                                                  text: FormatCurrency
+                                                      .intToStringCurrency(
+                                                    1000,
+                                                  ),
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 14,
                                                   ),
@@ -292,46 +296,20 @@ class _TestRiwayatState extends State<TestRiwayat> {
                               Padding(
                                 padding: const EdgeInsets.only(
                                   bottom: 10,
+                                  right: 10,
                                 ),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(
-                                          'Pesanan',
-                                          style: GoogleFonts.poppins(
-                                            color: Colors.grey,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      // child: Container(
-                                      // decoration: BoxDecoration(
-                                      //   borderRadius: BorderRadius.circular(8),
-                                      // border: Border.all(
-                                      //   color: getStatusColor(entry
-                                      //       .status), // Fungsi untuk mendapatkan warna border sesuai status
-                                      // ),
-                                      // color: Colors.transparent,
-                                      // ),
-                                      // constraints: const BoxConstraints(
-                                      //   minWidth: 20,
-                                      //   minHeight: 30,
-                                      // ),
-                                      child: Center(
-                                        child: Text(
-                                          entry.status
-                                              .replaceAll('_', ' ')
-                                              .toUpperCase(),
-                                          style: GoogleFonts.poppins(
-                                            color: getStatusColor(entry.status),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
+                                    Container(
+                                      child: Text(
+                                        entry.status
+                                            .replaceAll('_', ' ')
+                                            .toUpperCase(),
+                                        style: GoogleFonts.poppins(
+                                          color: getStatusColor(entry.status),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
                                         ),
                                       ),
                                       // ),

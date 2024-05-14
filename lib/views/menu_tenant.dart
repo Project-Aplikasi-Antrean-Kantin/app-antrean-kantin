@@ -8,6 +8,7 @@ import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/tenant_model.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
+import 'package:testgetdata/views/home/search_page.dart';
 import '../http/fetch_data_tenant.dart';
 import '../model/tenant_foods.dart';
 import '../provider/cart_provider.dart';
@@ -29,7 +30,7 @@ class _MenuTenantState extends State<MenuTenant> {
   late Future<TenantModel> futureTenantFoods;
   Map<String, dynamic> jumlahOffset = {};
   bool isLoading = false;
-
+  TenantModel? foundTenant;
   int? selected;
 
   @override
@@ -65,11 +66,6 @@ class _MenuTenantState extends State<MenuTenant> {
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
-    // if (data == null) {
-    //   return const Scaffold(
-    //     body: CircularProgressIndicator(),
-    //   );
-    // }
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 250, 250, 250),
       body: FutureBuilder<TenantModel>(
@@ -79,29 +75,13 @@ class _MenuTenantState extends State<MenuTenant> {
             final dataTenant = snapshot.data!.namaTenant;
             final List<TenantFoods>? listMenu = snapshot.data!.tenantFoods;
 
-            // final listMenu = GetByCategoryController(
-            //         dataListMakananTenant: snapshot.data!.tenantFoods
-            //             .map((element) => element['status'] == 1)
-            //             .toList())
-            //     .getMenu();
-            // final dataFoodsReady = snapshot.data!.foods
-            //     .where((element) => element['status'] == 1)
-            //     .toList();
-            // print('COBA LAGI $listMenu');
-            // final keysMenu = listMenu.keys;
-            // int acuan = 0;
-            // for (var kategori in keysMenu) {
-            //   jumlahOffset[kategori] = acuan;
-            //   acuan = (acuan + listMenu[kategori]!.length) * 155;
-            // }
-
             return WillPopScope(
               // todo: pindah jadikan widget jika memungkinkan
               onWillPop: () async {
                 if (Provider.of<CartProvider>(context, listen: false)
                     .cart
                     .isEmpty) {
-                  return true; // Izinkan kembali langsung jika keranjang kosong
+                  return true;
                 } else {
                   showDialog(
                     context: context,
@@ -339,18 +319,27 @@ class _MenuTenantState extends State<MenuTenant> {
                         }
                       },
                     ),
-
-                    // Icon notifikasi
-                    // actions: [
-                    //   IconButton(
-                    //     icon: const Icon(
-                    //       Icons.notifications,
-                    //       color: Colors.black,
-                    //       size: 24,
-                    //     ),
-                    //     onPressed: () {},
-                    //   ),
-                    // ],
+                    actions: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.search,
+                          color: Colors.black,
+                          size: 24,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchPageMenu(
+                                data: [],
+                                // url: MasbroConstants.url,
+                                url: MasbroConstants.url,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   SliverList(
                     delegate: SliverChildListDelegate(
@@ -367,89 +356,6 @@ class _MenuTenantState extends State<MenuTenant> {
                                   fontSize: 20,
                                 ),
                               ),
-
-                              // kategori menu
-
-                              // SingleChildScrollView(
-                              //   scrollDirection: Axis.horizontal,
-                              //   child: Container(
-                              //     height: 80,
-                              //     child: Row(
-                              //       children: categories.map((category) {
-                              //         return Row(
-                              //           children: [
-                              //             GestureDetector(
-                              //               onTap: () {
-                              //                 // Action when category is tapped
-                              //               },
-                              //               child: Container(
-                              //                 width: 80,
-                              //                 height: 30,
-                              //                 decoration: BoxDecoration(
-                              //                   color: Colors.white,
-                              //                   borderRadius:
-                              //                       BorderRadius.circular(12),
-                              //                   border: Border.all(
-                              //                     color: Colors.grey,
-                              //                     width: 1.5,
-                              //                   ),
-                              //                 ),
-                              //                 child: Row(
-                              //                   mainAxisAlignment:
-                              //                       MainAxisAlignment.center,
-                              //                   children: [
-                              //                     Text(
-                              //                       category,
-                              //                       style: const TextStyle(
-                              //                         color: Colors.black,
-                              //                         fontSize: 12,
-                              //                       ),
-                              //                     ),
-                              //                   ],
-                              //                 ),
-                              //               ),
-                              //             ),
-                              //             const SizedBox(width: 10),
-                              //           ],
-                              //         );
-                              //       }).toList(),
-                              //     ),
-                              //   ),
-                              // ),
-
-                              // Row(
-                              //   children: [
-                              //     for (int i = 0;
-                              //         i < snapshot.data!.category.length;
-                              //         i++)
-                              //       TextButton(
-                              //         onPressed: () {
-                              //           _scrollController.animateTo(
-                              //               jumlahOffset[snapshot
-                              //                       .data!.category[i]] +
-                              //                   .0,
-                              //               duration:
-                              //                   const Duration(seconds: 1),
-                              //               curve: Curves.linear);
-                              //           setState(() {
-                              //             if (selected == i)
-                              //               selected = null;
-                              //             else
-                              //               selected = i;
-                              //           });
-                              //         },
-                              //         child: Text(
-                              //           "${snapshot.data!.category[i]}\t\t",
-                              //           style: GoogleFonts.poppins(
-                              //               fontWeight: FontWeight.w500,
-                              //               fontSize: 16,
-                              //               color: selected == i
-                              //                   ? Colors.black
-                              //                   : Colors.grey),
-                              //         ),
-                              //       )
-                              //   ],
-                              // ),
                             ],
                           ),
                         ),
@@ -611,50 +517,6 @@ class _MenuTenantState extends State<MenuTenant> {
                                                 element.menuId ==
                                                 dataFoods.detailMenu?.id);
                                         if (id == -1) {
-                                          // return GestureDetector(
-                                          //   onTap: () {
-                                          //     Provider.of<CartProvider>(context,
-                                          //             listen: false)
-                                          //         .addRemove(
-                                          //       dataFoods.detailMenu?.id,
-                                          //       dataFoods.nama,
-                                          //       dataFoods.detailMenu?.harga,
-                                          //       dataFoods.detailMenu?.gambar,
-                                          //       dataTenant,
-                                          //       true,
-                                          //     );
-                                          //   },
-                                          //   child: Container(
-                                          //     width: 75,
-                                          //     height: 25,
-                                          //     decoration: BoxDecoration(
-                                          //       color: Colors.transparent,
-                                          //       borderRadius:
-                                          //           BorderRadius.circular(12),
-                                          //       border: Border.all(
-                                          //         color: Colors.redAccent,
-                                          //         width: 1.5,
-                                          //       ),
-                                          //     ),
-                                          //     child: Row(
-                                          //       mainAxisAlignment:
-                                          //           MainAxisAlignment.center,
-                                          //       children: [
-                                          //         Text(
-                                          //           dataFoods.detailMenu!
-                                          //                       .isReady ==
-                                          //                   1
-                                          //               ? 'Tambah'
-                                          //               : 'Habis',
-                                          //           style: const TextStyle(
-                                          //             color: Colors.redAccent,
-                                          //             fontSize: 12,
-                                          //           ),
-                                          //         ),
-                                          //       ],
-                                          //     ),
-                                          //   ),
-                                          // );
                                           return GestureDetector(
                                             onTap: () {
                                               if (dataFoods

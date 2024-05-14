@@ -185,6 +185,8 @@ class _HomePageState extends State<HomePage> {
               //   // )
               // ),
               SearchWidget(
+                paddingHorizontal: 20,
+                tittle: "Cari menu kesukaanmu . . .",
                 onChanged: (value) {
                   List<TenantModel> result = [];
                   if (value.isEmpty) {
@@ -194,7 +196,9 @@ class _HomePageState extends State<HomePage> {
                         .where((tenant) => (tenant.namaTenant +
                                 tenant.namaKavling +
                                 tenant.tenantFoods!
-                                    .map((food) => food.nama)
+                                    .map(
+                                      (food) => food.detailMenu!.nama,
+                                    )
                                     .join(' ')
                                     .toString())
                             .toLowerCase()

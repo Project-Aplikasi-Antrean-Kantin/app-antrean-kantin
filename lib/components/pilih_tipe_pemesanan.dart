@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/components/bottom_sheet_keranjang.dart';
 
 class PilihTipePemesanan extends StatelessWidget {
@@ -68,8 +69,14 @@ class PilihTipePemesanan extends StatelessWidget {
             ),
             child: Row(
               children: [
-                if (plihPengantaran == 0) Icon(Icons.abc),
-                if (plihPengantaran == 1) Icon(Icons.motorcycle),
+                if (plihPengantaran == 0)
+                  const Icon(
+                    Icons.fastfood,
+                  ),
+                if (plihPengantaran == 1)
+                  const Icon(
+                    Icons.delivery_dining_rounded,
+                  ),
                 Expanded(
                   flex: 1,
                   child: Container(
@@ -88,9 +95,11 @@ class PilihTipePemesanan extends StatelessWidget {
                           style: TextStyle(fontSize: 16),
                         ),
                         if (plihPengantaran != null)
-                          const Text(
-                            'Tunggu pesananmu sampai...',
-                            style: TextStyle(
+                          Text(
+                            plihPengantaran == 0
+                                ? 'Jemput pesananmu di kantin'
+                                : 'Pesananmu akan dikirim',
+                            style: GoogleFonts.poppins(
                               fontSize: 12,
                             ),
                             maxLines: 1,

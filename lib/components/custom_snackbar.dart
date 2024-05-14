@@ -8,9 +8,13 @@ class CustomSnackBar extends SnackBar {
       : super(
           content: Row(
             children: [
-              const Icon(Icons.error,
-                  color: Colors.white), // Tambahkan ikon (opsional)
-              const SizedBox(width: 10), // Beri jarak antara ikon dan teks
+              const Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
               Expanded(
                 child: Text(
                   message, // Tampilkan pesan kesalahan

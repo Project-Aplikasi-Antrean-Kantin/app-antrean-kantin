@@ -47,7 +47,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
-                  vertical: 10,
+                  vertical: 20,
                 ),
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -59,46 +59,44 @@ class PesananMenungguState extends State<PesananMenunggu> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 10,
-                            left: 5,
-                            right: 5,
-                          ),
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Color.fromARGB(255, 31, 31, 31),
-                                width: 1,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(
+                              bottom: 5,
+                            ),
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Color.fromARGB(255, 31, 31, 31),
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              '${entry.listTransaksiDetail[0].menusKelola.tenants.namaTenant}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          child: Text(
-                            '${entry.listTransaksiDetail[0].menusKelola.tenants.namaTenant}',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                          const Spacer(
+                            flex: 1,
+                          ),
+                          Container(
+                            child: Text(
+                              '${entry.namaRuangan}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                        const Spacer(
-                          flex: 1,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 10,
-                          ),
-                          child: Text(
-                            '${entry.namaRuangan}',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     ...pesananPembeli.map((item) {
                       int harga = item.harga;
@@ -203,7 +201,10 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                           ),
                                         ),
                                         TextSpan(
-                                          text: " Rp. 1.000",
+                                          text: FormatCurrency
+                                              .intToStringCurrency(
+                                            1000,
+                                          ),
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                           ),
@@ -243,25 +244,13 @@ class PesananMenungguState extends State<PesananMenunggu> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  '#$idPesanan',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              child: ElevatedButton(
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 9),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ElevatedButton(
                                 onPressed: () {
                                   widget.pesananDiantar(
                                       idPesanan, entry, user.token);
@@ -275,16 +264,17 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                   ),
                                   backgroundColor: Colors.redAccent,
                                   minimumSize: const Size(20, 30),
+                                  fixedSize: Size(180, 35),
                                 ),
-                                child: const Text(
-                                  'Kirim',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
+                                child: Text(
+                                  'Antar Pesanan',
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),

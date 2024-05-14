@@ -18,44 +18,96 @@ class KatalogMenu extends StatelessWidget {
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
 
-    return ChangeNotifierProvider(
-      create: (context) => KatalogMenuProvider(bearerToken: user.token),
-      child: Consumer<KatalogMenuProvider>(builder: (context, provider, child) {
-        return DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            appBar: AppBarWidget(
-              leadingIcon: Icons.keyboard_backspace,
-              onLeadingPressed: () {
-                Navigator.of(context).pop();
+    return FutureBuilder(
+        future: context.read<KatalogMenuProvider>().fetchData(user.token),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+                body: Center(
+              child: CircularProgressIndicator(),
+            ));
+          } else {
+            return Consumer<KatalogMenuProvider>(
+              builder: (context, provider, child) {
+                return DefaultTabController(
+                  length: 2,
+                  child: Scaffold(
+                    appBar: AppBarWidget(
+                      leadingIcon: Icons.keyboard_backspace,
+                      onLeadingPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      title: "Katalog Menu",
+                      tab1Title: "Tersedia",
+                      tab2Title: "Habis",
+                      // tab3Title: "harusnya ga ada",
+                    ),
+                    body: TabBarView(
+                      key: UniqueKey(),
+                      children: [
+                        provider.isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : MenuTersedia(
+                                data: provider.data,
+                              ),
+                        provider.isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : MenuHabis(
+                                data: provider.data,
+                              ),
+                      ],
+                    ),
+                  ),
+                );
               },
-              title: "Katalog Menu",
-              tab1Title: "Tersedia",
-              tab2Title: "Habis",
-              // tab3Title: "harusnya ga ada",
-            ),
-            body: TabBarView(
-              key: UniqueKey(),
-              children: [
-                provider.isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : MenuTersedia(
-                        data: provider.data,
-                      ),
-                provider.isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : MenuHabis(
-                        data: provider.data,
-                      ),
-              ],
-            ),
-          ),
+            );
+          }
+        }
+        // builder: (context, snapshot){
+        //   if(snapshot)
+        // },
+        // (context) => KatalogMenuProvider(bearerToken: user.token),
+        // child:
+        // Consumer<KatalogMenuProvider>(builder: (context, provider, child) {
+        //   return DefaultTabController(
+        //     length: 2,
+        //     child: Scaffold(
+        //       appBar: AppBarWidget(
+        //         leadingIcon: Icons.keyboard_backspace,
+        //         onLeadingPressed: () {
+        //           Navigator.of(context).pop();
+        //         },
+        //         title: "Katalog Menu",
+        //         tab1Title: "Tersedia",
+        //         tab2Title: "Habis",
+        //         // tab3Title: "harusnya ga ada",
+        //       ),
+        //       body: TabBarView(
+        //         key: UniqueKey(),
+        //         children: [
+        //           provider.isLoading
+        //               ? const Center(
+        //                   child: CircularProgressIndicator(),
+        //                 )
+        //               : MenuTersedia(
+        //                   data: provider.data,
+        //                 ),
+        //           provider.isLoading
+        //               ? const Center(
+        //                   child: CircularProgressIndicator(),
+        //                 )
+        //               : MenuHabis(
+        //                   data: provider.data,
+        //                 ),
+        //         ],
+        //       ),
+        //     ),
+        //   );
+        // }
         );
-      }),
-    );
   }
 }

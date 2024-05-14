@@ -11,7 +11,12 @@ import 'package:testgetdata/views/menu_tenant.dart';
 class ListTenant extends StatelessWidget {
   final url;
   final List<TenantModel> foundTenant;
-  const ListTenant({super.key, required this.url, required this.foundTenant});
+
+  const ListTenant({
+    super.key,
+    required this.url,
+    required this.foundTenant,
+  });
 
   @override
   Widget build(BuildContext context) {

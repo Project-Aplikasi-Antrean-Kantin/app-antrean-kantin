@@ -7,7 +7,7 @@ import 'package:testgetdata/components/custom_snackbar.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/home/home_page.dart';
 import 'package:testgetdata/views/login.dart';
-import 'package:testgetdata/views/tenant.dart';
+// import 'package:testgetdata/views/tenant.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -22,11 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
       Provider.of<AuthProvider>(context, listen: false);
 
   Future authCheck() async {
-    log("MASUK AUTH");
+    debugPrint("MASUK TOKEN AUTH");
     final token =
         await tokenManager.getToken(); // Ambil token dari Shared Preferences
     if (token != null) {
-      log("TOKEN ONOK");
+      debugPrint("TOKEN TERSEDIA");
       final success = await authProvider.authWithToken(errorCallback: (error) {
         CustomSnackBar(
           message: error.toString(),
@@ -34,14 +34,14 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       });
       if (success) {
-        log("SUKSES BOLO");
+        debugPrint("SUKSES MASUK, TOKEN TERSEDIA");
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => const HomePage(),
             ));
       } else {
-        log("GAISOK COKK");
+        debugPrint("GAISOK MASUK, TOKEN TIDAK TERSEDIA");
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ));
       }
     } else {
-      log("NuLL COKK");
+      debugPrint("NULL");
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -65,6 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: const Color(0xF8F8F8F8),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image(
               width: MediaQuery.of(context).size.width,
@@ -73,9 +74,9 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(
               height: 20,
             ),
-            const CircularProgressIndicator(
-              strokeWidth: 3,
-            )
+            // const CircularProgressIndicator(
+            //   strokeWidth: 3,
+            // )
           ],
         ),
       ),

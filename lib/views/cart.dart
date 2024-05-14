@@ -103,7 +103,9 @@ class _CartState extends State<Cart> {
                     itemCount: data.cart.length,
                     itemBuilder: (context, i) {
                       // List item pembeli
-                      return ListCart(cart: data.cart[i]);
+                      return ListCart(
+                        cart: data.cart[i],
+                      );
                     },
                   );
                 },
@@ -321,7 +323,8 @@ class _CartState extends State<Cart> {
                                     Provider.of<CartProvider>(context,
                                             listen: false)
                                         .clearCart();
-                                    Navigator.pushNamed(context, '/beranda');
+                                    Navigator.pushNamed(
+                                        context, '/sukses_order');
                                   } else {
                                     print('gagal brooo');
                                   }

@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/http/delete_menu_tenant.dart';
 import 'package:testgetdata/http/update_menu_kelola.dart';
 import 'package:testgetdata/model/kategori_menu_model.dart';
 import 'package:testgetdata/model/tenant_foods.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
+import 'package:testgetdata/provider/katalog_menu_provider.dart';
 
 class EditMenuPage extends StatefulWidget {
   final TenantFoods tenantFoods;
@@ -47,6 +49,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
     KategoriMenu(id: 3, nama: 'Es Teh', kategoriId: 2),
     KategoriMenu(id: 4, nama: 'Bakso', kategoriId: 1),
     KategoriMenu(id: 5, nama: 'Mie Ayam', kategoriId: 1),
+    KategoriMenu(id: 13, nama: 'Lainnya...', kategoriId: 1),
   ];
   String? selectedImagePath;
 
@@ -112,6 +115,8 @@ class _EditMenuPageState extends State<EditMenuPage> {
             Navigator.pop(context);
           },
         ),
+
+        // Button Hapus Menu
         actions: [
           IconButton(
             icon: const Icon(
@@ -120,7 +125,105 @@ class _EditMenuPageState extends State<EditMenuPage> {
               size: 24,
             ),
             onPressed: () {
-              // Navigator.pop(context);
+              // deleteMenu(user.token, widget.tenantFoods.detailMenu!.id);
+              context
+                  .read<KatalogMenuProvider>()
+                  .deleteFood(user.token, widget.tenantFoods.detailMenu!.id);
+              Navigator.of(context).pop();
+              // showDialog(
+              //   context: context,
+              //   builder: (BuildContext context) {
+              //     return Dialog(
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(10),
+              //       ),
+              //       child: Container(
+              //         padding: const EdgeInsets.all(25),
+              //         child: Column(
+              //           mainAxisSize: MainAxisSize.min,
+              //           crossAxisAlignment: CrossAxisAlignment.center,
+              //           children: [
+              //             const Text(
+              //               "Hapus Menu",
+              //               style: TextStyle(
+              //                 fontSize: 16,
+              //                 fontWeight: FontWeight.bold,
+              //               ),
+              //             ),
+              //             const SizedBox(height: 8),
+              //             const Text(
+              //               "Apakah Anda yakin ingin untuk menghapus menu ini?",
+              //               style: TextStyle(
+              //                 fontSize: 14,
+              //               ),
+              //               textAlign: TextAlign.center,
+              //             ),
+              //             const SizedBox(height: 16),
+              //             Row(
+              //               mainAxisAlignment: MainAxisAlignment.center,
+              //               children: [
+              //                 TextButton(
+              //                   onPressed: () {
+              //                     Navigator.of(context).pop();
+              //                   },
+              //                   style: ButtonStyle(
+              //                     shape: MaterialStateProperty.all<
+              //                         RoundedRectangleBorder>(
+              //                       RoundedRectangleBorder(
+              //                         borderRadius: BorderRadius.circular(5.0),
+              //                         side: const BorderSide(
+              //                           color: Colors.grey,
+              //                         ),
+              //                       ),
+              //                     ),
+              //                     minimumSize:
+              //                         MaterialStateProperty.all(Size(100, 30)),
+              //                   ),
+              //                   child: const Text(
+              //                     "Batal",
+              //                     style: TextStyle(
+              //                       color: Color.fromARGB(255, 99, 99, 99),
+              //                     ),
+              //                   ),
+              //                 ),
+              //                 const SizedBox(width: 16),
+              //                 TextButton(
+              //                   onPressed: () {
+              //                     context
+              //                         .read<KatalogMenuProvider>()
+              //                         .deleteFood(user.token,
+              //                             widget.tenantFoods.detailMenu!.id);
+              //                     // Navigator.of(context).pop();
+              //                   },
+              //                   style: ButtonStyle(
+              //                     shape: MaterialStateProperty.all<
+              //                         RoundedRectangleBorder>(
+              //                       RoundedRectangleBorder(
+              //                         borderRadius: BorderRadius.circular(5.0),
+              //                       ),
+              //                     ),
+              //                     backgroundColor:
+              //                         MaterialStateProperty.all<Color>(
+              //                       Color.fromARGB(227, 244, 67, 54),
+              //                     ),
+              //                     minimumSize:
+              //                         MaterialStateProperty.all(Size(100, 30)),
+              //                   ),
+              //                   child: const Text(
+              //                     "Hapus",
+              //                     style: TextStyle(
+              //                       color: Colors.white,
+              //                     ),
+              //                   ),
+              //                 ),
+              //               ],
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     );
+              //   },
+              // );
             },
           ),
         ],
@@ -184,22 +287,74 @@ class _EditMenuPageState extends State<EditMenuPage> {
                               if (selectedImagePath != null) {
                                 int imageSizeKB =
                                     await _getImageSize(selectedImagePath!);
-                                if (imageSizeKB > 1024) {
+                                if (imageSizeKB > 2048) {
+                                  // ignore: use_build_context_synchronously
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Warning'),
-                                        content: Text(
-                                            'Gambar yang kamu pilih lebih dari 1MB'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text('OK'),
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(25),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              const Text(
+                                                "Peringatan!",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 15),
+                                              const Text(
+                                                "Gambar yang kamu pilih lebih dari 2MB.",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                style: ButtonStyle(
+                                                  shape:
+                                                      MaterialStateProperty.all<
+                                                          RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        5.0,
+                                                      ),
+                                                      side: const BorderSide(
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  minimumSize:
+                                                      MaterialStateProperty.all(
+                                                          Size(100, 30)),
+                                                ),
+                                                child: const Text(
+                                                  "Batal",
+                                                  style: TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 99, 99, 99),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       );
                                     },
                                   );
@@ -258,7 +413,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                               });
                             },
                             hint: const Text(
-                              'Pilih kategori manu',
+                              'Pilih kategori menu',
                             ),
                             isExpanded: true,
                             // elevation: 0,
@@ -297,23 +452,12 @@ class _EditMenuPageState extends State<EditMenuPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Text(
-                            'Deskripsi Menu',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const Text(
-                            ' *',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Deskripsi Menu',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       TextField(
                         controller: deskripsiMenuController,
@@ -397,38 +541,160 @@ class _EditMenuPageState extends State<EditMenuPage> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              final menu_id = selectedCategory;
-                              final nama_menu = namaMenuController.text;
-                              final harga_menu = hargaMenuController.text;
-                              final deskripsi_menu =
-                                  deskripsiMenuController.text;
-                              final data = {
-                                "menu_id": menu_id,
-                                "nama_menu": nama_menu,
-                                "deskripsi_menu": deskripsi_menu,
-                                "harga": harga_menu,
-                                "gambar": selectedImagePath
-                              };
-                              updateMenuKelolaFile(user.token, (data),
-                                      widget.tenantFoods.detailMenu!.id)
-                                  .then((value) {
-                                print('value setelah edit $value');
-                                if (value) {
-                                  // Navigator.pushReplacementNamed(
-                                  //     context, '/profile');
-                                  Navigator.pop(context, true);
-                                } else {
-                                  // Navigator.pop(context);
-                                }
-                              }).whenComplete(() {
-                                // Hide CircularProgressIndicator when operation is completed
+                              // setState(() {
+                              //   isLoading = true;
+                              // });
+                              // final menu_id = selectedCategory;
+                              // final nama_menu = namaMenuController.text;
+                              // final harga_menu = hargaMenuController.text;
+                              // final deskripsi_menu =
+                              //     deskripsiMenuController.text;
+                              // final data = {
+                              //   "menu_id": menu_id,
+                              //   "nama_menu": nama_menu,
+                              //   "deskripsi_menu": deskripsi_menu,
+                              //   "harga": harga_menu,
+                              //   "gambar": selectedImagePath
+                              // };
+                              // updateMenuKelolaFile(user.token, (data),
+                              //         widget.tenantFoods.detailMenu!.id)
+                              //     .then((value) {
+                              //   debugPrint('value setelah edit $value');
+                              //   if (value) {
+                              //     // Navigator.pushReplacementNamed(
+                              //     //     context, '/profile');
+                              //     Navigator.pop(context, true);
+                              //   } else {
+                              //     // Navigator.pop(context);
+                              //     debugPrint('gagall');
+                              //   }
+                              // }).whenComplete(() {
+                              //   // Hide CircularProgressIndicator when operation is completed
+                              //   setState(() {
+                              //     isLoading = false;
+                              //   });
+                              // });
+                              String message = '';
+                              if (hargaMenuController.text.isEmpty &&
+                                  selectedCategory == null) {
+                                message =
+                                    "Kategori dan harga menu belum diisi.";
+                              } else if (hargaMenuController.text.isEmpty) {
+                                message = "Harga menu belum diisi.";
+                              } else if (selectedCategory == null) {
+                                message = "Kategori menu belum dipilih.";
+                              } else if (double.tryParse(
+                                      hargaMenuController.text)! <=
+                                  0) {
+                                message =
+                                    "Koreksi harga! Harga menu harus lebih besar dari 0";
+                              }
+
+                              if (message.isNotEmpty) {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Dialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(25),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Koreksi field!",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 15),
+                                            Text(
+                                              message,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            const SizedBox(height: 16),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              style: ButtonStyle(
+                                                shape:
+                                                    MaterialStateProperty.all<
+                                                        RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5.0),
+                                                    side: const BorderSide(
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
+                                                minimumSize:
+                                                    MaterialStateProperty.all(
+                                                        Size(100, 30)),
+                                              ),
+                                              child: const Text(
+                                                "Ok",
+                                                style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 99, 99, 99),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              } else {
                                 setState(() {
-                                  isLoading = false;
+                                  isLoading = true;
                                 });
-                              });
+
+                                final menu_id = selectedCategory;
+                                final nama_menu = namaMenuController.text;
+                                final harga_menu = hargaMenuController.text;
+                                final deskripsi_menu =
+                                    deskripsiMenuController.text;
+
+                                final data = {
+                                  "menu_id": menu_id,
+                                  "nama_menu": nama_menu,
+                                  "deskripsi_menu": deskripsi_menu,
+                                  "harga": harga_menu,
+                                  "gambar": selectedImagePath,
+                                };
+
+                                updateMenuKelolaFile(user.token, (data),
+                                        widget.tenantFoods.detailMenu!.id)
+                                    .then((value) {
+                                  debugPrint('value setelah edit $value');
+                                  if (value) {
+                                    // Navigator.pushReplacementNamed(
+                                    //     context, '/profile');
+                                    Navigator.pop(context, true);
+                                  } else {
+                                    // Navigator.pop(context);
+                                    debugPrint('gagall');
+                                  }
+                                }).whenComplete(() {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                });
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               side: const BorderSide(

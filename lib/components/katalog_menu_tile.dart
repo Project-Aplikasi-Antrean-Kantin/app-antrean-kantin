@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/tenant_foods.dart';
+import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/views/tenant/edit_menu.dart';
 
@@ -75,7 +76,9 @@ class KatalogMenuTile extends StatelessWidget {
                       print("runtime type : " + value.runtimeType.toString());
                       print('value $value');
                       if ((value as bool?) == true) {
-                        context.read<KatalogMenuProvider>().fetchData();
+                        context
+                            .read<KatalogMenuProvider>()
+                            .fetchData(context.read<AuthProvider>().user.token);
                       }
                     });
                   },

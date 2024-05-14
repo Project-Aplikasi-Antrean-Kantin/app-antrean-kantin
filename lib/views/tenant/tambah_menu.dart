@@ -46,6 +46,7 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
     KategoriMenu(id: 3, nama: 'Es Teh', kategoriId: 2),
     KategoriMenu(id: 4, nama: 'Bakso', kategoriId: 1),
     KategoriMenu(id: 5, nama: 'Mie Ayam', kategoriId: 1),
+    KategoriMenu(id: 13, nama: 'Lainnya...', kategoriId: 1),
   ];
 
   @override
@@ -98,18 +99,18 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications,
-              color: Colors.black,
-              size: 24,
-            ),
-            onPressed: () {
-              // Navigator.pop(context);
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(
+        //       Icons.notifications,
+        //       color: Colors.black,
+        //       size: 24,
+        //     ),
+        //     onPressed: () {
+        //       // Navigator.pop(context);
+        //     },
+        //   ),
+        // ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4.0),
           child: Container(
@@ -170,22 +171,74 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                               if (selectedImagePath != null) {
                                 int imageSizeKB =
                                     await _getImageSize(selectedImagePath!);
-                                if (imageSizeKB > 1024) {
+                                if (imageSizeKB > 2048) {
+                                  // ignore: use_build_context_synchronously
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Warning'),
-                                        content: Text(
-                                            'Gambar yang kamu pilih lebih dari 1MB'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text('OK'),
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(25),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              const Text(
+                                                "Peringatan!",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 15),
+                                              const Text(
+                                                "Gambar yang kamu pilih lebih dari 2MB.",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                style: ButtonStyle(
+                                                  shape:
+                                                      MaterialStateProperty.all<
+                                                          RoundedRectangleBorder>(
+                                                    RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        5.0,
+                                                      ),
+                                                      side: const BorderSide(
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  minimumSize:
+                                                      MaterialStateProperty.all(
+                                                          Size(100, 30)),
+                                                ),
+                                                child: const Text(
+                                                  "Batal",
+                                                  style: TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 99, 99, 99),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       );
                                     },
                                   );
@@ -254,23 +307,12 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Text(
-                            'Nama Menu',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const Text(
-                            ' *',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Nama Menu',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       TextFormField(
                         controller: namaMenuController,
@@ -283,30 +325,18 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Text(
-                            'Deskripsi Menu',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const Text(
-                            ' *',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Deskripsi Menu',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       TextField(
                         controller: deskripsiMenuController,
-                        maxLines: 3, // Atau jumlah baris yang diinginkan
+                        maxLines: 3,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                          // labelText: 'Deskripsi',
                           hintText: 'Masukkan deskripsi',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -336,7 +366,7 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                         controller: hargaMenuController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          hintText: 'Rp. ',
+                          hintText: 'Rp',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
@@ -375,91 +405,155 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                           ),
                         ),
                       ),
-                      // Expanded(
-                      //   child: Container(
-                      //     margin: const EdgeInsets.only(left: 5),
-                      //     decoration: BoxDecoration(
-                      //       borderRadius: BorderRadius.circular(10),
-                      //     ),
-                      //     child: ElevatedButton(
-                      //       onPressed: () {
-                      //         // Navigator.pop(context, true);
-                      //         final menu_id = selectedCategory;
-                      //         final nama_menu = namaMenuController.text;
-                      //         final harga_menu = hargaMenuController.text;
-                      //         final deskripsi_menu =
-                      //             deskripsiMenuController.text;
-
-                      //         final data = {
-                      //           "menu_id": menu_id,
-                      //           "nama_menu": nama_menu,
-                      //           "deskripsi_menu": deskripsi_menu,
-                      //           "harga": harga_menu,
-                      //           "gambar": selectedImagePath,
-                      //         };
-                      //         addMenuKelolaFile(user.token, (data))
-                      //             .then((value) {
-                      //           if (value) {
-                      //             Navigator.pushReplacementNamed(
-                      //                 context, '/katalog_menu');
-                      //           } else {
-                      //             // Navigator.pop(context);
-                      //           }
-                      //         });
-                      //       },
-                      //       style: ElevatedButton.styleFrom(
-                      //         side: const BorderSide(
-                      //           color: Colors.redAccent,
-                      //         ),
-                      //         backgroundColor: Colors.redAccent,
-                      //         shape: RoundedRectangleBorder(
-                      //           borderRadius: BorderRadius.circular(10),
-                      //         ),
-                      //       ),
-                      //       child: const Text(
-                      //         'Simpan',
-                      //         style: TextStyle(
-                      //           color: Colors.white,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                       Expanded(
                         child: ElevatedButton(
+                          // onPressed: () {
+                          //   setState(() {
+                          //     isLoading = true;
+                          //   });
+
+                          //   final menu_id = selectedCategory;
+                          //   final nama_menu = namaMenuController.text;
+                          //   final harga_menu = hargaMenuController.text;
+                          //   final deskripsi_menu = deskripsiMenuController.text;
+
+                          //   final data = {
+                          //     "menu_id": menu_id,
+                          //     "nama_menu": nama_menu,
+                          //     "deskripsi_menu": deskripsi_menu,
+                          //     "harga": harga_menu,
+                          //     "gambar": selectedImagePath,
+                          //   };
+
+                          //   addMenuKelolaFile(user.token, (data)).then((value) {
+                          //     if (value) {
+                          //       Navigator.pushReplacementNamed(
+                          //           context, '/katalog_menu');
+                          //     } else {}
+                          //   }).whenComplete(() {
+                          //     setState(() {
+                          //       isLoading = false;
+                          //     });
+                          //   });
+                          // },
                           onPressed: () {
-                            // Show CircularProgressIndicator when button is pressed
-                            setState(() {
-                              isLoading = true;
-                            });
+                            String message = '';
+                            if (hargaMenuController.text.isEmpty &&
+                                selectedCategory == null) {
+                              message = "Kategori dan harga menu belum diisi.";
+                            } else if (hargaMenuController.text.isEmpty) {
+                              message = "Harga menu belum diisi.";
+                            } else if (selectedCategory == null) {
+                              message = "Kategori menu belum dipilih.";
+                            } else if (double.tryParse(
+                                    hargaMenuController.text)! <=
+                                0) {
+                              message =
+                                  "Koreksi harga! Harga menu harus lebih besar dari 0";
+                            }
 
-                            final menu_id = selectedCategory;
-                            final nama_menu = namaMenuController.text;
-                            final harga_menu = hargaMenuController.text;
-                            final deskripsi_menu = deskripsiMenuController.text;
-
-                            final data = {
-                              "menu_id": menu_id,
-                              "nama_menu": nama_menu,
-                              "deskripsi_menu": deskripsi_menu,
-                              "harga": harga_menu,
-                              "gambar": selectedImagePath,
-                            };
-
-                            addMenuKelolaFile(user.token, (data)).then((value) {
-                              if (value) {
-                                Navigator.pushReplacementNamed(
-                                    context, '/katalog_menu');
-                              } else {
-                                // Handle failure
-                              }
-                            }).whenComplete(() {
-                              // Hide CircularProgressIndicator when operation is completed
+                            if (message.isNotEmpty) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(25),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Koreksi field!",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 15),
+                                          Text(
+                                            message,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                                RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0),
+                                                  side: const BorderSide(
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ),
+                                              minimumSize:
+                                                  MaterialStateProperty.all(
+                                                      Size(100, 30)),
+                                            ),
+                                            child: const Text(
+                                              "Ok",
+                                              style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 99, 99, 99),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
                               setState(() {
-                                isLoading = false;
+                                isLoading = true;
                               });
-                            });
+
+                              final menu_id = selectedCategory;
+                              final nama_menu = namaMenuController.text;
+                              final harga_menu = hargaMenuController.text;
+                              final deskripsi_menu =
+                                  deskripsiMenuController.text;
+
+                              final data = {
+                                "menu_id": menu_id,
+                                "nama_menu": nama_menu,
+                                "deskripsi_menu": deskripsi_menu,
+                                "harga": harga_menu,
+                                "gambar": selectedImagePath,
+                              };
+
+                              addMenuKelolaFile(user.token, (data))
+                                  .then((value) {
+                                if (value) {
+                                  Navigator.pushReplacementNamed(
+                                      context, '/katalog_menu');
+                                } else {
+                                  print('gg');
+                                }
+                              }).whenComplete(() {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              });
+                            }
                           },
+
                           style: ElevatedButton.styleFrom(
                             side: BorderSide(color: Colors.redAccent),
                             backgroundColor: Colors.redAccent,

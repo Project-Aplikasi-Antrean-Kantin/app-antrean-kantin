@@ -2,8 +2,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/components/sukses_order.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/views/home/history_page.dart';
 import 'package:testgetdata/views/home/home_page.dart';
 import 'package:testgetdata/views/home/profile_page.dart';
@@ -83,6 +85,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => KatalogMenuProvider()),
       ],
       child: MaterialApp(
         home: const SplashScreen(),
@@ -100,6 +103,7 @@ class MyApp extends StatelessWidget {
           '/beranda': (context) => const HomePage(),
           '/pengantaran': (context) => const PerluPengantaran(),
           '/pesanan': (context) => const PesananTenant(),
+          '/sukses_order': (context) => const SuksesOrder(),
           '/riwayat': (context) => const RiwayatPage(),
           '/profile': (context) => const ProfilePage(),
           '/katalog_menu': (context) => const KatalogMenu(),

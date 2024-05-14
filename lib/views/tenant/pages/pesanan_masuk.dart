@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/common/format_currency.dart';
 import 'package:testgetdata/components/custom_snackbar.dart';
 import 'package:testgetdata/components/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/exceptions/api_exception.dart';
@@ -46,7 +47,7 @@ class PesananMasuk extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
-                  vertical: 10,
+                  vertical: 20,
                 ),
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -58,24 +59,28 @@ class PesananMasuk extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.only(
-                        top: 10,
-                        bottom: 5,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
                       ),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Color.fromARGB(255, 31, 31, 31),
-                            width: 1,
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                          bottom: 5,
+                        ),
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Color.fromARGB(255, 31, 31, 31),
+                              width: 1,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Text(
-                        'Pesanan No-$idPesanan',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                        child: Text(
+                          'Pesanan No-$idPesanan',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -121,7 +126,9 @@ class PesananMasuk extends StatelessWidget {
                                   ),
                                   Column(children: [
                                     Text(
-                                      'Rp. $subtotal',
+                                      FormatCurrency.intToStringCurrency(
+                                        subtotal,
+                                      ),
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
                                       ),
@@ -145,7 +152,9 @@ class PesananMasuk extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    'Rp. $subtotal',
+                                    FormatCurrency.intToStringCurrency(
+                                      subtotal,
+                                    ),
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -157,97 +166,108 @@ class PesananMasuk extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Tambahkan logika untuk menolak pesanan di sini
-                                  try {
-                                    tolakPesanan(idPesanan, entry, user.token);
-                                  } catch (e) {
-                                    // PERHATIKAN
-                                    if (e is ApiException) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        CustomSnackBar(
-                                          status: e.status,
-                                          message: e.message,
-                                        ),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        CustomSnackBar(
-                                          status: 'failed',
-                                          message: e.toString(),
-                                        ),
-                                      );
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 9),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Tambahkan logika untuk menolak pesanan di sini
+                                    try {
+                                      tolakPesanan(
+                                          idPesanan, entry, user.token);
+                                    } catch (e) {
+                                      // PERHATIKAN
+                                      if (e is ApiException) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          CustomSnackBar(
+                                            status: e.status,
+                                            message: e.message,
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          CustomSnackBar(
+                                            status: 'failed',
+                                            message: e.toString(),
+                                          ),
+                                        );
+                                      }
                                     }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    side: const BorderSide(
+                                      color: Color.fromARGB(130, 0, 0, 0),
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    minimumSize: const Size(20, 30),
                                   ),
-                                  side: const BorderSide(
-                                    color: Color.fromARGB(130, 0, 0, 0),
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  minimumSize: const Size(20, 30),
-                                ),
-                                child: const Text(
-                                  'Tolak',
-                                  style: TextStyle(
-                                    color: Colors.black,
+                                  child: Text(
+                                    'Tolak',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  try {
-                                    terimaPesanan(idPesanan, entry, user.token);
-                                  } catch (e) {
-                                    // PERHATIKAN
-                                    if (e is ApiException) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(CustomSnackBar(
-                                              status: e.status,
-                                              message: e.message));
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(CustomSnackBar(
-                                              status: 'failed',
-                                              message: e.toString()));
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    try {
+                                      terimaPesanan(
+                                          idPesanan, entry, user.token);
+                                    } catch (e) {
+                                      // PERHATIKAN
+                                      if (e is ApiException) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          CustomSnackBar(
+                                            status: e.status,
+                                            message: e.message,
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          CustomSnackBar(
+                                            status: 'failed',
+                                            message: e.toString(),
+                                          ),
+                                        );
+                                      }
                                     }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    side: const BorderSide(
+                                      color: Colors.redAccent,
+                                    ),
+                                    backgroundColor: Colors.redAccent,
+                                    minimumSize: const Size(20, 30),
                                   ),
-                                  side: const BorderSide(
-                                    color: Colors.redAccent,
-                                  ),
-                                  backgroundColor: Colors.redAccent,
-                                  minimumSize: const Size(20, 30),
-                                ),
-                                child: const Text(
-                                  'Terima',
-                                  style: TextStyle(
-                                    color: Colors.white,
+                                  child: Text(
+                                    'Terima',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),

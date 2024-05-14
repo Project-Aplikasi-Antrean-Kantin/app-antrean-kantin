@@ -145,6 +145,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                 width: 0.2,
                                 color: Colors.grey[900]!,
                               ),
+                              bottom: BorderSide(
+                                width: 0.2,
+                                color: Colors.grey[900]!,
+                              ),
                             ),
                           ),
                           child: Row(
@@ -176,56 +180,56 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          // Navigator.of(context).pushNamed('/riwayat1');
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                          ),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(
-                                width: 0.2,
-                                color: Colors.grey[900]!,
-                              ),
-                              bottom: BorderSide(
-                                width: 0.2,
-                                color: Colors.grey[900]!,
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                child: Icon(
-                                  Icons.storefront,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                'Profil Tenant',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const Spacer(
-                                flex: 1,
-                              ),
-                              const Icon(
-                                Icons.arrow_right,
-                                size: 24.0,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     // Navigator.of(context).pushNamed('/riwayat');
+                      //   },
+                      //   child: Container(
+                      //     padding: const EdgeInsets.symmetric(
+                      //       vertical: 10,
+                      //     ),
+                      //     width: double.infinity,
+                      //     decoration: BoxDecoration(
+                      //       border: Border(
+                      //         top: BorderSide(
+                      //           width: 0.2,
+                      //           color: Colors.grey[900]!,
+                      //         ),
+                      //         bottom: BorderSide(
+                      //           width: 0.2,
+                      //           color: Colors.grey[900]!,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     child: Row(
+                      //       children: [
+                      //         const Padding(
+                      //           padding: EdgeInsets.symmetric(horizontal: 5),
+                      //           child: Icon(
+                      //             Icons.storefront,
+                      //             size: 20,
+                      //           ),
+                      //         ),
+                      //         const SizedBox(
+                      //           width: 10,
+                      //         ),
+                      //         Text(
+                      //           'Profil Tenant',
+                      //           style: GoogleFonts.poppins(
+                      //             fontSize: 16,
+                      //           ),
+                      //         ),
+                      //         const Spacer(
+                      //           flex: 1,
+                      //         ),
+                      //         const Icon(
+                      //           Icons.arrow_right,
+                      //           size: 24.0,
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   )
                 : const SizedBox(
@@ -244,8 +248,150 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
+            // GestureDetector(
+            //   onTap: () {},
+            //   child: Container(
+            //     padding: EdgeInsets.symmetric(
+            //       vertical: 10,
+            //     ),
+            //     width: double.infinity,
+            //     decoration: BoxDecoration(
+            //       border: Border(
+            //         top: BorderSide(
+            //           width: 0.2,
+            //           color: Colors.grey[900]!,
+            //         ),
+            //         bottom: BorderSide(
+            //           width: 0.2,
+            //           color: Colors.grey[900]!,
+            //         ),
+            //       ),
+            //     ),
+            //     child: Row(
+            //       children: [
+            //         const Padding(
+            //           padding: EdgeInsets.symmetric(horizontal: 5),
+            //           child: Icon(
+            //             Icons.admin_panel_settings_outlined,
+            //             size: 20,
+            //           ),
+            //         ),
+            //         const SizedBox(
+            //           width: 10,
+            //         ),
+            //         Text(
+            //           'Akun dan Keamanan',
+            //           style: GoogleFonts.poppins(
+            //             fontSize: 16,
+            //           ),
+            //         ),
+            //         const Spacer(
+            //           flex: 1,
+            //         ),
+            //         const Icon(
+            //           Icons.arrow_right,
+            //           size: 24.0,
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(25),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Konfirmasi Keluar",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              "Apakah Anda yakin ingin keluar?",
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                        side: const BorderSide(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                    minimumSize: MaterialStateProperty.all(
+                                        Size(100, 30)),
+                                  ),
+                                  child: const Text(
+                                    "Batal",
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 99, 99, 99),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                TextButton(
+                                  onPressed: () {
+                                    handleLogout();
+                                    Navigator.of(context).pop();
+                                  },
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                      Color.fromARGB(227, 244, 67, 54),
+                                    ),
+                                    minimumSize: MaterialStateProperty.all(
+                                        Size(100, 30)),
+                                  ),
+                                  child: const Text(
+                                    "Keluar",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
               child: Container(
                 padding: EdgeInsets.symmetric(
                   vertical: 10,
@@ -253,55 +399,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   border: Border(
+                    bottom: BorderSide(
+                      width: 0.2,
+                      color: Colors.grey[900]!,
+                    ),
                     top: BorderSide(
-                      width: 0.2,
-                      color: Colors.grey[900]!,
-                    ),
-                    bottom: BorderSide(
-                      width: 0.2,
-                      color: Colors.grey[900]!,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: Icon(
-                        Icons.admin_panel_settings_outlined,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'Akun dan Keamanan',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                      ),
-                    ),
-                    const Spacer(
-                      flex: 1,
-                    ),
-                    const Icon(
-                      Icons.arrow_right,
-                      size: 24.0,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: handleLogout,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  vertical: 10,
-                ),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
                       width: 0.2,
                       color: Colors.grey[900]!,
                     ),
