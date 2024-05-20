@@ -9,6 +9,7 @@ import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/components/custom_snackbar.dart';
 import 'package:testgetdata/views/components/pesanan_pembeli_tile.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class PesananMasuk extends StatelessWidget {
   final List<Pesanan> pesananMasuk;
@@ -34,6 +35,9 @@ class PesananMasuk extends StatelessWidget {
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+          ),
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: pesananMasuk.map((entry) {
@@ -50,9 +54,24 @@ class PesananMasuk extends StatelessWidget {
                   vertical: 20,
                 ),
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 1.0,
+                  color: Colors.white,
+                  border: const Border(
+                    bottom: BorderSide(
+                      color: Colors.grey,
+                      width: 2,
+                    ),
+                    top: BorderSide(
+                      color: Colors.grey,
+                      width: 0.5,
+                    ),
+                    left: BorderSide(
+                      color: Colors.grey,
+                      width: 0.5,
+                    ),
+                    right: BorderSide(
+                      color: Colors.grey,
+                      width: 0.5,
+                    ),
                   ),
                   borderRadius: BorderRadius.circular(10.0),
                 ),

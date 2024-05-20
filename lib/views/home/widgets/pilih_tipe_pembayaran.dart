@@ -39,7 +39,7 @@ class PilihTipePembayaran extends StatelessWidget {
               if (option2 == 'Bayar tunai') {
                 selectedPembayaran('cod');
               } else {
-                selectedPembayaran('tranfer');
+                selectedPembayaran('transfer');
               }
             });
           },

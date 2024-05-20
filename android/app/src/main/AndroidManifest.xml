@@ -1,9 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.masbro.canteen">
+    package="com.masbro.canteen"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="Masbro Canteen"
         android:name="${applicationName}"
+        tools:replace="android:label"
+        android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

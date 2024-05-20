@@ -9,6 +9,7 @@ import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/home/pages/navbar_home.dart';
 import 'package:testgetdata/views/tenant/pages/pesanan/pesanan_diproses_page.dart';
 import 'package:testgetdata/views/tenant/pages/pesanan/pesanan_masuk.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class PesananTenant extends StatefulWidget {
   const PesananTenant({Key? key}) : super(key: key);
@@ -95,6 +96,7 @@ class _PesananTenantState extends State<PesananTenant> {
               color: Colors.black,
             ),
           ),
+          backgroundColor: backgroundColor,
           centerTitle: true,
           // actions: [
           //   IconButton(
@@ -170,7 +172,7 @@ class _PesananTenantState extends State<PesananTenant> {
                 ? const Center(
                     child: CircularProgressIndicator(),
                   ) // Show CircularProgressIndicator while loading
-                : HomeDiproses(
+                : PesananDiproses(
                     pesananDiproses: pesananDiproses,
                     removePesanan: removePesananDiproses,
                   ),

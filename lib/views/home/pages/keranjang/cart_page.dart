@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:midtrans_sdk/midtrans_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/http/fetch_data_ruangan.dart';
 import 'package:testgetdata/model/ruangan_model.dart';
@@ -26,6 +27,7 @@ class _CartState extends State<Cart> {
   TextEditingController ruanganPembeli = TextEditingController();
   TextEditingController catatan = TextEditingController();
   List<Ruangan> listRuangan = [];
+  late final MidtransSDK _midtrans;
   bool isLoading = false;
 
   List<String> tipePemesanan = [
@@ -40,6 +42,40 @@ class _CartState extends State<Cart> {
   int? plihPengantaran;
   int? pilihRuangan;
   String? plihPembayaran;
+
+  void initSDK() async {
+    print("JALANIN SDK MIDTRANS");
+    _midtrans = await MidtransSDK.init(
+      config: MidtransConfig(
+        clientKey: 'SB-Mid-client-T9zZrTGN1ARTH8rb',
+        merchantBaseUrl:
+            'https://app.sandbox.midtrans.com/snap/v4/redirection/',
+        colorTheme: ColorTheme(
+          colorPrimary: Theme.of(context).colorScheme.secondary,
+          colorPrimaryDark: Theme.of(context).colorScheme.secondary,
+          colorSecondary: Theme.of(context).colorScheme.secondary,
+        ),
+      ),
+    );
+    _midtrans?.setUIKitCustomSetting(
+      skipCustomerDetailsPages: true,
+    );
+    // _midtrans!.setTransactionFinishedCallback((result) {
+    //   print(result.toJson());
+    //   // Navigator.pushNamed(context, '/sukses_order');
+    // });
+    _midtrans.setTransactionFinishedCallback((result) {
+      print(result.toJson());
+      if (result.transactionStatus == TransactionResultStatus.settlement) {
+        print('Navigating to /sukses_order');
+        Provider.of<CartProvider>(context, listen: false).clearCart();
+        Navigator.pushNamed(context, '/sukses_order');
+      } else {
+        // Handle other transaction statuses if needed
+        print("Transaction failed or was canceled");
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -56,6 +92,10 @@ class _CartState extends State<Cart> {
       setState(() {
         listRuangan = value;
       });
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initSDK();
     });
   }
 
@@ -317,14 +357,19 @@ class _CartState extends State<Cart> {
                                   .buatTransaksi(context, user.token)
                                   .then(
                                 (value) {
-                                  if (value) {
-                                    print(value);
-                                    print('berhasil');
-                                    Provider.of<CartProvider>(context,
-                                            listen: false)
-                                        .clearCart();
-                                    Navigator.pushNamed(
-                                        context, '/sukses_order');
+                                  if (value.status == 'success') {
+                                    if (value.snap != null) {
+                                      _midtrans?.startPaymentUiFlow(
+                                        token: value.snap!.token,
+                                      );
+                                    } else {
+                                      print('berhasil');
+                                      Provider.of<CartProvider>(context,
+                                              listen: false)
+                                          .clearCart();
+                                      Navigator.pushNamed(
+                                          context, '/sukses_order');
+                                    }
                                   } else {
                                     print('gagal brooo');
                                     // print($message);

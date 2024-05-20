@@ -19,7 +19,9 @@ class ListTenant extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.zero,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.top,
+      ),
       physics: const ScrollPhysics(),
       shrinkWrap: true,
       itemCount: foundTenant.length,
@@ -41,14 +43,37 @@ class ListTenant extends StatelessWidget {
           },
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                width: 0.1,
+            // decoration: BoxDecoration(
+            //   color: Colors.white,
+            //   border: Border.all(
+            //     width: 0.1,
+            //   ),
+            // borderRadius: const BorderRadius.all(
+            //   Radius.circular(
+            //     20,
+            //   ),
+            // ),
+            // ),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(
+                Radius.circular(20),
               ),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(
-                  20,
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey, // Warna border
+                  width: 1.0, // Lebar border
+                ),
+                top: BorderSide(
+                  color: Colors.grey, // Warna border
+                  width: 0.2, // Lebar border
+                ),
+                left: BorderSide(
+                  color: Colors.grey, // Warna border
+                  width: 0.2, // Lebar border
+                ),
+                right: BorderSide(
+                  color: Colors.grey, // Warna border
+                  width: 0.2, // Lebar border
                 ),
               ),
             ),

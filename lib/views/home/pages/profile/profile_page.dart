@@ -181,13 +181,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Navigator.of(context).pushNamed('/riwayat');
-                          // Navigator.of(context).pushAndRemoveUntil(
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const PembayaranOnline(),
-                          //   ),
-                          //   (route) => route.isFirst,
-                          // );
+                          Navigator.of(context).pushNamed('/riwayat');
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const PembayaranOnline(),
+                            ),
+                            (route) => route.isFirst,
+                          );
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(

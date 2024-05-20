@@ -15,6 +15,8 @@ typedef OptionSelectedCallback2 = void Function(String? option2);
 
 void bottomSheetTipePemesanan(
     BuildContext contextPemesanan, OptionSelectedCallback onSelect) {
+  pilihPemesanan = null;
+  pilihRuangan = null;
   bool isOptionSelected = false;
   showModalBottomSheet(
     context: contextPemesanan,

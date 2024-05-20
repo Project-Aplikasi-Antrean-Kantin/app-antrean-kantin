@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/http/add_transaksi.dart';
 import 'package:testgetdata/http/fetch_data_ruangan.dart';
 import 'package:testgetdata/model/cart_menu_modelllll.dart';
+import 'package:testgetdata/model/order_model.dart';
 import 'package:testgetdata/model/ruangan_model.dart';
 
 class CartProvider extends ChangeNotifier {
@@ -130,7 +131,7 @@ class CartProvider extends ChangeNotifier {
     cartSelected.catatan = catatan;
   }
 
-  Future buatTransaksi(context, String token) {
+  Future<OrderModel> buatTransaksi(context, String token) {
     print('isAntar : $isAntar');
     print('sebelum add transaksi ' + toJson());
     return addTransaksi(token, toJson());

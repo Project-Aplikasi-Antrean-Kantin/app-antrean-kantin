@@ -7,23 +7,24 @@ import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/components/pesanan_pembeli_tile.dart';
+import 'package:testgetdata/views/theme.dart';
 
-class HomeDiproses extends StatefulWidget {
+class PesananDiproses extends StatefulWidget {
   // final Map<String, List<Map<String, dynamic>>> pesananDiproses;
   final List<Pesanan> pesananDiproses;
   final Function(Pesanan, String) removePesanan;
 
-  const HomeDiproses({
+  const PesananDiproses({
     Key? key,
     required this.pesananDiproses,
     required this.removePesanan,
   }) : super(key: key);
 
   @override
-  _HomeDiprosesState createState() => _HomeDiprosesState();
+  _PesananDiprosesState createState() => _PesananDiprosesState();
 }
 
-class _HomeDiprosesState extends State<HomeDiproses> {
+class _PesananDiprosesState extends State<PesananDiproses> {
   List<Pesanan> _pesananDiproses = [];
 
   @override
@@ -46,7 +47,6 @@ class _HomeDiprosesState extends State<HomeDiproses> {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              const SizedBox(height: 10),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -66,9 +66,24 @@ class _HomeDiprosesState extends State<HomeDiproses> {
                       vertical: 20,
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 1.0,
+                      color: Colors.white,
+                      border: const Border(
+                        bottom: BorderSide(
+                          color: Colors.grey,
+                          width: 2,
+                        ),
+                        top: BorderSide(
+                          color: Colors.grey,
+                          width: 0.5,
+                        ),
+                        left: BorderSide(
+                          color: Colors.grey,
+                          width: 0.5,
+                        ),
+                        right: BorderSide(
+                          color: Colors.grey,
+                          width: 0.5,
+                        ),
                       ),
                       borderRadius: BorderRadius.circular(10.0),
                     ),

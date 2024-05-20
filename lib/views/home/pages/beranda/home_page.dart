@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:testgetdata/views/home/pages/navbar_home.dart';
 import 'package:testgetdata/views/home/widgets/carousel_widget.dart';
 import 'package:testgetdata/views/components/custom_snackbar.dart';
@@ -90,6 +91,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: backgroundColor,
+    ));
     print(user);
     print(user.menu);
 
@@ -270,9 +274,9 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
-              // const SizedBox(
-              //   height: 150,
-              // ),
+              SizedBox(
+                height: MediaQuery.of(context).padding.top,
+              ),
             ],
           ),
         ),

@@ -25,11 +25,14 @@
 // }
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/constants.dart';
+import 'package:testgetdata/model/order_model.dart';
 
-Future<bool> addTransaksi(String auth, String data) async {
+Future<OrderModel> addTransaksi(String auth, String data) async {
   try {
     final response = await http.post(
       Uri.parse('${MasbroConstants.url}/order'),
@@ -41,15 +44,20 @@ Future<bool> addTransaksi(String auth, String data) async {
       body: data,
     );
 
+    log(response.statusCode.toString());
     if (response.statusCode == 201) {
-      return true;
+      return OrderModel.fromJson(
+        jsonDecode(
+          response.body,
+        ),
+      );
     } else {
       print('Request failed with status: ${response.statusCode}');
       print('Error response body: ${response.body}');
-      return false;
+      throw Exception();
     }
   } catch (e) {
     print('An error occurred: $e');
-    return false;
+    throw Exception();
   }
 }
