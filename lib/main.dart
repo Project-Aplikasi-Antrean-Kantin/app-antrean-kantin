@@ -1,22 +1,25 @@
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/components/sukses_order.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/provider/katalog_menu_provider.dart';
-import 'package:testgetdata/views/home/history_page.dart';
-import 'package:testgetdata/views/home/home_page.dart';
-import 'package:testgetdata/views/home/profile_page.dart';
-import 'package:testgetdata/views/login.dart';
-import 'package:testgetdata/views/masbro/pengantaran_page.dart';
-import 'package:testgetdata/views/register_page.dart';
-import 'package:testgetdata/views/splash_screen.dart';
-import 'package:testgetdata/views/tenant/pages/pesanan_page.dart';
-import 'package:testgetdata/views/tenant/pages/katalog_menu_page.dart';
-import 'package:testgetdata/views/tenant/tambah_menu.dart';
-import 'package:testgetdata/views/test_riwayat.dart';
+import 'package:testgetdata/views/home/pages/navbar_home.dart';
+import 'package:testgetdata/views/home/pages/riwayat/riwayat_page_as_role.dart';
+import 'package:testgetdata/views/home/widgets/sukses_order.dart';
+import 'package:testgetdata/views/home/pages/beranda/home_page.dart';
+import 'package:testgetdata/views/home/pages/profile/profile_page.dart';
+import 'package:testgetdata/views/home/pages/login/login_page.dart';
+import 'package:testgetdata/views/masbro/pages/pengantaran_page.dart';
+import 'package:testgetdata/views/home/pages/register/register_page.dart';
+import 'package:testgetdata/views/components/splash_screen.dart';
+import 'package:testgetdata/views/tenant/pages/kasir/penjualan_offline.dart';
+import 'package:testgetdata/views/tenant/pages/katalog/katalog_menu_page.dart';
+import 'package:testgetdata/views/tenant/pages/pesanan/pesanan_page.dart';
+import 'package:testgetdata/views/tenant/pages/tambah_menu.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -104,60 +107,13 @@ class MyApp extends StatelessWidget {
           '/pengantaran': (context) => const PerluPengantaran(),
           '/pesanan': (context) => const PesananTenant(),
           '/sukses_order': (context) => const SuksesOrder(),
-          '/riwayat': (context) => const RiwayatPage(),
+          '/riwayat': (context) => const RiwayatPageAsRole(),
           '/profile': (context) => const ProfilePage(),
           '/katalog_menu': (context) => const KatalogMenu(),
           '/tambah_menu': (context) => const TambahMenuPage(),
+          '/kasir': (context) => const PenjualanOffline(),
         },
       ),
     );
   }
 }
-
-// home: Consumer<AuthProvider>(
-        //   builder: (context, provider, child) {
-        //     return const LoginPage();
-
-        //     // return FutureBuilder<String>(
-        //     //   future: provider.user.token,
-        //     //   builder: (context, snapshot) {
-        //     //     return HomePage();
-        //     //     // if (snapshot.hasData) {
-        //     //     //   print(snapshot.data!);
-        //     //     //   if (snapshot.data!.isEmpty)
-        //     //     //     return Login();
-        //     //     //   else if (snapshot.data! == 'Dosen') {
-        //     //     //     return HomePage();
-        //     //     //   } else {
-        //     //     //     // massbro
-        //     //     //     return Masbro();
-        //     //     //   }
-        //     //     // } else {
-        //     //     //   // halaman masbro
-        //     //     //   return Login();
-        //     //     // }
-        //     //   },
-        //     // );
-        //   },
-        // ),
-
-// import 'package:flutter/material.dart';
-// import 'package:testgetdata/views/masbro/pengantaran.dart';
-
-// void main() {
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       // title: 'Menu Page Example',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       // home: PerluPengantaran(),
-//       home: PerluPengantaran(),
-//     );
-//   }
-// }

@@ -34,7 +34,7 @@ dependencies:
   provider: ^6.0.4
   google_fonts: any
   scrollable_positioned_list: any
-  intl: ^0.17.0
+  intl: ^0.19.0
   scroll_to_index: any
   get: any
   shared_preferences: any
@@ -49,6 +49,8 @@ dependencies:
   firebase_core: ^2.27.0
   firebase_messaging: ^14.7.19
   flutter_svg: ^2.0.9
+  # midtrans_sdk: ^0.3.2
+  # webview_flutter: ^4.0.1
 
 dev_dependencies:
   flutter_test:

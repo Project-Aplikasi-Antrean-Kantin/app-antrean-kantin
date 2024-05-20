@@ -17,9 +17,11 @@ Future<List<TenantModel>> fetchTenant(String uri, String auth) async {
   );
   final json = jsonDecode(response.body);
   String message = json['message'].toString();
+  // print(json);
   if (response.statusCode == 200) {
     final jsonData =
         jsonDecode(response.body)['data']['tenants'] as List<dynamic>;
+    print(jsonData);
     return jsonData.map((e) => TenantModel.fromJson(e)).toList();
   } else {
     print(response.statusCode);

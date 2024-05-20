@@ -7,6 +7,7 @@ class CartMenuModel {
   String? catatan;
   var count;
   bool isLoading;
+  String? deskripsi;
 
   CartMenuModel({
     required this.tenantName,
@@ -14,6 +15,7 @@ class CartMenuModel {
     required this.menuGambar,
     required this.menuNama,
     required this.menuPrice,
+    this.deskripsi,
     required this.count,
     this.catatan,
     this.isLoading = false,

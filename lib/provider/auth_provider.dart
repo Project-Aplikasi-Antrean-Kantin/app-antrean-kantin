@@ -2,10 +2,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:testgetdata/common/token_manager.dart';
 import 'package:testgetdata/http/login_with_token.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/services/auth_futrue.dart';
+import 'package:testgetdata/views/common/token_manager.dart';
 
 class AuthProvider extends ChangeNotifier {
   final tokenManager = TokenManager();

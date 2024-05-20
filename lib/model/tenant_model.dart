@@ -9,6 +9,10 @@ class TenantModel {
   final String jamBuka;
   final String jamTutup;
   int? range;
+  final String? namaGambar;
+  final dynamic deletedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   List<TenantFoods>? tenantFoods;
 
   TenantModel({
@@ -20,6 +24,10 @@ class TenantModel {
     required this.jamBuka,
     required this.jamTutup,
     this.range,
+    required this.namaGambar,
+    required this.deletedAt,
+    required this.createdAt,
+    required this.updatedAt,
     this.tenantFoods,
   });
 
@@ -32,10 +40,21 @@ class TenantModel {
         jamBuka: json["jam_buka"],
         jamTutup: json["jam_tutup"],
         range: json["range"],
-        tenantFoods: List<TenantFoods>.from(
-          json["list_menu"].map(
-            (x) => TenantFoods.fromJson(x),
-          ),
-        ),
+        // tenantFoods: List<TenantFoods>.from(
+        //   json["list_menu"].map(
+        //     (x) => TenantFoods.fromJson(x),
+        //   ),
+        // ),
+        tenantFoods: json["list_menu"] != null
+            ? List<TenantFoods>.from(
+                json["list_menu"].map(
+                  (x) => TenantFoods.fromJson(x),
+                ),
+              )
+            : [],
+        namaGambar: json["nama_gambar"],
+        deletedAt: json["deleted_at"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
       );
 }

@@ -53,7 +53,6 @@ Future<bool> addMenuKelolaFile(String auth, Map<String, dynamic> data) async {
       request.fields[key] = value.toString();
     }
   });
-// Add files
 
   final response = await request.send();
   print(response.statusCode);

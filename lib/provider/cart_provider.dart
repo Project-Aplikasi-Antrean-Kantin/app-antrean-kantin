@@ -22,7 +22,8 @@ class CartProvider extends ChangeNotifier {
   String? metodePembayaran = null;
   int? ruanganId; // todo : ganti ini
 
-  void addRemove(menuId, name, price, gambar, tenantName, bool isAdd) {
+  void addRemove(
+      menuId, name, price, gambar, tenantName, deskripsi, bool isAdd) {
     //Jika sudah ada maka yang diupdate cuma count
     if (_cartMenu.where((element) => menuId == element.menuId).isNotEmpty) {
       var index = _cartMenu.indexWhere((element) => menuId == element.menuId);
@@ -61,6 +62,7 @@ class CartProvider extends ChangeNotifier {
             menuGambar: gambar,
             menuNama: name,
             menuPrice: price,
+            deskripsi: deskripsi,
             tenantName: tenantName,
             catatan: '',
           ),
