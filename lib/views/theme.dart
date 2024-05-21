@@ -5,7 +5,9 @@ Color primaryColor = const Color(0xffFF5E5E);
 
 Color backgroundColor = const Color(0xffFFF8F8);
 
+// buat text keseluruhan
 Color primaryextColor = const Color(0xff303030);
+// buat judul
 Color secondaryTextColor = const Color(0xff2B2B2B);
 
 Color unselectedIconColor = const Color(0xFF808191);

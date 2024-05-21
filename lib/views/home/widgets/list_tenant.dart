@@ -42,19 +42,9 @@ class ListTenant extends StatelessWidget {
             ));
           },
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            // decoration: BoxDecoration(
-            //   color: Colors.white,
-            //   border: Border.all(
-            //     width: 0.1,
-            //   ),
-            // borderRadius: const BorderRadius.all(
-            //   Radius.circular(
-            //     20,
-            //   ),
-            // ),
-            // ),
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: const BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.all(
                 Radius.circular(20),
               ),

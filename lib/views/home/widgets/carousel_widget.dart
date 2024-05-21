@@ -23,14 +23,14 @@ class _CarouselWidgetState extends State<CarouselWidget> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: 20,
+        horizontal: 12,
         vertical: 15,
       ),
       child: Stack(
         children: [
           CarouselSlider(
             options: CarouselOptions(
-              height: MediaQuery.of(context).size.height * 0.24,
+              height: MediaQuery.of(context).size.height * 0.22,
               enableInfiniteScroll: true,
               autoPlay: true,
               viewportFraction: 1,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -27,13 +28,14 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     final bool hasThreeTabs = tab1Title != null && tab3Title != null;
 
     return AppBar(
+      backgroundColor: backgroundColor,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
       leading: leadingIcon != null
           ? IconButton(
               icon: Icon(
                 leadingIcon,
-                color: Colors.black,
+                color: secondaryTextColor,
                 size: 24,
               ),
               onPressed: onLeadingPressed,
@@ -44,7 +46,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         style: GoogleFonts.poppins(
           fontWeight: FontWeight.bold,
           fontSize: 20,
-          color: Colors.black,
+          color: secondaryTextColor,
         ),
       ),
       centerTitle: true,
@@ -60,8 +62,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab1Title!,
                     style: GoogleFonts.poppins(
+                      color: secondaryTextColor,
                       fontSize: 14,
-                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -69,8 +71,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab2Title!,
                     style: GoogleFonts.poppins(
+                      color: secondaryTextColor,
                       fontSize: 14,
-                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -78,8 +80,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab3Title!,
                     style: GoogleFonts.poppins(
+                      color: secondaryTextColor,
                       fontSize: 14,
-                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -97,8 +99,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                       child: Text(
                         tab1Title!,
                         style: GoogleFonts.poppins(
+                          color: secondaryTextColor,
                           fontSize: 14,
-                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -106,8 +108,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                       child: Text(
                         tab2Title!,
                         style: GoogleFonts.poppins(
+                          color: secondaryTextColor,
                           fontSize: 14,
-                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -125,8 +127,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           child: Text(
                             tab1Title!,
                             style: GoogleFonts.poppins(
+                              color: secondaryTextColor,
                               fontSize: 14,
-                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -134,8 +136,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           child: Text(
                             tab3Title!,
                             style: GoogleFonts.poppins(
+                              color: secondaryTextColor,
                               fontSize: 14,
-                              color: Colors.black,
                             ),
                           ),
                         ),

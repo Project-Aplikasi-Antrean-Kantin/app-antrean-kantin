@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:testgetdata/model/transaksi_detail_model.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class PesananItemWidget extends StatelessWidget {
   final ListTransaksiDetail pesanan;
@@ -50,6 +51,7 @@ class PesananItemWidget extends StatelessWidget {
               Text(
                 '$jumlah x',
                 style: GoogleFonts.poppins(
+                  color: secondaryTextColor,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -60,6 +62,7 @@ class PesananItemWidget extends StatelessWidget {
               Text(
                 food,
                 style: GoogleFonts.poppins(
+                  color: secondaryTextColor,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -70,6 +73,7 @@ class PesananItemWidget extends StatelessWidget {
               Text(
                 FormatCurrency.intToStringCurrency(harga),
                 style: GoogleFonts.poppins(
+                  color: primaryextColor,
                   fontSize: 14,
                 ),
               ),
@@ -89,6 +93,7 @@ class PesananItemWidget extends StatelessWidget {
                 Text(
                   'Catatan : $catatan',
                   style: GoogleFonts.poppins(
+                    color: primaryextColor,
                     fontSize: 14,
                   ),
                 ),

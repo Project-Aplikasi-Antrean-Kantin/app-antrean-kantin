@@ -28,17 +28,18 @@ class PesananMasuk extends StatelessWidget {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
 
-    bool _isLoading = false;
-
     return RefreshIndicator(
       onRefresh: _refresh,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 10,
+          ),
           decoration: BoxDecoration(
             color: backgroundColor,
           ),
-          padding: const EdgeInsets.all(10.0),
           child: Column(
             children: pesananMasuk.map((entry) {
               final int idPesanan = entry.id;
@@ -55,23 +56,9 @@ class PesananMasuk extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  border: const Border(
-                    bottom: BorderSide(
-                      color: Colors.grey,
-                      width: 2,
-                    ),
-                    top: BorderSide(
-                      color: Colors.grey,
-                      width: 0.5,
-                    ),
-                    left: BorderSide(
-                      color: Colors.grey,
-                      width: 0.5,
-                    ),
-                    right: BorderSide(
-                      color: Colors.grey,
-                      width: 0.5,
-                    ),
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 0.2,
                   ),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
@@ -97,6 +84,7 @@ class PesananMasuk extends StatelessWidget {
                         child: Text(
                           'Pesanan No-$idPesanan',
                           style: GoogleFonts.poppins(
+                            color: secondaryTextColor,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -140,19 +128,23 @@ class PesananMasuk extends StatelessWidget {
                                   Text(
                                     "Subtotal",
                                     style: GoogleFonts.poppins(
+                                      color: primaryextColor,
                                       fontSize: 14,
                                     ),
                                   ),
-                                  Column(children: [
-                                    Text(
-                                      FormatCurrency.intToStringCurrency(
-                                        subtotal,
+                                  Column(
+                                    children: [
+                                      Text(
+                                        FormatCurrency.intToStringCurrency(
+                                          subtotal,
+                                        ),
+                                        style: GoogleFonts.poppins(
+                                          color: primaryextColor,
+                                          fontSize: 14,
+                                        ),
                                       ),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ])
+                                    ],
+                                  )
                                 ],
                               ),
                               const SizedBox(
@@ -166,6 +158,7 @@ class PesananMasuk extends StatelessWidget {
                                   Text(
                                     "Total",
                                     style: GoogleFonts.poppins(
+                                      color: secondaryTextColor,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
@@ -175,9 +168,9 @@ class PesananMasuk extends StatelessWidget {
                                       subtotal,
                                     ),
                                     style: GoogleFonts.poppins(
+                                      color: secondaryTextColor,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
-                                      color: Colors.black,
                                     ),
                                   ),
                                 ],
@@ -224,7 +217,7 @@ class PesananMasuk extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     side: const BorderSide(
-                                      color: Color.fromARGB(130, 0, 0, 0),
+                                      color: Colors.grey,
                                     ),
                                     backgroundColor: Colors.white,
                                     minimumSize: const Size(20, 30),
@@ -232,7 +225,7 @@ class PesananMasuk extends StatelessWidget {
                                   child: Text(
                                     'Tolak',
                                     style: GoogleFonts.poppins(
-                                        color: Colors.black,
+                                        color: secondaryTextColor,
                                         fontWeight: FontWeight.w500),
                                   ),
                                 ),
@@ -271,11 +264,11 @@ class PesananMasuk extends StatelessWidget {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    side: const BorderSide(
-                                      color: Colors.redAccent,
+                                    side: BorderSide(
+                                      color: primaryColor,
                                     ),
-                                    backgroundColor: Colors.redAccent,
-                                    minimumSize: const Size(20, 30),
+                                    backgroundColor: primaryColor,
+                                    minimumSize: Size(20, 30),
                                   ),
                                   child: Text(
                                     'Terima',

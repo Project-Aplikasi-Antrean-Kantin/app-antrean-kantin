@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/http/fetch_riwayat_transaksi.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
@@ -10,6 +9,7 @@ import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/theme/colors.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/components/pesanan_pembeli_tile.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class RiwayatPage extends StatefulWidget {
   // static const int RiwayatIndex = 1;
@@ -47,35 +47,23 @@ class _RiwayatPageState extends State<RiwayatPage> {
     UserModel user = authProvider.user;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: Colors.white,
-      //   toolbarHeight: 50,
-      //   scrolledUnderElevation: 0,
-      //   title: Text(
-      //     'Riwayat',
-      //     style: GoogleFonts.poppins(
-      //       fontWeight: FontWeight.bold,
-      //       fontSize: 20,
-      //       color: Colors.black,
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      //   bottom: PreferredSize(
-      //     preferredSize: const Size.fromHeight(4.0),
-      //     child: Container(
-      //       color: Colors.grey,
-      //       height: 0.5,
-      //     ),
-      //   ),
-      // ),
       body: isLoading
-          ? Center(
-              child:
-                  CircularProgressIndicator()) // Show CircularProgressIndicator while loading
+          ? Container(
+              color: backgroundColor,
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    primaryColor,
+                  ),
+                ),
+              ),
+            )
           : SingleChildScrollView(
-              child: Padding(
+              child: Container(
                 padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                ),
                 child: Column(
                   children: orderedFood.map((entry) {
                     int totalItem = 0;
@@ -92,9 +80,10 @@ class _RiwayatPageState extends State<RiwayatPage> {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
+                        color: Colors.white,
                         border: Border.all(
                           color: Colors.grey,
-                          width: 1.0,
+                          width: 0.2,
                         ),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -104,40 +93,53 @@ class _RiwayatPageState extends State<RiwayatPage> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.only(
-                                    top: 10,
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                      top: 10,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: secondaryTextColor,
+                                                width: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
+                                            style: GoogleFonts.poppins(
+                                              color: secondaryTextColor,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        //
+                                      ],
+                                    ),
                                   ),
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: Color.fromARGB(255, 31, 31, 31),
-                                        width: 1,
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                      top: 10,
+                                    ),
+                                    child: Text(
+                                      textAlign: TextAlign.right,
+                                      '${entry.namaRuangan ?? 'Ambil Sendiri'}',
+                                      style: GoogleFonts.poppins(
+                                        color: secondaryTextColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    // '${entry.listTransaksiDetail[0].menusKelola?.tenants.namaTenant}',
-                                    '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const Spacer(
-                                  flex: 1,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.only(
-                                    top: 10,
-                                  ),
-                                  child: Text(
-                                    '${entry.namaRuangan ?? 'Ambil Sendiri'}',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
@@ -180,6 +182,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                         Text(
                                           "Subtotal",
                                           style: GoogleFonts.poppins(
+                                            color: primaryextColor,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -189,6 +192,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                               subtotal,
                                             ),
                                             style: GoogleFonts.poppins(
+                                              color: primaryextColor,
                                               fontSize: 14,
                                             ),
                                           ),
@@ -207,6 +211,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                         Text(
                                           "Biaya layanan",
                                           style: GoogleFonts.poppins(
+                                            color: primaryextColor,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -215,6 +220,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                             entry.biayaLayanan,
                                           ),
                                           style: GoogleFonts.poppins(
+                                            color: primaryextColor,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -233,6 +239,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                           Text(
                                             "Ongkir",
                                             style: GoogleFonts.poppins(
+                                              color: primaryextColor,
                                               fontSize: 14,
                                             ),
                                           ),
@@ -243,6 +250,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                                 TextSpan(
                                                   text: "${totalItem}x ",
                                                   style: GoogleFonts.poppins(
+                                                    color: secondaryTextColor,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 14,
                                                   ),
@@ -253,6 +261,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                                     1000,
                                                   ),
                                                   style: GoogleFonts.poppins(
+                                                    color: primaryextColor,
                                                     fontSize: 14,
                                                   ),
                                                 ),
@@ -273,6 +282,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                         Text(
                                           "Total",
                                           style: GoogleFonts.poppins(
+                                            color: secondaryTextColor,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
@@ -282,9 +292,9 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                             entry.total,
                                           ),
                                           style: GoogleFonts.poppins(
+                                            color: secondaryTextColor,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
-                                            color: Colors.black,
                                           ),
                                         ),
                                       ],

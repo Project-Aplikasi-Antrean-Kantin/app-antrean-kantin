@@ -91,9 +91,9 @@ class _PesananTenantState extends State<PesananTenant> {
           title: Text(
             'Pesanan',
             style: GoogleFonts.poppins(
+              color: secondaryTextColor,
               fontWeight: FontWeight.bold,
               fontSize: 20,
-              color: Colors.black,
             ),
           ),
           backgroundColor: backgroundColor,
@@ -138,8 +138,8 @@ class _PesananTenantState extends State<PesananTenant> {
                 child: Text(
                   'Masuk',
                   style: GoogleFonts.poppins(
+                    color: primaryextColor,
                     fontSize: 14,
-                    color: Colors.black,
                   ),
                 ),
               ),
@@ -147,8 +147,8 @@ class _PesananTenantState extends State<PesananTenant> {
                 child: Text(
                   'Diproses',
                   style: GoogleFonts.poppins(
+                    color: primaryextColor,
                     fontSize: 14,
-                    color: Colors.black,
                   ),
                 ),
               ),
@@ -156,32 +156,42 @@ class _PesananTenantState extends State<PesananTenant> {
           ),
         ),
         body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           key: UniqueKey(),
           children: [
             isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  ) // Show CircularProgressIndicator while loading
+                ? Container(
+                    color: backgroundColor,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          primaryColor,
+                        ),
+                      ),
+                    ),
+                  )
                 : PesananMasuk(
                     pesananMasuk: pesananMasuk,
                     terimaPesanan: terimaPesanan,
                     tolakPesanan: tolakPesanan,
                   ),
             isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  ) // Show CircularProgressIndicator while loading
+                ? Container(
+                    color: backgroundColor,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          primaryColor,
+                        ),
+                      ),
+                    ),
+                  )
                 : PesananDiproses(
                     pesananDiproses: pesananDiproses,
                     removePesanan: removePesananDiproses,
                   ),
           ],
         ),
-        // bottomNavigationBar: NavbarHome(
-        //   pageIndex:
-        //       user.menu.indexWhere((element) => element.url == '/pesanan'),
-        // ),
       ),
     );
   }

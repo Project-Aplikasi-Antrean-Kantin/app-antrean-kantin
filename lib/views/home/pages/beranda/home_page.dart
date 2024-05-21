@@ -93,6 +93,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: backgroundColor,
+      statusBarIconBrightness: Brightness.dark,
     ));
     print(user);
     print(user.menu);
@@ -151,7 +152,7 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
+                  horizontal: 15,
                   vertical: 15,
                 ),
                 child: Column(
@@ -176,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SearchWidget(
-                paddingHorizontal: 20,
+                paddingHorizontal: 12,
                 tittle: "Cari menu kesukaanmu . . .",
                 onChanged: (value) {
                   List<TenantModel> result = [];
@@ -267,9 +268,17 @@ class _HomePageState extends State<HomePage> {
                     );
                     // return Container();
                   }
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.red,
+                  return Container(
+                    color: backgroundColor,
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.15,
+                    ),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          primaryColor,
+                        ),
+                      ),
                     ),
                   );
                 },

@@ -10,7 +10,6 @@ import 'package:testgetdata/views/components/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/views/theme.dart';
 
 class PesananDiproses extends StatefulWidget {
-  // final Map<String, List<Map<String, dynamic>>> pesananDiproses;
   final List<Pesanan> pesananDiproses;
   final Function(Pesanan, String) removePesanan;
 
@@ -44,7 +43,10 @@ class _PesananDiprosesState extends State<PesananDiproses> {
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Container(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 10,
+          ),
           child: Column(
             children: [
               ListView.builder(
@@ -67,23 +69,9 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: const Border(
-                        bottom: BorderSide(
-                          color: Colors.grey,
-                          width: 2,
-                        ),
-                        top: BorderSide(
-                          color: Colors.grey,
-                          width: 0.5,
-                        ),
-                        left: BorderSide(
-                          color: Colors.grey,
-                          width: 0.5,
-                        ),
-                        right: BorderSide(
-                          color: Colors.grey,
-                          width: 0.5,
-                        ),
+                      border: Border.all(
+                        color: Colors.grey,
+                        width: 0.2,
                       ),
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -109,6 +97,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                             child: Text(
                               'Pesanan No-$idPesanan',
                               style: GoogleFonts.poppins(
+                                color: secondaryTextColor,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -154,6 +143,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                       Text(
                                         "Subtotal",
                                         style: GoogleFonts.poppins(
+                                          color: primaryextColor,
                                           fontSize: 14,
                                         ),
                                       ),
@@ -163,6 +153,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                             subtotal,
                                           ),
                                           style: GoogleFonts.poppins(
+                                            color: primaryextColor,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -181,6 +172,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                       Text(
                                         "Total",
                                         style: GoogleFonts.poppins(
+                                          color: secondaryTextColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
@@ -190,9 +182,9 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                           subtotal,
                                         ),
                                         style: GoogleFonts.poppins(
+                                          color: secondaryTextColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
-                                          color: Colors.black,
                                         ),
                                       ),
                                     ],
@@ -200,7 +192,9 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(
+                              height: 20,
+                            ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 9,
@@ -213,21 +207,22 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                       widget.removePesanan(pesanan, user.token);
                                     },
                                     style: ElevatedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        side: const BorderSide(
-                                          color: Colors.redAccent,
-                                        ),
-                                        backgroundColor: Colors.redAccent,
-                                        minimumSize: const Size(20, 30),
-                                        fixedSize: Size(180, 30)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      side: BorderSide(
+                                        color: primaryColor,
+                                      ),
+                                      backgroundColor: primaryColor,
+                                      minimumSize: Size(20, 30),
+                                      fixedSize: Size(180, 30),
+                                    ),
                                     child: Text(
                                       'Pesanan Siap',
                                       style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500),
+                                        color: Colors.white,
+                                        fontWeight: medium,
+                                      ),
                                     ),
                                   ),
                                 ],
