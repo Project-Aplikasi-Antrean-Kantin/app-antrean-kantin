@@ -60,10 +60,6 @@ class _CartState extends State<Cart> {
     _midtrans?.setUIKitCustomSetting(
       skipCustomerDetailsPages: true,
     );
-    // _midtrans!.setTransactionFinishedCallback((result) {
-    //   print(result.toJson());
-    //   // Navigator.pushNamed(context, '/sukses_order');
-    // });
     _midtrans.setTransactionFinishedCallback((result) {
       print(result.toJson());
       if (result.transactionStatus == TransactionResultStatus.settlement) {
@@ -137,6 +133,11 @@ class _CartState extends State<Cart> {
             children: [
               Consumer<CartProvider>(
                 builder: (context, data, _) {
+                  if (data.cart.isEmpty) {
+                    Future.delayed(const Duration(seconds: 0), () {
+                      Navigator.of(context).pop();
+                    });
+                  }
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const ScrollPhysics(),
@@ -150,6 +151,7 @@ class _CartState extends State<Cart> {
                   );
                 },
               ),
+
               const SizedBox(
                 height: 15,
               ),
@@ -303,44 +305,6 @@ class _CartState extends State<Cart> {
                                                   ),
                                                 ),
                                               ),
-                                              // const SizedBox(width: 16),
-                                              // TextButton(
-                                              //   onPressed: () {
-                                              //     Provider.of<CartProvider>(
-                                              //             context,
-                                              //             listen: false)
-                                              //         .clearCart();
-                                              //     Navigator.of(context).pop();
-                                              //     Navigator.pop(
-                                              //         context); // Kembali ke halaman sebelumnya
-                                              //   },
-                                              //   style: ButtonStyle(
-                                              //     shape:
-                                              //         MaterialStateProperty.all<
-                                              //             RoundedRectangleBorder>(
-                                              //       RoundedRectangleBorder(
-                                              //         borderRadius:
-                                              //             BorderRadius.circular(
-                                              //                 5.0),
-                                              //       ),
-                                              //     ),
-                                              //     backgroundColor:
-                                              //         MaterialStateProperty.all<
-                                              //             Color>(
-                                              //       Color.fromARGB(
-                                              //           227, 244, 67, 54),
-                                              //     ),
-                                              //     minimumSize:
-                                              //         MaterialStateProperty.all(
-                                              //             Size(100, 30)),
-                                              //   ),
-                                              //   child: const Text(
-                                              //     "Keluar",
-                                              //     style: TextStyle(
-                                              //       color: Colors.white,
-                                              //     ),
-                                              //   ),
-                                              // ),
                                             ],
                                           ),
                                         ],

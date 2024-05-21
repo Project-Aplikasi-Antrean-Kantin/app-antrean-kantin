@@ -123,105 +123,101 @@ class _EditMenuPageState extends State<EditMenuPage> {
               size: 24,
             ),
             onPressed: () {
-              // deleteMenu(user.token, widget.tenantFoods.detailMenu!.id);
-              context
-                  .read<KatalogMenuProvider>()
-                  .deleteFood(user.token, widget.tenantFoods.id);
-              Navigator.of(context).pop();
-              // showDialog(
-              //   context: context,
-              //   builder: (BuildContext context) {
-              //     return Dialog(
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(10),
-              //       ),
-              //       child: Container(
-              //         padding: const EdgeInsets.all(25),
-              //         child: Column(
-              //           mainAxisSize: MainAxisSize.min,
-              //           crossAxisAlignment: CrossAxisAlignment.center,
-              //           children: [
-              //             const Text(
-              //               "Hapus Menu",
-              //               style: TextStyle(
-              //                 fontSize: 16,
-              //                 fontWeight: FontWeight.bold,
-              //               ),
-              //             ),
-              //             const SizedBox(height: 8),
-              //             const Text(
-              //               "Apakah Anda yakin ingin untuk menghapus menu ini?",
-              //               style: TextStyle(
-              //                 fontSize: 14,
-              //               ),
-              //               textAlign: TextAlign.center,
-              //             ),
-              //             const SizedBox(height: 16),
-              //             Row(
-              //               mainAxisAlignment: MainAxisAlignment.center,
-              //               children: [
-              //                 TextButton(
-              //                   onPressed: () {
-              //                     Navigator.of(context).pop();
-              //                   },
-              //                   style: ButtonStyle(
-              //                     shape: MaterialStateProperty.all<
-              //                         RoundedRectangleBorder>(
-              //                       RoundedRectangleBorder(
-              //                         borderRadius: BorderRadius.circular(5.0),
-              //                         side: const BorderSide(
-              //                           color: Colors.grey,
-              //                         ),
-              //                       ),
-              //                     ),
-              //                     minimumSize:
-              //                         MaterialStateProperty.all(Size(100, 30)),
-              //                   ),
-              //                   child: const Text(
-              //                     "Batal",
-              //                     style: TextStyle(
-              //                       color: Color.fromARGB(255, 99, 99, 99),
-              //                     ),
-              //                   ),
-              //                 ),
-              //                 const SizedBox(width: 16),
-              //                 TextButton(
-              //                   onPressed: () {
-              //                     context
-              //                         .read<KatalogMenuProvider>()
-              //                         .deleteFood(user.token,
-              //                             widget.tenantFoods.detailMenu!.id);
-              //                     // Navigator.of(context).pop();
-              //                   },
-              //                   style: ButtonStyle(
-              //                     shape: MaterialStateProperty.all<
-              //                         RoundedRectangleBorder>(
-              //                       RoundedRectangleBorder(
-              //                         borderRadius: BorderRadius.circular(5.0),
-              //                       ),
-              //                     ),
-              //                     backgroundColor:
-              //                         MaterialStateProperty.all<Color>(
-              //                       Color.fromARGB(227, 244, 67, 54),
-              //                     ),
-              //                     minimumSize:
-              //                         MaterialStateProperty.all(Size(100, 30)),
-              //                   ),
-              //                   child: const Text(
-              //                     "Hapus",
-              //                     style: TextStyle(
-              //                       color: Colors.white,
-              //                     ),
-              //                   ),
-              //                 ),
-              //               ],
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //     );
-              //   },
-              // );
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(25),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Hapus Menu",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Apakah Anda yakin ingin untuk menghapus menu ini?",
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      side: const BorderSide(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  minimumSize:
+                                      MaterialStateProperty.all(Size(100, 30)),
+                                ),
+                                child: const Text(
+                                  "Batal",
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 99, 99, 99),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              TextButton(
+                                onPressed: () {
+                                  context
+                                      .read<KatalogMenuProvider>()
+                                      .deleteFood(
+                                          user.token, widget.tenantFoods.id);
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                    Color.fromARGB(227, 244, 67, 54),
+                                  ),
+                                  minimumSize:
+                                      MaterialStateProperty.all(Size(100, 30)),
+                                ),
+                                child: const Text(
+                                  "Hapus",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
             },
           ),
         ],
@@ -465,7 +461,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                         controller: hargaMenuController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          hintText: 'Rp. ',
+                          hintText: 'Rp ',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
