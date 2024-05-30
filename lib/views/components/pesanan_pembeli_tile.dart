@@ -33,15 +33,7 @@ class PesananItemWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
-        vertical: 18,
-      ),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Color.fromARGB(98, 31, 31, 31),
-            width: 1,
-          ),
-        ),
+        vertical: 15,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,53 +45,50 @@ class PesananItemWidget extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   color: secondaryTextColor,
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: medium,
                 ),
               ),
               const SizedBox(
-                width: 10,
+                width: 20,
               ),
               Text(
                 food,
                 style: GoogleFonts.poppins(
                   color: secondaryTextColor,
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: medium,
                 ),
               ),
               const Spacer(
                 flex: 1,
               ),
               Text(
-                FormatCurrency.intToStringCurrency(harga),
+                FormatCurrency.intToStringCurrency(
+                  harga,
+                ),
                 style: GoogleFonts.poppins(
                   color: primaryextColor,
                   fontSize: 14,
+                  fontWeight: medium,
                 ),
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 10,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 5,
+          if (catatan.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 36,
+                vertical: 5,
+              ),
+              child: Text(
+                'Note: $catatan',
+                style: GoogleFonts.poppins(
+                  color: primaryextColor,
+                  fontSize: 14,
+                  fontWeight: medium,
                 ),
-                Text(
-                  'Catatan : $catatan',
-                  style: GoogleFonts.poppins(
-                    color: primaryextColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
         ],
       ),
     );

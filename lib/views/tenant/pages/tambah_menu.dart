@@ -11,6 +11,7 @@ import 'package:testgetdata/model/kategori_menu_model.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/tenant/pages/katalog/katalog_menu_page.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class TambahMenuPage extends StatefulWidget {
   const TambahMenuPage({Key? key}) : super(key: key);
@@ -574,8 +575,10 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                           },
 
                           style: ElevatedButton.styleFrom(
-                            side: BorderSide(color: Colors.redAccent),
-                            backgroundColor: Colors.redAccent,
+                            side: BorderSide(
+                              color: primaryColor,
+                            ),
+                            backgroundColor: primaryColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),

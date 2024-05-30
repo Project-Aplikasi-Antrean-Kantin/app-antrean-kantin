@@ -91,55 +91,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: backgroundColor,
-      statusBarIconBrightness: Brightness.dark,
-    ));
-    print(user);
-    print(user.menu);
+    debugPrint("$user");
+    debugPrint("${user.menu}");
 
     final hasPermission = user.permission.contains('read beranda');
-    print(hasPermission);
+    debugPrint("$hasPermission");
     if (!hasPermission) {
       return const Center(
         child: Text('TIDAK ADA AKSES WOY'),
       );
     }
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: backgroundColor,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+    );
     return Scaffold(
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   toolbarHeight: 50,
-      //   scrolledUnderElevation: 0,
-      //   bottomOpacity: 0,
-      //   title: Text(
-      //     'Beranda',
-      //     style: GoogleFonts.poppins(
-      //       fontWeight: FontWeight.bold,
-      //       fontSize: 20,
-      //       color: Colors.black,
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      //   // actions: [
-      //   //   IconButton(
-      //   //     icon: const Icon(
-      //   //       Icons.notifications,
-      //   //       color: Colors.black,
-      //   //       size: 24,
-      //   //     ),
-      //   //     onPressed: () {
-      //   //       // Navigator.pop(context);
-      //   //     },
-      //   //   ),
-      //   // ],
-      //   bottom: PreferredSize(
-      //     preferredSize: const Size.fromHeight(4.0),
-      //     child: Container(
-      //       color: Colors.grey,
-      //       height: 0.5,
-      //     ),
-      //   ),
-      // ),
       backgroundColor: backgroundColor,
       body: Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),

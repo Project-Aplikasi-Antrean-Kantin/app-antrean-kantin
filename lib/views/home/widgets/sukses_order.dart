@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/home/pages/navbar_home.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class SuksesOrder extends StatelessWidget {
   const SuksesOrder({super.key});
@@ -70,7 +71,7 @@ class SuksesOrder extends StatelessWidget {
                       },
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.redAccent),
+                            MaterialStateProperty.all<Color>(primaryColor),
                       ),
                       child: Text(
                         'Kembali ke Halaman Utama',
@@ -103,7 +104,7 @@ class SuksesOrder extends StatelessWidget {
                         child: Text(
                           'Lihat Riwayat Pesanan',
                           style: GoogleFonts.poppins(
-                            color: Colors.redAccent,
+                            color: primaryColor,
                           ),
                         ),
                       ),

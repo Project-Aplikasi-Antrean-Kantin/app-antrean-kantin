@@ -1,36 +1,52 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:testgetdata/http/add_transaksi.dart';
-import 'package:testgetdata/http/fetch_data_ruangan.dart';
+import 'package:testgetdata/http/fetch_penjualan_offline.dart';
 import 'package:testgetdata/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/model/order_model.dart';
-import 'package:testgetdata/model/ruangan_model.dart';
+import 'package:testgetdata/model/tenant_foods.dart';
 
-class CartProvider extends ChangeNotifier {
-  // CartProvider()
-
+class KasirProvider extends ChangeNotifier {
+  List<TenantFoods> data = [];
+  bool isLoading = false;
   List<CartMenuModel> _cartMenu = [];
   List<CartMenuModel> get cart => _cartMenu;
-  List<Ruangan> listRuangan = [];
-
   int total = 0;
   int totalHarga = 0;
   int cost = 0;
-
-  // buat release umum
-  // int service = 1000;
-  // buat coba midtrans prod
-  int service = 0;
-
   bool isCartShow = false;
-  int isAntar = 0;
   String? metodePembayaran = null;
-  int? ruanganId; // todo : ganti ini
   bool orderBerhasil = false;
+  int isAntar = 0;
+  int? ruanganId;
+  int service = 0;
+  // bool get isKasir => true;
+  bool get isKasir => _isKasir;
+  bool _isKasir = false;
 
-  void addRemove(
-      menuId, name, price, gambar, tenantName, deskripsi, bool isAdd) {
+  void setisKasir(bool value) {
+    _isKasir = value;
+    notifyListeners();
+  }
+
+  void setLoading(bool value) {
+    isLoading = value;
+    // notifyListeners();
+  }
+
+  Future<void> fetchData(String token) async {
+    setLoading(true);
+    try {
+      final fetchedData = await fetchPenjualanOffline(token);
+      data = fetchedData.tenantFoods ?? [];
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  void addRemove(menuId, name, price, gambar, deskripsi, bool isAdd) {
     //Jika sudah ada maka yang diupdate cuma count
     if (_cartMenu.where((element) => menuId == element.menuId).isNotEmpty) {
       var index = _cartMenu.indexWhere((element) => menuId == element.menuId);
@@ -60,7 +76,6 @@ class CartProvider extends ChangeNotifier {
         setBottomNavVisible(false);
       }
     } else {
-      //jika belum ada di cart'
       if (isAdd) {
         _cartMenu.add(
           CartMenuModel(
@@ -70,7 +85,6 @@ class CartProvider extends ChangeNotifier {
             menuNama: name,
             menuPrice: price,
             deskripsi: deskripsi,
-            tenantName: tenantName,
             catatan: '',
           ),
         );
@@ -83,18 +97,16 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  getTotalBelanja(bool isAdd, CartMenuModel cart) {
+    cost = isAdd ? cost + cart.menuPrice : cost - cart.menuPrice;
+  }
+
   void setBottomNavVisible(bool value) {
     isCartShow = value;
     notifyListeners();
   }
 
-  getTotalBelanja(bool isAdd, CartMenuModel cart) {
-    cost = isAdd ? cost + cart.menuPrice : cost - cart.menuPrice;
-  }
-
   cekKatalogSudahAda(menuId) {
-    // var cartSudahAda = _cartMenu.length;
-    // var index = _cartMenu.indexWhere((element) => menuId == element.menuId);
     if (_cartMenu.length == 0) {
       isCartShow = false;
     } else {
@@ -111,34 +123,11 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int getTotal() {
-    if (isAntar == 1) {
-      totalHarga = cost +
-          service +
-          (cart.fold(
-                  0,
-                  (previousValue, element) =>
-                      previousValue + element.count as int) *
-              0 /** coba prod midtrnas jadi 0, jika akan release ubah ke 1000**/);
-    } else {
-      totalHarga = cost + service;
-    }
-    return totalHarga;
-  }
-
-  int jumlahMenu() {
-    return cart.fold(
-        0, (previousValue, element) => previousValue + element.count as int);
-  }
-
-  void tambahCatatan(menuId, catatan) {
-    final cartSelected =
-        _cartMenu.where((element) => element.menuId == menuId).toList()[0];
-    cartSelected.catatan = catatan;
+  setMetodePembayaran(String mtdpembayaran) {
+    metodePembayaran = mtdpembayaran;
   }
 
   Future<OrderModel> buatTransaksi(context, String token) {
-    print('isAntar : $isAntar');
     print('sebelum add transaksi ' + toJson());
     orderBerhasil == true;
     notifyListeners();
@@ -147,6 +136,8 @@ class CartProvider extends ChangeNotifier {
 
   String toJson() => jsonEncode(
         {
+          "biaya_layanan": 0,
+          "status": "selesai",
           "isAntar": isAntar,
           "total": totalHarga,
           "ruangan_id": ruanganId,
@@ -158,19 +149,23 @@ class CartProvider extends ChangeNotifier {
         },
       );
 
-  setMetodePembayaran(String mtdpembayaran) {
-    metodePembayaran = mtdpembayaran;
+  int jumlahMenu() {
+    return cart.fold(
+        0, (previousValue, element) => previousValue + element.count as int);
   }
 
-  setIsAntar(int antar) {
-    isAntar = antar;
-  }
-
-  setRuanganId(int idRuangan) {
-    ruanganId = idRuangan;
-  }
-
-  void getRuangan(String token) async {
-    listRuangan = await fetchDataRuangan(token);
+  int getTotal() {
+    if (isAntar == 0) {
+      totalHarga = cost +
+          service +
+          (cart.fold(
+                  0,
+                  (previousValue, element) =>
+                      previousValue + element.count as int) *
+              0 /** coba prod midtrnas jadi 0, jika akan release ubah ke 1000**/);
+    } else {
+      totalHarga = cost + service;
+    }
+    return totalHarga;
   }
 }

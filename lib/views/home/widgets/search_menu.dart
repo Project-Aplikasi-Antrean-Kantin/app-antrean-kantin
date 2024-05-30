@@ -136,6 +136,7 @@ import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/home/widgets/bottom_sheet_catatan.dart';
 import 'package:testgetdata/views/home/widgets/bottom_sheet_detail_menu.dart';
 import 'package:testgetdata/views/components/search_widget.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class SearchPageMenu extends StatefulWidget {
   final String url;
@@ -383,7 +384,7 @@ class _SearchPageMenuState extends State<SearchPageMenu> {
                                           style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
-                                            color: Colors.redAccent,
+                                            color: primaryColor,
                                           ),
                                         ),
                                         Text(
@@ -445,7 +446,7 @@ class _SearchPageMenuState extends State<SearchPageMenu> {
                                                   BorderRadius.circular(12),
                                               border: Border.all(
                                                 color: dataFoods.isReady == 1
-                                                    ? Colors.redAccent
+                                                    ? primaryColor
                                                     : const Color.fromARGB(
                                                         255, 180, 180, 180),
                                                 width: 1.5,
@@ -462,7 +463,7 @@ class _SearchPageMenuState extends State<SearchPageMenu> {
                                                   style: TextStyle(
                                                     color:
                                                         dataFoods.isReady == 1
-                                                            ? Colors.redAccent
+                                                            ? primaryColor
                                                             : Colors.grey,
                                                     fontSize: 12,
                                                   ),
@@ -493,10 +494,10 @@ class _SearchPageMenuState extends State<SearchPageMenu> {
                                                                 dataTenant,
                                                                 false);
                                                       },
-                                                      icon: const Icon(
+                                                      icon: Icon(
                                                         Icons
                                                             .do_not_disturb_on_outlined,
-                                                        color: Colors.redAccent,
+                                                        color: primaryColor,
                                                         size: 26,
                                                       )),
                                                   Consumer<CartProvider>(
@@ -532,9 +533,9 @@ class _SearchPageMenuState extends State<SearchPageMenu> {
                                                               dataTenant,
                                                               true);
                                                     },
-                                                    icon: const Icon(
+                                                    icon: Icon(
                                                       Icons.add_circle_outline,
-                                                      color: Colors.redAccent,
+                                                      color: primaryColor,
                                                       size: 26,
                                                     ),
                                                   ),

@@ -22,10 +22,11 @@ class KatalogMenu extends StatelessWidget {
         future: context.read<KatalogMenuProvider>().fetchData(user.token),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-                body: Center(
-              child: CircularProgressIndicator(),
-            ));
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
           } else {
             return Consumer<KatalogMenuProvider>(
               builder: (context, provider, child) {

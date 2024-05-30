@@ -3,10 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class DetailMenu {
-  final String namaTenant;
+  String? namaTenant;
   final int idMenu;
   final String title;
   final String gambar;
@@ -16,7 +18,7 @@ class DetailMenu {
   bool? isTambah;
 
   DetailMenu({
-    required this.namaTenant,
+    this.namaTenant,
     required this.idMenu,
     required this.title,
     required this.gambar,
@@ -27,10 +29,12 @@ class DetailMenu {
   });
 }
 
-Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu) {
+Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
+    {bool isCashier = false}) {
   final CartProvider cartProvider =
       Provider.of<CartProvider>(context, listen: false);
-  // final detailmenu = DetailMenu;
+  final KasirProvider kasirProvider =
+      Provider.of<KasirProvider>(context, listen: false);
 
   return showModalBottomSheet(
     context: context,
@@ -113,14 +117,33 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu) {
                 ),
               ),
               const SizedBox(height: 50),
-              Container(
-                decoration: BoxDecoration(
-                  color: menu.isReady == 1 ? Colors.redAccent : Colors.grey,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    if (menu.isReady == 1) {
+              GestureDetector(
+                // onTap: () {
+                //   if (menu.isReady == 1) {
+                //     cartProvider.addRemove(
+                //       menu.idMenu,
+                //       menu.title,
+                //       menu.price,
+                //       menu.gambar,
+                //       menu.description,
+                //       menu.namaTenant,
+                //       true,
+                //     );
+                //     Navigator.of(context).pop();
+                //   }
+                // },
+                onTap: () {
+                  if (menu.isReady == 1) {
+                    if (isCashier) {
+                      kasirProvider.addRemove(
+                        menu.idMenu,
+                        menu.title,
+                        menu.price,
+                        menu.gambar,
+                        menu.description,
+                        true,
+                      );
+                    } else {
                       cartProvider.addRemove(
                         menu.idMenu,
                         menu.title,
@@ -130,20 +153,28 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu) {
                         menu.namaTenant,
                         true,
                       );
-                      Navigator.of(context).pop();
                     }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12.0,
-                      horizontal: 16.0,
-                    ),
-                    child: Center(
-                      child: Text(
-                        menu.isReady == 1 ? 'Tambah' : 'Habis',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 12,
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: menu.isReady == 1 ? primaryColor : Colors.grey,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 16.0,
+                      ),
+                      child: Center(
+                        child: Text(
+                          menu.isReady == 1 ? 'Tambah' : 'Habis',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/home/pages/keranjang/pembayaran_online.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -24,9 +25,10 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.redAccent,
+        backgroundColor: primaryColor,
         toolbarHeight: 320,
         scrolledUnderElevation: 0,
         // shape: const RoundedRectangleBorder(
@@ -47,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     bottom: 15,
                   ),
                   child: Text(
-                    'Profile',
+                    'Akun Saya',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -75,11 +77,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Column(
                     children: [
                       Text(
-                        user.nama,
+                        capitalizeFirstLetter(user.nama),
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           color: Colors.white,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: medium,
                         ),
                       ),
                       const SizedBox(
@@ -102,11 +104,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       body: Container(
-        // decoration: BoxDecoration(
-        //   border: Border.all(
-        //     width: 1,
-        //   ),
-        // ),
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         margin: const EdgeInsets.all(20),
@@ -164,62 +161,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               Text(
                                 'Tambah Menu',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const Spacer(
-                                flex: 1,
-                              ),
-                              const Icon(
-                                Icons.arrow_right,
-                                size: 24.0,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed('/riwayat');
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const PembayaranOnline(),
-                            ),
-                            (route) => route.isFirst,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                          ),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              // top: BorderSide(
-                              //   width: 0.2,
-                              //   color: Colors.grey[900]!,
-                              // ),
-                              bottom: BorderSide(
-                                width: 0.2,
-                                color: Colors.grey[900]!,
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                child: Icon(
-                                  Icons.storefront,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                'Test Midtrans',
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                 ),

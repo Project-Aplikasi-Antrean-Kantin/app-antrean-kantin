@@ -1,13 +1,12 @@
-import 'dart:io';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/provider/katalog_menu_provider.dart';
-import 'package:testgetdata/views/home/pages/navbar_home.dart';
+import 'package:testgetdata/views/tenant/pages/kasir/kasir_page.dart';
 import 'package:testgetdata/views/home/pages/riwayat/riwayat_page_as_role.dart';
 import 'package:testgetdata/views/home/widgets/sukses_order.dart';
 import 'package:testgetdata/views/home/pages/beranda/home_page.dart';
@@ -16,7 +15,6 @@ import 'package:testgetdata/views/home/pages/login/login_page.dart';
 import 'package:testgetdata/views/masbro/pages/pengantaran_page.dart';
 import 'package:testgetdata/views/home/pages/register/register_page.dart';
 import 'package:testgetdata/views/components/splash_screen.dart';
-import 'package:testgetdata/views/tenant/pages/kasir/penjualan_offline.dart';
 import 'package:testgetdata/views/tenant/pages/katalog/katalog_menu_page.dart';
 import 'package:testgetdata/views/tenant/pages/pesanan/pesanan_page.dart';
 import 'package:testgetdata/views/tenant/pages/tambah_menu.dart';
@@ -89,6 +87,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => KatalogMenuProvider()),
+        ChangeNotifierProvider(create: (_) => KasirProvider()),
       ],
       child: MaterialApp(
         home: const SplashScreen(),
@@ -111,7 +110,7 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => const ProfilePage(),
           '/katalog_menu': (context) => const KatalogMenu(),
           '/tambah_menu': (context) => const TambahMenuPage(),
-          '/kasir': (context) => const PenjualanOffline(),
+          '/kasir': (context) => const KasirPage(),
         },
       ),
     );

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/theme.dart';
 
-class RingkasanPembayaranCart extends StatelessWidget {
+class RingkasanPembayaranKasir extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context);
+    final kasirProvider = Provider.of<KasirProvider>(context);
     return Container(
       // decoration: BoxDecoration(
       //   borderRadius: BorderRadius.circular(10),
@@ -73,7 +72,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   children: [
                     Text(
                       FormatCurrency.intToStringCurrency(
-                        cartProvider.cost,
+                        kasirProvider.cost,
                       ),
                       style: GoogleFonts.poppins(
                         fontSize: 14,
@@ -98,7 +97,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 ),
                 Text(
                   FormatCurrency.intToStringCurrency(
-                    cartProvider.service,
+                    kasirProvider.service,
                   ),
                   style: GoogleFonts.poppins(
                     fontSize: 14,
@@ -109,7 +108,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
             const SizedBox(
               height: 7,
             ),
-            if (cartProvider.isAntar == 1)
+            if (kasirProvider.isAntar == 1)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +124,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: "${cartProvider.jumlahMenu()}x ",
+                          text: "${kasirProvider.jumlahMenu()}x ",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -166,7 +165,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 ),
                 Text(
                   FormatCurrency.intToStringCurrency(
-                    cartProvider.getTotal(),
+                    kasirProvider.getTotal(),
                   ),
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,

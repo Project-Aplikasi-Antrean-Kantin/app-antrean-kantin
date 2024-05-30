@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/model/ruangan_model.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/views/theme.dart';
 
 int? pilihPemesanan;
 int? pilihRuangan;
 String? pilihPembayaran = '';
 bool isOptionSelected = false;
+bool isButtonEnabled = false;
 // String pilihPembayaran = '';
 typedef OptionSelectedCallback = void Function(int? option);
 typedef OptionSelectedCallback2 = void Function(String? option2);
@@ -50,13 +52,13 @@ void bottomSheetTipePemesanan(
                               borderRadius: BorderRadius.circular(8),
                               side: BorderSide(
                                 color: pilihPemesanan == 1
-                                    ? Colors.redAccent
+                                    ? primaryColor
                                     : Colors
                                         .grey, // Warna border akan berbeda jika tombol dipilih
                               ),
                             ),
                             backgroundColor: pilihPemesanan == 1
-                                ? Colors.redAccent
+                                ? primaryColor
                                 : Colors
                                     .white, // Warna latar belakang akan berbeda jika tombol dipilih
                           ),
@@ -86,13 +88,13 @@ void bottomSheetTipePemesanan(
                               borderRadius: BorderRadius.circular(8),
                               side: BorderSide(
                                 color: pilihPemesanan == 0
-                                    ? Colors.redAccent
+                                    ? primaryColor
                                     : Colors
                                         .grey, // Warna border akan berbeda jika tombol dipilih
                               ),
                             ),
                             backgroundColor: pilihPemesanan == 0
-                                ? Colors.redAccent
+                                ? primaryColor
                                 : Colors
                                     .white, // Warna latar belakang akan berbeda jika tombol dipilih
                           ),
@@ -229,22 +231,21 @@ void bottomSheetLokasiRuangan(BuildContext context, List<Ruangan> listRuangan,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: pilihRuangan == e.id
-                            ? Colors.redAccent
+                            ? primaryColor
                             : Colors.transparent,
                         width: 1,
                       ),
                     ),
                     child: ListTile(
-                      // tileColor: pilihRuangan == e.id ? Colors.redAccent : null,
+                      // tileColor: pilihRuangan == e.id ? primaryColor : null,
                       leading: Icon(
                         Icons.location_pin,
-                        color: pilihRuangan == e.id ? Colors.redAccent : null,
+                        color: pilihRuangan == e.id ? primaryColor : null,
                       ),
                       title: Text(
                         e.namaRuangan,
                         style: GoogleFonts.poppins(
-                            color:
-                                pilihRuangan == e.id ? Colors.redAccent : null),
+                            color: pilihRuangan == e.id ? primaryColor : null),
                       ),
                       onTap: () {
                         setState(() {
@@ -369,66 +370,6 @@ void bottomSheetTipePembayaran(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                // SizedBox(
-                //   height: 40,
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       Expanded(
-                //         child: ElevatedButton(
-                //           onPressed: () {
-                //             setState(
-                //               () {
-                //                 pilihPembayaran = 'Transfer';
-                //                 isOptionSelected = true;
-                //               },
-                //             );
-                //             // onSelect('Pesan Antar');
-                //           },
-                //           style: ElevatedButton.styleFrom(
-                //             shape: RoundedRectangleBorder(
-                //               borderRadius: BorderRadius.circular(8),
-                //               side: const BorderSide(
-                //                 color: Colors.grey,
-                //               ),
-                //             ),
-                //           ),
-                //           child: Text(
-                //             'Transfer',
-                //             style: GoogleFonts.poppins(),
-                //           ),
-                //         ),
-                //       ),
-                //       SizedBox(width: 10),
-                //       Expanded(
-                //         child: ElevatedButton(
-                //           onPressed: () {
-                //             setState(
-                //               () {
-                //                 pilihPembayaran = 'Bayar tunai';
-                //                 isOptionSelected = true;
-                //               },
-                //             );
-                //             // onSelect('Ambil Sendiri');
-                //           },
-                //           style: ElevatedButton.styleFrom(
-                //             shape: RoundedRectangleBorder(
-                //               borderRadius: BorderRadius.circular(8),
-                //               side: BorderSide(
-                //                 color: Colors.grey,
-                //               ),
-                //             ),
-                //           ),
-                //           child: Text(
-                //             'Bayar tunai',
-                //             style: GoogleFonts.poppins(),
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-
                 SizedBox(
                   height: 40,
                   child: Row(
@@ -444,7 +385,7 @@ void bottomSheetTipePembayaran(
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: pilihPembayaran == 'Transfer'
-                                ? Colors.redAccent
+                                ? primaryColor
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -464,6 +405,45 @@ void bottomSheetTipePembayaran(
                           ),
                         ),
                       ),
+
+                      // disable button transfer
+                      // Expanded(
+                      //   child: ElevatedButton(
+                      //     onPressed: isButtonEnabled
+                      //         ? () {
+                      //             setState(() {
+                      //               pilihPembayaran = 'Transfer';
+                      //               isOptionSelected = true;
+                      //               isButtonEnabled = false;
+                      //             });
+                      //           }
+                      //         : null,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: isButtonEnabled
+                      //           ? (pilihPembayaran == 'Transfer'
+                      //               ? primaryColor
+                      //               : Colors.white)
+                      //           : Colors.grey,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(8),
+                      //         side: const BorderSide(
+                      //           color: Colors.grey,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     child: Text(
+                      //       'Transfer',
+                      //       style: GoogleFonts.poppins(
+                      //         color: isButtonEnabled
+                      //             ? (pilihPembayaran == 'Transfer'
+                      //                 ? Colors.white
+                      //                 : Colors.black)
+                      //             : Colors.grey,
+                      //         fontSize: 16,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton(
@@ -475,13 +455,20 @@ void bottomSheetTipePembayaran(
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: pilihPembayaran == 'Bayar tunai'
-                                ? Colors.redAccent
+                                ? primaryColor
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(
-                                color: Colors.grey,
-                              ),
+                              side: pilihPembayaran == 'Bayar tunai'
+                                  ? BorderSide(
+                                      color: primaryColor,
+                                    )
+                                  : const BorderSide(
+                                      color: Colors.grey,
+                                    ),
+                              // side: BorderSide(
+                              //   color: Colors.grey,
+                              // ),
                             ),
                           ),
                           child: Text(

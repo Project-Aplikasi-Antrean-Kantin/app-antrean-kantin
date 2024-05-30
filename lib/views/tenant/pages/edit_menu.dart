@@ -11,6 +11,7 @@ import 'package:testgetdata/model/tenant_foods.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/katalog_menu_provider.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class EditMenuPage extends StatefulWidget {
   final TenantFoods tenantFoods;
@@ -715,10 +716,10 @@ class _EditMenuPageState extends State<EditMenuPage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              side: const BorderSide(
-                                color: Colors.redAccent,
+                              side: BorderSide(
+                                color: primaryColor,
                               ),
-                              backgroundColor: Colors.redAccent,
+                              backgroundColor: primaryColor,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),

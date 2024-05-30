@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
 import 'dart:async';
@@ -14,7 +13,7 @@ Future<List<Pesanan>> fetchRiwayat(String auth, String role) async {
   if (response.statusCode == 200) {
     final jsonData =
         jsonDecode(response.body)['data']['transaksi'] as List<dynamic>;
-    // print(jsonData);
+    print("iki respon e bro: $jsonData");
     return jsonData.map((e) => Pesanan.fromJson(e)).toList();
   } else {
     print(response.statusCode);

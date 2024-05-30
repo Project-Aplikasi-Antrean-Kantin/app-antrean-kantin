@@ -9,6 +9,7 @@ import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/theme/colors.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/components/pesanan_pembeli_tile.dart';
+import 'package:testgetdata/views/home/pages/riwayat/backup_detail_riwayat.dart';
 import 'package:testgetdata/views/theme.dart';
 
 class RiwayatPage extends StatefulWidget {
@@ -24,6 +25,13 @@ class RiwayatPage extends StatefulWidget {
 class _RiwayatPageState extends State<RiwayatPage> {
   List<Pesanan> orderedFood = [];
   bool isLoading = false;
+
+  String capitalizeFirstLetter(String input) {
+    if (input.isEmpty) return input;
+    return input.split(' ').map((word) {
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
 
   @override
   void initState() {
@@ -42,10 +50,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-    UserModel user = authProvider.user;
-
     return Scaffold(
       body: isLoading
           ? Container(
@@ -72,15 +76,13 @@ class _RiwayatPageState extends State<RiwayatPage> {
                         entry.listTransaksiDetail;
                     int subtotal = 0;
                     return Container(
-                      margin: const EdgeInsets.only(
-                        bottom: 10,
-                      ),
+                      margin: const EdgeInsets.only(bottom: 5),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
+                        horizontal: 15,
+                        vertical: 20,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: const Color.fromARGB(255, 255, 254, 254),
                         border: Border.all(
                           color: Colors.grey,
                           width: 0.2,
@@ -90,60 +92,92 @@ class _RiwayatPageState extends State<RiwayatPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Row(
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DetialRwiayatCoba(),
+                                ),
+                              );
+                            },
+                            child: Center(
+                              child: Text(
+                                "Rincian Pesananmu",
+                                style: GoogleFonts.poppins(
+                                  color: secondaryTextColor,
+                                  fontSize: 16,
+                                  fontWeight: bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Center(
+                            child: Text(
+                              entry.status.replaceAll('_', ' ').toUpperCase(),
+                              style: GoogleFonts.poppins(
+                                color: getStatusColor(entry.status),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Divider(
+                              color: Colors.grey,
+                              height: 1,
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Container(
-                                    padding: const EdgeInsets.only(
-                                      top: 10,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: secondaryTextColor,
-                                                width: 1,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
-                                            style: GoogleFonts.poppins(
-                                              color: secondaryTextColor,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        //
-                                      ],
-                                    ),
+                                Text(
+                                  "Alamat Pengantaran",
+                                  style: GoogleFonts.poppins(
+                                    color: secondaryTextColor,
+                                    fontSize: 14,
+                                    fontWeight: semibold,
                                   ),
                                 ),
-                                Expanded(
-                                  child: Container(
-                                    padding: const EdgeInsets.only(
-                                      top: 10,
-                                    ),
-                                    child: Text(
-                                      textAlign: TextAlign.right,
-                                      '${entry.namaRuangan ?? 'Ambil Sendiri'}',
-                                      style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                const SizedBox(
+                                  height: 6,
+                                ),
+                                Text(
+                                  textAlign: TextAlign.left,
+                                  entry.namaRuangan ??
+                                      capitalizeFirstLetter(
+                                          'Tidak Diantar, Ambil Pesanan ke ${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}'),
+                                  style: GoogleFonts.poppins(
+                                    color: secondaryTextColor,
+                                    fontSize: 12,
                                   ),
+                                  maxLines: 3,
                                 ),
                               ],
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Divider(
+                              color: Colors.grey,
+                              height: 1,
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
+                              style: GoogleFonts.poppins(
+                                color: secondaryTextColor,
+                                fontSize: 14,
+                                fontWeight: semibold,
+                              ),
                             ),
                           ),
                           ...pesananPembeli.map((item) {
@@ -157,7 +191,39 @@ class _RiwayatPageState extends State<RiwayatPage> {
                               terimaPesanan: () {},
                             );
                           }).toList(),
-                          const SizedBox(height: 10),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Subtotal pesanan ($totalItem menu)",
+                                  style: GoogleFonts.poppins(
+                                    color: primaryextColor,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Column(children: [
+                                  Text(
+                                    FormatCurrency.intToStringCurrency(
+                                      subtotal,
+                                    ),
+                                    style: GoogleFonts.poppins(
+                                      color: primaryextColor,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ])
+                              ],
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Divider(
+                              color: Colors.grey,
+                              height: 1,
+                            ),
+                          ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -168,51 +234,16 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                 child: Column(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    const SizedBox(
-                                      height: 13,
-                                    ),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Subtotal",
-                                          style: GoogleFonts.poppins(
-                                            color: primaryextColor,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        Column(children: [
-                                          Text(
-                                            FormatCurrency.intToStringCurrency(
-                                              subtotal,
-                                            ),
-                                            style: GoogleFonts.poppins(
-                                              color: primaryextColor,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ])
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 7,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Biaya layanan",
                                           style: GoogleFonts.poppins(
                                             color: primaryextColor,
-                                            fontSize: 14,
+                                            fontSize: 12,
                                           ),
                                         ),
                                         Text(
@@ -221,70 +252,65 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                           ),
                                           style: GoogleFonts.poppins(
                                             color: primaryextColor,
-                                            fontSize: 14,
+                                            fontSize: 12,
                                           ),
                                         ),
                                       ],
                                     ),
                                     const SizedBox(
-                                      height: 7,
+                                      height: 10,
                                     ),
                                     if (entry.isAntar == 1)
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             "Ongkir",
                                             style: GoogleFonts.poppins(
                                               color: primaryextColor,
-                                              fontSize: 14,
+                                              fontSize: 12,
                                             ),
                                           ),
                                           // Menampilkan jumlah menu dikalikan dengan 10000
-                                          Text.rich(
-                                            TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text: "${totalItem}x ",
-                                                  style: GoogleFonts.poppins(
-                                                    color: secondaryTextColor,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                  ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "$totalItem x",
+                                                style: GoogleFonts.poppins(
+                                                  color: primaryextColor,
+                                                  fontWeight: semibold,
                                                 ),
-                                                TextSpan(
-                                                  text: FormatCurrency
-                                                      .intToStringCurrency(
-                                                    1000,
-                                                  ),
-                                                  style: GoogleFonts.poppins(
-                                                    color: primaryextColor,
-                                                    fontSize: 14,
-                                                  ),
+                                              ),
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              Text(
+                                                FormatCurrency
+                                                    .intToStringCurrency(
+                                                  1000,
                                                 ),
-                                              ],
-                                            ),
+                                                style: GoogleFonts.poppins(
+                                                  color: primaryextColor,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
                                     const SizedBox(
-                                      height: 15,
+                                      height: 10,
                                     ),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Total",
                                           style: GoogleFonts.poppins(
                                             color: secondaryTextColor,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                            fontSize: 14,
                                           ),
                                         ),
                                         Text(
@@ -294,7 +320,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                           style: GoogleFonts.poppins(
                                             color: secondaryTextColor,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                            fontSize: 14,
                                           ),
                                         ),
                                       ],
@@ -302,31 +328,90 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 20),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  bottom: 10,
-                                  right: 10,
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                child: Divider(
+                                  color: Colors.grey,
+                                  height: 1,
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                              ),
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      child: Text(
-                                        entry.status
-                                            .replaceAll('_', ' ')
-                                            .toUpperCase(),
-                                        style: GoogleFonts.poppins(
-                                          color: getStatusColor(entry.status),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
+                                    Text(
+                                      "Rincinan Pesanan",
+                                      style: GoogleFonts.poppins(
+                                        color: secondaryTextColor,
+                                        fontSize: 14,
+                                        fontWeight: semibold,
                                       ),
-                                      // ),
+                                    ),
+                                    const SizedBox(
+                                      height: 6,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "No Pesanan:",
+                                          style: GoogleFonts.poppins(
+                                            color: primaryextColor,
+                                            fontSize: 12,
+                                            fontWeight: regular,
+                                          ),
+                                        ),
+                                        const Spacer(
+                                          flex: 1,
+                                        ),
+                                        Text(
+                                          "0000$idPesanan",
+                                          style: GoogleFonts.poppins(
+                                            color: primaryextColor,
+                                            fontSize: 12,
+                                            fontWeight: regular,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 6,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Pembayaran:",
+                                          style: GoogleFonts.poppins(
+                                            color: primaryextColor,
+                                            fontSize: 12,
+                                            fontWeight: regular,
+                                          ),
+                                        ),
+                                        const Spacer(
+                                          flex: 1,
+                                        ),
+                                        Text(
+                                          entry.metodePembayaran
+                                                      .toLowerCase() ==
+                                                  'cod'
+                                              ? 'Bayar di Tempat'
+                                              : capitalizeFirstLetter(
+                                                  entry.metodePembayaran),
+                                          style: GoogleFonts.poppins(
+                                            color: primaryextColor,
+                                            fontSize: 12,
+                                            fontWeight: regular,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ),
+                              const SizedBox(
+                                height: 30,
+                              )
                             ],
                           ),
                         ],

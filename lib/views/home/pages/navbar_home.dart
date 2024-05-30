@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/model/fitur_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
+import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/components/switch_route.dart';
 import 'package:testgetdata/views/theme.dart';
 
@@ -30,6 +32,17 @@ class _NavbarHomeState extends State<NavbarHome> {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     List<FiturModel> listFitur = authProvider.user.menu;
 
+    // Halaman yang baru dipilih bukan halaman kasir, maka bersihkan keranjang belanja
+    void clearCartIfRequired(int newIndex) {
+      KasirProvider kasirProvider =
+          Provider.of<KasirProvider>(context, listen: false);
+      FiturModel selectedFeature = listFitur[newIndex];
+      if (selectedFeature.nama.toLowerCase() == "kasir") {
+        return;
+      }
+      kasirProvider.clearCart();
+    }
+
     String kapitalHurufDepan(String text) {
       if (text.isEmpty) return text;
       return text.split(' ').map((word) {
@@ -42,20 +55,26 @@ class _NavbarHomeState extends State<NavbarHome> {
         List<FiturModel> listFitur) {
       return listFitur.map((e) {
         return BottomNavigationBarItem(
-          icon: SvgPicture.network(
-            e.ikon!,
-            height: 20,
-            colorFilter: ColorFilter.mode(
-              unselectedIconColor,
-              BlendMode.srcIn,
+          icon: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SvgPicture.network(
+              e.ikon!,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                unselectedIconColor,
+                BlendMode.srcIn,
+              ),
             ),
           ),
-          activeIcon: SvgPicture.network(
-            e.ikon!,
-            height: 20,
-            colorFilter: ColorFilter.mode(
-              selectedIconColor,
-              BlendMode.srcIn,
+          activeIcon: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SvgPicture.network(
+              e.ikon!,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                selectedIconColor,
+                BlendMode.srcIn,
+              ),
             ),
           ),
           label: kapitalHurufDepan(e.nama),
@@ -95,6 +114,8 @@ class _NavbarHomeState extends State<NavbarHome> {
             currentIndex: _currentIndex,
             showUnselectedLabels: true,
             onTap: (index) {
+              // Panggil fungsi clearCartIfRequired saat pengguna mengubah halaman
+              clearCartIfRequired(index);
               setState(() {
                 _currentIndex = index;
               });

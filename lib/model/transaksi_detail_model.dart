@@ -1,4 +1,3 @@
-import 'package:testgetdata/model/menu_kelola_model.dart';
 import 'package:testgetdata/model/tenant_foods.dart';
 
 class ListTransaksiDetail {

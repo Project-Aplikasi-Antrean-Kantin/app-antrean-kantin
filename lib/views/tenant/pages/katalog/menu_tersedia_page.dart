@@ -1,20 +1,22 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/http/update_menu_tenant.dart';
 import 'package:testgetdata/model/tenant_foods.dart';
-import 'package:testgetdata/model/tenant_model.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/tenant/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/views/components/search_widget.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class MenuTersedia extends StatefulWidget {
   final List<TenantFoods> data;
-  const MenuTersedia({Key? key, required this.data}) : super(key: key);
+
+  const MenuTersedia({
+    Key? key,
+    required this.data,
+  }) : super(key: key);
 
   @override
   State<MenuTersedia> createState() => _MenuTersediaState();
@@ -66,14 +68,14 @@ class _MenuTersediaState extends State<MenuTersedia> {
                         )
                         .toList();
                   }
-                  print("ini Result : $result");
-                  print("value : $value");
+                  debugPrint("ini Result : $result");
+                  debugPrint("value : $value");
                   setState(
                     () {
                       searchResult = result;
                     },
                   );
-                  print("ini SearchResult : $searchResult");
+                  debugPrint("ini SearchResult : $searchResult");
                 },
                 tittle: "Cari menu . . . ",
               ),
@@ -81,10 +83,10 @@ class _MenuTersediaState extends State<MenuTersedia> {
                 height: 10,
               ),
               Container(
-                padding: EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Color(0xFFB3B3B3),
+                    color: const Color(0xFFB3B3B3),
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -146,7 +148,7 @@ class _MenuTersediaState extends State<MenuTersedia> {
       // floatingActionButton: SizedBox(
       //   width: 160,
       //   child: FloatingActionButton(
-      //     backgroundColor: Colors.redAccent,
+      //     backgroundColor: primaryColor,
       //     onPressed: () {
       //       Navigator.pushNamed(context, '/tambah_menu');
       //     },
@@ -176,7 +178,7 @@ class _MenuTersediaState extends State<MenuTersedia> {
       floatingActionButton: SizedBox(
         width: MediaQuery.of(context).size.width * 0.45,
         child: FloatingActionButton(
-          backgroundColor: Colors.redAccent,
+          backgroundColor: primaryColor,
           onPressed: () {
             Navigator.pushNamed(context, '/tambah_menu');
           },

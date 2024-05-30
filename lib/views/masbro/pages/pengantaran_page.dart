@@ -3,13 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/http/fetch_pengantaran.dart';
 import 'package:testgetdata/http/update_pengantaran.dart';
-import 'package:testgetdata/model/food_item.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
-import 'package:testgetdata/views/home/pages/navbar_home.dart';
 import 'package:testgetdata/views/masbro/pages/pesanan_diantar.dart';
 import 'package:testgetdata/views/masbro/pages/pesanan_menunggu.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class PerluPengantaran extends StatefulWidget {
   const PerluPengantaran({super.key});
@@ -73,6 +72,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: backgroundColor,
           automaticallyImplyLeading: false,
           toolbarHeight: 50,
           scrolledUnderElevation: 0,
@@ -81,7 +81,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               fontSize: 20,
-              color: Colors.black,
+              color: secondaryTextColor,
             ),
           ),
           centerTitle: true,
@@ -125,7 +125,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                   'Menunggu',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: Colors.black,
+                    color: primaryextColor,
                   ),
                 ),
               ),
@@ -134,7 +134,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                   'Diantar',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: Colors.black,
+                    color: primaryextColor,
                   ),
                 ),
               ),
@@ -142,20 +142,34 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
           ),
         ),
         body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           key: UniqueKey(),
           children: [
             isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
+                ? Container(
+                    color: backgroundColor,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          primaryColor,
+                        ),
+                      ),
+                    ),
                   )
                 : PesananMenunggu(
                     pesananSiapDiantar: pesananSiapDiantar,
                     pesananDiantar: diantar,
                   ),
             isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
+                ? Container(
+                    color: backgroundColor,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          primaryColor,
+                        ),
+                      ),
+                    ),
                   )
                 : PesananDiantar(
                     pesananDiantar: pesananDiantar,

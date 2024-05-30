@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/components/appbar.dart';
-import 'package:testgetdata/views/home/pages/navbar_home.dart';
 import 'package:testgetdata/views/home/pages/riwayat/riwayat_page.dart';
 
 class RiwayatPageAsRole extends StatelessWidget {
@@ -19,13 +18,13 @@ class RiwayatPageAsRole extends StatelessWidget {
     List<Widget> tabs = [];
 
     if (user.permission.contains('read order user')) {
-      tabs.add(RiwayatPage(role: 'user'));
+      tabs.add(const RiwayatPage(role: 'user'));
     }
     if (user.permission.contains('read order tenant')) {
-      tabs.add(RiwayatPage(role: 'tenant'));
+      tabs.add(const RiwayatPage(role: 'tenant'));
     }
     if (user.permission.contains('read order masbro')) {
-      tabs.add(RiwayatPage(role: 'masbro'));
+      tabs.add(const RiwayatPage(role: 'masbro'));
     }
 
     return DefaultTabController(
@@ -47,10 +46,6 @@ class RiwayatPageAsRole extends StatelessWidget {
             : TabBarView(
                 children: tabs,
               ),
-        // bottomNavigationBar: NavbarHome(
-        //   pageIndex:
-        //       user.menu.indexWhere((element) => element.url == '/riwayat'),
-        // ),
       ),
     );
   }

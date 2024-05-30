@@ -143,7 +143,13 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ],
                     )
-                  : null,
+                  : PreferredSize(
+                      preferredSize: const Size.fromHeight(5.0),
+                      child: Container(
+                        color: Colors.grey,
+                        height: 0.3,
+                      ),
+                    ),
       toolbarHeight: hasTabs
           ? kToolbarHeight + kBottomNavigationBarHeight
           : kToolbarHeight,

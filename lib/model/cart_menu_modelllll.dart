@@ -1,5 +1,5 @@
 class CartMenuModel {
-  final String tenantName;
+  String? tenantName;
   int menuId;
   final String menuNama;
   final int menuPrice;
@@ -10,7 +10,7 @@ class CartMenuModel {
   String? deskripsi;
 
   CartMenuModel({
-    required this.tenantName,
+    this.tenantName,
     required this.menuId,
     required this.menuGambar,
     required this.menuNama,

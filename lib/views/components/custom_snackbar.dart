@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class CustomSnackBar extends SnackBar {
   final String status;
@@ -25,7 +26,7 @@ class CustomSnackBar extends SnackBar {
               ),
             ],
           ),
-          backgroundColor: status == 'success' ? Colors.blue : Colors.redAccent,
+          backgroundColor: status == 'success' ? Colors.blue : primaryColor,
           behavior: SnackBarBehavior.floating,
         );
 }

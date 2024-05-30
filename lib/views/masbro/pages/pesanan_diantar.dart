@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
 import 'package:testgetdata/model/transaksi_detail_model.dart';
@@ -8,6 +7,7 @@ import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/components/pesanan_pembeli_tile.dart';
+import 'package:testgetdata/views/theme.dart';
 
 class PesananDiantar extends StatefulWidget {
   final List<Pesanan> pesananDiantar;
@@ -30,9 +30,10 @@ class PesananDiantarState extends State<PesananDiantar> {
     UserModel user = authProvider.user;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(10),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           child: Column(
             children: widget.pesananDiantar.map((entry) {
               int totalItem = 0;
@@ -42,54 +43,146 @@ class PesananDiantarState extends State<PesananDiantar> {
               int subtotal = 0;
               return Container(
                 margin: const EdgeInsets.only(
-                  bottom: 10,
+                  bottom: 5,
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
+                  horizontal: 10,
                   vertical: 20,
                 ),
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   border: Border.all(
                     color: Colors.grey,
-                    width: 1.0,
+                    width: 0.2,
                   ),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Color.fromARGB(255, 31, 31, 31),
-                                  width: 1,
+                          Text(
+                            'Alamat pegangtaran',
+                            style: GoogleFonts.poppins(
+                              color: secondaryTextColor,
+                              fontSize: 10,
+                              fontWeight: regular,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 3,
+                          ),
+                          Text(
+                            textAlign: TextAlign.left,
+                            "${entry.namaRuangan}",
+                            style: GoogleFonts.poppins(
+                              color: secondaryTextColor,
+                              fontSize: 14,
+                              fontWeight: semibold,
+                            ),
+                            maxLines: 3,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Divider(
+                        color: Colors.grey,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Penerima',
+                                style: GoogleFonts.poppins(
+                                  color: secondaryTextColor,
+                                  fontSize: 10,
+                                  fontWeight: regular,
                                 ),
                               ),
-                            ),
-                            child: Text(
-                              // '${entry.listTransaksiDetail[0].menusKelola?.tenants.namaTenant}',
-                              '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                              const SizedBox(
+                                height: 3,
                               ),
+                              Text(
+                                capitalizeFirstLetter("${entry.namaPembeli}"),
+                                style: GoogleFonts.poppins(
+                                  color: secondaryTextColor,
+                                  fontSize: 14,
+                                  fontWeight: semibold,
+                                ),
+                                maxLines: 3,
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'No.',
+                                style: GoogleFonts.poppins(
+                                  color: secondaryTextColor,
+                                  fontSize: 10,
+                                  fontWeight: regular,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 3,
+                              ),
+                              Text(
+                                "0000$idPesanan",
+                                style: GoogleFonts.poppins(
+                                  color: secondaryTextColor,
+                                  fontSize: 14,
+                                  fontWeight: semibold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Divider(
+                        color: Colors.grey,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tenant',
+                            style: GoogleFonts.poppins(
+                              color: secondaryTextColor,
+                              fontSize: 10,
+                              fontWeight: regular,
                             ),
                           ),
-                          const Spacer(
-                            flex: 1,
+                          const SizedBox(
+                            height: 3,
                           ),
-                          Container(
-                            child: Text(
-                              '${entry.namaRuangan}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          Text(
+                            capitalizeFirstLetter(
+                                '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}'),
+                            style: GoogleFonts.poppins(
+                              color: secondaryTextColor,
+                              fontSize: 14,
+                              fontWeight: semibold,
                             ),
                           ),
                         ],
@@ -110,141 +203,141 @@ class PesananDiantarState extends State<PesananDiantar> {
                         },
                       );
                     }).toList(),
-                    const SizedBox(height: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                          ),
-                          child: Column(
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Divider(
+                        color: Colors.grey,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              const SizedBox(
-                                height: 13,
+                            children: [
+                              Text(
+                                "Subtotal (${entry.listTransaksiDetail.length} menu)",
+                                style: GoogleFonts.poppins(
+                                  color: primaryextColor,
+                                  fontSize: 12,
+                                  fontWeight: medium,
+                                ),
                               ),
+                              Column(children: [
+                                Text(
+                                  FormatCurrency.intToStringCurrency(
+                                    subtotal,
+                                  ),
+                                  style: GoogleFonts.poppins(
+                                    color: primaryextColor,
+                                    fontSize: 12,
+                                    fontWeight: medium,
+                                  ),
+                                ),
+                              ])
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Biaya layanan",
+                                style: GoogleFonts.poppins(
+                                  color: primaryextColor,
+                                  fontSize: 12,
+                                  fontWeight: medium,
+                                ),
+                              ),
+                              Column(children: [
+                                Text(
+                                  FormatCurrency.intToStringCurrency(
+                                    entry.biayaLayanan,
+                                  ),
+                                  style: GoogleFonts.poppins(
+                                    color: primaryextColor,
+                                    fontSize: 12,
+                                    fontWeight: medium,
+                                  ),
+                                ),
+                              ])
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Ongkir",
+                                style: GoogleFonts.poppins(
+                                  color: primaryextColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              // Menampilkan jumlah menu dikalikan dengan 10000
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Subtotal",
+                                    "$totalItem x",
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      color: primaryextColor,
+                                      fontSize: 12,
+                                      fontWeight: semibold,
                                     ),
                                   ),
-                                  Column(children: [
-                                    Text(
-                                      FormatCurrency.intToStringCurrency(
-                                        subtotal,
-                                      ),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ])
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 7,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Biaya layanan",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                    ),
+                                  const SizedBox(
+                                    width: 8,
                                   ),
                                   Text(
                                     FormatCurrency.intToStringCurrency(
-                                      entry.biayaLayanan,
+                                      1000,
                                     ),
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 7,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Ongkir",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  // Menampilkan jumlah menu dikalikan dengan 10000
-                                  Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: "${totalItem}x ",
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: FormatCurrency
-                                              .intToStringCurrency(
-                                            1000,
-                                          ),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Total",
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    FormatCurrency.intToStringCurrency(
-                                      entry.total,
-                                    ),
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.black,
+                                      fontSize: 12,
+                                      color: primaryextColor,
+                                      fontWeight: medium,
                                     ),
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 9),
-                          child: Row(
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Total",
+                                style: GoogleFonts.poppins(
+                                  color: secondaryTextColor,
+                                  fontSize: 14,
+                                  fontWeight: bold,
+                                ),
+                              ),
+                              Text(
+                                FormatCurrency.intToStringCurrency(
+                                  subtotal,
+                                ),
+                                style: GoogleFonts.poppins(
+                                  color: secondaryTextColor,
+                                  fontSize: 14,
+                                  fontWeight: bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               ElevatedButton(
@@ -255,10 +348,10 @@ class PesananDiantarState extends State<PesananDiantar> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    side: const BorderSide(
-                                      color: Colors.redAccent,
+                                    side: BorderSide(
+                                      color: primaryColor,
                                     ),
-                                    backgroundColor: Colors.redAccent,
+                                    backgroundColor: primaryColor,
                                     minimumSize: const Size(20, 30),
                                     fixedSize: Size(180, 35)),
                                 child: Text(
@@ -270,8 +363,8 @@ class PesananDiantarState extends State<PesananDiantar> {
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

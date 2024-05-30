@@ -11,11 +11,12 @@ class Pesanan {
   final int biayaLayanan;
   final int isAntar;
   final String metodePembayaran;
-  final String subTotal;
+  final int subTotal;
   String? gedung;
   String? namaRuangan;
   final List<ListTransaksiDetail> listTransaksiDetail;
   Ruangan? ruangan;
+  String? namaPembeli;
 
   Pesanan({
     required this.id,
@@ -32,6 +33,7 @@ class Pesanan {
     this.namaRuangan,
     required this.listTransaksiDetail,
     this.ruangan,
+    this.namaPembeli,
   });
 
   factory Pesanan.fromJson(Map<String, dynamic> json) => Pesanan(
@@ -48,8 +50,10 @@ class Pesanan {
         gedung: json["gedung"],
         namaRuangan: json["nama_ruangan"],
         listTransaksiDetail: List<ListTransaksiDetail>.from(
-            json["list_transaksi_detail"]
-                .map((x) => ListTransaksiDetail.fromJson(x))),
+          json["list_transaksi_detail"]
+              .map((x) => ListTransaksiDetail.fromJson(x)),
+        ),
+        namaPembeli: json["nama_pembeli"],
         // ruangan: Ruangan.fromJson(json["ruangan"]),
       );
 }

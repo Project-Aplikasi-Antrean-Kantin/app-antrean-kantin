@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 Color primaryColor = const Color(0xffFF5E5E);
 
@@ -18,3 +17,10 @@ FontWeight regular = FontWeight.w400;
 FontWeight medium = FontWeight.w500;
 FontWeight semibold = FontWeight.w600;
 FontWeight bold = FontWeight.w700;
+
+String capitalizeFirstLetter(String input) {
+  if (input.isEmpty) return input;
+  return input.split(' ').map((word) {
+    return word[0].toUpperCase() + word.substring(1).toLowerCase();
+  }).join(' ');
+}

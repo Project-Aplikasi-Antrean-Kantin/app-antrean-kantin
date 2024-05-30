@@ -5,14 +5,15 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/home/widgets/bottom_sheet_catatan.dart';
 import 'package:testgetdata/views/theme.dart';
 
-class ListCart extends StatelessWidget {
+class ListCartKasir extends StatelessWidget {
   final CartMenuModel cart;
 
-  const ListCart({super.key, required this.cart});
+  const ListCartKasir({super.key, required this.cart});
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +145,7 @@ class ListCart extends StatelessWidget {
               ),
               Align(
                 alignment: Alignment.centerRight,
-                child: Consumer<CartProvider>(
+                child: Consumer<KasirProvider>(
                   builder: (context, data, widget) {
                     var id = data.cart
                         .indexWhere((element) => element.menuId == cart.menuId);
@@ -160,14 +161,13 @@ class ListCart extends StatelessWidget {
                           alignment: Alignment.center,
                           child: IconButton(
                             onPressed: () {
-                              Provider.of<CartProvider>(context, listen: false)
+                              Provider.of<KasirProvider>(context, listen: false)
                                   .addRemove(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
                                       cart.menuNama,
                                       cart.deskripsi,
-                                      cart.tenantName,
                                       true);
                             },
                             icon: const Icon(
@@ -187,7 +187,7 @@ class ListCart extends StatelessWidget {
                               children: [
                                 IconButton(
                                     onPressed: () {
-                                      Provider.of<CartProvider>(context,
+                                      Provider.of<KasirProvider>(context,
                                               listen: false)
                                           .addRemove(
                                               cart.menuId,
@@ -195,7 +195,6 @@ class ListCart extends StatelessWidget {
                                               cart.menuPrice,
                                               cart.menuNama,
                                               cart.deskripsi,
-                                              cart.tenantName,
                                               false);
                                     },
                                     icon: Icon(
@@ -203,7 +202,7 @@ class ListCart extends StatelessWidget {
                                       color: primaryColor,
                                       size: 24,
                                     )),
-                                Consumer<CartProvider>(
+                                Consumer<KasirProvider>(
                                     builder: (context, data, widget) {
                                   var id = data.cart.indexWhere((element) =>
                                       element.menuId == cart.menuId);
@@ -219,7 +218,7 @@ class ListCart extends StatelessWidget {
                                 }),
                                 IconButton(
                                   onPressed: () {
-                                    Provider.of<CartProvider>(context,
+                                    Provider.of<KasirProvider>(context,
                                             listen: false)
                                         .addRemove(
                                             cart.menuId,
@@ -227,7 +226,6 @@ class ListCart extends StatelessWidget {
                                             cart.menuPrice,
                                             cart.menuNama,
                                             cart.deskripsi,
-                                            cart.tenantName,
                                             true);
                                   },
                                   icon: Icon(
@@ -237,45 +235,6 @@ class ListCart extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                            ),
-                            GestureDetector(
-                              onTap: () =>
-                                  bottomSheetCatatan(context, cart.catatan!)
-                                      .then(
-                                (value) {
-                                  if (value != null) {
-                                    data.tambahCatatan(cart.menuId, value);
-                                  }
-                                },
-                              ),
-                              child: Container(
-                                width: 85,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.description_outlined,
-                                      size: 15,
-                                    ),
-                                    Text(
-                                      'Catatan',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ],
                         ),
