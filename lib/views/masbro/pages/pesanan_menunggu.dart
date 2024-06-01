@@ -66,7 +66,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Alamat pegangtaran',
+                            'Alamat pengantaran',
                             style: GoogleFonts.poppins(
                               color: secondaryTextColor,
                               fontSize: 10,

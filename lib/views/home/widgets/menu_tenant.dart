@@ -319,27 +319,27 @@ class _MenuTenantState extends State<MenuTenant> {
                         }
                       },
                     ),
-                    actions: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.search,
-                          color: Colors.black,
-                          size: 24,
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SearchPageMenu(
-                                data: [],
-                                // url: MasbroConstants.url,
-                                url: MasbroConstants.url,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                    // actions: [
+                    //   IconButton(
+                    //     icon: const Icon(
+                    //       Icons.search,
+                    //       color: Colors.black,
+                    //       size: 24,
+                    //     ),
+                    //     onPressed: () {
+                    //       Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //           builder: (context) => SearchPageMenu(
+                    //             data: [],
+                    //             // url: MasbroConstants.url,
+                    //             url: MasbroConstants.url,
+                    //           ),
+                    //         ),
+                    //       );
+                    //     },
+                    //   ),
+                    // ],
                   ),
                   SliverList(
                     delegate: SliverChildListDelegate(

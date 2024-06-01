@@ -638,18 +638,18 @@ class _CartState extends State<Cart> {
                             },
                           ),
                         const SizedBox(height: 8),
+                        PilihTipePembayaran(
+                          tipePembayaran: tipePembayaran,
+                          pilihTipePembayaran: plihPembayaran,
+                          selectedPembayaran: (option2) {
+                            setState(() {
+                              plihPembayaran = option2;
+                              cartData.setMetodePembayaran(option2!);
+                              kasirData.setMetodePembayaran(option2!);
+                            });
+                          },
+                        ),
                       ],
-                      PilihTipePembayaran(
-                        tipePembayaran: tipePembayaran,
-                        pilihTipePembayaran: plihPembayaran,
-                        selectedPembayaran: (option2) {
-                          setState(() {
-                            plihPembayaran = option2;
-                            cartData.setMetodePembayaran(option2!);
-                            kasirData.setMetodePembayaran(option2!);
-                          });
-                        },
-                      ),
                       if (!isKasirProviderActive) ...[
                         const SizedBox(height: 20),
                         RingkasanPembayaranCart(),

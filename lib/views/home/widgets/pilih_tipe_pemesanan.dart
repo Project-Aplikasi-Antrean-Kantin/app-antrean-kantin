@@ -8,6 +8,7 @@ class PilihTipePemesanan extends StatelessWidget {
   final Function(int?) onPemesananSelected;
 
   const PilihTipePemesanan({
+    super.key,
     required this.tipePemesanan,
     required this.plihPengantaran,
     required this.onPemesananSelected,
@@ -20,7 +21,7 @@ class PilihTipePemesanan extends StatelessWidget {
         Container(
           alignment: Alignment.centerLeft,
           child: const Text(
-            'Pilih Tipe Pemesanan',
+            'Tipe Pemesanan',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -90,9 +91,11 @@ class PilihTipePemesanan extends StatelessWidget {
                       children: [
                         Text(
                           plihPengantaran == null
-                              ? 'Pilih Tipe Pengantaran'
+                              ? 'Pilih Tipe Pemesanan'
                               : tipePemesanan[plihPengantaran!],
-                          style: TextStyle(fontSize: 16),
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                          ),
                         ),
                         if (plihPengantaran != null)
                           Text(

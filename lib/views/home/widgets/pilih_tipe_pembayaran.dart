@@ -96,7 +96,7 @@ class PilihTipePembayaran extends StatelessWidget {
                               ? 'Pilih Tipe Pembayaran'
                               : pilihTipePembayaran!,
                           style: GoogleFonts.poppins(
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
                         if (pilihTipePembayaran != null)
@@ -104,7 +104,7 @@ class PilihTipePembayaran extends StatelessWidget {
                             pilihTipePembayaran == 'Bayar tunai'
                                 ? 'Siapkan uang tunai kamu'
                                 : 'Pastikan saldo kamu cukup',
-                            style: TextStyle(
+                            style: GoogleFonts.poppins(
                               fontSize: 12,
                             ),
                             maxLines: 1,

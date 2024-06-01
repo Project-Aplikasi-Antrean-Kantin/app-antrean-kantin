@@ -8,6 +8,7 @@ import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/theme/colors.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
+import 'package:testgetdata/views/common/format_date.dart';
 import 'package:testgetdata/views/components/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/views/home/pages/riwayat/backup_detail_riwayat.dart';
 import 'package:testgetdata/views/theme.dart';
@@ -25,13 +26,6 @@ class RiwayatPage extends StatefulWidget {
 class _RiwayatPageState extends State<RiwayatPage> {
   List<Pesanan> orderedFood = [];
   bool isLoading = false;
-
-  String capitalizeFirstLetter(String input) {
-    if (input.isEmpty) return input;
-    return input.split(' ').map((word) {
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
-  }
 
   @override
   void initState() {
@@ -398,6 +392,34 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                               ? 'Bayar di Tempat'
                                               : capitalizeFirstLetter(
                                                   entry.metodePembayaran),
+                                          style: GoogleFonts.poppins(
+                                            color: primaryextColor,
+                                            fontSize: 12,
+                                            fontWeight: regular,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 6,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Tanggal:",
+                                          style: GoogleFonts.poppins(
+                                            color: primaryextColor,
+                                            fontSize: 12,
+                                            fontWeight: regular,
+                                          ),
+                                        ),
+                                        const Spacer(
+                                          flex: 1,
+                                        ),
+                                        Text(
+                                          FormatDate.formatDateTimeWithWIB(entry
+                                              .listTransaksiDetail[0]
+                                              .createdAt),
                                           style: GoogleFonts.poppins(
                                             color: primaryextColor,
                                             fontSize: 12,

@@ -19,9 +19,9 @@ class CartProvider extends ChangeNotifier {
   int cost = 0;
 
   // buat release umum
-  // int service = 1000;
+  int service = 1000;
   // buat coba midtrans prod
-  int service = 0;
+  // int service = 0;
 
   bool isCartShow = false;
   int isAntar = 0;
@@ -119,7 +119,7 @@ class CartProvider extends ChangeNotifier {
                   0,
                   (previousValue, element) =>
                       previousValue + element.count as int) *
-              0 /** coba prod midtrnas jadi 0, jika akan release ubah ke 1000**/);
+              1000 /** coba prod midtrnas jadi 0, jika akan release ubah ke 1000**/);
     } else {
       totalHarga = cost + service;
     }
@@ -151,9 +151,9 @@ class CartProvider extends ChangeNotifier {
           "total": totalHarga,
           "ruangan_id": ruanganId,
           "metode_pembayaran": metodePembayaran,
-          // "ongkos_kirim": isAntar == 1 ? jumlahMenu() * 1000 : 0,
+          "ongkos_kirim": isAntar == 1 ? jumlahMenu() * 1000 : 0,
           // untuk coba prod midtrans
-          "ongkos_kirim": isAntar == 1 ? jumlahMenu() * 0 : 0,
+          // "ongkos_kirim": isAntar == 1 ? jumlahMenu() * 0 : 0,
           "menus": List<dynamic>.from(_cartMenu.map((x) => x.toJson())),
         },
       );

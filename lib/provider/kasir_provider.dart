@@ -16,7 +16,7 @@ class KasirProvider extends ChangeNotifier {
   int totalHarga = 0;
   int cost = 0;
   bool isCartShow = false;
-  String? metodePembayaran = null;
+  String? metodePembayaran = "cod";
   bool orderBerhasil = false;
   int isAntar = 0;
   int? ruanganId;

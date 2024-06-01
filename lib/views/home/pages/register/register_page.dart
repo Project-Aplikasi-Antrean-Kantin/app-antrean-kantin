@@ -20,6 +20,8 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController nama = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+  TextEditingController confirmPassword = TextEditingController();
+
   bool isLoading = false;
 
   @override
@@ -207,6 +209,63 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   },
                 ),
+                const SizedBox(
+                  height: 15,
+                ),
+                TextFormField(
+                  obscureText: showPassword,
+                  controller: confirmPassword,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'Konfirmasi password',
+                    hintStyle: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 20),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        showPassword
+                            ? Icons.remove_red_eye
+                            : Icons.remove_red_eye_outlined,
+                      ),
+                      onPressed: () => setState(() {
+                        showPassword = !showPassword;
+                      }),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Harap isi password terlebih dahulu';
+                    }
+                    if (value != password.text) {
+                      return 'Password tidak cocok';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 40),
                 GestureDetector(
                   onTap: () async {
@@ -225,6 +284,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       setState(() {
                         isLoading = false;
                       });
+                    } else if (password.text != confirmPassword.text) {
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        CustomSnackBar(
+                          status: "failed",
+                          message:
+                              "Password tidak cocok dengan konfirmasi password",
+                        ),
+                      );
                     } else {
                       setState(() {
                         isLoading = true;
