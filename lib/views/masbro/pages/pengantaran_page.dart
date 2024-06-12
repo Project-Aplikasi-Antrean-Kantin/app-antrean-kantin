@@ -125,7 +125,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                   'Menunggu',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: primaryextColor,
+                    color: primaryTextColor,
                   ),
                 ),
               ),
@@ -134,7 +134,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                   'Diantar',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: primaryextColor,
+                    color: primaryTextColor,
                   ),
                 ),
               ),

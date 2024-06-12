@@ -7,9 +7,6 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/model/tenant_model.dart';
 
-// const String uri = 'http://192.168.1.36:8000/api/tenant/1';
-
-// <<<<<<< HEAD
 Future<List<TenantModel>> fetchTenant(String uri, String auth) async {
   final response = await http.get(
     Uri.parse(uri),
@@ -17,7 +14,6 @@ Future<List<TenantModel>> fetchTenant(String uri, String auth) async {
   );
   final json = jsonDecode(response.body);
   String message = json['message'].toString();
-  // print(json);
   if (response.statusCode == 200) {
     final jsonData =
         jsonDecode(response.body)['data']['tenants'] as List<dynamic>;

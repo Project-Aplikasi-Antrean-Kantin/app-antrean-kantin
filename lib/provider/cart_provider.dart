@@ -25,7 +25,7 @@ class CartProvider extends ChangeNotifier {
 
   bool isCartShow = false;
   int isAntar = 0;
-  String? metodePembayaran = null;
+  String? metodePembayaran;
   int? ruanganId; // todo : ganti ini
   bool orderBerhasil = false;
 

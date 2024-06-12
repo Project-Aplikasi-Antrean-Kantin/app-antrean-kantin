@@ -230,7 +230,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       "Subtotal (${_pesananDiproses[index].listTransaksiDetail.length} menu)",
                                       style: GoogleFonts.poppins(
-                                        color: primaryextColor,
+                                        color: primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: medium,
                                       ),
@@ -241,7 +241,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                           subtotal,
                                         ),
                                         style: GoogleFonts.poppins(
-                                          color: primaryextColor,
+                                          color: primaryTextColor,
                                           fontSize: 12,
                                           fontWeight: medium,
                                         ),

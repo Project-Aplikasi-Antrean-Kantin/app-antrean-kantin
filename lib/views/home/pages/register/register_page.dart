@@ -58,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           textAlign: TextAlign.center,
                           'Daftar sekarang agar kamu bisa berjelajah kuliner',
                           style: GoogleFonts.poppins(
-                            color: primaryextColor,
+                            color: primaryTextColor,
                             fontSize: 15,
                             fontWeight: regular,
                           ),
@@ -385,7 +385,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Text(
                       'Sudah punya akun? ',
                       style: GoogleFonts.poppins(
-                        color: primaryextColor,
+                        color: primaryTextColor,
                       ),
                     ),
                     GestureDetector(

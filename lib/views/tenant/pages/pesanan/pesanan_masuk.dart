@@ -15,12 +15,14 @@ class PesananMasuk extends StatelessWidget {
   final List<Pesanan> pesananMasuk;
   final Function(int, Pesanan, String) terimaPesanan;
   final Function(int, Pesanan, String) tolakPesanan;
+  final Future<void> Function() onRefresh;
 
   const PesananMasuk({
     Key? key,
     required this.pesananMasuk,
     required this.terimaPesanan,
     required this.tolakPesanan,
+    required this.onRefresh,
   }) : super(key: key);
 
   @override
@@ -29,7 +31,7 @@ class PesananMasuk extends StatelessWidget {
     UserModel user = authProvider.user;
 
     return RefreshIndicator(
-      onRefresh: _refresh,
+      onRefresh: onRefresh,
       child: Scaffold(
         backgroundColor: backgroundColor,
         body: SingleChildScrollView(
@@ -212,7 +214,7 @@ class PesananMasuk extends StatelessWidget {
                                 Text(
                                   "Subtotal (${entry.listTransaksiDetail.length} menu)",
                                   style: GoogleFonts.poppins(
-                                    color: primaryextColor,
+                                    color: primaryTextColor,
                                     fontSize: 12,
                                     fontWeight: medium,
                                   ),
@@ -223,7 +225,7 @@ class PesananMasuk extends StatelessWidget {
                                       subtotal,
                                     ),
                                     style: GoogleFonts.poppins(
-                                      color: primaryextColor,
+                                      color: primaryTextColor,
                                       fontSize: 12,
                                       fontWeight: medium,
                                     ),
@@ -371,9 +373,5 @@ class PesananMasuk extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _refresh() async {
-    await Future.delayed(const Duration(seconds: 1));
   }
 }

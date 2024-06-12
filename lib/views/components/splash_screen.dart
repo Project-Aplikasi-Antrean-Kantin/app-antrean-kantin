@@ -5,6 +5,7 @@ import 'package:testgetdata/views/common/token_manager.dart';
 import 'package:testgetdata/views/components/custom_snackbar.dart';
 import 'package:testgetdata/views/home/pages/navbar_home.dart';
 import 'package:testgetdata/views/home/pages/login/login_page.dart';
+import 'package:testgetdata/views/theme.dart';
 // import 'package:testgetdata/views/tenant.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -63,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     authCheck();
     return Scaffold(
-      backgroundColor: const Color(0xF8F8F8F8),
+      backgroundColor: backgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

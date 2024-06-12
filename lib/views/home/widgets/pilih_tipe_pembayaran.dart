@@ -36,10 +36,10 @@ class PilihTipePembayaran extends StatelessWidget {
         GestureDetector(
           onTap: () {
             bottomSheetTipePembayaran(context, (option2) {
-              if (option2 == 'Bayar tunai') {
+              if (option2 == 'Bayar Tunai') {
                 selectedPembayaran('cod');
               } else {
-                selectedPembayaran('transfer');
+                selectedPembayaran('Transfer');
               }
             });
           },
@@ -94,7 +94,9 @@ class PilihTipePembayaran extends StatelessWidget {
                         Text(
                           pilihTipePembayaran == null
                               ? 'Pilih Tipe Pembayaran'
-                              : pilihTipePembayaran!,
+                              : (pilihTipePembayaran == 'cod'
+                                  ? 'Bayar Tunai'
+                                  : pilihTipePembayaran!),
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                           ),

@@ -67,7 +67,7 @@ class PesananItemWidget extends StatelessWidget {
                   harga,
                 ),
                 style: GoogleFonts.poppins(
-                  color: primaryextColor,
+                  color: primaryTextColor,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
@@ -83,7 +83,7 @@ class PesananItemWidget extends StatelessWidget {
               child: Text(
                 'Note: $catatan',
                 style: GoogleFonts.poppins(
-                  color: primaryextColor,
+                  color: primaryTextColor,
                   fontSize: 14,
                   fontWeight: medium,
                 ),

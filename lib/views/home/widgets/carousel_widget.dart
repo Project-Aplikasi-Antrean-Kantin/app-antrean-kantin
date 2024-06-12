@@ -11,26 +11,24 @@ class _CarouselWidgetState extends State<CarouselWidget> {
 
   // Daftar item gambar
   final List<String> imageList = [
-    'assets/images/ads.png',
-    'assets/images/ads.png',
-    'assets/images/ads.png',
-    'assets/images/ads.png',
-    'assets/images/ads.png',
-    // Tambahkan atau kurangi item sesuai kebutuhan
+    'assets/images/iklan 4.png',
+    'assets/images/iklan 2.png',
+    'assets/images/iklan 1.png',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 15,
+        // horizontal: 14,
+        vertical: 0,
       ),
       child: Stack(
         children: [
           CarouselSlider(
             options: CarouselOptions(
-              height: MediaQuery.of(context).size.height * 0.22,
+              // height: MediaQuery.of(context).size.height * 0.28,
+              height: 220,
               enableInfiniteScroll: true,
               autoPlay: true,
               viewportFraction: 1,
@@ -45,7 +43,7 @@ class _CarouselWidgetState extends State<CarouselWidget> {
             }).toList(),
           ),
           Positioned(
-            bottom: 10,
+            bottom: 23,
             left: 0,
             right: 0,
             child: Row(
@@ -75,13 +73,13 @@ class _CarouselWidgetState extends State<CarouselWidget> {
 
   Widget buildImageContainer(String imagePath) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 3),
+      // margin: const EdgeInsets.symmetric(horizontal: 2),
       width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      // decoration: BoxDecoration(
+      //   borderRadius: BorderRadius.circular(15),
+      // ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+        // borderRadius: BorderRadius.circular(15),
         child: Image.asset(
           imagePath,
           fit: BoxFit.cover,

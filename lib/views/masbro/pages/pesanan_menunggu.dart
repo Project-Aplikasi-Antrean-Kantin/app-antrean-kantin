@@ -221,7 +221,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                               Text(
                                 "Subtotal (${entry.listTransaksiDetail.length} menu)",
                                 style: GoogleFonts.poppins(
-                                  color: primaryextColor,
+                                  color: primaryTextColor,
                                   fontSize: 12,
                                   fontWeight: medium,
                                 ),
@@ -232,7 +232,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                     subtotal,
                                   ),
                                   style: GoogleFonts.poppins(
-                                    color: primaryextColor,
+                                    color: primaryTextColor,
                                     fontSize: 12,
                                     fontWeight: medium,
                                   ),
@@ -249,7 +249,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                               Text(
                                 "Biaya layanan",
                                 style: GoogleFonts.poppins(
-                                  color: primaryextColor,
+                                  color: primaryTextColor,
                                   fontSize: 12,
                                   fontWeight: medium,
                                 ),
@@ -260,7 +260,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                     entry.biayaLayanan,
                                   ),
                                   style: GoogleFonts.poppins(
-                                    color: primaryextColor,
+                                    color: primaryTextColor,
                                     fontSize: 12,
                                     fontWeight: medium,
                                   ),
@@ -277,7 +277,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                               Text(
                                 "Ongkir",
                                 style: GoogleFonts.poppins(
-                                  color: primaryextColor,
+                                  color: primaryTextColor,
                                   fontSize: 12,
                                 ),
                               ),
@@ -287,7 +287,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                   Text(
                                     "$totalItem x",
                                     style: GoogleFonts.poppins(
-                                      color: primaryextColor,
+                                      color: primaryTextColor,
                                       fontSize: 12,
                                       fontWeight: semibold,
                                     ),
@@ -301,7 +301,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                     ),
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
-                                      color: primaryextColor,
+                                      color: primaryTextColor,
                                       fontWeight: medium,
                                     ),
                                   ),

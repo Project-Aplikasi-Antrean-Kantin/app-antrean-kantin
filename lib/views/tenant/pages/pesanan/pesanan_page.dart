@@ -62,6 +62,18 @@ class _PesananTenantState extends State<PesananTenant> {
     });
   }
 
+  Future<void> _refreshPesananMasuk() async {
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    UserModel user = authProvider.user;
+    List<Pesanan> fetchedPesananMasuk =
+        await fetchPesananPembeli(user.token, 'pesanan_masuk');
+    setState(() {
+      pesananMasuk = fetchedPesananMasuk;
+      print("object");
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -138,7 +150,7 @@ class _PesananTenantState extends State<PesananTenant> {
                 child: Text(
                   'Masuk',
                   style: GoogleFonts.poppins(
-                    color: primaryextColor,
+                    color: primaryTextColor,
                     fontSize: 14,
                   ),
                 ),
@@ -147,7 +159,7 @@ class _PesananTenantState extends State<PesananTenant> {
                 child: Text(
                   'Diproses',
                   style: GoogleFonts.poppins(
-                    color: primaryextColor,
+                    color: primaryTextColor,
                     fontSize: 14,
                   ),
                 ),
@@ -174,6 +186,7 @@ class _PesananTenantState extends State<PesananTenant> {
                     pesananMasuk: pesananMasuk,
                     terimaPesanan: terimaPesanan,
                     tolakPesanan: tolakPesanan,
+                    onRefresh: _refreshPesananMasuk,
                   ),
             isLoading
                 ? Container(

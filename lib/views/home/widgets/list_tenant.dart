@@ -1,12 +1,11 @@
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/model/tenant_model.dart';
-import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/home/widgets/menu_tenant.dart';
 import 'package:testgetdata/views/theme.dart';
 
 class ListTenant extends StatelessWidget {
+  // ignore: prefer_typing_uninitialized_variables
   final url;
   final List<TenantModel> foundTenant;
 
@@ -19,20 +18,15 @@ class ListTenant extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.top,
-      ),
+      padding: const EdgeInsets.only(bottom: 1),
       physics: const ScrollPhysics(),
       shrinkWrap: true,
       itemCount: foundTenant.length,
       itemBuilder: (context, index) {
-        final range = FormatCurrency.intToStringCurrency(
-          foundTenant[index].range ?? 0,
-        );
         // return Text('data');
         return GestureDetector(
           onTap: () {
-            print(url);
+            debugPrint(url);
             Navigator.push(context, MaterialPageRoute(
               builder: (context) {
                 return MenuTenant(
@@ -42,112 +36,119 @@ class ListTenant extends StatelessWidget {
             ));
           },
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(
-                Radius.circular(20),
-              ),
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 1.0, // Lebar border
-                ),
-                top: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 0.2, // Lebar border
-                ),
-                left: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 0.2, // Lebar border
-                ),
-                right: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 0.2, // Lebar border
-                ),
-              ),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 5,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 238, 238, 238),
-                          borderRadius: BorderRadius.circular(15),
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage(foundTenant[index].gambar),
-                          ),
-                        ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(
+                Radius.circular(10),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 8,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      topLeft: Radius.circular(10),
+                    ),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        foundTenant[index].gambar,
                       ),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: const EdgeInsets.only(left: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  width: 1,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                            child: Text(
+                  height: 170,
+                  width: double.infinity,
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
                               foundTenant[index].namaTenant,
                               // style: Judul(),
                               style: GoogleFonts.poppins(
-                                color: primaryColor,
-                                fontSize: 18,
-                                fontWeight: bold,
+                                color: secondaryTextColor,
+                                fontSize: 16,
+                                fontWeight: semibold,
                               ),
                             ),
-                          ),
-                          Text(
-                            foundTenant[index].namaKavling,
-                            // style: SubJudul(),
-                            style: GoogleFonts.poppins(
-                              color: primaryextColor,
-                              fontSize: 12,
-                              fontWeight: semibold,
+                            Text(
+                              "Aneka makanan, makanan dan snack kantin pens",
+                              // style: Judul(),
+                              style: GoogleFonts.poppins(
+                                color: primaryTextColor,
+                                fontSize: 12,
+                                fontWeight: regular,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 3,
-                          ),
-                          Text(
-                            "Mulai harga $range",
-                            // style: Deskripsi(),
-                            style: GoogleFonts.poppins(
-                              color: secondaryTextColor,
-                              fontSize: 12,
-                              fontWeight: regular,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(25),
+                          ),
+                        ),
+                        height: 50,
+                        width: 50,
+                        child: Center(
+                          child: Text(
+                            foundTenant[index].namaKavling,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: secondaryTextColor,
+                              fontWeight: FontWeight
+                                  .bold, // Corrected to use FontWeight.bold
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         );
       },
     );
-    ;
   }
 }

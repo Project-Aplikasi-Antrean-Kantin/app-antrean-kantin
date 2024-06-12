@@ -42,6 +42,7 @@ class _MenuHabisState extends State<MenuHabis> {
           child: Column(
             children: [
               SearchWidget(
+                paddingVertical: 0,
                 paddingHorizontal: 0,
                 onChanged: (value) {
                   List<TenantFoods> result = widget.data;

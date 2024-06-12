@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 
 Color primaryColor = const Color(0xffFF5E5E);
 
-Color backgroundColor = const Color(0xffFFF8F8);
+// Color backgroundColor = const Color(0xffFFF8F8);
+Color backgroundColor = const Color(0xffF8F8FF);
 
 // buat text keseluruhan
-Color primaryextColor = const Color(0xff303030);
+Color primaryTextColor = const Color(0xff303030);
 // buat judul
 Color secondaryTextColor = const Color(0xff2B2B2B);
 
 Color unselectedIconColor = const Color(0xFF808191);
 Color selectedIconColor = const Color(0xFFFF5E5E);
+Color lineDividerColor = const Color(0xFFB3B3B3);
 
 FontWeight light = FontWeight.w300;
 FontWeight regular = FontWeight.w400;

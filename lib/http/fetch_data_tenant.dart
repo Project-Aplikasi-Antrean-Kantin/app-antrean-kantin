@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:testgetdata/model/tenant_foods.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/model/tenant_model.dart';

@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/model/fitur_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
-import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/components/switch_route.dart';
 import 'package:testgetdata/views/theme.dart';

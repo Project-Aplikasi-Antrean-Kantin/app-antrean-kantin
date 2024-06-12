@@ -449,17 +449,17 @@ void bottomSheetTipePembayaran(
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
-                              pilihPembayaran = 'Bayar tunai';
+                              pilihPembayaran = 'Bayar Tunai';
                               isOptionSelected = true;
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: pilihPembayaran == 'Bayar tunai'
+                            backgroundColor: pilihPembayaran == 'Bayar Tunai'
                                 ? primaryColor
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
-                              side: pilihPembayaran == 'Bayar tunai'
+                              side: pilihPembayaran == 'Bayar Tunai'
                                   ? BorderSide(
                                       color: primaryColor,
                                     )
@@ -472,9 +472,9 @@ void bottomSheetTipePembayaran(
                             ),
                           ),
                           child: Text(
-                            'Bayar tunai',
+                            'Bayar Tunai',
                             style: GoogleFonts.poppins(
-                              color: pilihPembayaran == 'Bayar tunai'
+                              color: pilihPembayaran == 'Bayar Tunai'
                                   ? Colors.white
                                   : Colors.black,
                               fontSize: 16,
