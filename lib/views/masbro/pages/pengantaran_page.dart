@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/http/fetch_pengantaran.dart';
@@ -29,8 +30,17 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
           pesananSiapDiantar.removeWhere((element) => element.id == pesanan.id);
           pesananDiantar.add(pesanan);
         });
+        Fluttertoast.showToast(
+          msg: "Segera antar pesanan!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       } else {
-        print("GAK BISA");
+        debugPrint("GAK BISA");
       }
     });
   }
@@ -41,7 +51,28 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
         setState(() {
           pesananDiantar.removeWhere((element) => element.id == idPesanan);
         });
+        Fluttertoast.showToast(
+          msg: "Pesanan selesai 🎉",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 16,
+        );
       }
+    });
+  }
+
+  Future<void> _refreshPengantaran() async {
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    UserModel user = authProvider.user;
+    await Future.delayed(const Duration(seconds: 1));
+    List<Pesanan> fetchedPesananMasuk =
+        await fetchPengantaran(user.token, 'siap_diantar');
+    setState(() {
+      pesananSiapDiantar = fetchedPesananMasuk;
     });
   }
 
@@ -85,18 +116,6 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
             ),
           ),
           centerTitle: true,
-          // actions: [
-          //   IconButton(
-          //     icon: const Icon(
-          //       Icons.notifications,
-          //       color: Colors.black,
-          //       size: 24,
-          //     ),
-          //     onPressed: () {
-          //       // Navigator.pop(context);
-          //     },
-          //   ),
-          // ],
           bottom: TabBar(
             onTap: (value) {
               if (value == 0) {
@@ -145,36 +164,58 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
           physics: const NeverScrollableScrollPhysics(),
           key: UniqueKey(),
           children: [
-            isLoading
-                ? Container(
-                    color: backgroundColor,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          primaryColor,
+            RefreshIndicator(
+              onRefresh: _refreshPengantaran,
+              child: pesananSiapDiantar.isEmpty
+                  ? ListView(
+                      children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height / 1.4,
+                          color: Colors.transparent,
+                          child: Center(
+                            child: Text(
+                              'Pesanan kosong',
+                              style: GoogleFonts.poppins(
+                                color: primaryTextColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
+                    )
+                  : PesananMenunggu(
+                      pesananSiapDiantar: pesananSiapDiantar,
+                      pesananDiantar: diantar,
+                      onRefresh: _refreshPengantaran,
                     ),
-                  )
-                : PesananMenunggu(
-                    pesananSiapDiantar: pesananSiapDiantar,
-                    pesananDiantar: diantar,
-                  ),
-            isLoading
-                ? Container(
-                    color: backgroundColor,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          primaryColor,
+            ),
+            RefreshIndicator(
+              onRefresh: _refreshPengantaran,
+              child: pesananDiantar.isEmpty
+                  ? ListView(
+                      children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height / 1.4,
+                          color: Colors.transparent,
+                          child: Center(
+                            child: Text(
+                              'Pesanan kosong',
+                              style: GoogleFonts.poppins(
+                                color: primaryTextColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
+                    )
+                  : PesananDiantar(
+                      pesananDiantar: pesananDiantar,
+                      pesananSelesai: removePesananDiantar,
+                      onRefresh: _refreshPengantaran,
                     ),
-                  )
-                : PesananDiantar(
-                    pesananDiantar: pesananDiantar,
-                    pesananSelesai: removePesananDiantar,
-                  ),
+            ),
           ],
         ),
         // bottomNavigationBar: NavbarHome(

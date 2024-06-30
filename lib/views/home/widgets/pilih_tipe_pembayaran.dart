@@ -78,7 +78,7 @@ class PilihTipePembayaran extends StatelessWidget {
               children: [
                 if (pilihTipePembayaran != null)
                   Icon(
-                    pilihTipePembayaran == 'Bayar tunai'
+                    pilihTipePembayaran == 'cod'
                         ? Icons.payments_outlined
                         : Icons.credit_card,
                   ),
@@ -103,7 +103,7 @@ class PilihTipePembayaran extends StatelessWidget {
                         ),
                         if (pilihTipePembayaran != null)
                           Text(
-                            pilihTipePembayaran == 'Bayar tunai'
+                            pilihTipePembayaran == 'cod'
                                 ? 'Siapkan uang tunai kamu'
                                 : 'Pastikan saldo kamu cukup',
                             style: GoogleFonts.poppins(
@@ -116,7 +116,9 @@ class PilihTipePembayaran extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.arrow_drop_down),
+                const Icon(
+                  Icons.arrow_drop_down,
+                ),
               ],
             ),
           ),

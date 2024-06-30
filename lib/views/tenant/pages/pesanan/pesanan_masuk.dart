@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/exceptions/api_exception.dart';
@@ -264,33 +265,237 @@ class PesananMasuk extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                // Expanded(
+                                //   child: ElevatedButton(
+                                //     onPressed: () {
+                                //       // Tambahkan logika untuk menolak pesanan di sini
+                                //       try {
+                                //         tolakPesanan(
+                                //             idPesanan, entry, user.token);
+                                //       } catch (e) {
+                                //         // PERHATIKAN
+                                //         if (e is ApiException) {
+                                //           ScaffoldMessenger.of(context)
+                                //               .showSnackBar(
+                                //             CustomSnackBar(
+                                //               status: e.status,
+                                //               message: e.message,
+                                //             ),
+                                //           );
+                                //         } else {
+                                //           ScaffoldMessenger.of(context)
+                                //               .showSnackBar(
+                                //             CustomSnackBar(
+                                //               status: 'failed',
+                                //               message: e.toString(),
+                                //             ),
+                                //           );
+                                //         }
+                                //       }
+                                //     },
+                                //     style: ElevatedButton.styleFrom(
+                                //       shape: RoundedRectangleBorder(
+                                //         borderRadius: BorderRadius.circular(8),
+                                //       ),
+                                //       side: const BorderSide(
+                                //         color: Colors.grey,
+                                //       ),
+                                //       backgroundColor: Colors.white,
+                                //       minimumSize: const Size(20, 30),
+                                //     ),
+                                //     child: Text(
+                                //       'Tolak',
+                                //       style: GoogleFonts.poppins(
+                                //           color: secondaryTextColor,
+                                //           fontWeight: FontWeight.w500),
+                                //     ),
+                                //   ),
+                                // ),
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      // Tambahkan logika untuk menolak pesanan di sini
-                                      try {
-                                        tolakPesanan(
-                                            idPesanan, entry, user.token);
-                                      } catch (e) {
-                                        // PERHATIKAN
-                                        if (e is ApiException) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            CustomSnackBar(
-                                              status: e.status,
-                                              message: e.message,
+                                      // Tampilkan dialog konfirmasi
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Dialog(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            // ignore: sort_child_properties_last
+                                            child: Container(
+                                              padding: const EdgeInsets.all(25),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  const Text(
+                                                    "Tolak pesanan?",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  const Text(
+                                                    "Anda tidak dapat mengembalikan pesanan yang telah ditolak.",
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        style: ButtonStyle(
+                                                          shape: MaterialStateProperty
+                                                              .all<
+                                                                  RoundedRectangleBorder>(
+                                                            RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                5.0,
+                                                              ),
+                                                              side:
+                                                                  const BorderSide(
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          minimumSize:
+                                                              MaterialStateProperty
+                                                                  .all(
+                                                            const Size(110, 20),
+                                                          ),
+                                                        ),
+                                                        child: const Text(
+                                                          "Batal",
+                                                          style: TextStyle(
+                                                            color:
+                                                                Color.fromARGB(
+                                                              255,
+                                                              99,
+                                                              99,
+                                                              99,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 16),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          try {
+                                                            tolakPesanan(
+                                                                idPesanan,
+                                                                entry,
+                                                                user.token);
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(); // Tutup dialog
+                                                            Fluttertoast
+                                                                .showToast(
+                                                              msg:
+                                                                  "Pesanan berhasil ditolak",
+                                                              toastLength: Toast
+                                                                  .LENGTH_SHORT,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .BOTTOM,
+                                                              timeInSecForIosWeb:
+                                                                  1,
+                                                              backgroundColor:
+                                                                  Colors.grey,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              fontSize: 16.0,
+                                                            );
+                                                          } catch (e) {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(); // Tutup dialog
+                                                            if (e
+                                                                is ApiException) {
+                                                              ScaffoldMessenger
+                                                                      .of(context)
+                                                                  .showSnackBar(
+                                                                CustomSnackBar(
+                                                                  status:
+                                                                      e.status,
+                                                                  message:
+                                                                      e.message,
+                                                                ),
+                                                              );
+                                                            } else {
+                                                              ScaffoldMessenger
+                                                                      .of(context)
+                                                                  .showSnackBar(
+                                                                CustomSnackBar(
+                                                                  status:
+                                                                      'failed',
+                                                                  message: e
+                                                                      .toString(),
+                                                                ),
+                                                              );
+                                                            }
+                                                          }
+                                                        },
+                                                        style: ButtonStyle(
+                                                          shape: MaterialStateProperty
+                                                              .all<
+                                                                  RoundedRectangleBorder>(
+                                                            RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                5.0,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          backgroundColor:
+                                                              MaterialStateProperty
+                                                                  .all<Color>(
+                                                            const Color
+                                                                .fromARGB(
+                                                              227,
+                                                              244,
+                                                              67,
+                                                              54,
+                                                            ),
+                                                          ),
+                                                          minimumSize:
+                                                              MaterialStateProperty
+                                                                  .all(
+                                                            const Size(110, 20),
+                                                          ),
+                                                        ),
+                                                        child: const Text(
+                                                          "Tolak",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           );
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            CustomSnackBar(
-                                              status: 'failed',
-                                              message: e.toString(),
-                                            ),
-                                          );
-                                        }
-                                      }
+                                        },
+                                      );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
@@ -305,8 +510,9 @@ class PesananMasuk extends StatelessWidget {
                                     child: Text(
                                       'Tolak',
                                       style: GoogleFonts.poppins(
-                                          color: secondaryTextColor,
-                                          fontWeight: FontWeight.w500),
+                                        color: secondaryTextColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),

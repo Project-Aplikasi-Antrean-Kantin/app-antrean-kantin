@@ -28,182 +28,211 @@ class _RiwayatPageState extends State<RiwayatPage> {
   @override
   void initState() {
     super.initState();
-    isLoading = true;
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      isLoading = true;
+    });
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
-    fetchRiwayat(user.token, widget.role).then(
-      (value) => setState(() {
-        isLoading = false;
-        listPesanan = value;
-      }),
-    );
+    List<Pesanan> pesananList = await fetchRiwayat(user.token, widget.role);
+    setState(() {
+      isLoading = false;
+      listPesanan = pesananList;
+    });
+  }
+
+  Future<void> _refreshData() async {
+    await Future.delayed(const Duration(seconds: 1));
+    await _fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
-          ? Container(
-              color: backgroundColor,
-              child: Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    primaryColor,
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: isLoading
+            ? Container(
+                color: backgroundColor,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                   ),
                 ),
-              ),
-            )
-          : Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-              ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                child: Column(
-                  children: listPesanan.map((pesanan) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => DetialRwiayat(
-                              pesanan: pesanan,
+              )
+            : listPesanan.isEmpty
+                ? ListView(
+                    children: [
+                      Container(
+                        height: MediaQuery.of(context).size.height / 1.3,
+                        color: Colors.transparent,
+                        child: Center(
+                          child: Text(
+                            'Belum ada riwayat',
+                            style: GoogleFonts.poppins(
+                              color: primaryTextColor,
+                              fontSize: 14,
                             ),
                           ),
-                        );
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 5),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
                         ),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 255, 254, 254),
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 0.2,
-                          ),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.symmetric(
+                      ),
+                    ],
+                  )
+                : Container(
+                    height: MediaQuery.of(context).size.height,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: backgroundColor,
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      child: Column(
+                        children: listPesanan.map((pesanan) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => DetialRwiayat(
+                                    pesanan: pesanan,
+                                    refreshData: _refreshData,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 5),
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
                                 vertical: 10,
                               ),
-                              child: Row(
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 255, 254, 254),
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 0.2,
+                                ),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(11),
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          "${pesanan.listTransaksiDetail[0].menus?.tenants?.gambar}",
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 10,
                                     ),
-                                    height: 80,
-                                    width: 80,
-                                    margin: const EdgeInsets.only(right: 15),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(11),
+                                            image: DecorationImage(
+                                              image: NetworkImage(
+                                                "${pesanan.listTransaksiDetail[0].menus?.tenants?.gambar}",
+                                              ),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          height: 80,
+                                          width: 80,
+                                          margin:
+                                              const EdgeInsets.only(right: 15),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant}",
+                                              style: GoogleFonts.poppins(
+                                                color: secondaryTextColor,
+                                                fontSize: 14,
+                                                fontWeight: semibold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              FormatDate.formatDateTimeWithWIB(
+                                                  pesanan.createdAt),
+                                              style: GoogleFonts.poppins(
+                                                color: primaryTextColor,
+                                                fontSize: 12,
+                                                fontWeight: regular,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              "${pesanan.listTransaksiDetail[0].jumlah} Item Menu",
+                                              style: GoogleFonts.poppins(
+                                                color: primaryTextColor,
+                                                fontSize: 12,
+                                                fontWeight: medium,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant}",
-                                        style: GoogleFonts.poppins(
-                                          color: secondaryTextColor,
-                                          fontSize: 14,
-                                          fontWeight: semibold,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        FormatDate.formatDateTimeWithWIB(
-                                            pesanan.createdAt),
-                                        style: GoogleFonts.poppins(
-                                          color: primaryTextColor,
-                                          fontSize: 12,
-                                          fontWeight: regular,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        "${pesanan.listTransaksiDetail[0].jumlah} Item Menu",
-                                        style: GoogleFonts.poppins(
-                                          color: primaryTextColor,
-                                          fontSize: 12,
-                                          fontWeight: medium,
-                                        ),
-                                      ),
-                                    ],
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    child: Divider(
+                                      color: lineDividerColor,
+                                      height: 1,
+                                    ),
                                   ),
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          FormatCurrency.intToStringCurrency(
+                                              pesanan.total),
+                                          style: GoogleFonts.poppins(
+                                            color: secondaryTextColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Center(
+                                          child: Text(
+                                            pesanan.status
+                                                .replaceAll('_', ' ')
+                                                .toUpperCase(),
+                                            style: GoogleFonts.poppins(
+                                              color: getStatusColor(
+                                                  pesanan.status),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
                                 ],
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Divider(
-                                color: lineDividerColor,
-                                height: 1,
-                              ),
-                            ),
-                            Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    FormatCurrency.intToStringCurrency(
-                                      pesanan.total,
-                                    ),
-                                    style: GoogleFonts.poppins(
-                                      color: secondaryTextColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      pesanan.status
-                                          .replaceAll('_', ' ')
-                                          .toUpperCase(),
-                                      style: GoogleFonts.poppins(
-                                        color: getStatusColor(pesanan.status),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                          ],
-                        ),
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
+                    ),
+                  ),
+      ),
     );
   }
 }

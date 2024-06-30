@@ -27,8 +27,8 @@ class _LoginPageState extends State<LoginPage> {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
 
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: backgroundColor,
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
       ),
     );

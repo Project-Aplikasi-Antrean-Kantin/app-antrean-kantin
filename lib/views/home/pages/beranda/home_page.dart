@@ -18,8 +18,6 @@ import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/theme.dart';
 
 class HomePage extends StatefulWidget {
-  // static const int homeIndex = 0;
-
   const HomePage({Key? key}) : super(key: key);
 
   @override

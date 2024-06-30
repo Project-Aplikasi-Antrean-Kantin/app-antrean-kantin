@@ -1,6 +1,7 @@
 import 'dart:convert';
 // import 'dart:js_util';
 
+import 'package:flutter/material.dart';
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
 import 'dart:async';
@@ -13,14 +14,14 @@ Future<List<Pesanan>> fetchPesananPembeli(String auth, status) async {
     Uri.parse('${MasbroConstants.url}/tenant/order?status=$status'),
     headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
   );
-  print(response.statusCode);
+  debugPrint(response.statusCode.toString());
   if (response.statusCode == 200) {
     final jsonData =
         jsonDecode(response.body)['data']['pesanan'] as List<dynamic>;
     // print(jsonData);
     return jsonData.map((e) => Pesanan.fromJson(e)).toList();
   } else {
-    print(response.statusCode);
+    debugPrint(response.statusCode.toString());
     throw Exception('Data cant be load');
   }
 }

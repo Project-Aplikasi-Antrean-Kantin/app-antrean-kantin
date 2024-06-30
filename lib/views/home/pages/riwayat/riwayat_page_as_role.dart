@@ -7,7 +7,6 @@ import 'package:testgetdata/views/home/pages/riwayat/riwayat_page.dart';
 
 class RiwayatPageAsRole extends StatelessWidget {
   const RiwayatPageAsRole({Key? key}) : super(key: key);
-  static const int PageIndex = 1;
 
   @override
   Widget build(BuildContext context) {

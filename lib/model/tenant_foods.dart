@@ -1,5 +1,3 @@
-import 'dart:convert';
-// import 'package:testgetdata/model/detail_menu_model.dart';
 import 'package:testgetdata/model/tenant_model.dart';
 
 class TenantFoods {
@@ -13,7 +11,7 @@ class TenantFoods {
   final dynamic deletedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final int tenantId;
+  int? tenantId;
   TenantModel? tenants;
   // DetailMenu? detailMenu;
 
@@ -28,7 +26,7 @@ class TenantFoods {
     required this.deletedAt,
     required this.createdAt,
     required this.updatedAt,
-    required this.tenantId,
+    this.tenantId,
     this.tenants,
     // this.detailMenu,
   });
