@@ -15,7 +15,7 @@ class KatalogMenuProvider extends ChangeNotifier {
   // }
   void setLoading(bool value) {
     isLoading = value;
-    notifyListeners();
+    // notifyListeners();
   }
 
   Future<void> fetchData(String token) async {

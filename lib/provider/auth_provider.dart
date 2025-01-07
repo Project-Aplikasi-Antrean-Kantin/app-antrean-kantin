@@ -24,9 +24,9 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password, String token) async {
+  Future<bool> login(String email, String password) async {
     try {
-      UserModel? user = await AuthFuture().login(email, password, token);
+      UserModel? user = await AuthFuture().login(email, password);
       _user = user;
       tokenManager.putToken(user.token);
       print(user);

@@ -6,9 +6,7 @@ import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/pesanan_model.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/model/tenant_model.dart';
 
-// const String uri = 'http://192.168.1.36:8000/api/tenant/1';
 Future<List<Pesanan>> fetchPesananPembeli(String auth, status) async {
   final response = await http.get(
     Uri.parse('${MasbroConstants.url}/tenant/order?status=$status'),

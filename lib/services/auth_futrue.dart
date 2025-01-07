@@ -34,12 +34,11 @@ class AuthFuture {
     }
   }
 
-  Future<UserModel> login(String email, String password, String token) async {
+  Future<UserModel> login(String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse("${MasbroConstants.url}/login"),
-        body: jsonEncode(
-            {"email": email, "password": password, "fcm_token": token}),
+        body: jsonEncode({"email": email, "password": password}),
         headers: {"content-type": "application/json"},
       );
       // print(response.body);

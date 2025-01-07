@@ -269,8 +269,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 40),
                 GestureDetector(
                   onTap: () async {
-                    String? token = await FirebaseMessaging.instance.getToken();
-                    print("ini token $token");
+                    // String? token = await FirebaseMessaging.instance.getToken();
+                    // print("ini token $token");
                     if (email.text.isEmpty || password.text.isEmpty) {
                       setState(() {
                         isLoading = true;
