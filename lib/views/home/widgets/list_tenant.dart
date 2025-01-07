@@ -63,9 +63,15 @@ class ListTenant extends StatelessWidget {
                       topLeft: Radius.circular(10),
                     ),
                     image: DecorationImage(
-                      image: NetworkImage(
-                        foundTenant[index].gambar,
-                      ),
+                      //   image: NetworkImage(
+                      //     foundTenant[index].gambar,
+                      //   ),
+                      //   fit: BoxFit.cover,
+                      // ),
+                      image: foundTenant[index].gambar.isNotEmpty
+                          ? NetworkImage(foundTenant[index].gambar)
+                          : AssetImage('assets/images/dummy.jpeg')
+                              as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                   ),

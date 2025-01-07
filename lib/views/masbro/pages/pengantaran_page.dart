@@ -218,10 +218,6 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
             ),
           ],
         ),
-        // bottomNavigationBar: NavbarHome(
-        //   pageIndex:
-        //       user.menu.indexWhere((element) => element.url == '/pengantaran'),
-        // ),
       ),
     );
   }

@@ -107,7 +107,7 @@ class SuksesOrder extends StatelessWidget {
                                     (element) => element.url == '/riwayat'),
                               ),
                             ),
-                            (route) => route.isFirst,
+                            (route) => false,
                           );
                         },
                         child: Center(

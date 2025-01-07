@@ -33,7 +33,7 @@ class _MenuTersediaState extends State<MenuTersedia> {
 
   @override
   Widget build(BuildContext context) {
-    print("object");
+    debugPrint('object');
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
