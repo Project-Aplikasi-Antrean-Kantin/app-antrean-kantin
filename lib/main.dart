@@ -40,8 +40,8 @@ void main() async {
   final notificationSettings =
       await FirebaseMessaging.instance.requestPermission(provisional: true);
 
-  String? token = await FirebaseMessaging.instance.getToken();
-  print(token);
+  // String? token = await FirebaseMessaging.instance.getToken();
+  // print(token);
 
   FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
     // TODO: If necessary send token to application server.

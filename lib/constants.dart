@@ -1,6 +1,8 @@
+/// A class containing constants used in the Masbro application.
 abstract class MasbroConstants {
-  static const url = '$baseUrl/api';
-  // static const baseUrl = 'https://6f37-180-254-50-194.ngrok-free.app';
-  // static const baseUrl = 'http://masbro-canteen.me';
-  static const baseUrl = 'http://152.42.234.190';
+  /// The base URL for the Masbro API.
+  static const String baseUrl = "http://165.22.98.55";
+
+  /// The full API endpoint URL.
+  static const String url = "$baseUrl/api";
 }
