@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
-import 'package:testgetdata/views/home/pages/keranjang/pembayaran_online.dart';
 import 'package:testgetdata/views/theme.dart';
 
 class ProfilePage extends StatefulWidget {

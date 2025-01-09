@@ -1,6 +1,6 @@
-projectKey=wleowleo
+projectKey=app-antrean-canteen
 serverUrl=http://localhost:9000
 serverVersion=24.12.0.100206
-dashboardUrl=http://localhost:9000/dashboard?id=wleowleo
-ceTaskId=9c4c8e57-a928-4b00-9372-c638801f9f34
-ceTaskUrl=http://localhost:9000/api/ce/task?id=9c4c8e57-a928-4b00-9372-c638801f9f34
+dashboardUrl=http://localhost:9000/dashboard?id=app-antrean-canteen
+ceTaskId=950b864c-6780-4ff7-986d-0fdf8889f658
+ceTaskUrl=http://localhost:9000/api/ce/task?id=950b864c-6780-4ff7-986d-0fdf8889f658
