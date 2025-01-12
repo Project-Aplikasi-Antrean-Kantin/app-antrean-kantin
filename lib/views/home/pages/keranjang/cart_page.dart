@@ -35,6 +35,9 @@ class _CartState extends State<Cart> {
   late final MidtransSDK _midtrans;
   bool isLoading = false;
   bool transactionCompleted = false;
+  int? plihPengantaran;
+  int? pilihRuangan;
+  String? plihPembayaran;
 
   List<String> tipePemesanan = [
     'Ambil Sendiri',
@@ -45,47 +48,107 @@ class _CartState extends State<Cart> {
     'Pesan Antar',
   ];
 
-  int? plihPengantaran;
-  int? pilihRuangan;
-  String? plihPembayaran;
-
-  void initSDK() async {
-    print("JALANIN SDK MIDTRANS");
-    _midtrans = await MidtransSDK.init(
-      config: MidtransConfig(
-        clientKey: 'SB-Mid-client-T9zZrTGN1ARTH8rb',
-        merchantBaseUrl:
-            'https://app.sandbox.midtrans.com/snap/v4/redirection/',
-        colorTheme: ColorTheme(
-          colorPrimary: Theme.of(context).colorScheme.secondary,
-          colorPrimaryDark: Theme.of(context).colorScheme.secondary,
-          colorSecondary: Theme.of(context).colorScheme.secondary,
-        ),
-      ),
-    );
-    _midtrans?.setUIKitCustomSetting(
-      skipCustomerDetailsPages: true,
-    );
-    _midtrans.setTransactionFinishedCallback((result) {
-      print(result.toJson());
-      if (result.transactionStatus == TransactionResultStatus.settlement) {
-        setState(() {
-          transactionCompleted = true;
-        });
-        Provider.of<CartProvider>(context, listen: false).clearCart();
-        Provider.of<KasirProvider>(context, listen: false).clearCart();
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const SuksesOrder(),
+  _dialogDataTidakLengkap() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-          (route) => false,
+          child: Container(
+            padding: const EdgeInsets.all(25),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Lengkapi informasi pesanan!",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  "Informasi pesanan anda belum lengkap, harap lengkapi terlebih dahulu",
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ButtonStyle(
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                            side: const BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        minimumSize: MaterialStateProperty.all(Size(100, 30)),
+                      ),
+                      child: const Text(
+                        "OK",
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 99, 99, 99)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         );
-      } else {
-        print("Transaction failed or was canceled");
-      }
-    });
+      },
+    );
   }
+
+  /// Fungsi Init Midtrans
+  // void initSDK() async {
+  //   print("JALANIN SDK MIDTRANS");
+  //   _midtrans = await MidtransSDK.init(
+  //     config: MidtransConfig(
+  //       clientKey: 'SB-Mid-client-T9zZrTGN1ARTH8rb',
+  //       merchantBaseUrl:
+  //           'https://app.sandbox.midtrans.com/snap/v4/redirection/',
+  //       colorTheme: ColorTheme(
+  //         colorPrimary: Theme.of(context).colorScheme.secondary,
+  //         colorPrimaryDark: Theme.of(context).colorScheme.secondary,
+  //         colorSecondary: Theme.of(context).colorScheme.secondary,
+  //       ),
+  //     ),
+  //   );
+  //   _midtrans?.setUIKitCustomSetting(
+  //     skipCustomerDetailsPages: true,
+  //   );
+  //   _midtrans.setTransactionFinishedCallback((result) {
+  //     print(result.toJson());
+  //     if (result.transactionStatus == TransactionResultStatus.settlement) {
+  //       setState(() {
+  //         transactionCompleted = true;
+  //       });
+  //       Provider.of<CartProvider>(context, listen: false).clearCart();
+  //       Provider.of<KasirProvider>(context, listen: false).clearCart();
+  //       Navigator.pushAndRemoveUntil(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => const SuksesOrder(),
+  //         ),
+  //         (route) => false,
+  //       );
+  //     } else {
+  //       print("Transaction failed or was canceled");
+  //     }
+  //   });
+  // }
 
   @override
   void initState() {
@@ -103,9 +166,10 @@ class _CartState extends State<Cart> {
       });
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      initSDK();
-    });
+    /// Init Midtrans
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   initSDK();
+    // });
   }
 
   @override
@@ -147,23 +211,6 @@ class _CartState extends State<Cart> {
           margin: const EdgeInsets.all(15),
           child: Column(
             children: [
-              // Consumer2<CartProvider, KasirProvider>(
-              //   builder: (context, cartData, kasirData, _) {
-              //     // Tentukan cart yang aktif
-              //     List<CartMenuModel> activeCart = kasirData.cart.isNotEmpty
-              //         ? kasirData.cart
-              //         : cartData.cart;
-              //     return ListView.builder(
-              //       shrinkWrap: true,
-              //       physics: const ScrollPhysics(),
-              //       itemCount: activeCart.length,
-              //       itemBuilder: (context, i) {
-              //         // Gunakan item dari cart yang aktif
-              //         return ListCart(cart: activeCart[i]);
-              //       },
-              //     );
-              //   },
-              // ),
               Consumer2<CartProvider, KasirProvider>(
                 builder: (context, cartData, kasirData, _) {
                   // Tentukan cart yang aktif
@@ -187,14 +234,15 @@ class _CartState extends State<Cart> {
                   );
                 },
               ),
-
               const SizedBox(height: 15),
               Consumer2<CartProvider, KasirProvider>(
                 builder: (context, cartData, kasirData, _) {
                   bool isKasirProviderActive = kasirData.cart.isNotEmpty;
                   return Column(
                     children: [
+                      /// Tampilkan 3 pilihan ini jika di halaman Keranjang
                       if (!isKasirProviderActive) ...[
+                        /// Fitur Pilih Tipe Pemesanan
                         PilihTipePemesanan(
                           tipePemesanan: tipePemesanan,
                           plihPengantaran: plihPengantaran,
@@ -206,6 +254,8 @@ class _CartState extends State<Cart> {
                           },
                         ),
                         const SizedBox(height: 8),
+
+                        /// Fitur Pilih Lokasi Pengantaran
                         if (plihPengantaran == 1)
                           PilihLokasiRuangan(
                             listRuangan: listRuangan,
@@ -219,6 +269,8 @@ class _CartState extends State<Cart> {
                             },
                           ),
                         const SizedBox(height: 8),
+
+                        /// Fitur Pilih Pembayaran
                         PilihTipePembayaran(
                           tipePembayaran: tipePembayaran,
                           pilihTipePembayaran: plihPembayaran,
@@ -231,6 +283,8 @@ class _CartState extends State<Cart> {
                           },
                         ),
                       ],
+
+                      /// Hanya tampilkan ringkasan pembayaran jika di halaman Kasir
                       if (!isKasirProviderActive) ...[
                         const SizedBox(height: 20),
                         RingkasanPembayaranCart(),
@@ -244,9 +298,6 @@ class _CartState extends State<Cart> {
                   );
                 },
               ),
-              // const SizedBox(height: 20),
-              // RingkasanPembayaranCart(),
-              // const SizedBox(height: 5),
             ],
           ),
         ),
@@ -272,74 +323,7 @@ class _CartState extends State<Cart> {
                                     (plihPengantaran == 1 &&
                                         pilihRuangan == null) ||
                                     plihPembayaran == null)) {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Dialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(25),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Text(
-                                            "Lengkapi informasi pesanan!",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          const SizedBox(height: 15),
-                                          const Text(
-                                            "Informasi pesanan anda belum lengkap, harap lengkapi terlebih dahulu",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          const SizedBox(height: 20),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                style: ButtonStyle(
-                                                  shape:
-                                                      MaterialStateProperty.all<
-                                                          RoundedRectangleBorder>(
-                                                    RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5.0),
-                                                      side: const BorderSide(
-                                                          color: Colors.grey),
-                                                    ),
-                                                  ),
-                                                  minimumSize:
-                                                      MaterialStateProperty.all(
-                                                          Size(100, 30)),
-                                                ),
-                                                child: const Text(
-                                                  "OK",
-                                                  style: TextStyle(
-                                                      color: Color.fromARGB(
-                                                          255, 99, 99, 99)),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
+                              _dialogDataTidakLengkap();
                             } else {
                               setState(() {
                                 isLoading = true;
