@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 Color primaryColor = const Color(0xffFF5E5E);
 
-// Color backgroundColor = const Color(0xffFFF8F8);
-Color backgroundColor = const Color(0xffF8F8FF);
+Color backgroundColor = const Color(0xffFCFCFC);
+// Color backgroundColor = const Color(0xffF8F8FF);
 
 // buat text keseluruhan
 Color primaryTextColor = const Color(0xff303030);

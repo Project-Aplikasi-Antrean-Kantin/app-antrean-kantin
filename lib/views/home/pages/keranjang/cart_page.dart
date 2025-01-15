@@ -9,21 +9,18 @@ import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/model/cart_menu_modelllll.dart';
-import 'package:testgetdata/views/home/widgets/bottom_sheet_keranjang.dart';
+import 'package:testgetdata/views/home/widgets/custom_alert.dart';
 import 'package:testgetdata/views/home/widgets/list_cart.dart';
-import 'package:testgetdata/views/home/widgets/pilih_tipe_pembayaran.dart';
 import 'package:testgetdata/views/home/widgets/pilih_tipe_pemesanan.dart';
 import 'package:testgetdata/views/home/widgets/pilihan_lokasi_ruangan.dart';
 import 'package:testgetdata/views/home/widgets/ringkasan_pembayaran_cart.dart';
 import 'package:testgetdata/views/home/widgets/sukses_order.dart';
-import 'package:testgetdata/views/tenant/widgets/list_cart_kasir.dart';
 import 'package:testgetdata/views/tenant/widgets/ringkasan_pembayaran_kasir.dart';
 import 'package:testgetdata/views/theme.dart';
 
 class Cart extends StatefulWidget {
   const Cart({Key? key}) : super(key: key);
 
-  @override
   State<Cart> createState() => _CartState();
 }
 
@@ -31,81 +28,96 @@ class _CartState extends State<Cart> {
   TextEditingController namaPembeli = TextEditingController();
   TextEditingController ruanganPembeli = TextEditingController();
   TextEditingController catatan = TextEditingController();
+
   List<Ruangan> listRuangan = [];
   late final MidtransSDK _midtrans;
   bool isLoading = false;
   bool transactionCompleted = false;
   int? plihPengantaran;
   int? pilihRuangan;
-  String? plihPembayaran;
 
   List<String> tipePemesanan = [
     'Ambil Sendiri',
     'Pesan Antar',
   ];
-  List<String> tipePembayaran = [
-    'Ambil Sendiri',
-    'Pesan Antar',
-  ];
 
   _dialogDataTidakLengkap() {
+    /// kode alert sebelum saya jadikan reusable component
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return Dialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(10),
+    //       ),
+    //       child: Container(
+    //         padding: const EdgeInsets.all(25),
+    //         child: Column(
+    //           mainAxisSize: MainAxisSize.min,
+    //           children: [
+    //             const Text(
+    //               "Lengkapi informasi pesanan!",
+    //               style: TextStyle(
+    //                 fontSize: 16,
+    //                 fontWeight: FontWeight.bold,
+    //               ),
+    //               textAlign: TextAlign.center,
+    //             ),
+    //             const SizedBox(height: 15),
+    //             const Text(
+    //               "Informasi pesanan anda belum lengkap, harap lengkapi terlebih dahulu",
+    //               style: TextStyle(
+    //                 fontSize: 14,
+    //               ),
+    //               textAlign: TextAlign.center,
+    //             ),
+    //             const SizedBox(height: 20),
+    //             Row(
+    //               mainAxisAlignment: MainAxisAlignment.center,
+    //               children: [
+    //                 TextButton(
+    //                   onPressed: () {
+    //                     Navigator.of(context).pop();
+    //                   },
+    //                   style: ButtonStyle(
+    //                     shape:
+    //                         MaterialStateProperty.all<RoundedRectangleBorder>(
+    //                       RoundedRectangleBorder(
+    //                         borderRadius: BorderRadius.circular(5.0),
+    //                         side: const BorderSide(color: Colors.grey),
+    //                       ),
+    //                     ),
+    //                     minimumSize: MaterialStateProperty.all(Size(100, 30)),
+    //                   ),
+    //                   child: const Text(
+    //                     "OK",
+    //                     style:
+    //                         TextStyle(color: Color.fromARGB(255, 99, 99, 99)),
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
+
+    /// kode alert setelah saya jadikan reusable component
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(25),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Lengkapi informasi pesanan!",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 15),
-                const Text(
-                  "Informasi pesanan anda belum lengkap, harap lengkapi terlebih dahulu",
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            side: const BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        minimumSize: MaterialStateProperty.all(Size(100, 30)),
-                      ),
-                      child: const Text(
-                        "OK",
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 99, 99, 99)),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+      builder: (context) {
+        return CustomAlert(
+          title: "Data Tidak Lengkap!",
+          message:
+              "Harap isi data pemesanan terlebih dahulu sebelum melanjutkan.",
+          onConfirmCancle: () {
+            Navigator.of(context).pop(); // Menutup dialog
+          },
+          textButtonCancel: "OK",
+          textButtonCancelColor: primaryColor,
+          cancelBorderColor: primaryColor,
         );
       },
     );
@@ -150,15 +162,23 @@ class _CartState extends State<Cart> {
   //   });
   // }
 
-  @override
   void initState() {
     super.initState();
+
+    /// Inisialisasi Provider
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
+    CartProvider cartProvider =
+        Provider.of<CartProvider>(context, listen: false);
+    KasirProvider kasirProvider =
+        Provider.of<KasirProvider>(context, listen: false);
+
     UserModel user = authProvider.user;
+
+    /// Inisialisasi Nilai awal
     plihPengantaran = null;
     pilihRuangan = null;
-    pilihPembayaran = null;
+    // pilihPembayaran = null;
 
     fetchDataRuangan(user.token).then((value) {
       setState(() {
@@ -166,19 +186,19 @@ class _CartState extends State<Cart> {
       });
     });
 
+    /// auto set metodePembayaran ke cod/bayar tunai, ganti ke cashless apabila sudah ready
+    cartProvider.setMetodePembayaran("cod");
+    kasirProvider.setMetodePembayaran("cod");
+
     /// Init Midtrans
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   initSDK();
     // });
   }
 
-  @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
-    final List<CartMenuModel> cart = Provider.of<CartProvider>(context).cart;
-    final List<CartMenuModel> kasirCart =
-        Provider.of<KasirProvider>(context).cart;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -213,7 +233,7 @@ class _CartState extends State<Cart> {
             children: [
               Consumer2<CartProvider, KasirProvider>(
                 builder: (context, cartData, kasirData, _) {
-                  // Tentukan cart yang aktif
+                  /// Menentukan keranjang yang aktif (KasirProvider atau CartProvider)
                   List<CartMenuModel> activeCart = kasirData.cart.isNotEmpty
                       ? kasirData.cart
                       : cartData.cart;
@@ -222,14 +242,20 @@ class _CartState extends State<Cart> {
                     physics: const ScrollPhysics(),
                     itemCount: activeCart.length,
                     itemBuilder: (context, i) {
-                      // Gunakan item dari cart yang aktif
-                      if (kasirData.cart.isNotEmpty) {
-                        // Jika sedang aktif di kasir, tampilkan dari ListCartKasir
-                        return ListCartKasir(cart: activeCart[i]);
-                      } else {
-                        // Jika tidak aktif di kasir, tampilkan dari ListCart
-                        return ListCart(cart: activeCart[i]);
-                      }
+                      /// perubahan dengan menggunakan 1 file cart saja
+                      return ListCart(
+                        cart: activeCart[i],
+                        isKasir: kasirData.cart.isNotEmpty,
+                      );
+
+                      /// sebelum terjadi perubahan dari 2 file cart
+                      // if (kasirData.cart.isNotEmpty) {
+                      //   // Jika sedang aktif di kasir, tampilkan dari ListCartKasir
+                      //   return ListCart(cart: activeCart[i]);
+                      // } else {
+                      //   // Jika tidak aktif di kasir, tampilkan dari ListCart
+                      //   return ListCart(cart: activeCart[i]);
+                      // }
                     },
                   );
                 },
@@ -240,7 +266,7 @@ class _CartState extends State<Cart> {
                   bool isKasirProviderActive = kasirData.cart.isNotEmpty;
                   return Column(
                     children: [
-                      /// Tampilkan 3 pilihan ini jika di halaman Keranjang
+                      /// Jika KasirProvider tidak aktif tampilkan 3 pilihan ini
                       if (!isKasirProviderActive) ...[
                         /// Fitur Pilih Tipe Pemesanan
                         PilihTipePemesanan(
@@ -271,20 +297,20 @@ class _CartState extends State<Cart> {
                         const SizedBox(height: 8),
 
                         /// Fitur Pilih Pembayaran
-                        PilihTipePembayaran(
-                          tipePembayaran: tipePembayaran,
-                          pilihTipePembayaran: plihPembayaran,
-                          selectedPembayaran: (option2) {
-                            setState(() {
-                              plihPembayaran = option2;
-                              cartData.setMetodePembayaran(option2!);
-                              kasirData.setMetodePembayaran(option2!);
-                            });
-                          },
-                        ),
+                        // PilihTipePembayaran(
+                        //   tipePembayaran: tipePembayaran,
+                        //   pilihTipePembayaran: plihPembayaran,
+                        //   selectedPembayaran: (option2) {
+                        //     setState(() {
+                        //       plihPembayaran = option2;
+                        //       cartData.setMetodePembayaran(option2!);
+                        //       kasirData.setMetodePembayaran(option2);
+                        //     });
+                        //   },
+                        // ),
                       ],
 
-                      /// Hanya tampilkan ringkasan pembayaran jika di halaman Kasir
+                      /// Jika KasirProvider tidak aktif maka tampilkan ringkasana pembayaran kasir
                       if (!isKasirProviderActive) ...[
                         const SizedBox(height: 20),
                         RingkasanPembayaranCart(),
@@ -318,23 +344,34 @@ class _CartState extends State<Cart> {
                     onTap: isLoading
                         ? () {}
                         : () {
+                            /// Optimalkan validasi di provider agar file ini hanya fokus pada ui
                             if (!kasirData.cart.isNotEmpty &&
-                                (plihPengantaran == null ||
-                                    (plihPengantaran == 1 &&
-                                        pilihRuangan == null) ||
-                                    plihPembayaran == null)) {
+                                !cartData.isCartValid(
+                                    plihPengantaran, pilihRuangan)) {
                               _dialogDataTidakLengkap();
-                            } else {
+                            }
+
+                            /// Logika validasi awal
+                            // if (!kasirData.cart.isNotEmpty &&
+                            //     (plihPengantaran == null ||
+                            //         (plihPengantaran == 1 &&
+                            //             pilihRuangan == null))) {
+                            //   _dialogDataTidakLengkap();
+                            // }
+
+                            else {
                               setState(() {
                                 isLoading = true;
                                 transactionCompleted = true;
                               });
-
                               if (kasirData.cart.isNotEmpty) {
                                 kasirData
                                     .buatTransaksi(context, user.token)
                                     .then((value) {
+                                  /// Menghapus item pada keranjang kasir
                                   kasirData.clearCart();
+
+                                  /// Mengarahkan ke halaman sukses
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
@@ -342,6 +379,7 @@ class _CartState extends State<Cart> {
                                     ),
                                     (route) => false,
                                   );
+
                                   setState(() {
                                     isLoading = false;
                                   });
@@ -352,8 +390,9 @@ class _CartState extends State<Cart> {
                                     .then((value) {
                                   if (value.status == 'success') {
                                     if (value.snap != null) {
-                                      _midtrans?.startPaymentUiFlow(
-                                          token: value.snap!.token);
+                                      _midtrans.startPaymentUiFlow(
+                                        token: value.snap!.token,
+                                      );
                                     } else {
                                       cartData.clearCart();
                                       Navigator.pushAndRemoveUntil(

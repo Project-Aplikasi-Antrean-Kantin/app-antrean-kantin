@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/constants.dart';
 import 'package:testgetdata/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
 import 'package:testgetdata/views/home/widgets/bottom_sheet_catatan.dart';
 import 'package:testgetdata/views/theme.dart';
 
 class ListCart extends StatelessWidget {
   final CartMenuModel cart;
+  final bool isKasir;
 
-  const ListCart({super.key, required this.cart});
+  const ListCart({
+    super.key,
+    required this.cart,
+    required this.isKasir,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,22 +42,10 @@ class ListCart extends StatelessWidget {
             Radius.circular(20),
           ),
           border: Border(
-            bottom: BorderSide(
-              color: Colors.grey, // Warna border
-              width: 1.0, // Lebar border
-            ),
-            top: BorderSide(
-              color: Colors.grey, // Warna border
-              width: 0.2, // Lebar border
-            ),
-            left: BorderSide(
-              color: Colors.grey, // Warna border
-              width: 0.2, // Lebar border
-            ),
-            right: BorderSide(
-              color: Colors.grey, // Warna border
-              width: 0.2, // Lebar border
-            ),
+            bottom: BorderSide(color: Colors.grey, width: 1.0),
+            top: BorderSide(color: Colors.grey, width: 0.2),
+            left: BorderSide(color: Colors.grey, width: 0.2),
+            right: BorderSide(color: Colors.grey, width: 0.2),
           ),
         ),
         child: Padding(
@@ -61,13 +54,13 @@ class ListCart extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
+                height: 100,
+                width: 100,
+                margin: const EdgeInsets.only(right: 15),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: const Color.fromARGB(255, 200, 200, 200),
                 ),
-                height: 100,
-                width: 100,
-                margin: const EdgeInsets.only(right: 15),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: cart.menuGambar != null
@@ -96,16 +89,8 @@ class ListCart extends StatelessWidget {
               Expanded(
                 child: Container(
                   height: 100,
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.grey,
-                  //     width: 1.0,
-                  //   ),
-                  //   borderRadius: BorderRadius.circular(5.0),
-                  // ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         cart.menuNama,
@@ -130,7 +115,6 @@ class ListCart extends StatelessWidget {
                         height: 10,
                       ),
                       Text(
-                        //'Deskripis produk diisi nanti diambilkan dari api',
                         cart.deskripsi ?? '-',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -160,15 +144,30 @@ class ListCart extends StatelessWidget {
                           alignment: Alignment.center,
                           child: IconButton(
                             onPressed: () {
-                              Provider.of<CartProvider>(context, listen: false)
-                                  .addRemove(
-                                      cart.menuId,
-                                      cart.menuNama,
-                                      cart.menuPrice,
-                                      cart.menuNama,
-                                      cart.deskripsi,
-                                      cart.tenantName,
-                                      true);
+                              if (isKasir) {
+                                Provider.of<KasirProvider>(context,
+                                        listen: false)
+                                    .addRemove(
+                                  cart.menuId,
+                                  cart.menuNama,
+                                  cart.menuPrice,
+                                  cart.menuNama,
+                                  cart.deskripsi,
+                                  true,
+                                );
+                              } else {
+                                Provider.of<CartProvider>(context,
+                                        listen: false)
+                                    .addRemove(
+                                  cart.menuId,
+                                  cart.menuNama,
+                                  cart.menuPrice,
+                                  cart.menuNama,
+                                  cart.deskripsi,
+                                  cart.tenantName,
+                                  true,
+                                );
+                              }
                             },
                             icon: const Icon(
                               Icons.add,
@@ -190,13 +189,14 @@ class ListCart extends StatelessWidget {
                                       Provider.of<CartProvider>(context,
                                               listen: false)
                                           .addRemove(
-                                              cart.menuId,
-                                              cart.menuNama,
-                                              cart.menuPrice,
-                                              cart.menuNama,
-                                              cart.deskripsi,
-                                              cart.tenantName,
-                                              false);
+                                        cart.menuId,
+                                        cart.menuNama,
+                                        cart.menuPrice,
+                                        cart.menuNama,
+                                        cart.deskripsi,
+                                        cart.tenantName,
+                                        false,
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.do_not_disturb_on_outlined,
@@ -222,13 +222,14 @@ class ListCart extends StatelessWidget {
                                     Provider.of<CartProvider>(context,
                                             listen: false)
                                         .addRemove(
-                                            cart.menuId,
-                                            cart.menuNama,
-                                            cart.menuPrice,
-                                            cart.menuNama,
-                                            cart.deskripsi,
-                                            cart.tenantName,
-                                            true);
+                                      cart.menuId,
+                                      cart.menuNama,
+                                      cart.menuPrice,
+                                      cart.menuNama,
+                                      cart.deskripsi,
+                                      cart.tenantName,
+                                      true,
+                                    );
                                   },
                                   icon: Icon(
                                     Icons.add_circle_outline,

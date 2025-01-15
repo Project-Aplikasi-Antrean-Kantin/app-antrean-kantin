@@ -31,7 +31,6 @@ class CartProvider extends ChangeNotifier {
 
   void addRemove(
       menuId, name, price, gambar, tenantName, deskripsi, bool isAdd) {
-    //Jika sudah ada maka yang diupdate cuma count
     if (_cartMenu.where((element) => menuId == element.menuId).isNotEmpty) {
       var index = _cartMenu.indexWhere((element) => menuId == element.menuId);
       if (isAdd) {
@@ -172,5 +171,9 @@ class CartProvider extends ChangeNotifier {
 
   void getRuangan(String token) async {
     listRuangan = await fetchDataRuangan(token);
+  }
+
+  bool isCartValid(int? pengantaran, int? ruangan) {
+    return pengantaran != null && (pengantaran != 1 || ruangan != null);
   }
 }
