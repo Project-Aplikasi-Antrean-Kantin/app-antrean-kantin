@@ -21,9 +21,8 @@ class ListCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (cart.count == 0) {
-      Navigator.of(context).pop();
-    }
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -35,7 +34,6 @@ class ListCart extends StatelessWidget {
           Radius.circular(20),
         ),
       ),
-      // shadowColor: Colors.transparent,
       child: Container(
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(
@@ -63,26 +61,15 @@ class ListCart extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: cart.menuGambar != null
+                  child: cart.menuGambar.isNotEmpty
                       ? Image.network(
                           "${MasbroConstants.baseUrl}${cart.menuGambar}",
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.photo,
-                                color: Color.fromARGB(255, 120, 120, 120),
-                                size: 30,
-                              ),
-                            );
-                          },
                         )
-                      : const Center(
-                          child: Icon(
-                            Icons.photo,
-                            color: Color.fromARGB(255, 120, 120, 120),
-                            size: 30,
-                          ),
+                      : const Icon(
+                          Icons.photo,
+                          color: Color.fromARGB(255, 120, 120, 120),
+                          size: 30,
                         ),
                 ),
               ),
@@ -130,9 +117,9 @@ class ListCart extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: Consumer<CartProvider>(
                   builder: (context, data, widget) {
-                    var id = data.cart
+                    final index = data.cart
                         .indexWhere((element) => element.menuId == cart.menuId);
-                    if (id == -1) {
+                    if (index == -1) {
                       return Container(
                         width: 30,
                         height: 30,
@@ -156,15 +143,13 @@ class ListCart extends StatelessWidget {
                                   true,
                                 );
                               } else {
-                                Provider.of<CartProvider>(context,
-                                        listen: false)
-                                    .addRemove(
+                                cartProvider.addItemToCartOrIncrementIfExists(
                                   cart.menuId,
                                   cart.menuNama,
                                   cart.menuPrice,
                                   cart.menuNama,
-                                  cart.deskripsi,
-                                  cart.tenantName,
+                                  cart.deskripsi!,
+                                  cart.tenantName!,
                                   true,
                                 );
                               }
@@ -185,49 +170,40 @@ class ListCart extends StatelessWidget {
                             Row(
                               children: [
                                 IconButton(
-                                    onPressed: () {
-                                      Provider.of<CartProvider>(context,
-                                              listen: false)
-                                          .addRemove(
-                                        cart.menuId,
-                                        cart.menuNama,
-                                        cart.menuPrice,
-                                        cart.menuNama,
-                                        cart.deskripsi,
-                                        cart.tenantName,
-                                        false,
-                                      );
-                                    },
-                                    icon: Icon(
-                                      Icons.do_not_disturb_on_outlined,
-                                      color: primaryColor,
-                                      size: 24,
-                                    )),
-                                Consumer<CartProvider>(
-                                    builder: (context, data, widget) {
-                                  var id = data.cart.indexWhere((element) =>
-                                      element.menuId == cart.menuId);
-                                  return Text(
-                                    (id == -1)
-                                        ? "0"
-                                        : data.cart[id].count.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      // fontWeight: FontWeight.bold,
-                                    ),
-                                  );
-                                }),
-                                IconButton(
                                   onPressed: () {
-                                    Provider.of<CartProvider>(context,
-                                            listen: false)
-                                        .addRemove(
+                                    cartProvider
+                                        .addItemToCartOrIncrementIfExists(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
                                       cart.menuNama,
-                                      cart.deskripsi,
-                                      cart.tenantName,
+                                      cart.deskripsi!,
+                                      cart.tenantName!,
+                                      false,
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.do_not_disturb_on_outlined,
+                                    color: primaryColor,
+                                    size: 24,
+                                  ),
+                                ),
+                                Text(
+                                  data.cart[index].count.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    cartProvider
+                                        .addItemToCartOrIncrementIfExists(
+                                      cart.menuId,
+                                      cart.menuNama,
+                                      cart.menuPrice,
+                                      cart.menuNama,
+                                      cart.deskripsi!,
+                                      cart.tenantName!,
                                       true,
                                     );
                                   },
@@ -240,15 +216,15 @@ class ListCart extends StatelessWidget {
                               ],
                             ),
                             GestureDetector(
-                              onTap: () =>
-                                  bottomSheetCatatan(context, cart.catatan!)
-                                      .then(
-                                (value) {
-                                  if (value != null) {
-                                    data.tambahCatatan(cart.menuId, value);
-                                  }
-                                },
-                              ),
+                              onTap: () async {
+                                final catatan = await bottomSheetCatatan(
+                                  context,
+                                  cart.catatan!,
+                                );
+                                if (catatan != null) {
+                                  data.tambahCatatan(cart.menuId, catatan);
+                                }
+                              },
                               child: Container(
                                 width: 85,
                                 height: 30,

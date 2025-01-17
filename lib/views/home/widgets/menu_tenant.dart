@@ -382,13 +382,13 @@ class _MenuTenantState extends State<MenuTenant> {
 
                                             Provider.of<CartProvider>(context,
                                                     listen: false)
-                                                .addRemove(
+                                                .addItemToCartOrIncrementIfExists(
                                               dataFoods.id,
                                               name,
                                               dataFoods.harga,
                                               gambar,
                                               tenantName,
-                                              dataFoods.deskripsi,
+                                              dataFoods.deskripsi ?? '-',
                                               true,
                                             );
                                           }
@@ -439,7 +439,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                                     Provider.of<CartProvider>(
                                                             context,
                                                             listen: false)
-                                                        .addRemove(
+                                                        .addItemToCartOrIncrementIfExists(
                                                             dataFoods.id,
                                                             dataFoods.nama,
                                                             dataFoods.harga,
@@ -476,14 +476,15 @@ class _MenuTenantState extends State<MenuTenant> {
                                                   Provider.of<CartProvider>(
                                                           context,
                                                           listen: false)
-                                                      .addRemove(
-                                                          dataFoods.id,
-                                                          dataFoods.nama,
-                                                          dataFoods.harga,
-                                                          dataFoods.nama,
-                                                          dataFoods.deskripsi,
-                                                          dataTenant,
-                                                          true);
+                                                      .addItemToCartOrIncrementIfExists(
+                                                    dataFoods.id,
+                                                    dataFoods.nama,
+                                                    dataFoods.harga,
+                                                    dataFoods.nama,
+                                                    dataFoods.deskripsi,
+                                                    dataTenant,
+                                                    true,
+                                                  );
                                                 },
                                                 icon: Icon(
                                                   Icons.add_circle_outline,

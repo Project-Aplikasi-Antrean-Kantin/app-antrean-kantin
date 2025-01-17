@@ -144,13 +144,13 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                         true,
                       );
                     } else {
-                      cartProvider.addRemove(
+                      cartProvider.addItemToCartOrIncrementIfExists(
                         menu.idMenu,
                         menu.title,
                         menu.price,
                         menu.gambar,
-                        menu.description,
-                        menu.namaTenant,
+                        menu.description!,
+                        menu.namaTenant!,
                         true,
                       );
                     }

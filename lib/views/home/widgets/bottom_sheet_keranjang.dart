@@ -8,7 +8,7 @@ import 'package:testgetdata/views/theme.dart';
 
 int? pilihPemesanan;
 int? pilihRuangan;
-// String? pilihPembayaran = '';
+String? pilihPembayaran = '';
 bool isOptionSelected = false;
 bool isButtonEnabled = false;
 // String pilihPembayaran = '';
@@ -46,6 +46,11 @@ void bottomSheetTipePemesanan(
                               pilihPemesanan = 1;
                               isOptionSelected = true;
                             });
+                            konfirmasiTipePemesanan(
+                              contextPemesanan,
+                              setState,
+                              onSelect,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -82,6 +87,11 @@ void bottomSheetTipePemesanan(
                               pilihPemesanan = 0;
                               isOptionSelected = true;
                             });
+                            konfirmasiTipePemesanan(
+                              contextPemesanan,
+                              setState,
+                              onSelect,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -132,61 +142,61 @@ void bottomSheetTipePemesanan(
                 //     ),
                 //   ],
                 // ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(contextPemesanan).pop();
-                      },
-                      style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            side: const BorderSide(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                        minimumSize: MaterialStateProperty.all(Size(150, 30)),
-                      ),
-                      child: const Text(
-                        "Batal",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 99, 99, 99),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 30),
-                    TextButton(
-                      onPressed: isOptionSelected
-                          ? () => konfirmasiTipePemesanan(
-                              contextPemesanan, setState, onSelect)
-                          : null,
-                      style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.blue,
-                        ),
-                        minimumSize: MaterialStateProperty.all(
-                          Size(150, 30),
-                        ),
-                      ),
-                      child: const Text(
-                        "Pilih",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     TextButton(
+                //       onPressed: () {
+                //         Navigator.of(contextPemesanan).pop();
+                //       },
+                //       style: ButtonStyle(
+                //         shape:
+                //             MaterialStateProperty.all<RoundedRectangleBorder>(
+                //           RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.circular(5.0),
+                //             side: const BorderSide(
+                //               color: Colors.grey,
+                //             ),
+                //           ),
+                //         ),
+                //         minimumSize: MaterialStateProperty.all(Size(150, 30)),
+                //       ),
+                //       child: const Text(
+                //         "Batal",
+                //         style: TextStyle(
+                //           color: Color.fromARGB(255, 99, 99, 99),
+                //         ),
+                //       ),
+                //     ),
+                //     const SizedBox(width: 30),
+                //     TextButton(
+                //       onPressed: isOptionSelected
+                //           ? () => konfirmasiTipePemesanan(
+                //               contextPemesanan, setState, onSelect)
+                //           : null,
+                //       style: ButtonStyle(
+                //         shape:
+                //             MaterialStateProperty.all<RoundedRectangleBorder>(
+                //           RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.circular(5.0),
+                //           ),
+                //         ),
+                //         backgroundColor: MaterialStateProperty.all<Color>(
+                //           Colors.blue,
+                //         ),
+                //         minimumSize: MaterialStateProperty.all(
+                //           Size(150, 30),
+                //         ),
+                //       ),
+                //       child: const Text(
+                //         "Pilih",
+                //         style: TextStyle(
+                //           color: Colors.white,
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           );
@@ -351,232 +361,237 @@ void konfirmasiLokasiRuangan(
   }
 }
 
-// void bottomSheetTipePembayaran(
-//     BuildContext contextPemesanan, OptionSelectedCallback2 onSelect) {
-//   bool isOptionSelected = false;
-//   showModalBottomSheet(
-//     context: contextPemesanan,
-//     isScrollControlled: true,
-//     shape: const RoundedRectangleBorder(
-//       borderRadius: BorderRadius.vertical(
-//         top: Radius.circular(10),
-//       ),
-//     ),
-//     builder: (BuildContext contextPemesanan) {
-//       return StatefulBuilder(
-//         builder: (contextPemesanan, setState) {
-//           return Padding(
-//             padding: const EdgeInsets.all(20),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: <Widget>[
-//                 SizedBox(
-//                   height: 40,
-//                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       Expanded(
-//                         child: ElevatedButton(
-//                           onPressed: () {
-//                             setState(() {
-//                               pilihPembayaran = 'Transfer';
-//                               isOptionSelected = true;
-//                             });
-//                           },
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: pilihPembayaran == 'Transfer'
-//                                 ? primaryColor
-//                                 : Colors.white,
-//                             shape: RoundedRectangleBorder(
-//                               borderRadius: BorderRadius.circular(8),
-//                               side: const BorderSide(
-//                                 color: Colors.grey,
-//                               ),
-//                             ),
-//                           ),
-//                           child: Text(
-//                             'Transfer',
-//                             style: GoogleFonts.poppins(
-//                               color: pilihPembayaran == 'Transfer'
-//                                   ? Colors.white
-//                                   : Colors.black,
-//                               fontSize: 16,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
+void bottomSheetTipePembayaran(
+    BuildContext contextPemesanan, OptionSelectedCallback2 onSelect) {
+  bool isOptionSelected = false;
+  showModalBottomSheet(
+    context: contextPemesanan,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(10),
+      ),
+    ),
+    builder: (BuildContext contextPemesanan) {
+      return StatefulBuilder(
+        builder: (contextPemesanan, setState) {
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  height: 40,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Expanded(
+                      //   child: ElevatedButton(
+                      //     onPressed: () {
+                      //       setState(() {
+                      //         pilihPembayaran = 'Transfer';
+                      //         isOptionSelected = true;
+                      //       });
+                      //     },
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: pilihPembayaran == 'Transfer'
+                      //           ? primaryColor
+                      //           : Colors.white,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(8),
+                      //         side: const BorderSide(
+                      //           color: Colors.grey,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     child: Text(
+                      //       'Transfer',
+                      //       style: GoogleFonts.poppins(
+                      //         color: pilihPembayaran == 'Transfer'
+                      //             ? Colors.white
+                      //             : Colors.black,
+                      //         fontSize: 16,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
 
-//                       // disable button transfer
-//                       // Expanded(
-//                       //   child: ElevatedButton(
-//                       //     onPressed: isButtonEnabled
-//                       //         ? () {
-//                       //             setState(() {
-//                       //               pilihPembayaran = 'Transfer';
-//                       //               isOptionSelected = true;
-//                       //               isButtonEnabled = false;
-//                       //             });
-//                       //           }
-//                       //         : null,
-//                       //     style: ElevatedButton.styleFrom(
-//                       //       backgroundColor: isButtonEnabled
-//                       //           ? (pilihPembayaran == 'Transfer'
-//                       //               ? primaryColor
-//                       //               : Colors.white)
-//                       //           : Colors.grey,
-//                       //       shape: RoundedRectangleBorder(
-//                       //         borderRadius: BorderRadius.circular(8),
-//                       //         side: const BorderSide(
-//                       //           color: Colors.grey,
-//                       //         ),
-//                       //       ),
-//                       //     ),
-//                       //     child: Text(
-//                       //       'Transfer',
-//                       //       style: GoogleFonts.poppins(
-//                       //         color: isButtonEnabled
-//                       //             ? (pilihPembayaran == 'Transfer'
-//                       //                 ? Colors.white
-//                       //                 : Colors.black)
-//                       //             : Colors.grey,
-//                       //         fontSize: 16,
-//                       //       ),
-//                       //     ),
-//                       //   ),
-//                       // ),
-//                       SizedBox(width: 10),
-//                       Expanded(
-//                         child: ElevatedButton(
-//                           onPressed: () {
-//                             setState(() {
-//                               pilihPembayaran = 'Bayar Tunai';
-//                               isOptionSelected = true;
-//                             });
-//                           },
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: pilihPembayaran == 'Bayar Tunai'
-//                                 ? primaryColor
-//                                 : Colors.white,
-//                             shape: RoundedRectangleBorder(
-//                               borderRadius: BorderRadius.circular(8),
-//                               side: pilihPembayaran == 'Bayar Tunai'
-//                                   ? BorderSide(
-//                                       color: primaryColor,
-//                                     )
-//                                   : const BorderSide(
-//                                       color: Colors.grey,
-//                                     ),
-//                               // side: BorderSide(
-//                               //   color: Colors.grey,
-//                               // ),
-//                             ),
-//                           ),
-//                           child: Text(
-//                             'Bayar Tunai',
-//                             style: GoogleFonts.poppins(
-//                               color: pilihPembayaran == 'Bayar Tunai'
-//                                   ? Colors.white
-//                                   : Colors.black,
-//                               fontSize: 16,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
+                      // disable button transfer
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: isButtonEnabled
+                              ? () {
+                                  setState(() {
+                                    pilihPembayaran = 'Transfer';
+                                    isOptionSelected = true;
+                                    isButtonEnabled = false;
+                                  });
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isButtonEnabled
+                                ? (pilihPembayaran == 'Transfer'
+                                    ? primaryColor
+                                    : Colors.white)
+                                : Colors.grey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: const BorderSide(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            'Transfer',
+                            style: GoogleFonts.poppins(
+                              color: isButtonEnabled
+                                  ? (pilihPembayaran == 'Transfer'
+                                      ? Colors.white
+                                      : Colors.black)
+                                  : Colors.grey,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              pilihPembayaran = 'Bayar Tunai';
+                              isOptionSelected = true;
+                            });
+                            konfirmasiTipePembayaran(
+                              contextPemesanan,
+                              setState,
+                              onSelect,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: pilihPembayaran == 'Bayar Tunai'
+                                ? primaryColor
+                                : Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: pilihPembayaran == 'Bayar Tunai'
+                                  ? BorderSide(
+                                      color: primaryColor,
+                                    )
+                                  : const BorderSide(
+                                      color: Colors.grey,
+                                    ),
+                              // side: BorderSide(
+                              //   color: Colors.grey,
+                              // ),
+                            ),
+                          ),
+                          child: Text(
+                            'Bayar Tunai',
+                            style: GoogleFonts.poppins(
+                              color: pilihPembayaran == 'Bayar Tunai'
+                                  ? Colors.white
+                                  : Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-//                 SizedBox(height: 20),
-//                 // Row(
-//                 //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                 //   children: [
-//                 //     ElevatedButton(
-//                 //       onPressed: () {
-//                 //         Navigator.of(contextPemesanan).pop();
-//                 //       },
-//                 //       child: Text('Batal'),
-//                 //     ),
-//                 //     ElevatedButton(
-//                 //       onPressed: isOptionSelected
-//                 //           ? () => konfirmasiTipePembayaran(
-//                 //               contextPemesanan, setState, onSelect)
-//                 //           : null,
-//                 //       child: Text('Konfirmasi'),
-//                 //     ),
-//                 //   ],
-//                 // ),
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     TextButton(
-//                       onPressed: () {
-//                         Navigator.of(contextPemesanan).pop();
-//                       },
-//                       style: ButtonStyle(
-//                         shape:
-//                             MaterialStateProperty.all<RoundedRectangleBorder>(
-//                           RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(5.0),
-//                             side: const BorderSide(
-//                               color: Colors.grey,
-//                             ),
-//                           ),
-//                         ),
-//                         minimumSize: MaterialStateProperty.all(Size(150, 30)),
-//                       ),
-//                       child: const Text(
-//                         "Batal",
-//                         style: TextStyle(
-//                           color: Color.fromARGB(255, 99, 99, 99),
-//                         ),
-//                       ),
-//                     ),
-//                     const SizedBox(width: 30),
-//                     TextButton(
-//                       onPressed: isOptionSelected
-//                           ? () => konfirmasiTipePembayaran(
-//                               contextPemesanan, setState, onSelect)
-//                           : null,
-//                       style: ButtonStyle(
-//                         shape:
-//                             MaterialStateProperty.all<RoundedRectangleBorder>(
-//                           RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(5.0),
-//                           ),
-//                         ),
-//                         backgroundColor: MaterialStateProperty.all<Color>(
-//                           Colors.blue,
-//                         ),
-//                         minimumSize: MaterialStateProperty.all(
-//                           Size(150, 30),
-//                         ),
-//                       ),
-//                       child: const Text(
-//                         "Pilih",
-//                         style: TextStyle(
-//                           color: Colors.white,
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
+                SizedBox(height: 20),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //   children: [
+                //     ElevatedButton(
+                //       onPressed: () {
+                //         Navigator.of(contextPemesanan).pop();
+                //       },
+                //       child: Text('Batal'),
+                //     ),
+                //     ElevatedButton(
+                //       onPressed: isOptionSelected
+                //           ? () => konfirmasiTipePembayaran(
+                //               contextPemesanan, setState, onSelect)
+                //           : null,
+                //       child: Text('Konfirmasi'),
+                //     ),
+                //   ],
+                // ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     TextButton(
+                //       onPressed: () {
+                //         Navigator.of(contextPemesanan).pop();
+                //       },
+                //       style: ButtonStyle(
+                //         shape:
+                //             MaterialStateProperty.all<RoundedRectangleBorder>(
+                //           RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.circular(5.0),
+                //             side: const BorderSide(
+                //               color: Colors.grey,
+                //             ),
+                //           ),
+                //         ),
+                //         minimumSize: MaterialStateProperty.all(Size(150, 30)),
+                //       ),
+                //       child: const Text(
+                //         "Batal",
+                //         style: TextStyle(
+                //           color: Color.fromARGB(255, 99, 99, 99),
+                //         ),
+                //       ),
+                //     ),
+                //     const SizedBox(width: 30),
+                //     TextButton(
+                //       onPressed: isOptionSelected
+                //           ? () => konfirmasiTipePembayaran(
+                //               contextPemesanan, setState, onSelect)
+                //           : null,
+                //       style: ButtonStyle(
+                //         shape:
+                //             MaterialStateProperty.all<RoundedRectangleBorder>(
+                //           RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.circular(5.0),
+                //           ),
+                //         ),
+                //         backgroundColor: MaterialStateProperty.all<Color>(
+                //           Colors.blue,
+                //         ),
+                //         minimumSize: MaterialStateProperty.all(
+                //           Size(150, 30),
+                //         ),
+                //       ),
+                //       child: const Text(
+                //         "Pilih",
+                //         style: TextStyle(
+                //           color: Colors.white,
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
-// void konfirmasiTipePembayaran(
-//     BuildContext contextPemesanan, Function setState, Function onSelect) {
-//   if (pilihPembayaran != null) {
-//     setState(() {
-//       pilihPembayaran = pilihPembayaran;
-//       Navigator.of(contextPemesanan).pop();
-//     });
-//     onSelect(pilihPembayaran);
-//     log(pilihPembayaran.toString());
-//   }
-// }
+void konfirmasiTipePembayaran(
+    BuildContext contextPemesanan, Function setState, Function onSelect) {
+  if (pilihPembayaran != null) {
+    setState(() {
+      pilihPembayaran = pilihPembayaran;
+      Navigator.of(contextPemesanan).pop();
+    });
+    onSelect(pilihPembayaran);
+    log(pilihPembayaran.toString());
+  }
+}
