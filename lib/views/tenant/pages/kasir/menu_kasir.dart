@@ -7,10 +7,8 @@ import 'package:testgetdata/model/user_model.dart';
 import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
-import 'package:testgetdata/views/home/pages/keranjang/cart_page.dart';
-import 'package:testgetdata/views/home/widgets/menu_tenant.dart';
-import 'package:testgetdata/views/tenant/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/views/components/search_widget.dart';
+import 'package:testgetdata/views/home/pages/keranjang/cart_page.dart';
 import 'package:testgetdata/views/tenant/widgets/menu_tenant_tile.dart';
 import 'package:testgetdata/views/theme.dart';
 
@@ -110,7 +108,7 @@ class _MenuKasirState extends State<MenuKasir> {
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
-                        return const Cart();
+                        return const CartPage();
                       },
                     ));
                   },

@@ -591,7 +591,7 @@ class _MenuTenantState extends State<MenuTenant> {
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
-                        return const Cart();
+                        return const CartPage();
                       },
                     ));
                   },

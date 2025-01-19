@@ -1,23 +1,32 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:testgetdata/model/order_model.dart';
 import 'package:testgetdata/http/add_transaksi.dart';
+import 'package:testgetdata/model/ruangan_model.dart';
 import 'package:testgetdata/http/fetch_data_ruangan.dart';
 import 'package:testgetdata/model/cart_menu_modelllll.dart';
-import 'package:testgetdata/model/order_model.dart';
-import 'package:testgetdata/model/ruangan_model.dart';
 
 /// A provider class responsible for managing the cart functionality.
 class CartProvider extends ChangeNotifier {
+  // Order details
   int totalItemCount = 0;
   int totalPrice = 0;
+
+  // Delivery details
   int deliveryCost = 0;
   int deliveryCostPerItem = 1000;
-  int serviceFee = 1000;
-  int isDelivery = 0;
+  int isDelivery = 0; // 0: Pickup, 1: Delivery
   int? roomId;
-  bool isCartVisible = false;
-  bool orderSuccessful = false;
+
+  // Fees and payment
+  int serviceFee = 1000;
   String? paymentMethod;
+
+  // UI state
+  bool isCartVisible = false;
+  bool isLoading = false;
+  bool transactionCompleted = false;
+  bool orderSuccessful = false;
 
   // A private list to store the items in the cart.
   final List<CartMenuModel> _cartMenu = <CartMenuModel>[];
@@ -98,11 +107,11 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  // Checks if the catalog is already present
-  // void checkCatalogExists(menuId) {
-  //   isCartVisible = _cartMenu.isNotEmpty;
-  //   notifyListeners();
-  // }
+  void setTransactionStatus({bool? isLoading, bool? isTransactionCompleted}) {
+    isLoading = isLoading ?? false;
+    transactionCompleted = isTransactionCompleted ?? false;
+    notifyListeners();
+  }
 
   // Clears the cart
   void clearCart() {
