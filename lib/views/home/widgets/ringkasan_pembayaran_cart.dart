@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/provider/cart_provider.dart';
 import 'package:testgetdata/views/common/format_currency.dart';
@@ -73,7 +72,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   children: [
                     Text(
                       FormatCurrency.intToStringCurrency(
-                        cartProvider.cost,
+                        cartProvider.deliveryCost,
                       ),
                       style: GoogleFonts.poppins(
                         fontSize: 14,
@@ -98,7 +97,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 ),
                 Text(
                   FormatCurrency.intToStringCurrency(
-                    cartProvider.service,
+                    cartProvider.serviceFee,
                   ),
                   style: GoogleFonts.poppins(
                     fontSize: 14,
@@ -109,7 +108,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
             const SizedBox(
               height: 7,
             ),
-            if (cartProvider.isAntar == 1)
+            if (cartProvider.isDelivery == 1)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +124,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: "${cartProvider.jumlahMenu()}x ",
+                          text: "${cartProvider.getTotalItemCount()}x ",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,

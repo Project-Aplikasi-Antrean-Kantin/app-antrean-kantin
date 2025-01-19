@@ -382,7 +382,7 @@ class _MenuTenantState extends State<MenuTenant> {
 
                                             Provider.of<CartProvider>(context,
                                                     listen: false)
-                                                .addItemToCartOrIncrementIfExists(
+                                                .addItemToCartOrUpdateQuantity(
                                               dataFoods.id,
                                               name,
                                               dataFoods.harga,
@@ -439,7 +439,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                                     Provider.of<CartProvider>(
                                                             context,
                                                             listen: false)
-                                                        .addItemToCartOrIncrementIfExists(
+                                                        .addItemToCartOrUpdateQuantity(
                                                             dataFoods.id,
                                                             dataFoods.nama,
                                                             dataFoods.harga,
@@ -476,7 +476,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                                   Provider.of<CartProvider>(
                                                           context,
                                                           listen: false)
-                                                      .addItemToCartOrIncrementIfExists(
+                                                      .addItemToCartOrUpdateQuantity(
                                                     dataFoods.id,
                                                     dataFoods.nama,
                                                     dataFoods.harga,
@@ -509,7 +509,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                                   .then(
                                                 (value) {
                                                   if (value != null) {
-                                                    data.tambahCatatan(
+                                                    data.addNote(
                                                         dataFoods.id, value);
                                                   }
                                                 },
@@ -584,7 +584,7 @@ class _MenuTenantState extends State<MenuTenant> {
         ),
         switchInCurve: Curves.easeIn,
         switchOutCurve: Curves.easeOut,
-        child: context.watch<CartProvider>().isCartShow
+        child: context.watch<CartProvider>().isCartVisible
             ? SizedBox(
                 width: MediaQuery.of(context).size.width - 20,
                 child: FloatingActionButton(
@@ -619,7 +619,7 @@ class _MenuTenantState extends State<MenuTenant> {
                             Expanded(
                               child: Text(
                                 FormatCurrency.intToStringCurrency(
-                                  data.cost,
+                                  data.deliveryCost,
                                 ),
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
@@ -629,9 +629,9 @@ class _MenuTenantState extends State<MenuTenant> {
                               ),
                             ),
                             Text(
-                              data.total >= 2
-                                  ? "${data.total} items"
-                                  : "${data.total} item",
+                              data.totalItemCount >= 2
+                                  ? "${data.totalItemCount} items"
+                                  : "${data.totalItemCount} item",
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
                                 color: Colors.white,

@@ -163,7 +163,7 @@ class _CartState extends State<Cart> {
                           onPemesananSelected: (option) {
                             setState(() {
                               plihPengantaran = option;
-                              cartProvider.setIsAntar(option!);
+                              cartProvider.setIsDelivery(option!);
                             });
                           },
                         ),
@@ -179,7 +179,7 @@ class _CartState extends State<Cart> {
                             onLocationSelected: (option) {
                               setState(() {
                                 pilihRuangan = option;
-                                cartProvider.setRuanganId(option!);
+                                cartProvider.setIdRoom(option!);
                               });
                             },
                           ),
@@ -192,7 +192,7 @@ class _CartState extends State<Cart> {
                         selectedPembayaran: (option2) {
                           setState(() {
                             pilihPembayaran = option2;
-                            cartProvider.setMetodePembayaran(option2!);
+                            cartProvider.setPaymentMethod(option2!);
                             kasirProvider.setMetodePembayaran(option2!);
                           });
                         },
@@ -218,7 +218,7 @@ class _CartState extends State<Cart> {
       ),
 
       // The bottom navigation bar
-      bottomNavigationBar: context.watch<CartProvider>().isCartShow ||
+      bottomNavigationBar: context.watch<CartProvider>().isCartVisible ||
               context.watch<KasirProvider>().isCartShow
           ? Consumer2<CartProvider, KasirProvider>(
               builder: (context, cartProvider, kasirProvider, _) {
@@ -274,7 +274,7 @@ class _CartState extends State<Cart> {
                               } else {
                                 // Create a new transaction using the cart provider
                                 cartProvider
-                                    .buatTransaksi(context, user.token)
+                                    .createTransaction(context, user.token)
                                     .then((value) {
                                   // If the transaction is successful, navigate to the success page
                                   if (value.status == 'success') {

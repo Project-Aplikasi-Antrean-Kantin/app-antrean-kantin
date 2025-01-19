@@ -144,7 +144,7 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                         true,
                       );
                     } else {
-                      cartProvider.addItemToCartOrIncrementIfExists(
+                      cartProvider.addItemToCartOrUpdateQuantity(
                         menu.idMenu,
                         menu.title,
                         menu.price,

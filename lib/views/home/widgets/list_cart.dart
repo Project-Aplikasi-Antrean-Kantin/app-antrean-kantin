@@ -143,7 +143,7 @@ class ListCart extends StatelessWidget {
                                   true,
                                 );
                               } else {
-                                cartProvider.addItemToCartOrIncrementIfExists(
+                                cartProvider.addItemToCartOrUpdateQuantity(
                                   cart.menuId,
                                   cart.menuNama,
                                   cart.menuPrice,
@@ -171,8 +171,7 @@ class ListCart extends StatelessWidget {
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    cartProvider
-                                        .addItemToCartOrIncrementIfExists(
+                                    cartProvider.addItemToCartOrUpdateQuantity(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
@@ -196,8 +195,7 @@ class ListCart extends StatelessWidget {
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    cartProvider
-                                        .addItemToCartOrIncrementIfExists(
+                                    cartProvider.addItemToCartOrUpdateQuantity(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
@@ -222,7 +220,7 @@ class ListCart extends StatelessWidget {
                                   cart.catatan!,
                                 );
                                 if (catatan != null) {
-                                  data.tambahCatatan(cart.menuId, catatan);
+                                  data.addNote(cart.menuId, catatan);
                                 }
                               },
                               child: Container(

@@ -9,53 +9,53 @@ void main() {
       cartProvider = CartProvider();
     });
 
-    test('addItemToCartOrIncrementIfExists adds a new item', () {
-      cartProvider.addItemToCartOrIncrementIfExists(
+    test('addItemToCartOrUpdateQuantity adds a new item', () {
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', true);
 
       expect(cartProvider.cart.length, 1);
       expect(cartProvider.cart[0].menuId, 1);
       expect(cartProvider.cart[0].count, 1);
-      expect(cartProvider.total, 1);
-      expect(cartProvider.cost, 100);
+      expect(cartProvider.totalItemCount, 1);
+      expect(cartProvider.deliveryCost, 100);
     });
 
-    test('addItemToCartOrIncrementIfExists increments an existing item', () {
-      cartProvider.addItemToCartOrIncrementIfExists(
+    test('addItemToCartOrUpdateQuantity increments an existing item', () {
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', true);
-      cartProvider.addItemToCartOrIncrementIfExists(
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', true);
 
       expect(cartProvider.cart.length, 1);
       expect(cartProvider.cart[0].count, 2);
-      expect(cartProvider.total, 2);
-      expect(cartProvider.cost, 200);
+      expect(cartProvider.totalItemCount, 2);
+      expect(cartProvider.deliveryCost, 200);
     });
 
-    test('addItemToCartOrIncrementIfExists decrements an existing item', () {
-      cartProvider.addItemToCartOrIncrementIfExists(
+    test('addItemToCartOrUpdateQuantity decrements an existing item', () {
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', true);
-      cartProvider.addItemToCartOrIncrementIfExists(
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', false);
 
       expect(cartProvider.cart.length, 0);
-      expect(cartProvider.total, 0);
-      expect(cartProvider.cost, 0);
+      expect(cartProvider.totalItemCount, 0);
+      expect(cartProvider.deliveryCost, 0);
     });
 
     test('clearCart clears the cart', () {
-      cartProvider.addItemToCartOrIncrementIfExists(
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', true);
       cartProvider.clearCart();
 
       expect(cartProvider.cart.length, 0);
-      expect(cartProvider.isCartShow, false);
-      expect(cartProvider.cost, 0);
-      expect(cartProvider.total, 0);
+      expect(cartProvider.isCartVisible, false);
+      expect(cartProvider.deliveryCost, 0);
+      expect(cartProvider.totalItemCount, 0);
     });
 
     test('getTotal calculates total price including service', () {
-      cartProvider.addItemToCartOrIncrementIfExists(
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', true);
       final totalPrice = cartProvider.getTotal();
 
@@ -69,9 +69,9 @@ void main() {
     });
 
     test('tambahCatatan adds note to cart item', () {
-      cartProvider.addItemToCartOrIncrementIfExists(
+      cartProvider.addItemToCartOrUpdateQuantity(
           1, 'Test Item', 100, 'image.png', 'Tenant', 'Description', true);
-      cartProvider.tambahCatatan(1, 'Note');
+      cartProvider.addNote(1, 'Note');
 
       expect(cartProvider.cart[0].catatan, 'Note');
     });
