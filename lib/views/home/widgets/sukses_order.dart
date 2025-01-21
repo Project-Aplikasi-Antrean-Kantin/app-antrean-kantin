@@ -6,8 +6,8 @@ import 'package:testgetdata/provider/auth_provider.dart';
 import 'package:testgetdata/views/home/pages/navbar_home.dart';
 import 'package:testgetdata/views/theme.dart';
 
-class SuksesOrder extends StatelessWidget {
-  const SuksesOrder({super.key});
+class OrderSuccess extends StatelessWidget {
+  const OrderSuccess({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +15,7 @@ class SuksesOrder extends StatelessWidget {
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
 
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         // Mengarahkan user kembali ke beranda

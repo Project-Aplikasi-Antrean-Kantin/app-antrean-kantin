@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/views/home/widgets/bottom_navigation_button.dart';
 import 'package:testgetdata/views/theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:midtrans_sdk/midtrans_sdk.dart';
@@ -13,9 +12,10 @@ import 'package:testgetdata/provider/kasir_provider.dart';
 import 'package:testgetdata/views/home/widgets/list_cart.dart';
 import 'package:testgetdata/views/home/widgets/custom_alert.dart';
 import 'package:testgetdata/views/home/widgets/sukses_order.dart';
-import 'package:testgetdata/views/home/widgets/pilih_tipe_pembayaran.dart';
 import 'package:testgetdata/views/home/widgets/pilih_tipe_pemesanan.dart';
+import 'package:testgetdata/views/home/widgets/pilih_tipe_pembayaran.dart';
 import 'package:testgetdata/views/home/widgets/pilihan_lokasi_ruangan.dart';
+import 'package:testgetdata/views/home/widgets/bottom_navigation_button.dart';
 import 'package:testgetdata/views/home/widgets/ringkasan_pembayaran_cart.dart';
 import 'package:testgetdata/views/tenant/widgets/ringkasan_pembayaran_kasir.dart';
 
@@ -26,35 +26,30 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  // Controllers for
-  final TextEditingController namaPembeli = TextEditingController();
-  final TextEditingController ruanganPembeli = TextEditingController();
-  final TextEditingController catatan = TextEditingController();
-
   // Ruangan-related
-  List<Ruangan> listRuangan = [];
+  List<Ruangan> _roomList = [];
 
   // Midtrans SDK
   late final MidtransSDK _midtrans;
 
   // Transaction state
+  int? _selectedRoom;
+  int? _selectedDeliveryOption;
+  String? _selectedPaymentMethod;
   bool transactionCompleted = false;
-  int? pilihPengantaran;
-  int? pilihRuangan;
-  String? pilihPembayaran;
 
   // Tipe pemesanan dan pembayaran
-  final List<String> tipePemesanan = [
+  final List<String> _selectedOrderType = [
     'Ambil Sendiri',
     'Pesan Antar',
   ];
 
-  final List<String> tipePembayaran = [
+  final List<String> _paymentType = [
     'Ambil Sendiri',
     'Pesan Antar',
   ];
 
-  void _dialogDataTidakLengkap() {
+  void _incompleteDataDialog() {
     showDialog(
       context: context,
       builder: (context) {
@@ -63,7 +58,7 @@ class _CartPageState extends State<CartPage> {
           message:
               "Harap isi data pemesanan terlebih dahulu sebelum melanjutkan.",
           onConfirmCancle: () {
-            Navigator.of(context).pop(); // Menutup dialog
+            Navigator.of(context).pop(); // close dialog
           },
           textButtonCancel: "OK",
           textButtonCancelColor: primaryColor,
@@ -78,13 +73,13 @@ class _CartPageState extends State<CartPage> {
     KasirProvider kasirProvider,
     CartProvider cartProvider,
     UserModel user,
-    int? plihPengantaran,
-    int? pilihRuangan,
+    int? selectDelivery,
+    int? selectRoom,
   ) {
     // If the user hasn't selected any options, show a dialog
     if (!kasirProvider.cart.isNotEmpty &&
-        !cartProvider.isCartValid(plihPengantaran, pilihRuangan)) {
-      _dialogDataTidakLengkap();
+        !cartProvider.isCartValid(selectDelivery, selectRoom)) {
+      _incompleteDataDialog();
     } else {
       // Set the isLoading state to true
       cartProvider.setTransactionStatus(
@@ -102,7 +97,7 @@ class _CartPageState extends State<CartPage> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const SuksesOrder(),
+              builder: (context) => const OrderSuccess(),
             ),
             (route) => false,
           );
@@ -129,7 +124,7 @@ class _CartPageState extends State<CartPage> {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SuksesOrder(),
+                  builder: (context) => const OrderSuccess(),
                 ),
                 (route) => false,
               );
@@ -155,15 +150,15 @@ class _CartPageState extends State<CartPage> {
     final user = authProvider.user;
 
     // Set the initial value of plihPengantaran and pilihRuangan to null
-    pilihPengantaran = null;
-    pilihRuangan = null;
-    pilihPembayaran = null;
+    _selectedDeliveryOption = null;
+    _selectedRoom = null;
+    _selectedPaymentMethod = null;
 
     // Fetch the list of ruangan from the API using the user's token
     fetchDataRuangan(user.token).then((value) {
       setState(() {
         // Set the list of ruangan to the state of this widget
-        listRuangan = value;
+        _roomList = value;
       });
     });
   }
@@ -240,11 +235,11 @@ class _CartPageState extends State<CartPage> {
                       if (!isKasirProviderActive) ...[
                         // The type of delivery selector
                         PilihTipePemesanan(
-                          tipePemesanan: tipePemesanan,
-                          plihPengantaran: pilihPengantaran,
+                          tipePemesanan: _selectedOrderType,
+                          plihPengantaran: _selectedDeliveryOption,
                           onPemesananSelected: (option) {
                             setState(() {
-                              pilihPengantaran = option;
+                              _selectedDeliveryOption = option;
                               cartProvider.setIsDelivery(option!);
                             });
                           },
@@ -252,14 +247,14 @@ class _CartPageState extends State<CartPage> {
                         const SizedBox(height: 8),
 
                         // The location selector (only visible if the user selects "Pesan Antar")
-                        if (pilihPengantaran == 1)
+                        if (_selectedDeliveryOption == 1)
                           PilihLokasiRuangan(
-                            listRuangan: listRuangan,
+                            listRuangan: _roomList,
                             token: user.token,
-                            selectedLocation: pilihRuangan,
+                            selectedLocation: _selectedRoom,
                             onLocationSelected: (option) {
                               setState(() {
-                                pilihRuangan = option;
+                                _selectedRoom = option;
                                 cartProvider.setIdRoom(option!);
                               });
                             },
@@ -268,11 +263,11 @@ class _CartPageState extends State<CartPage> {
                       ],
 
                       PilihTipePembayaran(
-                        tipePembayaran: tipePembayaran,
-                        pilihTipePembayaran: pilihPembayaran,
+                        tipePembayaran: _paymentType,
+                        pilihTipePembayaran: _selectedPaymentMethod,
                         selectedPembayaran: (option2) {
                           setState(() {
-                            pilihPembayaran = option2;
+                            _selectedPaymentMethod = option2;
                             cartProvider.setPaymentMethod(option2!);
                             kasirProvider.setMetodePembayaran(option2);
                           });
@@ -308,8 +303,8 @@ class _CartPageState extends State<CartPage> {
                       kasirProvider,
                       cartProvider,
                       user,
-                      pilihPengantaran,
-                      pilihRuangan,
+                      _selectedDeliveryOption,
+                      _selectedRoom,
                     );
                   },
                 );

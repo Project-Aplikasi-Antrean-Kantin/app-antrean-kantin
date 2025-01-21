@@ -105,7 +105,7 @@ class MyApp extends StatelessWidget {
           '/beranda': (context) => const HomePage(),
           '/pengantaran': (context) => const PerluPengantaran(),
           '/pesanan': (context) => const PesananTenant(),
-          '/sukses_order': (context) => const SuksesOrder(),
+          '/sukses_order': (context) => const OrderSuccess(),
           '/riwayat': (context) => const RiwayatPageAsRole(),
           '/profile': (context) => const ProfilePage(),
           '/katalog_menu': (context) => const KatalogMenu(),
