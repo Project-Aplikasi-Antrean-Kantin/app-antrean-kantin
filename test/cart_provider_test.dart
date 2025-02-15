@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:testgetdata/provider/cart_provider.dart';
+import 'package:testgetdata/data/provider/cart_provider.dart';
 
 void main() {
   group('CartProvider', () {
