@@ -2,7 +2,6 @@ import 'dart:convert';
 // import 'dart:js_util';
 
 import 'package:testgetdata/core/exceptions/api_exception.dart';
-import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/model/tenant_model.dart';

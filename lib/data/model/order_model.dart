@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:testgetdata/data/model/snap_model.dart';
 
 class OrderModel {

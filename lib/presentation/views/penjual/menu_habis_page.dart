@@ -8,9 +8,6 @@ import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
-// import 'package:testgetdata/model/food_item.dart';
-// import 'package:testgetdata/views/tenant/pages/menu_habis_page.dart';
-// import 'package:testgetdata/views/tenant/pages/update_menu_page.dart';
 
 class MenuHabis extends StatefulWidget {
   final List<TenantFoods> data;

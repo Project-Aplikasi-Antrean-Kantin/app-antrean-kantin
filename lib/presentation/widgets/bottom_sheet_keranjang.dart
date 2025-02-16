@@ -1,9 +1,7 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
-import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/core/theme/theme.dart';
 
 int? pilihPemesanan;
@@ -363,7 +361,6 @@ void konfirmasiLokasiRuangan(
 
 void bottomSheetTipePembayaran(
     BuildContext contextPemesanan, OptionSelectedCallback2 onSelect) {
-  bool isOptionSelected = false;
   showModalBottomSheet(
     context: contextPemesanan,
     isScrollControlled: true,

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Snap {
   final String token;
   final String redirectUrl;

@@ -12,8 +12,6 @@ class KatalogMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isLoading = true;
-
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
