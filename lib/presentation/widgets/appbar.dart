@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -28,14 +28,14 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     final bool hasThreeTabs = tab1Title != null && tab3Title != null;
 
     return AppBar(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
       leading: leadingIcon != null
           ? IconButton(
               icon: Icon(
                 leadingIcon,
-                color: secondaryTextColor,
+                color: AppColors.secondaryTextColor,
                 size: 24,
               ),
               onPressed: onLeadingPressed,
@@ -46,7 +46,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         style: GoogleFonts.poppins(
           fontWeight: FontWeight.bold,
           fontSize: 20,
-          color: secondaryTextColor,
+          color: AppColors.secondaryTextColor,
         ),
       ),
       centerTitle: true,
@@ -62,7 +62,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab1Title!,
                     style: GoogleFonts.poppins(
-                      color: secondaryTextColor,
+                      color: AppColors.secondaryTextColor,
                       fontSize: 14,
                     ),
                   ),
@@ -71,7 +71,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab2Title!,
                     style: GoogleFonts.poppins(
-                      color: secondaryTextColor,
+                      color: AppColors.secondaryTextColor,
                       fontSize: 14,
                     ),
                   ),
@@ -80,7 +80,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab3Title!,
                     style: GoogleFonts.poppins(
-                      color: secondaryTextColor,
+                      color: AppColors.secondaryTextColor,
                       fontSize: 14,
                     ),
                   ),
@@ -99,7 +99,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                       child: Text(
                         tab1Title!,
                         style: GoogleFonts.poppins(
-                          color: secondaryTextColor,
+                          color: AppColors.secondaryTextColor,
                           fontSize: 14,
                         ),
                       ),
@@ -108,7 +108,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                       child: Text(
                         tab2Title!,
                         style: GoogleFonts.poppins(
-                          color: secondaryTextColor,
+                          color: AppColors.secondaryTextColor,
                           fontSize: 14,
                         ),
                       ),
@@ -127,7 +127,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           child: Text(
                             tab1Title!,
                             style: GoogleFonts.poppins(
-                              color: secondaryTextColor,
+                              color: AppColors.secondaryTextColor,
                               fontSize: 14,
                             ),
                           ),
@@ -136,7 +136,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           child: Text(
                             tab3Title!,
                             style: GoogleFonts.poppins(
-                              color: secondaryTextColor,
+                              color: AppColors.secondaryTextColor,
                               fontSize: 14,
                             ),
                           ),

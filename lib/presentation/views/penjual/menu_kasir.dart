@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
@@ -9,7 +10,6 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 import 'package:testgetdata/presentation/widgets/menu_tenant_tile.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class MenuKasir extends StatefulWidget {
   final List<TenantFoods> data;
@@ -40,7 +40,7 @@ class _MenuKasirState extends State<MenuKasir> {
     UserModel user = authProvider.user;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -111,7 +111,7 @@ class _MenuKasirState extends State<MenuKasir> {
                       },
                     ));
                   },
-                  backgroundColor: primaryColor,
+                  backgroundColor: AppColors.primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),

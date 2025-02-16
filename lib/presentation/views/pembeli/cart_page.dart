@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:midtrans_sdk/midtrans_sdk.dart';
 import 'package:testgetdata/data/model/user_model.dart';
@@ -61,8 +61,8 @@ class _CartPageState extends State<CartPage> {
             Navigator.of(context).pop(); // close dialog
           },
           textButtonCancel: "OK",
-          textButtonCancelColor: primaryColor,
-          cancelBorderColor: primaryColor,
+          textButtonCancelColor: AppColors.primaryColor,
+          cancelBorderColor: AppColors.primaryColor,
         );
       },
     );
@@ -169,13 +169,13 @@ class _CartPageState extends State<CartPage> {
     final user = authProvider.user;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.backgroundColor,
         scrolledUnderElevation: 0,
         toolbarHeight: 50,
         title: Text(
-          'Keranjang',
+          'Bayar',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -296,7 +296,7 @@ class _CartPageState extends State<CartPage> {
               builder: (context, cartProvider, kasirProvider, _) {
                 return BottomNavigationButton(
                   isLoading: cartProvider.isLoading,
-                  color: primaryColor,
+                  color: AppColors.primaryColor,
                   onTap: () {
                     handleTransaction(
                       context,

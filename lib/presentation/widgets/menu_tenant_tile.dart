@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_detail_menu.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class MenuTenantTile extends StatelessWidget {
   final TenantFoods item1;
@@ -145,8 +145,9 @@ class MenuTenantTile extends StatelessWidget {
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color:
-                              item1.isReady == 1 ? primaryColor : Colors.grey,
+                          color: item1.isReady == 1
+                              ? AppColors.primaryColor
+                              : Colors.grey,
                           width: 1.5,
                         ),
                       ),
@@ -156,7 +157,7 @@ class MenuTenantTile extends StatelessWidget {
                       //     Text(
                       //       'Tambah',
                       //       style: TextStyle(
-                      //         color: primaryColor,
+                      //         color: AppColors.primaryColor,
                       //         fontSize: 12,
                       //       ),
                       //     ),
@@ -169,7 +170,7 @@ class MenuTenantTile extends StatelessWidget {
                             item1.isReady == 1 ? 'Tambah' : 'Habis',
                             style: TextStyle(
                               color: item1.isReady == 1
-                                  ? primaryColor
+                                  ? AppColors.primaryColor
                                   : Colors.grey,
                               fontSize: 12,
                             ),
@@ -199,7 +200,7 @@ class MenuTenantTile extends StatelessWidget {
                               },
                               icon: Icon(
                                 Icons.do_not_disturb_on_outlined,
-                                color: primaryColor,
+                                color: AppColors.primaryColor,
                                 size: 26,
                               ),
                             ),
@@ -232,7 +233,7 @@ class MenuTenantTile extends StatelessWidget {
                               },
                               icon: Icon(
                                 Icons.add_circle_outline,
-                                color: primaryColor,
+                                color: AppColors.primaryColor,
                                 size: 26,
                               ),
                             ),

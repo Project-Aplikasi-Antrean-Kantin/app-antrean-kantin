@@ -5,11 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/http/add_menu_kelola.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class TambahMenuPage extends StatefulWidget {
   const TambahMenuPage({Key? key}) : super(key: key);
@@ -574,9 +574,9 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
 
                           style: ElevatedButton.styleFrom(
                             side: BorderSide(
-                              color: primaryColor,
+                              color: AppColors.primaryColor,
                             ),
-                            backgroundColor: primaryColor,
+                            backgroundColor: AppColors.primaryColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),

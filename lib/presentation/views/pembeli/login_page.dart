@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       body: Padding(
         padding: EdgeInsets.only(
           top: MediaQuery.of(context).padding.top,
@@ -51,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         'Halo Bro!',
                         style: GoogleFonts.poppins(
-                          color: secondaryTextColor,
+                          color: AppColors.secondaryTextColor,
                           fontSize: 32,
                           fontWeight: semibold,
                         ),
@@ -62,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                           textAlign: TextAlign.center,
                           'Pastikan kamu sudah memiliki akun ya bro...',
                           style: GoogleFonts.poppins(
-                            color: primaryTextColor,
+                            color: AppColors.primaryTextColor,
                             fontSize: 15,
                             fontWeight: regular,
                           ),
@@ -75,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 30,
                 ),
                 TextFormField(
-                  cursorColor: primaryColor,
+                  cursorColor: AppColors.primaryColor,
                   controller: email,
                   decoration: InputDecoration(
                     fillColor: Colors.white,
@@ -232,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: primaryColor,
+                      color: AppColors.primaryColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
@@ -279,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Belum punya akun? ',
                       style: GoogleFonts.poppins(
-                        color: primaryTextColor,
+                        color: AppColors.primaryTextColor,
                       ),
                     ),
                     GestureDetector(
@@ -290,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         'Daftar',
                         style: GoogleFonts.poppins(
-                          color: primaryColor,
+                          color: AppColors.primaryColor,
                           fontWeight: semibold,
                         ),
                       ),

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class PesananDiproses extends StatefulWidget {
   final List<Pesanan> pesananDiproses;
@@ -41,7 +42,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
     return RefreshIndicator(
       onRefresh: _refresh,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.backgroundColor,
         body: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Container(
@@ -50,7 +51,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
               vertical: 10,
             ),
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: AppColors.backgroundColor,
             ),
             child: Column(
               children: [
@@ -91,7 +92,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                 Text(
                                   'Informasi pesanan',
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 10,
                                     fontWeight: regular,
                                   ),
@@ -105,7 +106,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                       ? 'Pesanan Berstatus DIANTAR'
                                       : 'Pesanan Berstatus AMBIL SENDIRI',
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 14,
                                     fontWeight: semibold,
                                   ),
@@ -132,7 +133,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       'Pembeli',
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontSize: 10,
                                         fontWeight: regular,
                                       ),
@@ -144,7 +145,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                       capitalizeFirstLetter(
                                           "${_pesananDiproses[index].namaPembeli}"),
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontSize: 14,
                                         fontWeight: semibold,
                                       ),
@@ -158,7 +159,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       'No.',
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontSize: 10,
                                         fontWeight: regular,
                                       ),
@@ -169,7 +170,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       "0000$idPesanan",
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontSize: 14,
                                         fontWeight: semibold,
                                       ),
@@ -191,7 +192,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                             child: Text(
                               'List pesanan',
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 10,
                                 fontWeight: regular,
                               ),
@@ -230,7 +231,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       "Subtotal (${_pesananDiproses[index].listTransaksiDetail.length} menu)",
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: medium,
                                       ),
@@ -241,7 +242,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                           subtotal,
                                         ),
                                         style: GoogleFonts.poppins(
-                                          color: primaryTextColor,
+                                          color: AppColors.primaryTextColor,
                                           fontSize: 12,
                                           fontWeight: medium,
                                         ),
@@ -260,7 +261,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       "Total",
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontSize: 14,
                                         fontWeight: bold,
                                       ),
@@ -270,7 +271,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                         subtotal,
                                       ),
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontSize: 14,
                                         fontWeight: bold,
                                       ),
@@ -294,9 +295,9 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                               BorderRadius.circular(8),
                                         ),
                                         side: BorderSide(
-                                          color: primaryColor,
+                                          color: AppColors.primaryColor,
                                         ),
-                                        backgroundColor: primaryColor,
+                                        backgroundColor: AppColors.primaryColor,
                                         minimumSize: Size(20, 30),
                                         fixedSize: Size(180, 30),
                                       ),

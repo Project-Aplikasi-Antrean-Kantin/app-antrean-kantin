@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/http/update_menu_tenant.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class MenuTersedia extends StatefulWidget {
   final List<TenantFoods> data;
@@ -177,7 +177,7 @@ class _MenuTersediaState extends State<MenuTersedia> {
       floatingActionButton: SizedBox(
         width: MediaQuery.of(context).size.width * 0.45,
         child: FloatingActionButton(
-          backgroundColor: primaryColor,
+          backgroundColor: AppColors.primaryColor,
           onPressed: () {
             Navigator.pushNamed(context, '/tambah_menu');
           },

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/widgets/menu_tenant.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class ListTenant extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
@@ -93,7 +94,7 @@ class ListTenant extends StatelessWidget {
                               foundTenant[index].namaTenant,
                               // style: Judul(),
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 16,
                                 fontWeight: semibold,
                               ),
@@ -102,7 +103,7 @@ class ListTenant extends StatelessWidget {
                               "Aneka makanan, makanan dan snack kantin pens",
                               // style: Judul(),
                               style: GoogleFonts.poppins(
-                                color: primaryTextColor,
+                                color: AppColors.primaryTextColor,
                                 fontSize: 12,
                                 fontWeight: regular,
                               ),
@@ -140,7 +141,7 @@ class ListTenant extends StatelessWidget {
                             foundTenant[index].namaKavling,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
-                              color: secondaryTextColor,
+                              color: AppColors.secondaryTextColor,
                               fontWeight: FontWeight
                                   .bold, // Corrected to use FontWeight.bold
                             ),

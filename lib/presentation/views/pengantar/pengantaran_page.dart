@@ -4,12 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/http/fetch_pengantaran.dart';
 import 'package:testgetdata/core/http/update_pengantaran.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/pengantar/pesanan_diantar.dart';
 import 'package:testgetdata/presentation/views/pengantar/pesanan_menunggu.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class PerluPengantaran extends StatefulWidget {
   const PerluPengantaran({super.key});
@@ -103,7 +103,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: backgroundColor,
+          backgroundColor: AppColors.backgroundColor,
           automaticallyImplyLeading: false,
           toolbarHeight: 50,
           scrolledUnderElevation: 0,
@@ -112,7 +112,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               fontSize: 20,
-              color: secondaryTextColor,
+              color: AppColors.secondaryTextColor,
             ),
           ),
           centerTitle: true,
@@ -144,7 +144,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                   'Menunggu',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: primaryTextColor,
+                    color: AppColors.primaryTextColor,
                   ),
                 ),
               ),
@@ -153,7 +153,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                   'Diantar',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: primaryTextColor,
+                    color: AppColors.primaryTextColor,
                   ),
                 ),
               ),
@@ -176,7 +176,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                             child: Text(
                               'Pesanan kosong',
                               style: GoogleFonts.poppins(
-                                color: primaryTextColor,
+                                color: AppColors.primaryTextColor,
                                 fontSize: 14,
                               ),
                             ),
@@ -202,7 +202,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                             child: Text(
                               'Pesanan kosong',
                               style: GoogleFonts.poppins(
-                                color: primaryTextColor,
+                                color: AppColors.primaryTextColor,
                                 fontSize: 14,
                               ),
                             ),

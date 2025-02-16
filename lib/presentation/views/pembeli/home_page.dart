@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/carousel_widget.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
@@ -15,7 +16,7 @@ import 'package:testgetdata/core/http/fetch_all_tenant.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -115,7 +116,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
@@ -176,14 +177,14 @@ class _HomePageState extends State<HomePage> {
                     "Halo ${user.nama}!",
                     style: GoogleFonts.poppins(
                       fontSize: 16,
-                      color: primaryTextColor,
+                      color: AppColors.primaryTextColor,
                       fontWeight: regular,
                     ),
                   ),
                   Text(
                     "Mau makan apa hari ini?",
                     style: GoogleFonts.poppins(
-                      color: secondaryTextColor,
+                      color: AppColors.secondaryTextColor,
                       fontSize: 20,
                       fontWeight: semibold,
                     ),
@@ -255,14 +256,14 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
                 return Container(
-                  color: backgroundColor,
+                  color: AppColors.backgroundColor,
                   padding: EdgeInsets.only(
                     top: MediaQuery.of(context).size.height * 0.15,
                   ),
                   child: Center(
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        primaryColor,
+                        AppColors.primaryColor,
                       ),
                     ),
                   ),

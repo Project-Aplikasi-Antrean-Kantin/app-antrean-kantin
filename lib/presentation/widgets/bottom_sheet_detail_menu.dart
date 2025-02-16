@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class DetailMenu {
   String? namaTenant;
@@ -159,7 +159,9 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: menu.isReady == 1 ? primaryColor : Colors.grey,
+                    color: menu.isReady == 1
+                        ? AppColors.primaryColor
+                        : Colors.grey,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: GestureDetector(

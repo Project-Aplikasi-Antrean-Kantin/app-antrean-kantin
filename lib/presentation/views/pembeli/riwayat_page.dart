@@ -5,11 +5,11 @@ import 'package:testgetdata/core/http/fetch_riwayat_transaksi.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
-import 'package:testgetdata/core/theme/colors.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class RiwayatPage extends StatefulWidget {
   // static const int RiwayatIndex = 1;
@@ -57,10 +57,11 @@ class _RiwayatPageState extends State<RiwayatPage> {
         onRefresh: _refreshData,
         child: isLoading
             ? Container(
-                color: backgroundColor,
+                color: AppColors.backgroundColor,
                 child: Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
                   ),
                 ),
               )
@@ -74,7 +75,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                           child: Text(
                             'Belum ada riwayat',
                             style: GoogleFonts.poppins(
-                              color: primaryTextColor,
+                              color: AppColors.primaryTextColor,
                               fontSize: 14,
                             ),
                           ),
@@ -86,7 +87,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                     height: MediaQuery.of(context).size.height,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: backgroundColor,
+                      color: AppColors.backgroundColor,
                     ),
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(
@@ -154,7 +155,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                             Text(
                                               "${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant}",
                                               style: GoogleFonts.poppins(
-                                                color: secondaryTextColor,
+                                                color: AppColors
+                                                    .secondaryTextColor,
                                                 fontSize: 14,
                                                 fontWeight: semibold,
                                               ),
@@ -164,7 +166,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                               FormatDate.formatDateTimeWithWIB(
                                                   pesanan.createdAt),
                                               style: GoogleFonts.poppins(
-                                                color: primaryTextColor,
+                                                color:
+                                                    AppColors.primaryTextColor,
                                                 fontSize: 12,
                                                 fontWeight: regular,
                                               ),
@@ -173,7 +176,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                             Text(
                                               "${pesanan.listTransaksiDetail[0].jumlah} Item Menu",
                                               style: GoogleFonts.poppins(
-                                                color: primaryTextColor,
+                                                color:
+                                                    AppColors.primaryTextColor,
                                                 fontSize: 12,
                                                 fontWeight: medium,
                                               ),
@@ -187,7 +191,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10),
                                     child: Divider(
-                                      color: lineDividerColor,
+                                      color: AppColors.lineDividerColor,
                                       height: 1,
                                     ),
                                   ),
@@ -202,7 +206,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                           FormatCurrency.intToStringCurrency(
                                               pesanan.total),
                                           style: GoogleFonts.poppins(
-                                            color: secondaryTextColor,
+                                            color: AppColors.secondaryTextColor,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                           ),

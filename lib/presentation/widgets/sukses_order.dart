@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class OrderSuccess extends StatelessWidget {
   const OrderSuccess({super.key});
@@ -82,8 +82,8 @@ class OrderSuccess extends StatelessWidget {
                           );
                         },
                         style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(primaryColor),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              AppColors.primaryColor),
                         ),
                         child: Text(
                           'Kembali ke Halaman Utama',
@@ -115,7 +115,7 @@ class OrderSuccess extends StatelessWidget {
                           child: Text(
                             'Lihat Riwayat Pesanan',
                             style: GoogleFonts.poppins(
-                              color: primaryColor,
+                              color: AppColors.primaryColor,
                             ),
                           ),
                         ),

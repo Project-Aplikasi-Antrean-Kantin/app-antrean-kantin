@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class PesananDiantar extends StatefulWidget {
   final List<Pesanan> pesananDiantar;
@@ -33,7 +34,7 @@ class PesananDiantarState extends State<PesananDiantar> {
     final refresh = widget.onRefresh;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       body: RefreshIndicator(
         onRefresh: refresh,
         child: SingleChildScrollView(
@@ -73,7 +74,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                             Text(
                               'Alamat pengantaran',
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 10,
                                 fontWeight: regular,
                               ),
@@ -85,7 +86,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                               textAlign: TextAlign.left,
                               "${entry.namaRuangan}",
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 14,
                                 fontWeight: semibold,
                               ),
@@ -112,7 +113,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   'Penerima',
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 10,
                                     fontWeight: regular,
                                   ),
@@ -123,7 +124,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   capitalizeFirstLetter("${entry.namaPembeli}"),
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 14,
                                     fontWeight: semibold,
                                   ),
@@ -137,7 +138,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   'No.',
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 10,
                                     fontWeight: regular,
                                   ),
@@ -148,7 +149,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   "0000$idPesanan",
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 14,
                                     fontWeight: semibold,
                                   ),
@@ -173,7 +174,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                             Text(
                               'Tenant',
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 10,
                                 fontWeight: regular,
                               ),
@@ -185,7 +186,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                               capitalizeFirstLetter(
                                   '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}'),
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 14,
                                 fontWeight: semibold,
                               ),
@@ -226,7 +227,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   "Subtotal (${entry.listTransaksiDetail.length} menu)",
                                   style: GoogleFonts.poppins(
-                                    color: primaryTextColor,
+                                    color: AppColors.primaryTextColor,
                                     fontSize: 12,
                                     fontWeight: medium,
                                   ),
@@ -237,7 +238,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                       subtotal,
                                     ),
                                     style: GoogleFonts.poppins(
-                                      color: primaryTextColor,
+                                      color: AppColors.primaryTextColor,
                                       fontSize: 12,
                                       fontWeight: medium,
                                     ),
@@ -254,7 +255,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   "Biaya layanan",
                                   style: GoogleFonts.poppins(
-                                    color: primaryTextColor,
+                                    color: AppColors.primaryTextColor,
                                     fontSize: 12,
                                     fontWeight: medium,
                                   ),
@@ -265,7 +266,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                       entry.biayaLayanan,
                                     ),
                                     style: GoogleFonts.poppins(
-                                      color: primaryTextColor,
+                                      color: AppColors.primaryTextColor,
                                       fontSize: 12,
                                       fontWeight: medium,
                                     ),
@@ -282,7 +283,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   "Ongkir",
                                   style: GoogleFonts.poppins(
-                                    color: primaryTextColor,
+                                    color: AppColors.primaryTextColor,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -292,7 +293,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                     Text(
                                       "$totalItem x",
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: semibold,
                                       ),
@@ -306,7 +307,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                       ),
                                       style: GoogleFonts.poppins(
                                         fontSize: 12,
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontWeight: medium,
                                       ),
                                     ),
@@ -324,7 +325,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                 Text(
                                   "Total",
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 14,
                                     fontWeight: bold,
                                   ),
@@ -334,7 +335,7 @@ class PesananDiantarState extends State<PesananDiantar> {
                                     subtotal,
                                   ),
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 14,
                                     fontWeight: bold,
                                   ),
@@ -355,9 +356,9 @@ class PesananDiantarState extends State<PesananDiantar> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       side: BorderSide(
-                                        color: primaryColor,
+                                        color: AppColors.primaryColor,
                                       ),
-                                      backgroundColor: primaryColor,
+                                      backgroundColor: AppColors.primaryColor,
                                       minimumSize: const Size(20, 30),
                                       fixedSize: Size(180, 35)),
                                   child: Text(

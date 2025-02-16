@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 int? pilihPemesanan;
 int? pilihRuangan;
@@ -55,13 +55,13 @@ void bottomSheetTipePemesanan(
                               borderRadius: BorderRadius.circular(8),
                               side: BorderSide(
                                 color: pilihPemesanan == 1
-                                    ? primaryColor
+                                    ? AppColors.primaryColor
                                     : Colors
                                         .grey, // Warna border akan berbeda jika tombol dipilih
                               ),
                             ),
                             backgroundColor: pilihPemesanan == 1
-                                ? primaryColor
+                                ? AppColors.primaryColor
                                 : Colors
                                     .white, // Warna latar belakang akan berbeda jika tombol dipilih
                           ),
@@ -96,13 +96,13 @@ void bottomSheetTipePemesanan(
                               borderRadius: BorderRadius.circular(8),
                               side: BorderSide(
                                 color: pilihPemesanan == 0
-                                    ? primaryColor
+                                    ? AppColors.primaryColor
                                     : Colors
                                         .grey, // Warna border akan berbeda jika tombol dipilih
                               ),
                             ),
                             backgroundColor: pilihPemesanan == 0
-                                ? primaryColor
+                                ? AppColors.primaryColor
                                 : Colors
                                     .white, // Warna latar belakang akan berbeda jika tombol dipilih
                           ),
@@ -239,21 +239,25 @@ void bottomSheetLokasiRuangan(BuildContext context, List<Ruangan> listRuangan,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: pilihRuangan == e.id
-                            ? primaryColor
+                            ? AppColors.primaryColor
                             : Colors.transparent,
                         width: 1,
                       ),
                     ),
                     child: ListTile(
-                      // tileColor: pilihRuangan == e.id ? primaryColor : null,
+                      // tileColor: pilihRuangan == e.id ? AppColors.primaryColor : null,
                       leading: Icon(
                         Icons.location_pin,
-                        color: pilihRuangan == e.id ? primaryColor : null,
+                        color: pilihRuangan == e.id
+                            ? AppColors.primaryColor
+                            : null,
                       ),
                       title: Text(
                         e.namaRuangan,
                         style: GoogleFonts.poppins(
-                            color: pilihRuangan == e.id ? primaryColor : null),
+                            color: pilihRuangan == e.id
+                                ? AppColors.primaryColor
+                                : null),
                       ),
                       onTap: () {
                         setState(() {
@@ -392,7 +396,7 @@ void bottomSheetTipePembayaran(
                       //     },
                       //     style: ElevatedButton.styleFrom(
                       //       backgroundColor: pilihPembayaran == 'Transfer'
-                      //           ? primaryColor
+                      //           ? AppColors.primaryColor
                       //           : Colors.white,
                       //       shape: RoundedRectangleBorder(
                       //         borderRadius: BorderRadius.circular(8),
@@ -428,7 +432,7 @@ void bottomSheetTipePembayaran(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isButtonEnabled
                                 ? (pilihPembayaran == 'Transfer'
-                                    ? primaryColor
+                                    ? AppColors.primaryColor
                                     : Colors.white)
                                 : Colors.grey,
                             shape: RoundedRectangleBorder(
@@ -467,13 +471,13 @@ void bottomSheetTipePembayaran(
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: pilihPembayaran == 'Bayar Tunai'
-                                ? primaryColor
+                                ? AppColors.primaryColor
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                               side: pilihPembayaran == 'Bayar Tunai'
                                   ? BorderSide(
-                                      color: primaryColor,
+                                      color: AppColors.primaryColor,
                                     )
                                   : const BorderSide(
                                       color: Colors.grey,

@@ -6,12 +6,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/constants.dart';
 import 'package:testgetdata/core/http/update_menu_kelola.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/data/provider/katalog_menu_provider.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class EditMenuPage extends StatefulWidget {
   final TenantFoods tenantFoods;
@@ -717,9 +717,9 @@ class _EditMenuPageState extends State<EditMenuPage> {
                             },
                             style: ElevatedButton.styleFrom(
                               side: BorderSide(
-                                color: primaryColor,
+                                color: AppColors.primaryColor,
                               ),
-                              backgroundColor: primaryColor,
+                              backgroundColor: AppColors.primaryColor,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),

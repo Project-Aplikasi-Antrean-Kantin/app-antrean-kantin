@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/fitur_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/widgets/switch_route.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class NavbarHome extends StatefulWidget {
   final int pageIndex;
@@ -60,7 +60,7 @@ class _NavbarHomeState extends State<NavbarHome> {
               e.ikon!,
               height: 20,
               colorFilter: ColorFilter.mode(
-                unselectedIconColor,
+                AppColors.unselectedIconColor,
                 BlendMode.srcIn,
               ),
             ),
@@ -71,7 +71,7 @@ class _NavbarHomeState extends State<NavbarHome> {
               e.ikon!,
               height: 20,
               colorFilter: ColorFilter.mode(
-                selectedIconColor,
+                AppColors.selectedIconColor,
                 BlendMode.srcIn,
               ),
             ),
@@ -108,8 +108,8 @@ class _NavbarHomeState extends State<NavbarHome> {
               fontSize: 9,
             ),
             unselectedFontSize: 12,
-            unselectedItemColor: unselectedIconColor,
-            selectedItemColor: selectedIconColor,
+            unselectedItemColor: AppColors.unselectedIconColor,
+            selectedItemColor: AppColors.selectedIconColor,
             currentIndex: _currentIndex,
             showUnselectedLabels: true,
             onTap: (index) {

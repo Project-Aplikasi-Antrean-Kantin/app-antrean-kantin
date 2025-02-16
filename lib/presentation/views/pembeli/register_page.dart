@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -27,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       body: Padding(
         padding: EdgeInsets.only(
           top: MediaQuery.of(context).padding.top,
@@ -46,7 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Text(
                         'Daftar',
                         style: GoogleFonts.poppins(
-                          color: secondaryTextColor,
+                          color: AppColors.secondaryTextColor,
                           fontSize: 32,
                           fontWeight: semibold,
                         ),
@@ -57,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           textAlign: TextAlign.center,
                           'Daftar sekarang agar kamu bisa berjelajah kuliner',
                           style: GoogleFonts.poppins(
-                            color: primaryTextColor,
+                            color: AppColors.primaryTextColor,
                             fontSize: 15,
                             fontWeight: regular,
                           ),
@@ -70,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 25,
                 ),
                 TextFormField(
-                  cursorColor: primaryColor,
+                  cursorColor: AppColors.primaryColor,
                   controller: nama,
                   decoration: InputDecoration(
                     fillColor: Colors.white,
@@ -114,7 +115,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 15,
                 ),
                 TextFormField(
-                  cursorColor: primaryColor,
+                  cursorColor: AppColors.primaryColor,
                   controller: email,
                   decoration: InputDecoration(
                     filled: true,
@@ -337,7 +338,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     width: double.infinity,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: primaryColor,
+                      color: AppColors.primaryColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
@@ -384,7 +385,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Text(
                       'Sudah punya akun? ',
                       style: GoogleFonts.poppins(
-                        color: primaryTextColor,
+                        color: AppColors.primaryTextColor,
                       ),
                     ),
                     GestureDetector(
@@ -401,7 +402,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Text(
                         'Masuk',
                         style: GoogleFonts.poppins(
-                          color: primaryColor,
+                          color: AppColors.primaryColor,
                           fontWeight: semibold,
                         ),
                       ),

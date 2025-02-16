@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
-import 'package:testgetdata/core/theme/colors.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class DetialRwiayat extends StatelessWidget {
   final Pesanan pesanan;
@@ -32,9 +32,9 @@ class DetialRwiayat extends StatelessWidget {
     debugPrint(pesanan.createdAt.toString());
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.backgroundColor,
         automaticallyImplyLeading: true,
         toolbarHeight: 50,
         scrolledUnderElevation: 0,
@@ -42,7 +42,7 @@ class DetialRwiayat extends StatelessWidget {
         title: Text(
           'Rincian Pesananmu',
           style: GoogleFonts.poppins(
-            color: secondaryTextColor,
+            color: AppColors.secondaryTextColor,
             fontSize: 20,
             fontWeight: medium,
           ),
@@ -67,7 +67,7 @@ class DetialRwiayat extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 255, 254, 254),
                     border: Border.all(
-                      color: lineDividerColor,
+                      color: AppColors.lineDividerColor,
                       width: 0.2,
                     ),
                     // borderRadius: BorderRadius.circular(10.0),
@@ -88,7 +88,7 @@ class DetialRwiayat extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Divider(
-                          color: lineDividerColor,
+                          color: AppColors.lineDividerColor,
                           height: 1,
                         ),
                       ),
@@ -100,7 +100,7 @@ class DetialRwiayat extends StatelessWidget {
                             Text(
                               "Alamat Pengantaran",
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 14,
                                 fontWeight: semibold,
                               ),
@@ -114,7 +114,7 @@ class DetialRwiayat extends StatelessWidget {
                                   capitalizeFirstLetter(
                                       'Tidak Diantar, Ambil Pesanan ke ${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant}'),
                               style: GoogleFonts.poppins(
-                                color: secondaryTextColor,
+                                color: AppColors.secondaryTextColor,
                                 fontSize: 12,
                               ),
                               maxLines: 3,
@@ -125,7 +125,7 @@ class DetialRwiayat extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Divider(
-                          color: lineDividerColor,
+                          color: AppColors.lineDividerColor,
                           height: 1,
                         ),
                       ),
@@ -134,7 +134,7 @@ class DetialRwiayat extends StatelessWidget {
                         child: Text(
                           '${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
                           style: GoogleFonts.poppins(
-                            color: secondaryTextColor,
+                            color: AppColors.secondaryTextColor,
                             fontSize: 14,
                             fontWeight: semibold,
                           ),
@@ -159,7 +159,7 @@ class DetialRwiayat extends StatelessWidget {
                             Text(
                               "Subtotal pesanan ($totalItem menu)",
                               style: GoogleFonts.poppins(
-                                color: primaryTextColor,
+                                color: AppColors.primaryTextColor,
                                 fontSize: 12,
                               ),
                             ),
@@ -169,7 +169,7 @@ class DetialRwiayat extends StatelessWidget {
                                   subtotal,
                                 ),
                                 style: GoogleFonts.poppins(
-                                  color: primaryTextColor,
+                                  color: AppColors.primaryTextColor,
                                   fontSize: 12,
                                 ),
                               ),
@@ -180,7 +180,7 @@ class DetialRwiayat extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Divider(
-                          color: lineDividerColor,
+                          color: AppColors.lineDividerColor,
                           height: 1,
                         ),
                       ),
@@ -201,7 +201,7 @@ class DetialRwiayat extends StatelessWidget {
                                     Text(
                                       "Biaya layanan",
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -210,7 +210,7 @@ class DetialRwiayat extends StatelessWidget {
                                         pesanan.biayaLayanan,
                                       ),
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -227,7 +227,7 @@ class DetialRwiayat extends StatelessWidget {
                                       Text(
                                         "Ongkir",
                                         style: GoogleFonts.poppins(
-                                          color: primaryTextColor,
+                                          color: AppColors.primaryTextColor,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -237,7 +237,7 @@ class DetialRwiayat extends StatelessWidget {
                                           Text(
                                             "$totalItem x",
                                             style: GoogleFonts.poppins(
-                                              color: primaryTextColor,
+                                              color: AppColors.primaryTextColor,
                                               fontWeight: semibold,
                                             ),
                                           ),
@@ -249,7 +249,7 @@ class DetialRwiayat extends StatelessWidget {
                                               1000,
                                             ),
                                             style: GoogleFonts.poppins(
-                                              color: primaryTextColor,
+                                              color: AppColors.primaryTextColor,
                                             ),
                                           ),
                                         ],
@@ -266,7 +266,7 @@ class DetialRwiayat extends StatelessWidget {
                                     Text(
                                       "Total",
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                       ),
@@ -276,7 +276,7 @@ class DetialRwiayat extends StatelessWidget {
                                         pesanan.total,
                                       ),
                                       style: GoogleFonts.poppins(
-                                        color: secondaryTextColor,
+                                        color: AppColors.secondaryTextColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                       ),
@@ -289,7 +289,7 @@ class DetialRwiayat extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             child: Divider(
-                              color: lineDividerColor,
+                              color: AppColors.lineDividerColor,
                               height: 1,
                             ),
                           ),
@@ -301,7 +301,7 @@ class DetialRwiayat extends StatelessWidget {
                                 Text(
                                   "Rincinan Pesanan",
                                   style: GoogleFonts.poppins(
-                                    color: secondaryTextColor,
+                                    color: AppColors.secondaryTextColor,
                                     fontSize: 14,
                                     fontWeight: semibold,
                                   ),
@@ -314,7 +314,7 @@ class DetialRwiayat extends StatelessWidget {
                                     Text(
                                       "No Pesanan:",
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: regular,
                                       ),
@@ -325,7 +325,7 @@ class DetialRwiayat extends StatelessWidget {
                                     Text(
                                       pesanan.orderId,
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: regular,
                                       ),
@@ -340,7 +340,7 @@ class DetialRwiayat extends StatelessWidget {
                                     Text(
                                       "Pembayaran:",
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: regular,
                                       ),
@@ -355,7 +355,7 @@ class DetialRwiayat extends StatelessWidget {
                                           : capitalizeFirstLetter(
                                               pesanan.metodePembayaran),
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: regular,
                                       ),
@@ -370,7 +370,7 @@ class DetialRwiayat extends StatelessWidget {
                                     Text(
                                       "Tanggal:",
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: regular,
                                       ),
@@ -382,7 +382,7 @@ class DetialRwiayat extends StatelessWidget {
                                       FormatDate.formatDateTimeWithWIB(
                                           pesanan.createdAt),
                                       style: GoogleFonts.poppins(
-                                        color: primaryTextColor,
+                                        color: AppColors.primaryTextColor,
                                         fontSize: 12,
                                         fontWeight: regular,
                                       ),

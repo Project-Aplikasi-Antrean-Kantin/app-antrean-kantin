@@ -177,7 +177,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 
 class SearchWidget extends StatefulWidget {
   final ValueChanged<String> onChanged;
@@ -213,7 +213,7 @@ class _SearchWidgetState extends State<SearchWidget> {
 
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
-        _iconColorNotifier.value = primaryColor;
+        _iconColorNotifier.value = AppColors.primaryColor;
       } else {
         _iconColorNotifier.value = Colors.grey;
       }
@@ -248,7 +248,7 @@ class _SearchWidgetState extends State<SearchWidget> {
         ),
         child: TextFormField(
           style: GoogleFonts.poppins(
-            color: secondaryTextColor,
+            color: AppColors.secondaryTextColor,
             fontSize: 15,
           ),
           cursorColor: Colors.grey,

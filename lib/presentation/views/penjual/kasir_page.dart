@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/widgets/appbar.dart';
 import 'package:testgetdata/presentation/views/penjual/menu_kasir.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class KasirPage extends StatelessWidget {
   const KasirPage({super.key});
@@ -29,11 +29,11 @@ class KasirPage extends StatelessWidget {
                 ),
                 body: provider.isLoading
                     ? Container(
-                        color: backgroundColor,
+                        color: AppColors.backgroundColor,
                         child: Center(
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              primaryColor,
+                              AppColors.primaryColor,
                             ),
                           ),
                         ),

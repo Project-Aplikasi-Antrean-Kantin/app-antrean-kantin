@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
@@ -9,7 +10,7 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_catatan.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_detail_menu.dart';
 import 'package:testgetdata/presentation/widgets/sliver_appbar_shadow_delegate.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import '../../core/http/fetch_data_tenant.dart';
 import '../../data/model/tenant_foods.dart';
 import '../../data/provider/cart_provider.dart';
@@ -148,7 +149,7 @@ class _MenuTenantState extends State<MenuTenant> {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       body: FutureBuilder<TenantModel>(
         future: futureTenantFoods,
         builder: (context, snapshot) {
@@ -171,7 +172,7 @@ class _MenuTenantState extends State<MenuTenant> {
               child: CustomScrollView(
                 slivers: <Widget>[
                   SliverAppBar(
-                    backgroundColor: backgroundColor,
+                    backgroundColor: AppColors.backgroundColor,
                     scrolledUnderElevation: 0,
                     automaticallyImplyLeading: false,
                     pinned: true,
@@ -328,7 +329,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: GoogleFonts.poppins(
-                                          color: secondaryTextColor,
+                                          color: AppColors.secondaryTextColor,
                                           fontSize: 16,
                                           fontWeight: bold,
                                         ),
@@ -341,7 +342,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: GoogleFonts.poppins(
-                                          color: primaryTextColor,
+                                          color: AppColors.primaryTextColor,
                                           fontSize: 12,
                                           fontWeight: regular,
                                         ),
@@ -400,13 +401,13 @@ class _MenuTenantState extends State<MenuTenant> {
                                           height: 25,
                                           decoration: BoxDecoration(
                                             color: dataFoods.isReady == 1
-                                                ? primaryColor
+                                                ? AppColors.primaryColor
                                                 : Colors.transparent,
                                             borderRadius:
                                                 BorderRadius.circular(5),
                                             border: Border.all(
                                               color: dataFoods.isReady == 1
-                                                  ? primaryColor
+                                                  ? AppColors.primaryColor
                                                   : const Color.fromARGB(
                                                       255, 180, 180, 180),
                                               width: 1.5,
@@ -451,7 +452,8 @@ class _MenuTenantState extends State<MenuTenant> {
                                                   icon: Icon(
                                                     Icons
                                                         .do_not_disturb_on_outlined,
-                                                    color: primaryColor,
+                                                    color:
+                                                        AppColors.primaryColor,
                                                     size: 26,
                                                   )),
                                               Consumer<CartProvider>(builder:
@@ -488,7 +490,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                                 },
                                                 icon: Icon(
                                                   Icons.add_circle_outline,
-                                                  color: primaryColor,
+                                                  color: AppColors.primaryColor,
                                                   size: 26,
                                                 ),
                                               ),
@@ -567,11 +569,11 @@ class _MenuTenantState extends State<MenuTenant> {
           }
           // loader saat get data makanan
           return Container(
-            color: backgroundColor,
+            color: AppColors.backgroundColor,
             child: Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  primaryColor,
+                  AppColors.primaryColor,
                 ),
               ),
             ),
@@ -595,7 +597,7 @@ class _MenuTenantState extends State<MenuTenant> {
                       },
                     ));
                   },
-                  backgroundColor: primaryColor,
+                  backgroundColor: AppColors.primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),

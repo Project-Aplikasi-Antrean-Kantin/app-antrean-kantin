@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_catatan.dart';
-import 'package:testgetdata/core/theme/theme.dart';
 
 class ListCart extends StatelessWidget {
   final CartMenuModel cart;
@@ -86,7 +86,7 @@ class ListCart extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: primaryColor,
+                          color: AppColors.primaryColor,
                         ),
                       ),
                       Text(
@@ -124,7 +124,7 @@ class ListCart extends StatelessWidget {
                         width: 30,
                         height: 30,
                         decoration: BoxDecoration(
-                          color: primaryColor,
+                          color: AppColors.primaryColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Align(
@@ -183,7 +183,7 @@ class ListCart extends StatelessWidget {
                                   },
                                   icon: Icon(
                                     Icons.do_not_disturb_on_outlined,
-                                    color: primaryColor,
+                                    color: AppColors.primaryColor,
                                     size: 24,
                                   ),
                                 ),
@@ -207,7 +207,7 @@ class ListCart extends StatelessWidget {
                                   },
                                   icon: Icon(
                                     Icons.add_circle_outline,
-                                    color: primaryColor,
+                                    color: AppColors.primaryColor,
                                     size: 24,
                                   ),
                                 ),

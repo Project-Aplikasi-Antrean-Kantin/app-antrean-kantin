@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/core/theme/theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class PesananItemWidget extends StatelessWidget {
   final ListTransaksiDetail pesanan;
@@ -42,7 +43,7 @@ class PesananItemWidget extends StatelessWidget {
               Text(
                 '$jumlah x',
                 style: GoogleFonts.poppins(
-                  color: secondaryTextColor,
+                  color: AppColors.secondaryTextColor,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
@@ -53,7 +54,7 @@ class PesananItemWidget extends StatelessWidget {
               Text(
                 food,
                 style: GoogleFonts.poppins(
-                  color: secondaryTextColor,
+                  color: AppColors.secondaryTextColor,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
@@ -66,7 +67,7 @@ class PesananItemWidget extends StatelessWidget {
                   harga,
                 ),
                 style: GoogleFonts.poppins(
-                  color: primaryTextColor,
+                  color: AppColors.primaryTextColor,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
@@ -82,7 +83,7 @@ class PesananItemWidget extends StatelessWidget {
               child: Text(
                 'Note: $catatan',
                 style: GoogleFonts.poppins(
-                  color: primaryTextColor,
+                  color: AppColors.primaryTextColor,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
