@@ -168,4 +168,9 @@ class KasirProvider extends ChangeNotifier {
     }
     return totalHarga;
   }
+
+  int getItemCount(int menuId) {
+    final index = cart.indexWhere((item) => item.menuId == menuId);
+    return index != -1 ? cart[index].count : 0;
+  }
 }

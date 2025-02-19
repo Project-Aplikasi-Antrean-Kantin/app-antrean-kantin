@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_keranjang.dart';
 
 class PilihLokasiRuangan extends StatelessWidget {
@@ -22,11 +24,12 @@ class PilihLokasiRuangan extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          child: const Text(
+          child: Text(
             'Lokasi Pengantaran',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: semibold,
+              color: AppColors.textColorBlack,
             ),
           ),
         ),
@@ -47,30 +50,15 @@ class PilihLokasiRuangan extends StatelessWidget {
               horizontal: 25,
             ),
             height: MediaQuery.of(context).size.width * 0.18,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.all(
                 Radius.circular(10),
               ),
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 1.0, // Lebar border
-                ),
-                top: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 0.2, // Lebar border
-                ),
-                left: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 0.2, // Lebar border
-                ),
-                right: BorderSide(
-                  color: Colors.grey, // Warna border
-                  width: 0.2, // Lebar border
-                ),
+              border: Border.all(
+                color: Colors.grey,
+                width: 0.2,
               ),
-              // borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [

@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:midtrans_sdk/midtrans_sdk.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/core/http/fetch_data_ruangan.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
+import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/list_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
 import 'package:testgetdata/presentation/widgets/sukses_order.dart';
@@ -175,18 +177,18 @@ class _CartPageState extends State<CartPage> {
         scrolledUnderElevation: 0,
         toolbarHeight: 50,
         title: Text(
-          'Bayar',
+          'Pembayaran',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.black,
+            fontWeight: medium,
+            fontSize: 18,
+            color: AppColors.textColorBlack,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(
-            Icons.keyboard_backspace,
-            color: Colors.black,
+            Icons.arrow_back_outlined,
+            color: AppColors.textColorBlack,
             size: 24,
           ),
           onPressed: () {
@@ -276,9 +278,9 @@ class _CartPageState extends State<CartPage> {
                       const SizedBox(height: 20),
 
                       // The summary of the order (either for the user or for the kasir)
-                      isKasirProviderActive
-                          ? RingkasanPembayaranKasir()
-                          : RingkasanPembayaranCart(),
+                      RingkasanPembayaranCart(
+                        isKasir: isKasirProviderActive,
+                      ),
                       const SizedBox(height: 5),
                     ],
                   );
@@ -294,19 +296,91 @@ class _CartPageState extends State<CartPage> {
               context.watch<KasirProvider>().isCartShow
           ? Consumer2<CartProvider, KasirProvider>(
               builder: (context, cartProvider, kasirProvider, _) {
-                return BottomNavigationButton(
-                  isLoading: cartProvider.isLoading,
-                  color: AppColors.primaryColor,
-                  onTap: () {
-                    handleTransaction(
-                      context,
-                      kasirProvider,
-                      cartProvider,
-                      user,
-                      _selectedDeliveryOption,
-                      _selectedRoom,
-                    );
-                  },
+                final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        width: 0.2,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Metode pembayaran",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  // fontWeight: semibold,
+                                  color: AppColors.textColorBlack,
+                                ),
+                              ),
+                              Image.asset(
+                                "assets/images/mandiri_logo.png",
+                                height: 30,
+                                width: 80,
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Total",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  // fontWeight: semibold,
+                                  color: AppColors.textColorBlack,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 3,
+                              ),
+                              Text(
+                                FormatCurrency.intToStringCurrency(
+                                  isKasirProviderActive
+                                      ? kasirProvider.getTotal()
+                                      : cartProvider.getTotal(),
+                                ),
+                                style: GoogleFonts.poppins(
+                                  fontWeight: semibold,
+                                  fontSize: 18,
+                                  color: AppColors.textColorBlack,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      BottomNavigationButton(
+                        isLoading: cartProvider.isLoading,
+                        color: AppColors.primaryColor,
+                        onTap: () {
+                          handleTransaction(
+                            context,
+                            kasirProvider,
+                            cartProvider,
+                            user,
+                            _selectedDeliveryOption,
+                            _selectedRoom,
+                          );
+                        },
+                      )
+                    ],
+                  ),
                 );
               },
             )

@@ -3,12 +3,21 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/provider/cart_provider.dart';
+import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 
 class RingkasanPembayaranCart extends StatelessWidget {
+  final bool isKasir;
+
+  const RingkasanPembayaranCart({
+    super.key,
+    required this.isKasir,
+  });
+
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
+    final kasirProvider = Provider.of<KasirProvider>(context);
     return Container(
       // decoration: BoxDecoration(
       //   borderRadius: BorderRadius.circular(10),
@@ -17,30 +26,15 @@ class RingkasanPembayaranCart extends StatelessWidget {
       //     width: 1,
       //   ),
       // ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(
           Radius.circular(10),
         ),
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey, // Warna border
-            width: 1.0, // Lebar border
-          ),
-          top: BorderSide(
-            color: Colors.grey, // Warna border
-            width: 0.2, // Lebar border
-          ),
-          left: BorderSide(
-            color: Colors.grey, // Warna border
-            width: 0.2, // Lebar border
-          ),
-          right: BorderSide(
-            color: Colors.grey, // Warna border
-            width: 0.2, // Lebar border
-          ),
+        border: Border.all(
+          width: 0.2,
+          color: Colors.grey,
         ),
-        // borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -72,7 +66,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   children: [
                     Text(
                       FormatCurrency.intToStringCurrency(
-                        cartProvider.deliveryCost,
+                        isKasir
+                            ? kasirProvider.cost
+                            : cartProvider.deliveryCost,
                       ),
                       style: GoogleFonts.poppins(
                         fontSize: 14,
@@ -108,7 +104,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
             const SizedBox(
               height: 7,
             ),
-            if (cartProvider.isDelivery == 1)
+            if (!isKasir)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +161,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 ),
                 Text(
                   FormatCurrency.intToStringCurrency(
-                    cartProvider.getTotal(),
+                    isKasir
+                        ? kasirProvider.getTotal()
+                        : cartProvider.getTotal(),
                   ),
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,

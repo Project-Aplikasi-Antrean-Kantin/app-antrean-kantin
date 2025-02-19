@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
 class BottomNavigationButton extends StatelessWidget {
   final bool isLoading;
@@ -16,11 +17,12 @@ class BottomNavigationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(15),
-      height: 63,
+      // margin: const EdgeInsets.all(15),
+      margin: EdgeInsets.only(bottom: 10),
+      height: MediaQuery.of(context).size.height * 0.075,
       decoration: BoxDecoration(
         color: isLoading ? Colors.grey : color,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: InkWell(
         enableFeedback: !isLoading,
@@ -55,7 +57,7 @@ class BottomNavigationButton extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: semibold,
                   ),
                 ),
         ),
