@@ -23,6 +23,7 @@ class ListCart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
 
     return Card(
       elevation: 0,
@@ -91,202 +92,183 @@ class ListCart extends StatelessWidget {
                       color: AppColors.textColorBlack,
                     ),
                   ),
-                  Consumer<CartProvider>(
-                    builder: (context, data, _) {
-                      final index = data.cart.indexWhere(
-                          (element) => element.menuId == cart.menuId);
-                      if (index == -1) {
-                        return Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  Provider.of<KasirProvider>(context,
-                                          listen: false)
-                                      .addRemove(
-                                    cart.menuId,
-                                    cart.menuNama,
-                                    cart.menuPrice,
-                                    cart.menuNama,
-                                    cart.deskripsi,
-                                    false,
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.remove_circle_outline,
-                                  color: AppColors.primaryColor,
-                                  size: 30,
-                                ),
-                              ),
-                              Text(
-                                // data.cart[index].count.toString(),
-                                context
-                                    .watch<KasirProvider>()
-                                    .getItemCount(cart.menuId)
-                                    .toString(),
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  fontWeight: medium,
-                                  color: AppColors.textColorBlack,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  Provider.of<KasirProvider>(context,
-                                          listen: false)
-                                      .addRemove(
-                                    cart.menuId,
-                                    cart.menuNama,
-                                    cart.menuPrice,
-                                    cart.menuNama,
-                                    cart.deskripsi,
-                                    true,
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.add_circle_outline,
-                                  color: AppColors.primaryColor,
-                                  size: 30,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                        // return ElevatedButton(
-                        // onPressed: () {
-                        //   if (isKasir) {
-                        //     Provider.of<KasirProvider>(context, listen: false)
-                        //         .addRemove(
-                        //       cart.menuId,
-                        //       cart.menuNama,
-                        //       cart.menuPrice,
-                        //       cart.menuNama,
-                        //       cart.deskripsi,
-                        //       true,
-                        //     );
-                        //   } else {
-                        //     cartProvider.addItemToCartOrUpdateQuantity(
-                        //       cart.menuId,
-                        //       cart.menuNama,
-                        //       cart.menuPrice,
-                        //       cart.menuNama,
-                        //       cart.deskripsi ?? '',
-                        //       cart.tenantName ?? '',
-                        //       true,
-                        //     );
-                        //   }
-                        // },
-                        //   style: ElevatedButton.styleFrom(
-                        //     backgroundColor: AppColors.primaryColor,
-                        //     shape: RoundedRectangleBorder(
-                        //       borderRadius: BorderRadius.circular(8),
-                        //     ),
-                        //     minimumSize: const Size(30, 30),
-                        //   ),
-                        //   child: const Icon(
-                        //     Icons.add,
-                        //     size: 15,
-                        //     color: Colors.white,
-                        //   ),
-                        // );
-                      } else {
-                        return Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                final catatan = await bottomSheetCatatan(
-                                    context, cart.catatan ?? '');
-                                if (catatan != null) {
-                                  data.addNote(cart.menuId, catatan);
-                                }
-                              },
-                              child: Container(
-                                width: 90,
-                                height: 35,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.description_outlined,
-                                      size: 15,
-                                      color: AppColors.textColorBlack,
-                                    ),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      'Catatan',
-                                      style: GoogleFonts.poppins(
-                                        color: AppColors.textColorBlack,
-                                        fontWeight: medium,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Row(
+                  Container(
+                    margin: EdgeInsets.only(top: 10),
+                    child: Consumer<CartProvider>(
+                      builder: (context, data, _) {
+                        final index = data.cart.indexWhere(
+                            (element) => element.menuId == cart.menuId);
+                        if (index == -1) {
+                          return Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                IconButton(
-                                  onPressed: () {
-                                    cartProvider.addItemToCartOrUpdateQuantity(
+                                InkWell(
+                                  onTap: () {
+                                    kasirProvider.addRemove(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
                                       cart.menuNama,
-                                      cart.deskripsi ?? '',
-                                      cart.tenantName ?? '',
+                                      cart.deskripsi,
                                       false,
                                     );
                                   },
-                                  icon: Icon(
-                                    Icons.remove_circle_outline,
+                                  splashColor: Colors.transparent,
+                                  child: Icon(
+                                    Icons.indeterminate_check_box_outlined,
                                     color: AppColors.primaryColor,
                                     size: 30,
                                   ),
                                 ),
-                                Text(
-                                  data.cart[index].count.toString(),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: medium,
-                                    color: AppColors.textColorBlack,
+                                SizedBox(
+                                  width:
+                                      30, // Pastikan lebar tetap agar tidak bergeser
+                                  child: Text(
+                                    kasirProvider
+                                        .getItemCount(cart.menuId)
+                                        .toString(),
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: medium,
+                                      color: AppColors.textColorBlack,
+                                    ),
                                   ),
                                 ),
-                                IconButton(
-                                  onPressed: () {
-                                    cartProvider.addItemToCartOrUpdateQuantity(
+                                InkWell(
+                                  onTap: () {
+                                    kasirProvider.addRemove(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
                                       cart.menuNama,
-                                      cart.deskripsi ?? '',
-                                      cart.tenantName ?? '',
+                                      cart.deskripsi,
                                       true,
                                     );
                                   },
-                                  icon: Icon(
-                                    Icons.add_circle_outline,
+                                  splashColor: Colors.transparent,
+                                  child: Icon(
+                                    Icons.add_box,
                                     color: AppColors.primaryColor,
                                     size: 30,
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        );
-                      }
-                    },
+                          );
+                        } else {
+                          return Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  final catatan = await bottomSheetCatatan(
+                                      context, cart.catatan ?? '');
+                                  if (catatan != null) {
+                                    data.addNote(cart.menuId, catatan);
+                                  }
+                                },
+                                child: Container(
+                                  width: 90,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.description_outlined,
+                                        size: 15,
+                                        color: AppColors.textColorBlack,
+                                      ),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        'Catatan',
+                                        style: GoogleFonts.poppins(
+                                          color: AppColors.textColorBlack,
+                                          fontWeight: medium,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          cartProvider
+                                              .addItemToCartOrUpdateQuantity(
+                                            cart.menuId,
+                                            cart.menuNama,
+                                            cart.menuPrice,
+                                            cart.menuNama,
+                                            cart.deskripsi ?? '',
+                                            cart.tenantName ?? '',
+                                            false,
+                                          );
+                                        },
+                                        splashColor: Colors.transparent,
+                                        child: Icon(
+                                          Icons
+                                              .indeterminate_check_box_outlined,
+                                          color: AppColors.primaryColor,
+                                          size: 30,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width:
+                                            30, // Pastikan lebar tetap agar tidak bergeser
+                                        child: Text(
+                                          data.cart[index].count.toString(),
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: medium,
+                                            color: AppColors.textColorBlack,
+                                          ),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          cartProvider
+                                              .addItemToCartOrUpdateQuantity(
+                                            cart.menuId,
+                                            cart.menuNama,
+                                            cart.menuPrice,
+                                            cart.menuNama,
+                                            cart.deskripsi ?? '',
+                                            cart.tenantName ?? '',
+                                            true,
+                                          );
+                                        },
+                                        splashColor: Colors.transparent,
+                                        child: Icon(
+                                          Icons.add_box,
+                                          color: AppColors.primaryColor,
+                                          size: 30,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),

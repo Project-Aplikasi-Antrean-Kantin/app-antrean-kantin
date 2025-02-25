@@ -52,6 +52,7 @@ dependencies:
   midtrans_sdk: any
   fluttertoast: ^8.2.5
   carousel_slider: ^5.0.0
+  toggle_switch: ^2.3.0
   # webview_flutter: ^4.0.1
 
 dev_dependencies:

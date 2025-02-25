@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/core/http/add_transaksi.dart';
@@ -36,6 +37,20 @@ class CartProvider extends ChangeNotifier {
 
   // A public list to store available rooms.
   List<Ruangan> listRuangan = [];
+
+  int _selectedDeliveryOption = 1;
+
+  int get selectedDeliveryOption => _selectedDeliveryOption;
+
+  void setDeliveryOption(int option) {
+    if (_selectedDeliveryOption != option) {
+      // Hanya update jika ada perubahan
+      setIsDelivery(option);
+      _selectedDeliveryOption = option;
+      log(_selectedDeliveryOption.toString());
+      notifyListeners();
+    }
+  }
 
   // Adds a new item to the cart or increments an existing item's
   void addItemToCartOrUpdateQuantity(int menuId, String name, int price,
@@ -127,6 +142,7 @@ class CartProvider extends ChangeNotifier {
     final additionalCost =
         isDelivery == 1 ? getTotalItemCount() * deliveryCostPerItem : 0;
     totalPrice = deliveryCost + serviceFee + additionalCost;
+    log("dancok: " + additionalCost.toString());
     return totalPrice;
   }
 
@@ -184,8 +200,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   // Validates the cart based on delivery and room selection
-  bool isCartValid(int? selectDelivery, int? selectRoom) {
-    return selectDelivery != null &&
-        (selectDelivery != 1 || selectRoom != null);
+  bool isCartValid(int? selectRoom) {
+    return selectRoom != null;
   }
 }

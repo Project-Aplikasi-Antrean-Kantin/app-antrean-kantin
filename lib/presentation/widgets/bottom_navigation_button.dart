@@ -18,8 +18,8 @@ class BottomNavigationButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       // margin: const EdgeInsets.all(15),
-      margin: EdgeInsets.only(bottom: 10),
-      height: MediaQuery.of(context).size.height * 0.075,
+      margin: EdgeInsets.only(bottom: 1),
+      height: MediaQuery.of(context).size.height * 0.065,
       decoration: BoxDecoration(
         color: isLoading ? Colors.grey : color,
         borderRadius: BorderRadius.circular(30),
@@ -56,7 +56,7 @@ class BottomNavigationButton extends StatelessWidget {
                   "Pesan sekarang",
                   style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: semibold,
                   ),
                 ),

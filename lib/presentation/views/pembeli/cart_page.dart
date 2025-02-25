@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -10,16 +12,14 @@ import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/core/http/fetch_data_ruangan.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
-import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/list_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
 import 'package:testgetdata/presentation/widgets/sukses_order.dart';
-import 'package:testgetdata/presentation/widgets/pilih_tipe_pemesanan.dart';
 import 'package:testgetdata/presentation/widgets/pilih_tipe_pembayaran.dart';
 import 'package:testgetdata/presentation/widgets/pilihan_lokasi_ruangan.dart';
 import 'package:testgetdata/presentation/widgets/bottom_navigation_button.dart';
 import 'package:testgetdata/presentation/widgets/ringkasan_pembayaran_cart.dart';
-import 'package:testgetdata/presentation/widgets/ringkasan_pembayaran_kasir.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -36,15 +36,9 @@ class _CartPageState extends State<CartPage> {
 
   // Transaction state
   int? _selectedRoom;
-  int? _selectedDeliveryOption;
+  // int? _selectedDeliveryOption;
   String? _selectedPaymentMethod;
   bool transactionCompleted = false;
-
-  // Tipe pemesanan dan pembayaran
-  final List<String> _selectedOrderType = [
-    'Ambil Sendiri',
-    'Pesan Antar',
-  ];
 
   final List<String> _paymentType = [
     'Ambil Sendiri',
@@ -75,12 +69,11 @@ class _CartPageState extends State<CartPage> {
     KasirProvider kasirProvider,
     CartProvider cartProvider,
     UserModel user,
-    int? selectDelivery,
     int? selectRoom,
   ) {
     // If the user hasn't selected any options, show a dialog
     if (!kasirProvider.cart.isNotEmpty &&
-        !cartProvider.isCartValid(selectDelivery, selectRoom)) {
+        !cartProvider.isCartValid(selectRoom)) {
       _incompleteDataDialog();
     } else {
       // Set the isLoading state to true
@@ -152,9 +145,8 @@ class _CartPageState extends State<CartPage> {
     final user = authProvider.user;
 
     // Set the initial value of plihPengantaran and pilihRuangan to null
-    _selectedDeliveryOption = null;
     _selectedRoom = null;
-    _selectedPaymentMethod = null;
+    _selectedPaymentMethod = "Transfer";
 
     // Fetch the list of ruangan from the API using the user's token
     fetchDataRuangan(user.token).then((value) {
@@ -169,6 +161,7 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+    Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -235,46 +228,72 @@ class _CartPageState extends State<CartPage> {
                   return Column(
                     children: [
                       if (!isKasirProviderActive) ...[
-                        // The type of delivery selector
-                        PilihTipePemesanan(
-                          tipePemesanan: _selectedOrderType,
-                          plihPengantaran: _selectedDeliveryOption,
-                          onPemesananSelected: (option) {
-                            setState(() {
-                              _selectedDeliveryOption = option;
-                              cartProvider.setIsDelivery(option!);
-                            });
-                          },
+                        Column(
+                          children: [
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Lokasi Pengantaran',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: semibold,
+                                  color: AppColors.textColorBlack,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            ToggleSwitch(
+                              initialLabelIndex: context
+                                          .read<CartProvider>()
+                                          .selectedDeliveryOption ==
+                                      1
+                                  ? 0
+                                  : 1,
+                              minWidth: (screenSize.width - 30) / 2,
+                              labels: const ['Pesan Antar', 'Ambil Sendiri'],
+                              activeBgColor: [AppColors.primaryColor],
+                              activeFgColor: AppColors.backgroundColor,
+                              activeBorders: [
+                                Border.all(color: AppColors.primaryColor)
+                              ],
+                              inactiveFgColor: AppColors.secondaryTextColor,
+                              inactiveBgColor: AppColors.backgroundColor,
+                              borderColor: [AppColors.secondaryTextColor],
+                              borderWidth: 1,
+                              cornerRadius: 5,
+                              onToggle: (index) {
+                                context
+                                    .read<CartProvider>()
+                                    .setDeliveryOption(index == 0 ? 1 : 0);
+                              },
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
 
                         // The location selector (only visible if the user selects "Pesan Antar")
-                        if (_selectedDeliveryOption == 1)
-                          PilihLokasiRuangan(
-                            listRuangan: _roomList,
-                            token: user.token,
-                            selectedLocation: _selectedRoom,
-                            onLocationSelected: (option) {
-                              setState(() {
-                                _selectedRoom = option;
-                                cartProvider.setIdRoom(option!);
-                              });
-                            },
+                        if (context
+                                .read<CartProvider>()
+                                .selectedDeliveryOption ==
+                            1)
+                          Column(
+                            children: [
+                              SizedBox(height: 20),
+                              PilihLokasiRuangan(
+                                listRuangan: _roomList,
+                                token: user.token,
+                                selectedLocation: _selectedRoom,
+                                onLocationSelected: (option) {
+                                  setState(() {
+                                    _selectedRoom = option;
+                                    cartProvider.setIdRoom(option!);
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                        const SizedBox(height: 8),
                       ],
-
-                      PilihTipePembayaran(
-                        tipePembayaran: _paymentType,
-                        pilihTipePembayaran: _selectedPaymentMethod,
-                        selectedPembayaran: (option2) {
-                          setState(() {
-                            _selectedPaymentMethod = option2;
-                            cartProvider.setPaymentMethod(option2!);
-                            kasirProvider.setMetodePembayaran(option2);
-                          });
-                        },
-                      ),
                       const SizedBox(height: 20),
 
                       // The summary of the order (either for the user or for the kasir)
@@ -311,59 +330,21 @@ class _CartPageState extends State<CartPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Metode pembayaran",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  // fontWeight: semibold,
-                                  color: AppColors.textColorBlack,
-                                ),
-                              ),
-                              Image.asset(
-                                "assets/images/mandiri_logo.png",
-                                height: 30,
-                                width: 80,
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                "Total",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  // fontWeight: semibold,
-                                  color: AppColors.textColorBlack,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 3,
-                              ),
-                              Text(
-                                FormatCurrency.intToStringCurrency(
-                                  isKasirProviderActive
-                                      ? kasirProvider.getTotal()
-                                      : cartProvider.getTotal(),
-                                ),
-                                style: GoogleFonts.poppins(
-                                  fontWeight: semibold,
-                                  fontSize: 18,
-                                  color: AppColors.textColorBlack,
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
+                      PilihTipePembayaran(
+                        isKasirActive: isKasirProviderActive,
+                        tipePembayaran: _paymentType,
+                        pilihTipePembayaran: _selectedPaymentMethod,
+                        selectedPembayaran: (option2) {
+                          setState(() {
+                            _selectedPaymentMethod = option2;
+                            cartProvider.setPaymentMethod(option2!);
+                            kasirProvider.setMetodePembayaran(option2);
+                            log(cartProvider.getTotal().toString());
+                          });
+                        },
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 8,
                       ),
                       BottomNavigationButton(
                         isLoading: cartProvider.isLoading,
@@ -374,7 +355,6 @@ class _CartPageState extends State<CartPage> {
                             kasirProvider,
                             cartProvider,
                             user,
-                            _selectedDeliveryOption,
                             _selectedRoom,
                           );
                         },

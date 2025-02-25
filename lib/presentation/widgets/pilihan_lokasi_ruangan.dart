@@ -34,7 +34,7 @@ class PilihLokasiRuangan extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          height: 7,
+          height: 10,
         ),
         GestureDetector(
           onTap: () {
