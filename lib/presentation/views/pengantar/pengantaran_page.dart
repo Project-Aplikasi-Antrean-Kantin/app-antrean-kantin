@@ -171,7 +171,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                       children: [
                         Container(
                           height: MediaQuery.of(context).size.height / 1.4,
-                          color: Colors.transparent,
+                          color: AppColors.backgroundColor,
                           child: Center(
                             child: Text(
                               'Pesanan kosong',
@@ -197,7 +197,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
                       children: [
                         Container(
                           height: MediaQuery.of(context).size.height / 1.4,
-                          color: Colors.transparent,
+                          color: AppColors.backgroundColor,
                           child: Center(
                             child: Text(
                               'Pesanan kosong',

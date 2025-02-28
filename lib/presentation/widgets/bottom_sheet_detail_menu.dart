@@ -135,12 +135,12 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                 onTap: () {
                   if (menu.isReady == 1) {
                     if (isCashier) {
-                      kasirProvider.addRemove(
+                      kasirProvider.addItemToCartOrUpdateQuantity(
                         menu.idMenu,
                         menu.title,
                         menu.price,
                         menu.gambar,
-                        menu.description,
+                        menu.description.toString(),
                         true,
                       );
                     } else {

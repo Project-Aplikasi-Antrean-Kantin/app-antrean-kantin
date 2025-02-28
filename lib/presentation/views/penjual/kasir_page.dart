@@ -39,7 +39,7 @@ class KasirPage extends StatelessWidget {
                         ),
                       )
                     : MenuKasir(
-                        data: provider.data,
+                        data: provider.tenantFoodsList,
                       ),
               ),
             );

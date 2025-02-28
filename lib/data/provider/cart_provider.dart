@@ -16,7 +16,7 @@ class CartProvider extends ChangeNotifier {
   // Delivery details
   int deliveryCost = 0;
   int deliveryCostPerItem = 1000;
-  int isDelivery = 0; // 0: Pickup, 1: Delivery
+  // int isDelivery = 0; // 0: Pickup, 1: Delivery
   int? roomId;
 
   // Fees and payment
@@ -139,11 +139,12 @@ class CartProvider extends ChangeNotifier {
 
   // Calculates and returns the total price including additional costs
   int getTotal() {
-    final additionalCost =
-        isDelivery == 1 ? getTotalItemCount() * deliveryCostPerItem : 0;
+    final additionalCost = _selectedDeliveryOption == 1
+        ? getTotalItemCount() * deliveryCostPerItem
+        : 0;
     totalPrice = deliveryCost + serviceFee + additionalCost;
-    log("dancok: " + additionalCost.toString());
-    return totalPrice;
+    log("hitung delivery cost: $additionalCost");
+    return totalPrice; // Kembalikan nilai totalPrice
   }
 
   // Returns the total number of items in the cart
@@ -160,7 +161,7 @@ class CartProvider extends ChangeNotifier {
 
   // Creates a transaction and sends it to the server
   Future<OrderModel> createTransaction(BuildContext context, String token) {
-    print('isAntar : $isDelivery');
+    print('isAntar : $_selectedDeliveryOption');
     print('sebelum add transaksi ' + toJson());
     orderSuccessful = true;
     notifyListeners();
@@ -171,11 +172,12 @@ class CartProvider extends ChangeNotifier {
 
   // Converts the current state to JSON format
   String toJson() => jsonEncode({
-        "isAntar": isDelivery,
+        "isAntar": _selectedDeliveryOption,
         "total": totalPrice,
         "ruangan_id": roomId,
         "metode_pembayaran": paymentMethod,
-        "ongkos_kirim": isDelivery == 1 ? getTotalItemCount() * 1000 : 0,
+        "ongkos_kirim":
+            _selectedDeliveryOption == 1 ? getTotalItemCount() * 1000 : 0,
         "menus": _cartMenu.map((x) => x.toJson()).toList(),
       });
 
@@ -186,7 +188,7 @@ class CartProvider extends ChangeNotifier {
 
   // Sets the delivery status
   void setIsDelivery(int delivery) {
-    isDelivery = delivery;
+    _selectedDeliveryOption = delivery;
   }
 
   // Sets the room ID

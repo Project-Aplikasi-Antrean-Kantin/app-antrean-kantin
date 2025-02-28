@@ -100,7 +100,7 @@ class _MenuKasirState extends State<MenuKasir> {
         ),
         switchInCurve: Curves.easeIn,
         switchOutCurve: Curves.easeOut,
-        child: context.watch<KasirProvider>().isCartShow
+        child: context.watch<KasirProvider>().isCartVisible
             ? SizedBox(
                 width: MediaQuery.of(context).size.width - 20,
                 child: FloatingActionButton(
@@ -135,7 +135,7 @@ class _MenuKasirState extends State<MenuKasir> {
                             Expanded(
                               child: Text(
                                 FormatCurrency.intToStringCurrency(
-                                  data.cost,
+                                  data.cartCost,
                                 ),
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
@@ -145,9 +145,9 @@ class _MenuKasirState extends State<MenuKasir> {
                               ),
                             ),
                             Text(
-                              data.total >= 2
-                                  ? "${data.total} items"
-                                  : "${data.total} item",
+                              data.totalItems >= 2
+                                  ? "${data.totalItems} items"
+                                  : "${data.totalItems} item",
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
                                 color: Colors.white,

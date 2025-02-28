@@ -10,13 +10,13 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_keranjang.dart';
 
 class PilihTipePembayaran extends StatelessWidget {
-  final List<String> tipePembayaran;
+  // final List<String> tipePembayaran;
   final String? pilihTipePembayaran;
   final Function(String?) selectedPembayaran;
   final bool isKasirActive;
 
   const PilihTipePembayaran({
-    required this.tipePembayaran,
+    // required this.tipePembayaran,
     required this.pilihTipePembayaran,
     required this.selectedPembayaran,
     required this.isKasirActive,
@@ -78,6 +78,7 @@ class PilihTipePembayaran extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 10,
                         color: AppColors.textColorBlack,
+                        height: 1.5,
                       ),
                     ),
                     if (pilihTipePembayaran != null)
@@ -91,6 +92,7 @@ class PilihTipePembayaran extends StatelessWidget {
                           fontWeight: semibold,
                           fontSize: 12,
                           color: AppColors.textColorBlack,
+                          height: 1.5,
                         ),
                       ),
                   ],

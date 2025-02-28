@@ -14,6 +14,7 @@ import 'package:testgetdata/core/http/fetch_data_ruangan.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/widgets/list_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/sukses_order.dart';
 import 'package:testgetdata/presentation/widgets/pilih_tipe_pembayaran.dart';
 import 'package:testgetdata/presentation/widgets/pilihan_lokasi_ruangan.dart';
@@ -40,10 +41,10 @@ class _CartPageState extends State<CartPage> {
   String? _selectedPaymentMethod;
   bool transactionCompleted = false;
 
-  final List<String> _paymentType = [
-    'Ambil Sendiri',
-    'Pesan Antar',
-  ];
+  // final List<String> _paymentType = [
+  //   'Ambil Sendiri',
+  //   'Pesan Antar',
+  // ];
 
   void _incompleteDataDialog() {
     showDialog(
@@ -84,7 +85,7 @@ class _CartPageState extends State<CartPage> {
 
       // If the kasir provider is active, create a new transaction
       if (kasirProvider.cart.isNotEmpty) {
-        kasirProvider.buatTransaksi(context, user.token).then((value) {
+        kasirProvider.buatTransaksi(user.token).then((value) {
           // Clear the cart
           kasirProvider.clearCart();
 
@@ -192,132 +193,155 @@ class _CartPageState extends State<CartPage> {
       body: SingleChildScrollView(
         child: Container(
           margin: const EdgeInsets.all(15),
-          child: Column(
-            children: [
-              // The list of items in the cart
-              Consumer2<CartProvider, KasirProvider>(
-                builder: (context, cartProvider, kasirProvider, _) {
-                  final activeCart = kasirProvider.cart.isNotEmpty
-                      ? kasirProvider.cart
-                      : cartProvider.cart;
+          child: Consumer2<CartProvider, KasirProvider>(
+            builder: (context, cartProvider, kasirProvider, _) {
+              final activeCart = kasirProvider.cart.isNotEmpty
+                  ? kasirProvider.cart
+                  : cartProvider.cart;
+              final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
 
-                  return ListView.builder(
+              return Column(
+                children: [
+                  // The list of items in the cart
+                  ListView.builder(
                     shrinkWrap: true,
                     physics: const ScrollPhysics(),
-
-                    // The number of items in the ListView
                     itemCount: activeCart.length,
-
-                    // The builder function for the ListView
                     itemBuilder: (context, i) {
                       return ListCart(
                         cart: activeCart[i],
-                        isKasir: kasirProvider.cart.isNotEmpty,
+                        isKasir: isKasirProviderActive,
                       );
                     },
-                  );
-                },
-              ),
-              const SizedBox(height: 15),
+                  ),
+                  const SizedBox(height: 15),
 
-              // The form for selecting the type of delivery
-              Consumer2<CartProvider, KasirProvider>(
-                builder: (context, cartProvider, kasirProvider, _) {
-                  final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
-
-                  return Column(
-                    children: [
-                      if (!isKasirProviderActive) ...[
+                  Container(
+                    margin: EdgeInsets.only(bottom: 20, top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Lokasi Pengantaran',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: semibold,
-                                  color: AppColors.textColorBlack,
-                                ),
+                            Text(
+                              "Ada pesanan yang tertinggal?",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: AppColors.textColorBlack,
+                                fontWeight: semibold,
+                                height: 1.5,
                               ),
                             ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            ToggleSwitch(
-                              initialLabelIndex: context
-                                          .read<CartProvider>()
-                                          .selectedDeliveryOption ==
-                                      1
-                                  ? 0
-                                  : 1,
-                              minWidth: (screenSize.width - 30) / 2,
-                              labels: const ['Pesan Antar', 'Ambil Sendiri'],
-                              activeBgColor: [AppColors.primaryColor],
-                              activeFgColor: AppColors.backgroundColor,
-                              activeBorders: [
-                                Border.all(color: AppColors.primaryColor)
-                              ],
-                              inactiveFgColor: AppColors.secondaryTextColor,
-                              inactiveBgColor: AppColors.backgroundColor,
-                              borderColor: [AppColors.secondaryTextColor],
-                              borderWidth: 1,
-                              cornerRadius: 5,
-                              onToggle: (index) {
-                                context
-                                    .read<CartProvider>()
-                                    .setDeliveryOption(index == 0 ? 1 : 0);
-                              },
+                            Text(
+                              "Tambah menu lain yang kamu mau.",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: AppColors.textColorBlack,
+                                fontWeight: regular,
+                                height: 1.5,
+                              ),
                             ),
                           ],
                         ),
-
-                        // The location selector (only visible if the user selects "Pesan Antar")
-                        if (context
-                                .read<CartProvider>()
-                                .selectedDeliveryOption ==
-                            1)
-                          Column(
-                            children: [
-                              SizedBox(height: 20),
-                              PilihLokasiRuangan(
-                                listRuangan: _roomList,
-                                token: user.token,
-                                selectedLocation: _selectedRoom,
-                                onLocationSelected: (option) {
-                                  setState(() {
-                                    _selectedRoom = option;
-                                    cartProvider.setIdRoom(option!);
-                                  });
-                                },
-                              ),
-                            ],
+                        PrimaryButton(
+                          elevation: 0,
+                          color: AppColors.backgroundColor,
+                          borderColor: AppColors.primaryColor,
+                          height: 45,
+                          width: 25,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'Tambah',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: AppColors.primaryColor,
+                              fontWeight: semibold,
+                            ),
                           ),
+                        ),
                       ],
-                      const SizedBox(height: 20),
+                    ),
+                  ),
 
-                      // The summary of the order (either for the user or for the kasir)
-                      RingkasanPembayaranCart(
-                        isKasir: isKasirProviderActive,
+                  // The form for selecting the type of delivery
+                  if (!isKasirProviderActive) ...[
+                    Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Tipe Pemesanan',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: semibold,
+                              color: AppColors.textColorBlack,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        ToggleSwitch(
+                          initialLabelIndex:
+                              cartProvider.selectedDeliveryOption == 1 ? 0 : 1,
+                          minWidth: (screenSize.width - 30) / 2,
+                          labels: const ['Pesan Antar', 'Ambil Sendiri'],
+                          activeBgColor: [AppColors.primaryColor],
+                          activeFgColor: AppColors.backgroundColor,
+                          activeBorders: [
+                            Border.all(color: AppColors.primaryColor),
+                          ],
+                          inactiveFgColor: AppColors.secondaryTextColor,
+                          inactiveBgColor: AppColors.backgroundColor,
+                          borderColor: [AppColors.secondaryTextColor],
+                          borderWidth: 1,
+                          cornerRadius: 5,
+                          onToggle: (index) {
+                            cartProvider.setDeliveryOption(index == 0 ? 1 : 0);
+                          },
+                        ),
+                      ],
+                    ),
+
+                    // The location selector (only visible if the user selects "Pesan Antar")
+                    if (cartProvider.selectedDeliveryOption == 1) ...[
+                      SizedBox(height: 20),
+                      PilihLokasiRuangan(
+                        listRuangan: _roomList,
+                        token: user.token,
+                        selectedLocation: _selectedRoom,
+                        onLocationSelected: (option) {
+                          setState(() {
+                            _selectedRoom = option;
+                            cartProvider.setIdRoom(option!);
+                          });
+                        },
                       ),
-                      const SizedBox(height: 5),
                     ],
-                  );
-                },
-              ),
-            ],
+                  ],
+                  const SizedBox(height: 20),
+
+                  // The summary of the order (either for the user or for the kasir)
+                  RingkasanPembayaranCart(
+                    isKasir: isKasirProviderActive,
+                  ),
+                  const SizedBox(height: 5),
+                ],
+              );
+            },
           ),
         ),
       ),
 
       // The bottom navigation bar
       bottomNavigationBar: context.watch<CartProvider>().isCartVisible ||
-              context.watch<KasirProvider>().isCartShow
+              context.watch<KasirProvider>().isCartVisible
           ? Consumer2<CartProvider, KasirProvider>(
               builder: (context, cartProvider, kasirProvider, _) {
                 final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
                 return Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
@@ -332,7 +356,7 @@ class _CartPageState extends State<CartPage> {
                     children: [
                       PilihTipePembayaran(
                         isKasirActive: isKasirProviderActive,
-                        tipePembayaran: _paymentType,
+                        // tipePembayaran: _paymentType,
                         pilihTipePembayaran: _selectedPaymentMethod,
                         selectedPembayaran: (option2) {
                           setState(() {
@@ -344,7 +368,7 @@ class _CartPageState extends State<CartPage> {
                         },
                       ),
                       SizedBox(
-                        height: 8,
+                        height: 10,
                       ),
                       BottomNavigationButton(
                         isLoading: cartProvider.isLoading,

@@ -128,7 +128,7 @@ class MenuTenantTile extends StatelessWidget {
                         String gambar = item1.gambar ?? 'gambar kosong';
 
                         Provider.of<KasirProvider>(context, listen: false)
-                            .addRemove(
+                            .addItemToCartOrUpdateQuantity(
                           item1.id,
                           name,
                           item1.harga,
@@ -189,7 +189,7 @@ class MenuTenantTile extends StatelessWidget {
                               onPressed: () {
                                 Provider.of<KasirProvider>(context,
                                         listen: false)
-                                    .addRemove(
+                                    .addItemToCartOrUpdateQuantity(
                                   item1.id,
                                   item1.nama,
                                   item1.harga,
@@ -222,7 +222,7 @@ class MenuTenantTile extends StatelessWidget {
                               onPressed: () {
                                 Provider.of<KasirProvider>(context,
                                         listen: false)
-                                    .addRemove(
+                                    .addItemToCartOrUpdateQuantity(
                                   item1.id,
                                   item1.nama,
                                   item1.harga,

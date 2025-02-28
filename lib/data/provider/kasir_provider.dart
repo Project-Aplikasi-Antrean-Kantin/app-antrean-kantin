@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:testgetdata/core/http/add_transaksi.dart';
 import 'package:testgetdata/core/http/fetch_penjualan_offline.dart';
@@ -8,165 +8,120 @@ import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 
 class KasirProvider extends ChangeNotifier {
-  List<TenantFoods> data = [];
+  List<TenantFoods> tenantFoodsList = [];
   bool isLoading = false;
-  List<CartMenuModel> _cartMenu = [];
-  List<CartMenuModel> get cart => _cartMenu;
-  int total = 0;
-  int totalHarga = 0;
-  int cost = 0;
-  bool isCartShow = false;
-  String? metodePembayaran = "cod";
-  bool orderBerhasil = false;
-  int isAntar = 0;
-  int? ruanganId;
-  int service = 0;
-  // bool get isKasir => true;
-  bool get isKasir => _isKasir;
-  bool _isKasir = false;
+  List<CartMenuModel> _cartItems = [];
+  List<CartMenuModel> get cart => _cartItems;
+  int totalItems = 0;
+  int totalPrice = 0;
+  int cartCost = 0;
+  bool isCartVisible = false;
+  String? paymentMethod = "cod";
+  bool isOrderSuccessful = false;
+  int deliveryStatus = 0;
+  int? roomId;
+  int serviceFee = 1000;
+  bool _isCashier = false;
+  bool get isKasir => _isCashier;
 
-  void setisKasir(bool value) {
-    _isKasir = value;
+  void setIsKasir(bool value) {
+    _isCashier = value;
     notifyListeners();
-  }
-
-  void setLoading(bool value) {
-    isLoading = value;
-    // notifyListeners();
   }
 
   Future<void> fetchData(String token) async {
-    setLoading(true);
+    isLoading = true;
     try {
       final fetchedData = await fetchPenjualanOffline(token);
-      data = fetchedData.tenantFoods ?? [];
-    } catch (error) {
+      tenantFoodsList = fetchedData.tenantFoods ?? [];
     } finally {
-      setLoading(false);
+      isLoading = false;
     }
   }
 
-  void addRemove(menuId, name, price, gambar, deskripsi, bool isAdd) {
-    //Jika sudah ada maka yang diupdate cuma count
-    if (_cartMenu.where((element) => menuId == element.menuId).isNotEmpty) {
-      var index = _cartMenu.indexWhere((element) => menuId == element.menuId);
-      if (isAdd) {
-        _cartMenu[index].isLoading = true;
-      } else {
-        _cartMenu[index].isLoading = true;
-      }
-      if (isAdd) {
-        cart[index].count = _cartMenu[index].count + 1;
-        total += 1;
-        getTotalBelanja(isAdd, _cartMenu[index]);
-      } else {
-        if (_cartMenu[index].count > 0) {
-          cart[index].count = _cartMenu[index].count - 1;
-          total -= 1;
-          getTotalBelanja(isAdd, _cartMenu[index]);
-          if (cart[index].count < 1) {
-            _cartMenu.remove(_cartMenu[index]);
-          }
-        } else {
-          _cartMenu[index].count = 0;
-          total = 0;
-        }
-      }
-      if (total < 1) {
-        setBottomNavVisible(false);
-      }
-    } else {
-      if (isAdd) {
-        _cartMenu.add(
-          CartMenuModel(
-            menuId: menuId,
-            count: 1,
-            menuGambar: gambar,
-            menuNama: name,
-            menuPrice: price,
-            deskripsi: deskripsi,
-            catatan: '',
-          ),
-        );
-        setBottomNavVisible(true);
-        total += 1;
-        getTotalBelanja(isAdd, _cartMenu[_cartMenu.length - 1]);
-      }
+  void addItemToCartOrUpdateQuantity(int menuId, String name, int price,
+      String gambar, String deskripsi, bool isAdd) {
+    var index = _cartItems.indexWhere((element) => menuId == element.menuId);
+
+    if (index != -1) {
+      _updateExistingItem(index, isAdd, price);
+    } else if (isAdd) {
+      addItemToCart(menuId, name, price, gambar, deskripsi);
     }
-    cekKatalogSudahAda(menuId);
+
+    isCartVisible = _cartItems.isNotEmpty;
     notifyListeners();
   }
 
-  getTotalBelanja(bool isAdd, CartMenuModel cart) {
-    cost = isAdd ? cost + cart.menuPrice : cost - cart.menuPrice;
-  }
-
-  void setBottomNavVisible(bool value) {
-    isCartShow = value;
-    notifyListeners();
-  }
-
-  cekKatalogSudahAda(menuId) {
-    if (_cartMenu.length == 0) {
-      isCartShow = false;
-    } else {
-      isCartShow = true;
+  void _updateCartVisibility() {
+    final newVisibility = totalItems > 0;
+    if (isCartVisible != newVisibility) {
+      isCartVisible = newVisibility;
+      notifyListeners();
     }
-    notifyListeners();
+  }
+
+  void addItemToCart(
+      int menuId, String name, int price, String gambar, String deskripsi) {
+    _cartItems.add(CartMenuModel(
+      menuId: menuId,
+      count: 1,
+      menuGambar: gambar,
+      menuNama: name,
+      menuPrice: price,
+      deskripsi: deskripsi,
+      catatan: '',
+    ));
+    totalItems++;
+    cartCost += price;
+  }
+
+  void _updateExistingItem(int index, bool isAdd, int price) {
+    _cartItems[index].isLoading = true;
+    _cartItems[index].count =
+        isAdd ? _cartItems[index].count + 1 : _cartItems[index].count - 1;
+    totalItems += isAdd ? 1 : -1;
+    cartCost += isAdd ? price : -price;
+    if (_cartItems[index].count < 1) {
+      _cartItems.removeAt(index);
+    }
   }
 
   void clearCart() {
-    _cartMenu = [];
-    isCartShow = false;
-    cost = 0;
-    total = 0;
+    _cartItems.clear();
+    isCartVisible = false;
+    cartCost = 0;
+    totalItems = 0;
     notifyListeners();
   }
 
-  setMetodePembayaran(String mtdpembayaran) {
-    metodePembayaran = mtdpembayaran;
+  void setMetodePembayaran(String metode) {
+    paymentMethod = metode;
+    notifyListeners();
   }
 
-  Future<OrderModel> buatTransaksi(context, String token) {
-    print('sebelum add transaksi ' + toJson());
-    orderBerhasil == true;
-    notifyListeners();
+  Future<OrderModel> buatTransaksi(String token) {
     return addTransaksi(token, toJson());
   }
 
-  String toJson() => jsonEncode(
-        {
-          "biaya_layanan": 0,
-          "status": "selesai",
-          "isAntar": isAntar,
-          "total": totalHarga,
-          "ruangan_id": ruanganId,
-          "metode_pembayaran": metodePembayaran,
-          // "ongkos_kirim": isAntar == 1 ? jumlahMenu() * 1000 : 0,
-          // untuk coba prod midtrans
-          "ongkos_kirim": isAntar == 1 ? jumlahMenu() * 0 : 0,
-          "menus": List<dynamic>.from(_cartMenu.map((x) => x.toJson())),
-        },
-      );
+  String toJson() => jsonEncode({
+        "biaya_layanan": 0,
+        "status": "selesai",
+        "isAntar": deliveryStatus,
+        "total": totalPrice,
+        "ruangan_id": roomId,
+        "metode_pembayaran": paymentMethod,
+        "ongkos_kirim": deliveryStatus == 1 ? jumlahMenu() * 0 : 0,
+        "menus": _cartItems.map((x) => x.toJson()).toList(),
+      });
 
-  int jumlahMenu() {
-    return cart.fold(
-        0, (previousValue, element) => previousValue + element.count as int);
-  }
+  int jumlahMenu() =>
+      cart.fold(0, (sum, element) => sum + element.count as int);
 
   int getTotal() {
-    if (isAntar == 0) {
-      totalHarga = cost +
-          service +
-          (cart.fold(
-                  0,
-                  (previousValue, element) =>
-                      previousValue + element.count as int) *
-              0 /** coba prod midtrnas jadi 0, jika akan release ubah ke 1000**/);
-    } else {
-      totalHarga = cost + service;
-    }
-    return totalHarga;
+    totalPrice = cartCost + serviceFee;
+    log(totalPrice.toString());
+    return totalPrice;
   }
 
   int getItemCount(int menuId) {

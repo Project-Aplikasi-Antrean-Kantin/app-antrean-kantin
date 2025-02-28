@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 
 class CustomAlert extends StatelessWidget {
   final String title;
@@ -88,7 +89,7 @@ class CustomAlert extends StatelessWidget {
                     ),
                   ),
                   backgroundColor: WidgetStateProperty.all<Color>(
-                    const Color.fromARGB(227, 244, 67, 54),
+                    AppColors.primaryColor,
                   ),
                   minimumSize: WidgetStateProperty.all(
                     const Size(100, 30),

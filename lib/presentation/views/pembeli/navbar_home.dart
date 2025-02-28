@@ -98,6 +98,7 @@ class _NavbarHomeState extends State<NavbarHome> {
             color: Colors.grey,
           ),
           BottomNavigationBar(
+            backgroundColor: AppColors.backgroundColor,
             type: BottomNavigationBarType.fixed,
             elevation: 0,
             selectedFontSize: 12,

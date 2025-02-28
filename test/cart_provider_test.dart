@@ -63,9 +63,9 @@ void main() {
     });
 
     test('isCartValid returns true for valid cart', () {
-      expect(cartProvider.isCartValid(0, null), true);
-      expect(cartProvider.isCartValid(1, 1), true);
-      expect(cartProvider.isCartValid(1, null), false);
+      expect(cartProvider.isCartValid(0), true);
+      expect(cartProvider.isCartValid(1), true);
+      expect(cartProvider.isCartValid(1), false);
     });
 
     test('tambahCatatan adds note to cart item', () {

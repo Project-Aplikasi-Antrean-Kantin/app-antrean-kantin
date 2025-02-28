@@ -35,10 +35,14 @@ class _RiwayatPageState extends State<RiwayatPage> {
     setState(() {
       isLoading = true;
     });
+
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
     List<Pesanan> pesananList = await fetchRiwayat(user.token, widget.role);
+
+    if (!mounted) return; // Cek apakah widget masih ada sebelum setState
+
     setState(() {
       isLoading = false;
       listPesanan = pesananList;

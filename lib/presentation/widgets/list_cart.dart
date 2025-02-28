@@ -105,12 +105,12 @@ class ListCart extends StatelessWidget {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    kasirProvider.addRemove(
+                                    kasirProvider.addItemToCartOrUpdateQuantity(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
                                       cart.menuNama,
-                                      cart.deskripsi,
+                                      cart.deskripsi ?? '',
                                       false,
                                     );
                                   },
@@ -138,12 +138,12 @@ class ListCart extends StatelessWidget {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    kasirProvider.addRemove(
+                                    kasirProvider.addItemToCartOrUpdateQuantity(
                                       cart.menuId,
                                       cart.menuNama,
                                       cart.menuPrice,
                                       cart.menuNama,
-                                      cart.deskripsi,
+                                      cart.deskripsi ?? '',
                                       true,
                                     );
                                   },

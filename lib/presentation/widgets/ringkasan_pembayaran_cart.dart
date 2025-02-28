@@ -37,7 +37,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.backgroundColor,
             borderRadius: BorderRadius.all(
               Radius.circular(10),
             ),
@@ -66,7 +66,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                       Text(
                         FormatCurrency.intToStringCurrency(
                           isKasir
-                              ? kasirProvider.cost
+                              ? kasirProvider.cartCost
                               : cartProvider.deliveryCost,
                         ),
                         style: GoogleFonts.poppins(
