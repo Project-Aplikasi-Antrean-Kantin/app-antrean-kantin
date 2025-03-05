@@ -79,7 +79,7 @@ class PesananMasuk extends StatelessWidget {
                             Text(
                               'Informasi pesanan',
                               style: GoogleFonts.poppins(
-                                color: AppColors.secondaryTextColor,
+                                color: AppColors.textColorBlack,
                                 fontSize: 10,
                                 fontWeight: regular,
                               ),
@@ -93,7 +93,7 @@ class PesananMasuk extends StatelessWidget {
                                   ? 'Pesanan Berstatus DIANTAR'
                                   : 'Pesanan Berstatus AMBIL SENDIRI',
                               style: GoogleFonts.poppins(
-                                color: AppColors.secondaryTextColor,
+                                color: AppColors.textColorBlack,
                                 fontSize: 14,
                                 fontWeight: semibold,
                               ),
@@ -120,7 +120,7 @@ class PesananMasuk extends StatelessWidget {
                                 Text(
                                   'Pembeli',
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 10,
                                     fontWeight: regular,
                                   ),
@@ -131,7 +131,7 @@ class PesananMasuk extends StatelessWidget {
                                 Text(
                                   capitalizeFirstLetter("${entry.namaPembeli}"),
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 14,
                                     fontWeight: semibold,
                                   ),
@@ -145,7 +145,7 @@ class PesananMasuk extends StatelessWidget {
                                 Text(
                                   'No.',
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 10,
                                     fontWeight: regular,
                                   ),
@@ -156,7 +156,7 @@ class PesananMasuk extends StatelessWidget {
                                 Text(
                                   "0000$idPesanan",
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 14,
                                     fontWeight: semibold,
                                   ),
@@ -178,7 +178,7 @@ class PesananMasuk extends StatelessWidget {
                         child: Text(
                           'List pesanan',
                           style: GoogleFonts.poppins(
-                            color: AppColors.secondaryTextColor,
+                            color: AppColors.textColorBlack,
                             fontSize: 10,
                             fontWeight: regular,
                           ),
@@ -216,7 +216,7 @@ class PesananMasuk extends StatelessWidget {
                                 Text(
                                   "Subtotal (${entry.listTransaksiDetail.length} menu)",
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.primaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 12,
                                     fontWeight: medium,
                                   ),
@@ -227,7 +227,7 @@ class PesananMasuk extends StatelessWidget {
                                       subtotal,
                                     ),
                                     style: GoogleFonts.poppins(
-                                      color: AppColors.primaryTextColor,
+                                      color: AppColors.textColorBlack,
                                       fontSize: 12,
                                       fontWeight: medium,
                                     ),
@@ -245,7 +245,7 @@ class PesananMasuk extends StatelessWidget {
                                 Text(
                                   "Total",
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 14,
                                     fontWeight: bold,
                                   ),
@@ -255,7 +255,7 @@ class PesananMasuk extends StatelessWidget {
                                     subtotal,
                                   ),
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 14,
                                     fontWeight: bold,
                                   ),
@@ -307,7 +307,7 @@ class PesananMasuk extends StatelessWidget {
                                 //     child: Text(
                                 //       'Tolak',
                                 //       style: GoogleFonts.poppins(
-                                //           color: AppColors.secondaryTextColor,
+                                //           color: AppColors.textColorBlack,
                                 //           fontWeight: FontWeight.w500),
                                 //     ),
                                 //   ),
@@ -511,7 +511,7 @@ class PesananMasuk extends StatelessWidget {
                                     child: Text(
                                       'Tolak',
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.secondaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),

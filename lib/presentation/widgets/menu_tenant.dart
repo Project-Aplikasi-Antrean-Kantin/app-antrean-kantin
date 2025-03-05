@@ -329,7 +329,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: GoogleFonts.poppins(
-                                          color: AppColors.secondaryTextColor,
+                                          color: AppColors.textColorBlack,
                                           fontSize: 16,
                                           fontWeight: bold,
                                         ),
@@ -342,7 +342,7 @@ class _MenuTenantState extends State<MenuTenant> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: GoogleFonts.poppins(
-                                          color: AppColors.primaryTextColor,
+                                          color: AppColors.textColorBlack,
                                           fontSize: 12,
                                           fontWeight: regular,
                                         ),

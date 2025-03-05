@@ -35,7 +35,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           ? IconButton(
               icon: Icon(
                 leadingIcon,
-                color: AppColors.secondaryTextColor,
+                color: AppColors.textColorBlack,
                 size: 24,
               ),
               onPressed: onLeadingPressed,
@@ -46,7 +46,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         style: GoogleFonts.poppins(
           fontWeight: FontWeight.bold,
           fontSize: 20,
-          color: AppColors.secondaryTextColor,
+          color: AppColors.textColorBlack,
         ),
       ),
       centerTitle: true,
@@ -62,7 +62,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab1Title!,
                     style: GoogleFonts.poppins(
-                      color: AppColors.secondaryTextColor,
+                      color: AppColors.textColorBlack,
                       fontSize: 14,
                     ),
                   ),
@@ -71,7 +71,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab2Title!,
                     style: GoogleFonts.poppins(
-                      color: AppColors.secondaryTextColor,
+                      color: AppColors.textColorBlack,
                       fontSize: 14,
                     ),
                   ),
@@ -80,7 +80,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     tab3Title!,
                     style: GoogleFonts.poppins(
-                      color: AppColors.secondaryTextColor,
+                      color: AppColors.textColorBlack,
                       fontSize: 14,
                     ),
                   ),
@@ -99,7 +99,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                       child: Text(
                         tab1Title!,
                         style: GoogleFonts.poppins(
-                          color: AppColors.secondaryTextColor,
+                          color: AppColors.textColorBlack,
                           fontSize: 14,
                         ),
                       ),
@@ -108,7 +108,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                       child: Text(
                         tab2Title!,
                         style: GoogleFonts.poppins(
-                          color: AppColors.secondaryTextColor,
+                          color: AppColors.textColorBlack,
                           fontSize: 14,
                         ),
                       ),
@@ -127,7 +127,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           child: Text(
                             tab1Title!,
                             style: GoogleFonts.poppins(
-                              color: AppColors.secondaryTextColor,
+                              color: AppColors.textColorBlack,
                               fontSize: 14,
                             ),
                           ),
@@ -136,7 +136,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           child: Text(
                             tab3Title!,
                             style: GoogleFonts.poppins(
-                              color: AppColors.secondaryTextColor,
+                              color: AppColors.textColorBlack,
                               fontSize: 14,
                             ),
                           ),

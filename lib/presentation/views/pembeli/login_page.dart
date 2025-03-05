@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         'Halo Bro!',
                         style: GoogleFonts.poppins(
-                          color: AppColors.secondaryTextColor,
+                          color: AppColors.textColorBlack,
                           fontSize: 32,
                           fontWeight: semibold,
                         ),
@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                           textAlign: TextAlign.center,
                           'Pastikan kamu sudah memiliki akun ya bro...',
                           style: GoogleFonts.poppins(
-                            color: AppColors.primaryTextColor,
+                            color: AppColors.textColorBlack,
                             fontSize: 15,
                             fontWeight: regular,
                           ),
@@ -280,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Belum punya akun? ',
                       style: GoogleFonts.poppins(
-                        color: AppColors.primaryTextColor,
+                        color: AppColors.textColorBlack,
                       ),
                     ),
                     GestureDetector(
@@ -364,7 +364,7 @@ class _LoginPageState extends State<LoginPage> {
 //                         Text(
 //                           'Halo Bro!',
 //                           style: GoogleFonts.poppins(
-//                             color: secondaryTextColor,
+//                             color: textColorBlack,
 //                             fontSize: 32,
 //                             fontWeight: semibold,
 //                           ),
@@ -375,7 +375,7 @@ class _LoginPageState extends State<LoginPage> {
 //                             textAlign: TextAlign.center,
 //                             'Pastikan kamu sudah memiliki akun ya bro...',
 //                             style: GoogleFonts.poppins(
-//                               color: primaryTextColor,
+//                               color: textColorBlack,
 //                               fontSize: 15,
 //                               fontWeight: regular,
 //                             ),
@@ -614,7 +614,7 @@ class _LoginPageState extends State<LoginPage> {
 //                       Text(
 //                         'Belum punya akun? ',
 //                         style: GoogleFonts.poppins(
-//                           color: primaryTextColor,
+//                           color: textColorBlack,
 //                         ),
 //                       ),
 //                       GestureDetector(

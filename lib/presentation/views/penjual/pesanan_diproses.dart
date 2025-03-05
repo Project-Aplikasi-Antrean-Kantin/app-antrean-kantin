@@ -92,7 +92,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                 Text(
                                   'Informasi pesanan',
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 10,
                                     fontWeight: regular,
                                   ),
@@ -106,7 +106,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                       ? 'Pesanan Berstatus DIANTAR'
                                       : 'Pesanan Berstatus AMBIL SENDIRI',
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.secondaryTextColor,
+                                    color: AppColors.textColorBlack,
                                     fontSize: 14,
                                     fontWeight: semibold,
                                   ),
@@ -133,7 +133,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       'Pembeli',
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.secondaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontSize: 10,
                                         fontWeight: regular,
                                       ),
@@ -145,7 +145,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                       capitalizeFirstLetter(
                                           "${_pesananDiproses[index].namaPembeli}"),
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.secondaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontSize: 14,
                                         fontWeight: semibold,
                                       ),
@@ -159,7 +159,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       'No.',
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.secondaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontSize: 10,
                                         fontWeight: regular,
                                       ),
@@ -170,7 +170,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       "0000$idPesanan",
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.secondaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontSize: 14,
                                         fontWeight: semibold,
                                       ),
@@ -192,7 +192,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                             child: Text(
                               'List pesanan',
                               style: GoogleFonts.poppins(
-                                color: AppColors.secondaryTextColor,
+                                color: AppColors.textColorBlack,
                                 fontSize: 10,
                                 fontWeight: regular,
                               ),
@@ -231,7 +231,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       "Subtotal (${_pesananDiproses[index].listTransaksiDetail.length} menu)",
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.primaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontSize: 12,
                                         fontWeight: medium,
                                       ),
@@ -242,7 +242,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                           subtotal,
                                         ),
                                         style: GoogleFonts.poppins(
-                                          color: AppColors.primaryTextColor,
+                                          color: AppColors.textColorBlack,
                                           fontSize: 12,
                                           fontWeight: medium,
                                         ),
@@ -261,7 +261,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                     Text(
                                       "Total",
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.secondaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontSize: 14,
                                         fontWeight: bold,
                                       ),
@@ -271,7 +271,7 @@ class _PesananDiprosesState extends State<PesananDiproses> {
                                         subtotal,
                                       ),
                                       style: GoogleFonts.poppins(
-                                        color: AppColors.secondaryTextColor,
+                                        color: AppColors.textColorBlack,
                                         fontSize: 14,
                                         fontWeight: bold,
                                       ),

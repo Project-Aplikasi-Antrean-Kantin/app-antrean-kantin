@@ -14,26 +14,30 @@ class PilihTipePembayaran extends StatelessWidget {
   final String? pilihTipePembayaran;
   final Function(String?) selectedPembayaran;
   final bool isKasirActive;
+  final bool isCartActive;
 
   const PilihTipePembayaran({
     // required this.tipePembayaran,
     required this.pilihTipePembayaran,
     required this.selectedPembayaran,
     required this.isKasirActive,
+    required this.isCartActive,
   });
 
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
-    log(pilihPembayaran.toString());
+    log("pembayaran: " + pilihTipePembayaran.toString());
     return GestureDetector(
       onTap: () {
         bottomSheetTipePembayaran(context, (option2) {
           if (option2 == 'Bayar Tunai') {
             selectedPembayaran('cod');
-          } else {
+          } else if (option2 == 'Transfer') {
             selectedPembayaran('Transfer');
+          } else {
+            selectedPembayaran('Coin');
           }
         });
       },

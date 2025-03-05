@@ -94,7 +94,7 @@ class ListTenant extends StatelessWidget {
                               foundTenant[index].namaTenant,
                               // style: Judul(),
                               style: GoogleFonts.poppins(
-                                color: AppColors.secondaryTextColor,
+                                color: AppColors.textColorBlack,
                                 fontSize: 16,
                                 fontWeight: semibold,
                               ),
@@ -103,7 +103,7 @@ class ListTenant extends StatelessWidget {
                               "Aneka makanan, makanan dan snack kantin pens",
                               // style: Judul(),
                               style: GoogleFonts.poppins(
-                                color: AppColors.primaryTextColor,
+                                color: AppColors.textColorBlack,
                                 fontSize: 12,
                                 fontWeight: regular,
                               ),
@@ -141,7 +141,7 @@ class ListTenant extends StatelessWidget {
                             foundTenant[index].namaKavling,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
-                              color: AppColors.secondaryTextColor,
+                              color: AppColors.textColorBlack,
                               fontWeight: FontWeight
                                   .bold, // Corrected to use FontWeight.bold
                             ),

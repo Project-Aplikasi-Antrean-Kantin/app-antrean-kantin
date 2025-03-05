@@ -43,7 +43,7 @@ class PesananItemWidget extends StatelessWidget {
               Text(
                 '$jumlah x',
                 style: GoogleFonts.poppins(
-                  color: AppColors.secondaryTextColor,
+                  color: AppColors.textColorBlack,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
@@ -54,7 +54,7 @@ class PesananItemWidget extends StatelessWidget {
               Text(
                 food,
                 style: GoogleFonts.poppins(
-                  color: AppColors.secondaryTextColor,
+                  color: AppColors.textColorBlack,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
@@ -67,7 +67,7 @@ class PesananItemWidget extends StatelessWidget {
                   harga,
                 ),
                 style: GoogleFonts.poppins(
-                  color: AppColors.primaryTextColor,
+                  color: AppColors.textColorBlack,
                   fontSize: 14,
                   fontWeight: medium,
                 ),
@@ -83,7 +83,7 @@ class PesananItemWidget extends StatelessWidget {
               child: Text(
                 'Note: $catatan',
                 style: GoogleFonts.poppins(
-                  color: AppColors.primaryTextColor,
+                  color: AppColors.textColorBlack,
                   fontSize: 14,
                   fontWeight: medium,
                 ),

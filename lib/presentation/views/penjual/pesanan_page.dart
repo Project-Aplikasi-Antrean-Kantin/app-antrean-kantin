@@ -118,7 +118,7 @@ class _PesananTenantState extends State<PesananTenant> {
           title: Text(
             'Pesanan',
             style: GoogleFonts.poppins(
-              color: AppColors.secondaryTextColor,
+              color: AppColors.textColorBlack,
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),
@@ -152,7 +152,7 @@ class _PesananTenantState extends State<PesananTenant> {
                 child: Text(
                   'Masuk',
                   style: GoogleFonts.poppins(
-                    color: AppColors.primaryTextColor,
+                    color: AppColors.textColorBlack,
                     fontSize: 14,
                   ),
                 ),
@@ -161,7 +161,7 @@ class _PesananTenantState extends State<PesananTenant> {
                 child: Text(
                   'Diproses',
                   style: GoogleFonts.poppins(
-                    color: AppColors.primaryTextColor,
+                    color: AppColors.textColorBlack,
                     fontSize: 14,
                   ),
                 ),
@@ -185,7 +185,7 @@ class _PesananTenantState extends State<PesananTenant> {
                             child: Text(
                               'Pesanan kosong',
                               style: GoogleFonts.poppins(
-                                color: AppColors.primaryTextColor,
+                                color: AppColors.textColorBlack,
                                 fontSize: 14,
                               ),
                             ),
@@ -218,7 +218,7 @@ class _PesananTenantState extends State<PesananTenant> {
                             child: Text(
                               'Pesanan kosong',
                               style: GoogleFonts.poppins(
-                                color: AppColors.primaryTextColor,
+                                color: AppColors.textColorBlack,
                                 fontSize: 14,
                               ),
                             ),

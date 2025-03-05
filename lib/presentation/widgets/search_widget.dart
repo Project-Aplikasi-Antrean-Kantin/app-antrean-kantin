@@ -123,7 +123,7 @@
 //       ),
 //       child: TextFormField(
 //         style: GoogleFonts.poppins(
-//           color: secondaryTextColor,
+//           color: textColorBlack,
 //           fontSize: 15,
 //         ),
 //         cursorColor: Colors.grey,
@@ -248,7 +248,7 @@ class _SearchWidgetState extends State<SearchWidget> {
         ),
         child: TextFormField(
           style: GoogleFonts.poppins(
-            color: AppColors.secondaryTextColor,
+            color: AppColors.textColorBlack,
             fontSize: 15,
           ),
           cursorColor: Colors.grey,

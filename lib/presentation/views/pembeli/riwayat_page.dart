@@ -79,7 +79,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                           child: Text(
                             'Belum ada riwayat',
                             style: GoogleFonts.poppins(
-                              color: AppColors.primaryTextColor,
+                              color: AppColors.textColorBlack,
                               fontSize: 14,
                             ),
                           ),
@@ -159,8 +159,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                             Text(
                                               "${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant}",
                                               style: GoogleFonts.poppins(
-                                                color: AppColors
-                                                    .secondaryTextColor,
+                                                color: AppColors.textColorBlack,
                                                 fontSize: 14,
                                                 fontWeight: semibold,
                                               ),
@@ -170,8 +169,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                               FormatDate.formatDateTimeWithWIB(
                                                   pesanan.createdAt),
                                               style: GoogleFonts.poppins(
-                                                color:
-                                                    AppColors.primaryTextColor,
+                                                color: AppColors.textColorBlack,
                                                 fontSize: 12,
                                                 fontWeight: regular,
                                               ),
@@ -180,8 +178,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                             Text(
                                               "${pesanan.listTransaksiDetail[0].jumlah} Item Menu",
                                               style: GoogleFonts.poppins(
-                                                color:
-                                                    AppColors.primaryTextColor,
+                                                color: AppColors.textColorBlack,
                                                 fontSize: 12,
                                                 fontWeight: medium,
                                               ),
@@ -210,7 +207,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                           FormatCurrency.intToStringCurrency(
                                               pesanan.total),
                                           style: GoogleFonts.poppins(
-                                            color: AppColors.secondaryTextColor,
+                                            color: AppColors.textColorBlack,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                           ),

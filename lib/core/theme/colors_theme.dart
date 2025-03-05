@@ -9,10 +9,9 @@ class AppColors {
   static const Color lineDividerColor = Color(0xFFB3B3B3);
   static const Color debugColor = Color.fromARGB(255, 246, 38, 38);
 
-  static const Color primaryTextColor = Color(0xFFFF5E5E);
-  // static const Color primaryTextColor = Color(0xff303030);
-  static const Color secondaryTextColor = Color(0xff2B2B2B);
+  // static const Color textColorBlack = Color(0xff303030);
   static const Color textColorBlack = Color(0xFF323232);
+  static const Color textColorwhite = Color(0xFFFFFFFF);
 }
 
 Color getStatusColor(String status) {
