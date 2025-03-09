@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/data/provider/cart_provider.dart';
+import 'package:testgetdata/data/provider/coin_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/data/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/home_page.dart';
@@ -88,6 +89,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => KatalogMenuProvider()),
         ChangeNotifierProvider(create: (_) => KasirProvider()),
+        ChangeNotifierProvider(create: (_) => CoinProvider()),
       ],
       child: MaterialApp(
         home: const SplashScreen(),

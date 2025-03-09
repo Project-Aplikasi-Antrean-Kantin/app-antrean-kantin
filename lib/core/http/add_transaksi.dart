@@ -58,6 +58,7 @@ Future<OrderModel> addTransaksi(String auth, String data) async {
     }
   } catch (e) {
     print('An error occurred: $e');
-    throw Exception();
+    // throw Exception(e);
+    rethrow;
   }
 }

@@ -88,8 +88,7 @@ class _MenuTenantState extends State<MenuTenant> {
                         Navigator.of(context).pop();
                       },
                       style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
                             side: const BorderSide(
@@ -98,7 +97,7 @@ class _MenuTenantState extends State<MenuTenant> {
                           ),
                         ),
                         minimumSize:
-                            MaterialStateProperty.all(const Size(100, 30)),
+                            WidgetStateProperty.all(const Size(100, 30)),
                       ),
                       child: const Text(
                         "Batal",
@@ -116,16 +115,15 @@ class _MenuTenantState extends State<MenuTenant> {
                         Navigator.pop(context);
                       },
                       style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
                           ),
                         ),
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          const Color.fromARGB(227, 244, 67, 54),
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                          AppColors.primaryColor,
                         ),
-                        minimumSize: MaterialStateProperty.all(Size(100, 30)),
+                        minimumSize: WidgetStateProperty.all(Size(100, 30)),
                       ),
                       child: const Text(
                         "Keluar",
@@ -146,8 +144,7 @@ class _MenuTenantState extends State<MenuTenant> {
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
-    UserModel user = authProvider.user;
+    final cartProvider = Provider.of<CartProvider>(context);
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: FutureBuilder<TenantModel>(
@@ -155,7 +152,6 @@ class _MenuTenantState extends State<MenuTenant> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final dataTenant = snapshot.data!.namaTenant;
-            final List<TenantFoods>? listMenu = snapshot.data!.tenantFoods;
 
             // ignore: deprecated_member_use
             return WillPopScope(
@@ -184,23 +180,56 @@ class _MenuTenantState extends State<MenuTenant> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    leading: IconButton(
-                      icon: const Icon(
-                        Icons.keyboard_backspace,
-                        color: Colors.black,
-                        size: 24,
-                      ),
-                      onPressed: () {
-                        // todo: pindah jadikan widget jika memungkinkan
-                        if (Provider.of<CartProvider>(context, listen: false)
-                            .cart
-                            .isEmpty) {
-                          Navigator.of(context).pop();
-                        } else {
-                          _dialogKonfimasiKembali();
-                        }
-                      },
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            if (cartProvider.cart.isEmpty) {
+                              Navigator.of(context).pop();
+                            } else {
+                              _dialogKonfimasiKembali();
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: const Icon(
+                              Icons.arrow_back_sharp,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                    // leading: GestureDetector(
+                    //   child: Container(
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.black.withOpacity(0.3),
+                    //       shape: BoxShape.circle,
+                    //     ),
+                    //     padding: const EdgeInsets.all(8.0),
+                    //     child: const Icon(
+                    //       Icons.arrow_back_sharp,
+                    //       color: Colors.white,
+                    //       size: 24,
+                    //     ),
+                    //   ),
+                    //   onTap: () {
+                    //     // todo: pindah jadikan widget jika memungkinkan
+                    // if (Provider.of<CartProvider>(context, listen: false)
+                    //     .cart
+                    //     .isEmpty) {
+                    //   Navigator.of(context).pop();
+                    // } else {
+                    //   _dialogKonfimasiKembali();
+                    // }
+                    //   },
+                    // ),
                   ),
                   SliverPersistentHeader(
                     delegate: SliverAppBarShadowDelegate(),

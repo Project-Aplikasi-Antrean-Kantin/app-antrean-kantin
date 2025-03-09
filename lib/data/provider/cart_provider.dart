@@ -203,6 +203,9 @@ class CartProvider extends ChangeNotifier {
 
   // Validates the cart based on delivery and room selection
   bool isCartValid(int? selectRoom) {
-    return selectRoom != null;
+    if (_selectedDeliveryOption == 1) {
+      return selectRoom != null;
+    }
+    return true;
   }
 }

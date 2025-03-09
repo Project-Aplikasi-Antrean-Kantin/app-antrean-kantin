@@ -37,7 +37,7 @@ class PilihTipePembayaran extends StatelessWidget {
           } else if (option2 == 'Transfer') {
             selectedPembayaran('Transfer');
           } else {
-            selectedPembayaran('Coin');
+            selectedPembayaran('koin');
           }
         });
       },
@@ -57,13 +57,26 @@ class PilihTipePembayaran extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.payments_outlined,
+                        color: AppColors.primaryColor,
                       ),
                     )
-                  : Image.asset(
-                      "assets/images/mandiri_logo.png",
-                      height: 30,
-                      width: 30,
-                    ),
+                  : pilihTipePembayaran == 'koin'
+                      ? Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.toll,
+                            color: AppColors.primaryColor,
+                          ),
+                        )
+                      : Image.asset(
+                          "assets/images/mandiri_logo.png",
+                          height: 30,
+                          width: 30,
+                        ),
             Expanded(
               child: Container(
                 padding: EdgeInsets.symmetric(
@@ -76,22 +89,26 @@ class PilihTipePembayaran extends StatelessWidget {
                     Text(
                       pilihTipePembayaran == null
                           ? 'Pilih Tipe Pembayaran'
-                          : (pilihTipePembayaran == 'cod'
-                              ? 'Bayar Tunai'
-                              : pilihTipePembayaran!),
+                          : {
+                                'cod': 'Bayar Tunai',
+                                'koin': 'FoodLab Coin'
+                              }[pilihTipePembayaran] ??
+                              pilihTipePembayaran!,
                       style: GoogleFonts.poppins(
-                        fontSize: 10,
+                        fontSize: pilihTipePembayaran == null ? 14 : 10,
                         color: AppColors.textColorBlack,
                         height: 1.5,
                       ),
                     ),
                     if (pilihTipePembayaran != null)
                       Text(
-                        FormatCurrency.intToStringCurrency(
-                          isKasirActive
-                              ? kasirProvider.getTotal()
-                              : cartProvider.getTotal(),
-                        ),
+                        pilihTipePembayaran == 'koin'
+                            ? cartProvider.getTotal().toString()
+                            : FormatCurrency.intToStringCurrency(
+                                isKasirActive
+                                    ? kasirProvider.getTotal()
+                                    : cartProvider.getTotal(),
+                              ),
                         style: GoogleFonts.poppins(
                           fontWeight: semibold,
                           fontSize: 12,

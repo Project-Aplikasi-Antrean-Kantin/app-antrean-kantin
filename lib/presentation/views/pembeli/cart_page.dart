@@ -41,12 +41,6 @@ class _CartPageState extends State<CartPage> {
   // int? _selectedDeliveryOption;
   String? _selectedPaymentMethod;
   bool transactionCompleted = false;
-
-  // final List<String> _paymentType = [
-  //   'Ambil Sendiri',
-  //   'Pesan Antar',
-  // ];
-
   void _incompleteDataDialog() {
     showDialog(
       context: context,
@@ -65,97 +59,6 @@ class _CartPageState extends State<CartPage> {
       },
     );
   }
-
-  void _showInsufficientCoinDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return CustomAlert(
-          title: "Coin Gak Cukup",
-          message: "COIN MU GAK CUKUP",
-          onConfirmCancle: () {
-            Navigator.of(context).pop(); // close dialog
-          },
-          textButtonCancel: "OK",
-          textButtonCancelColor: AppColors.primaryColor,
-          cancelBorderColor: AppColors.primaryColor,
-        );
-      },
-    );
-  }
-
-  // void handleTransaction(
-  //   BuildContext context,
-  //   KasirProvider kasirProvider,
-  //   CartProvider cartProvider,
-  //   UserModel user,
-  //   int? selectRoom,
-  // ) {
-  //   // If the user hasn't selected any options, show a dialog
-  //   if (!kasirProvider.cart.isNotEmpty &&
-  //       !cartProvider.isCartValid(selectRoom)) {
-  //     _incompleteDataDialog();
-  //   } else {
-  //     // Set the isLoading state to true
-  //     cartProvider.setTransactionStatus(
-  //       isLoading: true,
-  //       isTransactionCompleted: true,
-  //     );
-
-  //     // If the kasir provider is active, create a new transaction
-  //     if (kasirProvider.cart.isNotEmpty) {
-  //       kasirProvider.buatTransaksi(user.token).then((value) {
-  //         // Clear the cart
-  //         kasirProvider.clearCart();
-
-  //         // Navigate to the success page
-  //         Navigator.pushAndRemoveUntil(
-  //           context,
-  //           MaterialPageRoute(
-  //             builder: (context) => const OrderSuccess(),
-  //           ),
-  //           (route) => false,
-  //         );
-
-  //         cartProvider.setTransactionStatus(
-  //           isLoading: false,
-  //         );
-  //       });
-  //     } else {
-  //       // Create a new transaction using the cart provider
-  //       cartProvider.createTransaction(context, user.token).then((value) {
-  //         // If the transaction is successful, navigate to the success page
-  //         if (value.status == 'success') {
-  //           if (value.snap != null) {
-  //             // Start the payment flow
-  //             _midtrans.startPaymentUiFlow(
-  //               token: value.snap!.token,
-  //             );
-  //           } else {
-  //             // Clear the cart
-  //             cartProvider.clearCart();
-
-  //             // Navigate to the success page
-  //             Navigator.pushAndRemoveUntil(
-  //               context,
-  //               MaterialPageRoute(
-  //                 builder: (context) => const OrderSuccess(),
-  //               ),
-  //               (route) => false,
-  //             );
-  //           }
-  //         } else {
-  //           print('gagal brooo');
-  //         }
-
-  //         // Set the isLoading state to false
-  //         cartProvider.setTransactionStatus(
-  //           isLoading: false,
-  //         );
-  //       });
-  //     }
-  //   }
-  // }
 
   void handleTransaction(
     BuildContext context,
@@ -190,6 +93,7 @@ class _CartPageState extends State<CartPage> {
           if (value.status == 'success') {
             int totalHarga = cartProvider.getTotal();
 
+            // bayar dengan metode transfer (bug)
             if (paymentMethod == 'transfer') {
               if (value.snap != null) {
                 _midtrans.startPaymentUiFlow(token: value.snap!.token);
@@ -201,7 +105,9 @@ class _CartPageState extends State<CartPage> {
                   (route) => false,
                 );
               }
-            } else if (paymentMethod == 'coin') {
+            }
+            // bayar dengan metode coin (bug)
+            else if (paymentMethod == 'koin') {
               bool success =
                   await coinProvider.deductCoin(user.token, totalHarga);
               if (success) {
@@ -214,7 +120,9 @@ class _CartPageState extends State<CartPage> {
               } else {
                 print('Gagal mengurangi saldo koin');
               }
-            } else if (paymentMethod == 'cod') {
+            }
+            // bayar dengan metode bayar tunai (udah bisa)
+            else if (paymentMethod == 'cod') {
               cartProvider.clearCart();
               Navigator.pushAndRemoveUntil(
                 context,
@@ -240,8 +148,8 @@ class _CartPageState extends State<CartPage> {
 
     // Set the initial value of plihPengantaran and pilihRuangan to null
     _selectedRoom = null;
-    _selectedPaymentMethod = "Transfer";
-    // context.read<CoinProvider>().fetchData(user.token);
+    // _selectedPaymentMethod = "koin";
+
     // Fetch the list of ruangan from the API using the user's token
     fetchDataRuangan(user.token).then((value) {
       setState(() {
@@ -292,6 +200,15 @@ class _CartPageState extends State<CartPage> {
                   ? kasirProvider.cart
                   : cartProvider.cart;
               final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
+
+              // back to menu if cart empty
+              if (activeCart.isEmpty && !isKasirProviderActive) {
+                Future.delayed(Duration.zero, () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                });
+              }
 
               return Column(
                 children: [
@@ -469,6 +386,10 @@ class _CartPageState extends State<CartPage> {
                         isLoading: cartProvider.isLoading,
                         color: AppColors.primaryColor,
                         onTap: () {
+                          if (_selectedPaymentMethod == null) {
+                            _incompleteDataDialog();
+                            return;
+                          }
                           handleTransaction(
                             context,
                             kasirProvider,

@@ -281,7 +281,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Navigator.of(context).pop();
                                   },
                                   style: ButtonStyle(
-                                    shape: MaterialStateProperty.all<
+                                    shape: WidgetStateProperty.all<
                                         RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
                                         borderRadius:
@@ -291,8 +291,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                       ),
                                     ),
-                                    minimumSize: MaterialStateProperty.all(
-                                        Size(100, 30)),
+                                    minimumSize:
+                                        WidgetStateProperty.all(Size(100, 30)),
                                   ),
                                   child: const Text(
                                     "Batal",
@@ -308,7 +308,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Navigator.of(context).pop();
                                   },
                                   style: ButtonStyle(
-                                    shape: MaterialStateProperty.all<
+                                    shape: WidgetStateProperty.all<
                                         RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
                                         borderRadius:
@@ -316,11 +316,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     ),
                                     backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(227, 244, 67, 54),
+                                        WidgetStateProperty.all<Color>(
+                                      AppColors.primaryColor,
                                     ),
-                                    minimumSize: MaterialStateProperty.all(
-                                        Size(100, 30)),
+                                    minimumSize:
+                                        WidgetStateProperty.all(Size(100, 30)),
                                   ),
                                   child: const Text(
                                     "Keluar",

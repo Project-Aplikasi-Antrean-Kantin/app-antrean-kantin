@@ -32,6 +32,7 @@ class CustomAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: AppColors.backgroundColor,
       title: Text(
         title,
         style: const TextStyle(

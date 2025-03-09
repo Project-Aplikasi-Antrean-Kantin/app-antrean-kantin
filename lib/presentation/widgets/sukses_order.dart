@@ -30,6 +30,7 @@ class OrderSuccess extends StatelessWidget {
         return false;
       },
       child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
         body: Center(
           child: Column(
             children: [
