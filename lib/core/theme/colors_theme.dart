@@ -8,6 +8,9 @@ class AppColors {
   static const Color selectedIconColor = Color(0xFF14487A);
   static const Color lineDividerColor = Color(0xFFB3B3B3);
   static const Color debugColor = Color.fromARGB(255, 246, 38, 38);
+  static const Color lineColorBlack = Color(0xFF323232);
+  static const Color containerColorGrey = Color(0xffBAC2C7);
+  static const Color containerColorWhite = Color(0xffFFFFFF);
 
   // static const Color textColorBlack = Color(0xff303030);
   static const Color textColorBlack = Color(0xFF323232);

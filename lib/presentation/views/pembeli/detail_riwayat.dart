@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
@@ -27,6 +29,7 @@ class DetialRwiayat extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<ListTransaksiDetail> pesananPembeli =
         pesanan.listTransaksiDetail;
+    final cartProvider = Provider.of<CartProvider>(context);
     int subtotal = 0;
     int totalItem = 0;
     debugPrint(pesanan.createdAt.toString());
@@ -232,28 +235,14 @@ class DetialRwiayat extends StatelessWidget {
                                         ),
                                       ),
                                       // Menampilkan jumlah menu dikalikan dengan 10000
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "$totalItem x",
-                                            style: GoogleFonts.poppins(
-                                              color: AppColors.textColorBlack,
-                                              fontWeight: semibold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 8,
-                                          ),
-                                          Text(
-                                            FormatCurrency.intToStringCurrency(
-                                              1000,
-                                            ),
-                                            style: GoogleFonts.poppins(
-                                              color: AppColors.textColorBlack,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      Text(
+                                        FormatCurrency.intToStringCurrency(
+                                          cartProvider.deliveryCostPerItem,
+                                        ),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                        ),
+                                      )
                                     ],
                                   ),
                                 const SizedBox(

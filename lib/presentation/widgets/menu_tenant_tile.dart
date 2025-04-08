@@ -53,12 +53,7 @@ class MenuTenantTile extends StatelessWidget {
               showDetailMenuBottomSheet(
                 context,
                 DetailMenu(
-                  idMenu: item1.id,
-                  title: item1.nama ?? item1.nama,
-                  gambar: item1.gambar,
-                  description: item1.deskripsi ?? '-',
-                  price: item1.harga,
-                  isReady: item1.isReady,
+                  dataFoods: item1,
                 ),
                 isCashier: true,
               );
@@ -133,7 +128,7 @@ class MenuTenantTile extends StatelessWidget {
                           name,
                           item1.harga,
                           gambar,
-                          item1.deskripsi,
+                          item1.deskripsi ?? "-",
                           true,
                         );
                       }

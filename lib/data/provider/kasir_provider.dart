@@ -19,7 +19,7 @@ class KasirProvider extends ChangeNotifier {
   String? paymentMethod = "cod";
   bool isOrderSuccessful = false;
   int deliveryStatus = 0;
-  int? roomId;
+  int roomId = 0;
   int serviceFee = 1000;
   bool _isCashier = false;
   bool get isKasir => _isCashier;
@@ -32,6 +32,7 @@ class KasirProvider extends ChangeNotifier {
   Future<void> fetchData(String token) async {
     isLoading = true;
     try {
+      // await Future.delayed(const Duration(seconds: 1));
       final fetchedData = await fetchPenjualanOffline(token);
       tenantFoodsList = fetchedData.tenantFoods ?? [];
     } finally {

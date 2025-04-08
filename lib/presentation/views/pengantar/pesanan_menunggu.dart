@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +45,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Column(
               children: widget.pesananSiapDiantar.map((entry) {
+                log("message:" + entry.namaRuangan.toString());
                 int totalItem = 0;
                 final int idPesanan = entry.id;
                 final List<ListTransaksiDetail> pesananPembeli =

@@ -24,6 +24,26 @@ class _RegisterPageState extends State<RegisterPage> {
 
   bool isLoading = false;
 
+  Route routeToLoginPage() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => LoginPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
@@ -304,9 +324,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           // ignore: use_build_context_synchronously
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
-                            ),
+                            routeToLoginPage(),
                             (route) => false,
                           );
                         }
@@ -393,9 +411,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         debugPrint('Login tapped');
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
+                          routeToLoginPage(),
                           (route) => false,
                         );
                       },

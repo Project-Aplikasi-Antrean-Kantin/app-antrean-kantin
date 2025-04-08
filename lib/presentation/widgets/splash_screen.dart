@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -17,13 +19,26 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final tokenManager = TokenManager();
-  late AuthProvider authProvider =
-      Provider.of<AuthProvider>(context, listen: false);
+
+  @override
+  void initState() {
+    super.initState();
+    startSplashScreen();
+  }
+
+  Future<void> startSplashScreen() async {
+    await Future.delayed(const Duration(seconds: 2));
+    authCheck();
+  }
 
   Future authCheck() async {
     debugPrint("MASUK TOKEN AUTH");
-    final token =
-        await tokenManager.getToken(); // Ambil token dari Shared Preferences
+    final token = await tokenManager.getToken();
+
+    if (!mounted) return;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     if (token != null) {
       debugPrint("TOKEN TERSEDIA");
       final success = await authProvider.authWithToken(errorCallback: (error) {
@@ -32,54 +47,42 @@ class _SplashScreenState extends State<SplashScreen> {
           status: error.toString(),
         );
       });
+
+      if (!mounted) return;
+
       if (success) {
-        debugPrint("SUKSES MASUK, TOKEN TERSEDIA");
-        // ignore: use_build_context_synchronously
+        log("Sukses Masuk, Token Tersedia");
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NavbarHome(pageIndex: 0),
-            ));
-      } else {
-        debugPrint("GAISOK MASUK, TOKEN TIDAK TERSEDIA");
-        // ignore: use_build_context_synchronously
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginPage(),
-            ));
-      }
-    } else {
-      debugPrint("NULL");
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const LoginPage(),
-          ));
+            builder: (context) => const NavbarHome(pageIndex: 0),
+          ),
+        );
+      } else {
+        log("Token Tidak Tersedia");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
+    } else {
+      log("Token Null");
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    authCheck();
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(
-              width: MediaQuery.of(context).size.width,
-              image: const AssetImage('assets/images/Frame 1.png'),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            // const CircularProgressIndicator(
-            //   strokeWidth: 3,
-            // )
-          ],
+        child: Image(
+          width: MediaQuery.of(context).size.width,
+          image: const AssetImage('assets/images/Frame 1.png'),
         ),
       ),
     );

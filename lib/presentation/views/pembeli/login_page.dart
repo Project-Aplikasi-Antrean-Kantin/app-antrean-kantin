@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/views/pembeli/register_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -21,6 +22,48 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   bool isLoading = false;
+
+  Route routeToHomePage() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => NavbarHome(
+        pageIndex: 0,
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
+  Route routeToRegisterPage() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => RegisterPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -197,11 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                         // ignore: use_build_context_synchronously
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => const NavbarHome(
-                              pageIndex: 0,
-                            ),
-                          ),
+                          routeToHomePage(),
                           (route) => false,
                         );
                       } catch (e) {
@@ -286,7 +325,9 @@ class _LoginPageState extends State<LoginPage> {
                     GestureDetector(
                       onTap: () {
                         debugPrint('Daftar tapped');
-                        Navigator.of(context).pushNamed('/daftar');
+                        Navigator.of(context).push(
+                          routeToRegisterPage(),
+                        );
                       },
                       child: Text(
                         'Daftar',

@@ -167,17 +167,18 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
             RefreshIndicator(
               onRefresh: _refreshPengantaran,
               child: pesananSiapDiantar.isEmpty
-                  ? ListView(
+                  ? Column(
                       children: [
-                        Container(
-                          height: MediaQuery.of(context).size.height / 1.4,
-                          color: AppColors.backgroundColor,
-                          child: Center(
-                            child: Text(
-                              'Pesanan kosong',
-                              style: GoogleFonts.poppins(
-                                color: AppColors.textColorBlack,
-                                fontSize: 14,
+                        Expanded(
+                          child: Container(
+                            color: AppColors.backgroundColor,
+                            child: Center(
+                              child: Text(
+                                'Pesanan kosong',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.textColorBlack,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ),
@@ -193,17 +194,18 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
             RefreshIndicator(
               onRefresh: _refreshPengantaran,
               child: pesananDiantar.isEmpty
-                  ? ListView(
+                  ? Column(
                       children: [
-                        Container(
-                          height: MediaQuery.of(context).size.height / 1.4,
-                          color: AppColors.backgroundColor,
-                          child: Center(
-                            child: Text(
-                              'Pesanan kosong',
-                              style: GoogleFonts.poppins(
-                                color: AppColors.textColorBlack,
-                                fontSize: 14,
+                        Expanded(
+                          child: Container(
+                            color: AppColors.backgroundColor,
+                            child: Center(
+                              child: Text(
+                                'Pesanan kosong',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.textColorBlack,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ),

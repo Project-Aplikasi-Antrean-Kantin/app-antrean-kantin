@@ -9,6 +9,50 @@ import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 class OrderSuccess extends StatelessWidget {
   const OrderSuccess({super.key});
 
+  Route HomePageUser() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const NavbarHome(
+        pageIndex: 0,
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
+  Route HistoryPage(UserModel user) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => NavbarHome(
+        pageIndex: user.menu.indexWhere((element) => element.url == '/riwayat'),
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider =
@@ -72,12 +116,9 @@ class OrderSuccess extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const NavbarHome(
-                                pageIndex: 0,
-                              ),
-                            ),
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            HomePageUser(),
                             (route) => false,
                             // (route) => route.isFirst,
                           );
@@ -102,13 +143,9 @@ class OrderSuccess extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => NavbarHome(
-                                pageIndex: user.menu.indexWhere(
-                                    (element) => element.url == '/riwayat'),
-                              ),
-                            ),
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            HistoryPage(user),
                             (route) => false,
                           );
                         },

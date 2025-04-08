@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
-import 'package:testgetdata/presentation/widgets/menu_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 
 class ListTenant extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
@@ -15,6 +17,50 @@ class ListTenant extends StatelessWidget {
     required this.url,
     required this.foundTenant,
   });
+
+  Route MenuTenantPage(index) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => MenuTenant(
+        url: '$url/${foundTenant[index].id}',
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
+  // route builder geser + pudar
+  // Route MenuTenantPage(index) {
+  //   return PageRouteBuilder(
+  //     pageBuilder: (context, animation, secondaryAnimation) => MenuTenant(
+  //       url: '$url/${foundTenant[index].id}',
+  //     ),
+  //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //       var curve = Curves.easeInOut;
+  //       var tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+  //           .chain(CurveTween(curve: curve));
+
+  //       return SlideTransition(
+  //         position: animation.drive(tween),
+  //         child: FadeTransition(
+  //           opacity: animation,
+  //           child: child,
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -28,61 +74,93 @@ class ListTenant extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             debugPrint(url);
-            Navigator.push(context, MaterialPageRoute(
-              builder: (context) {
-                return MenuTenant(
-                  url: '$url/${foundTenant[index].id}',
-                );
-              },
-            ));
+            Navigator.push(context, MenuTenantPage(index));
           },
           child: Container(
             margin: const EdgeInsets.symmetric(
               horizontal: 15,
               vertical: 5,
             ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.all(
-                Radius.circular(10),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
             child: Column(
               children: [
                 Container(
+                  height: 170,
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(10),
                       topLeft: Radius.circular(10),
                     ),
-                    image: DecorationImage(
-                      //   image: NetworkImage(
-                      //     foundTenant[index].gambar,
-                      //   ),
-                      //   fit: BoxFit.cover,
-                      // ),
-                      image: foundTenant[index].gambar.isNotEmpty
-                          ? NetworkImage(foundTenant[index].gambar)
-                          : AssetImage('assets/images/dummy.jpeg')
-                              as ImageProvider,
-                      fit: BoxFit.cover,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      topLeft: Radius.circular(10),
+                    ),
+                    child: Stack(
+                      children: [
+                        const ShimmerLoadingWidget(
+                          shimmerContainerImage: true,
+                          padding: EdgeInsets.zero,
+                          heightContainerImage: 170,
+                          widhtContainerImage: double.infinity,
+                        ),
+                        foundTenant[index].gambar.isNotEmpty
+                            ? Image.network(
+                                foundTenant[index].gambar,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 170,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const ShimmerLoadingWidget(
+                                    shimmerContainerImage: true,
+                                    padding: EdgeInsets.zero,
+                                    heightContainerImage: 170,
+                                    widhtContainerImage: double.infinity,
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'assets/images/dummy.jpeg',
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: 170,
+                                  );
+                                },
+                              )
+                            : Image.asset(
+                                'assets/images/dummy.jpeg',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 170,
+                              ),
+                      ],
                     ),
                   ),
-                  height: 170,
-                  width: double.infinity,
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 10,
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      bottomRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                    ),
+                    border: Border(
+                      right: BorderSide(
+                        width: 0.2,
+                        color: AppColors.containerColorGrey,
+                      ),
+                      left: BorderSide(
+                        width: 0.2,
+                        color: AppColors.containerColorGrey,
+                      ),
+                      bottom: BorderSide(
+                        width: 0.2,
+                        color: AppColors.containerColorGrey,
+                      ),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -121,15 +199,10 @@ class ListTenant extends StatelessWidget {
                           horizontal: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
+                          border: Border.all(
+                            width: 0.3,
+                            color: AppColors.containerColorGrey,
+                          ),
                           borderRadius: const BorderRadius.all(
                             Radius.circular(25),
                           ),

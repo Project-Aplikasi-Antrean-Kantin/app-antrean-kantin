@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:testgetdata/core/constants.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
@@ -9,12 +12,13 @@ import 'package:testgetdata/data/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_catatan.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_detail_menu.dart';
+import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 import 'package:testgetdata/presentation/widgets/sliver_appbar_shadow_delegate.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
-import '../../core/http/fetch_data_tenant.dart';
-import '../../data/model/tenant_foods.dart';
-import '../../data/provider/cart_provider.dart';
-import '../views/pembeli/cart_page.dart';
+import '../../../core/http/fetch_data_tenant.dart';
+import '../../../data/model/tenant_foods.dart';
+import '../../../data/provider/cart_provider.dart';
+import 'cart_page.dart';
 
 class MenuTenant extends StatefulWidget {
   final String url;
@@ -32,6 +36,26 @@ class _MenuTenantState extends State<MenuTenant> {
   bool isLoading = false;
   TenantModel? foundTenant;
   int? selected;
+
+  Route CartPageUser() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const CartPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -55,6 +79,7 @@ class _MenuTenantState extends State<MenuTenant> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: AppColors.backgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -151,14 +176,12 @@ class _MenuTenantState extends State<MenuTenant> {
         future: futureTenantFoods,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            final dataTenant = snapshot.data!.namaTenant;
+            final tenantName = snapshot.data!.namaTenant;
 
             // ignore: deprecated_member_use
             return WillPopScope(
               onWillPop: () async {
-                if (Provider.of<CartProvider>(context, listen: false)
-                    .cart
-                    .isEmpty) {
+                if (cartProvider.cart.isEmpty) {
                   return true;
                 } else {
                   _dialogKonfimasiKembali();
@@ -173,129 +196,136 @@ class _MenuTenantState extends State<MenuTenant> {
                     automaticallyImplyLeading: false,
                     pinned: true,
                     expandedHeight: MediaQuery.of(context).size.width / 2.5,
-                    // expandedHeight: 150,
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: Image.network(
-                        snapshot.data!.gambar.toString(),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (cartProvider.cart.isEmpty) {
-                              Navigator.of(context).pop();
-                            } else {
-                              _dialogKonfimasiKembali();
-                            }
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.3),
-                              shape: BoxShape.circle,
+                    flexibleSpace: LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isCollapsed = constraints.biggest.height <=
+                            kToolbarHeight + MediaQuery.of(context).padding.top;
+
+                        return Stack(
+                          children: [
+                            FlexibleSpaceBar(
+                              titlePadding:
+                                  const EdgeInsets.only(bottom: 19, left: 70),
+                              expandedTitleScale: 1.2,
+                              title: isCollapsed
+                                  ? Text(
+                                      tenantName,
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.textColorBlack,
+                                        fontSize: 18,
+                                        fontWeight: semibold,
+                                      ),
+                                    )
+                                  : null,
+                              background: Image.network(
+                                snapshot.data!.gambar.toString(),
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            padding: const EdgeInsets.all(8.0),
-                            child: const Icon(
-                              Icons.arrow_back_sharp,
-                              color: Colors.white,
-                              size: 20,
+                            Positioned(
+                              top: MediaQuery.of(context).padding.top +
+                                  8, // Posisi agar tidak tertutup status bar
+                              left: 16, // Posisi kiri
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (cartProvider.cart.isEmpty) {
+                                    Navigator.of(context).pop();
+                                  } else {
+                                    _dialogKonfimasiKembali();
+                                  }
+                                },
+                                child: Container(
+                                  decoration: isCollapsed
+                                      ? null // Hilangkan background saat collapsed
+                                      : BoxDecoration(
+                                          color: Colors.black.withOpacity(0.3),
+                                          shape: BoxShape.circle,
+                                        ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    Icons.arrow_back_sharp,
+                                    color: isCollapsed
+                                        ? Colors.black
+                                        : Colors.white, // Ganti warna ikon
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
+
+                            // Todo: Search Menu Makanan
+                            // Positioned(
+                            //   top: MediaQuery.of(context).padding.top +
+                            //       8, // Posisi agar tidak tertutup status bar
+                            //   right: 16, // Posisi kiri
+                            //   child: GestureDetector(
+                            //     onTap: () {},
+                            //     child: Container(
+                            //       decoration: isCollapsed
+                            //           ? null // Hilangkan background saat collapsed
+                            //           : BoxDecoration(
+                            //               color: Colors.black.withOpacity(0.3),
+                            //               shape: BoxShape.circle,
+                            //             ),
+                            //       padding: const EdgeInsets.all(8.0),
+                            //       child: Icon(
+                            //         Icons.search,
+                            //         color: isCollapsed
+                            //             ? Colors.black
+                            //             : Colors.white, // Ganti warna ikon
+                            //         size: 20,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                          ],
+                        );
+                      },
                     ),
-                    // leading: GestureDetector(
-                    //   child: Container(
-                    //     decoration: BoxDecoration(
-                    //       color: Colors.black.withOpacity(0.3),
-                    //       shape: BoxShape.circle,
-                    //     ),
-                    //     padding: const EdgeInsets.all(8.0),
-                    //     child: const Icon(
-                    //       Icons.arrow_back_sharp,
-                    //       color: Colors.white,
-                    //       size: 24,
-                    //     ),
-                    //   ),
-                    //   onTap: () {
-                    //     // todo: pindah jadikan widget jika memungkinkan
-                    // if (Provider.of<CartProvider>(context, listen: false)
-                    //     .cart
-                    //     .isEmpty) {
-                    //   Navigator.of(context).pop();
-                    // } else {
-                    //   _dialogKonfimasiKembali();
-                    // }
-                    //   },
-                    // ),
                   ),
-                  SliverPersistentHeader(
-                    delegate: SliverAppBarShadowDelegate(),
-                    pinned: true,
-                  ),
+
+                  // Container nama tenant
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
                         Container(
                           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                dataTenant,
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                            ],
+                          child: Text(
+                            tenantName,
+                            style: GoogleFonts.poppins(
+                              fontWeight: semibold,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
+
+                  // Container menu makanan tenant
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
-                        final dataTenant = snapshot.data!.namaKavling;
+                        bool _isLoading = true;
                         final TenantFoods dataFoods =
                             snapshot.data!.tenantFoods![index];
                         return Container(
-                          margin: const EdgeInsets.only(
-                            bottom: 10,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 10,
-                          ),
+                          margin: EdgeInsets.symmetric(horizontal: 15),
+                          padding: EdgeInsets.symmetric(vertical: 20),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            // borderRadius: const BorderRadius.all(
-                            //   Radius.circular(10),
-                            // ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                spreadRadius: 0,
-                                blurRadius: 3,
-                                offset: const Offset(0, 3),
+                            border: Border(
+                              bottom: BorderSide(
+                                width: 0.3,
+                                color:
+                                    AppColors.lineColorBlack.withOpacity(0.5),
                               ),
-                            ],
+                            ),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              // Container gambar
                               Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  color:
-                                      const Color.fromARGB(255, 200, 200, 200),
-                                ),
                                 height: 105,
                                 width: 105,
                                 margin: const EdgeInsets.only(right: 15),
@@ -304,43 +334,61 @@ class _MenuTenantState extends State<MenuTenant> {
                                     showDetailMenuBottomSheet(
                                       context,
                                       DetailMenu(
-                                        namaTenant: dataTenant,
-                                        idMenu: dataFoods.id,
-                                        title: dataFoods.nama ?? dataFoods.nama,
-                                        gambar: dataFoods.gambar,
-                                        description: dataFoods.deskripsi ?? '-',
-                                        price: dataFoods.harga,
-                                        isReady: dataFoods.isReady,
+                                        namaTenant: tenantName,
+                                        dataFoods: dataFoods,
                                       ),
                                       isCashier: false,
                                     );
                                   },
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(15),
-                                    child: dataFoods.gambar != null
-                                        ? Image.network(
-                                            "${MasbroConstants.baseUrl}${dataFoods.gambar}",
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return const Center(
-                                                child: Icon(
-                                                  Icons.photo,
-                                                  color: Color.fromARGB(
-                                                      255, 120, 120, 120),
-                                                  size: 30,
-                                                ),
-                                              );
-                                            },
-                                          )
-                                        : const Center(
-                                            child: Icon(
-                                              Icons.photo,
-                                              color: Color.fromARGB(
-                                                  255, 120, 120, 120),
-                                              size: 30,
+                                    child: Stack(
+                                      children: [
+                                        // Shimmer effect sebagai placeholder
+                                        Positioned.fill(
+                                          child: Visibility(
+                                            visible: _isLoading,
+                                            child: Shimmer.fromColors(
+                                              baseColor: Colors.grey[300]!,
+                                              highlightColor: Colors.grey[100]!,
+                                              child: Container(
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
+                                        ),
+                                        // Gambar dengan loadingBuilder
+                                        Image.network(
+                                          "${MasbroConstants.baseUrl}${dataFoods.gambar}",
+                                          fit: BoxFit.cover,
+                                          width: 105,
+                                          height: 105,
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null) {
+                                              // Gambar telah dimuat
+                                              WidgetsBinding.instance
+                                                  .addPostFrameCallback((_) {
+                                                if (mounted) {
+                                                  setState(() {
+                                                    _isLoading = false;
+                                                  });
+                                                }
+                                              });
+                                              return child;
+                                            }
+                                            return Container(); // Kosong karena shimmer sudah menangani loading
+                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Center(
+                                              child: Icon(Icons.broken_image,
+                                                  color: Colors.grey),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -402,19 +450,15 @@ class _MenuTenantState extends State<MenuTenant> {
                                       return GestureDetector(
                                         onTap: () {
                                           if (dataFoods.isReady == 1) {
-                                            String name = dataFoods.nama;
                                             String gambar =
                                                 dataFoods.gambar ?? 'Kosong';
-                                            String tenantName = dataTenant;
 
-                                            print(
-                                                "name: $name, gambar: $gambar, tenantName: $tenantName"); // Debug print
+                                            log("name: ${dataFoods.nama}, gambar: $gambar, tenantName: $tenantName");
 
-                                            Provider.of<CartProvider>(context,
-                                                    listen: false)
+                                            cartProvider
                                                 .addItemToCartOrUpdateQuantity(
                                               dataFoods.id,
-                                              name,
+                                              dataFoods.nama,
                                               dataFoods.harga,
                                               gambar,
                                               tenantName,
@@ -427,18 +471,17 @@ class _MenuTenantState extends State<MenuTenant> {
                                           margin:
                                               const EdgeInsets.only(top: 70),
                                           width: 75,
-                                          height: 25,
+                                          height: 30,
                                           decoration: BoxDecoration(
                                             color: dataFoods.isReady == 1
                                                 ? AppColors.primaryColor
-                                                : Colors.transparent,
+                                                : AppColors.backgroundColor,
                                             borderRadius:
                                                 BorderRadius.circular(5),
                                             border: Border.all(
                                               color: dataFoods.isReady == 1
                                                   ? AppColors.primaryColor
-                                                  : const Color.fromARGB(
-                                                      255, 180, 180, 180),
+                                                  : AppColors.textColorwhite,
                                               width: 1.5,
                                             ),
                                           ),
@@ -447,9 +490,9 @@ class _MenuTenantState extends State<MenuTenant> {
                                               dataFoods.isReady == 1
                                                   ? 'Tambah'
                                                   : 'Habis',
-                                              style: TextStyle(
+                                              style: GoogleFonts.poppins(
                                                 color: dataFoods.isReady == 1
-                                                    ? Colors.white
+                                                    ? AppColors.textColorwhite
                                                     : Colors.grey,
                                                 fontSize: 12,
                                                 fontWeight: semibold,
@@ -466,17 +509,17 @@ class _MenuTenantState extends State<MenuTenant> {
                                             children: [
                                               IconButton(
                                                   onPressed: () {
-                                                    Provider.of<CartProvider>(
-                                                            context,
-                                                            listen: false)
+                                                    cartProvider
                                                         .addItemToCartOrUpdateQuantity(
-                                                            dataFoods.id,
-                                                            dataFoods.nama,
-                                                            dataFoods.harga,
-                                                            dataFoods.nama,
-                                                            dataFoods.deskripsi,
-                                                            dataTenant,
-                                                            false);
+                                                      dataFoods.id,
+                                                      dataFoods.nama,
+                                                      dataFoods.harga,
+                                                      dataFoods.nama,
+                                                      dataFoods.deskripsi ??
+                                                          '-',
+                                                      tenantName,
+                                                      false,
+                                                    );
                                                   },
                                                   icon: Icon(
                                                     Icons
@@ -504,16 +547,14 @@ class _MenuTenantState extends State<MenuTenant> {
                                               }),
                                               IconButton(
                                                 onPressed: () {
-                                                  Provider.of<CartProvider>(
-                                                          context,
-                                                          listen: false)
+                                                  cartProvider
                                                       .addItemToCartOrUpdateQuantity(
                                                     dataFoods.id,
                                                     dataFoods.nama,
                                                     dataFoods.harga,
                                                     dataFoods.nama,
-                                                    dataFoods.deskripsi,
-                                                    dataTenant,
+                                                    dataFoods.deskripsi ?? "-",
+                                                    tenantName,
                                                     true,
                                                   );
                                                 },
@@ -597,15 +638,21 @@ class _MenuTenantState extends State<MenuTenant> {
             return Text('${snapshot.error}');
           }
           // loader saat get data makanan
-          return Container(
-            color: AppColors.backgroundColor,
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColors.primaryColor,
-                ),
-              ),
-            ),
+          return ShimmerLoadingWidget(
+            shimmerContainerHome: true,
+            itemCount: 3,
+            borderRadiusList: BorderRadius.circular(0),
+            padding: EdgeInsets.all(0),
+            marginContainer: EdgeInsets.only(bottom: 13),
+            borderRadiusContainer: BorderRadius.circular(0),
+            showContainer: true,
+            containerHeight: 205,
+            itemHeight: 140,
+            showContainerTitle: true,
+            containerTittleHeight: 35,
+            marginContainerTitle:
+                EdgeInsets.only(left: 15, right: 60, bottom: 11),
+            borderRadiusContainerTitle: BorderRadius.circular(0),
           );
         },
       ),
@@ -620,11 +667,7 @@ class _MenuTenantState extends State<MenuTenant> {
                 width: MediaQuery.of(context).size.width - 20,
                 child: FloatingActionButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return const CartPage();
-                      },
-                    ));
+                    Navigator.push(context, CartPageUser());
                   },
                   backgroundColor: AppColors.primaryColor,
                   shape: RoundedRectangleBorder(

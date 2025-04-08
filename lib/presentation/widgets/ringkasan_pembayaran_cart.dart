@@ -115,27 +115,14 @@ class RingkasanPembayaranCart extends StatelessWidget {
                       ),
                     ),
                     // Menampilkan jumlah menu dikalikan dengan 10000
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "${cartProvider.getTotalItemCount()}x ",
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          TextSpan(
-                            text: FormatCurrency.intToStringCurrency(
-                              1000,
-                            ),
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                    Text(
+                      FormatCurrency.intToStringCurrency(
+                        cartProvider.deliveryCostPerItem,
                       ),
-                    ),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                      ),
+                    )
                   ],
                 ),
               const SizedBox(

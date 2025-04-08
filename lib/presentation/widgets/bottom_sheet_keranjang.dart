@@ -8,7 +8,7 @@ import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/data/provider/coin_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 
-String? pilihPembayaran = '';
+String? pilihPembayaran = 'koin';
 bool isOptionSelected = false;
 bool isButtonEnabled = false;
 typedef OptionSelectedCallback = void Function(int? option);
@@ -127,76 +127,76 @@ void bottomSheetTipePembayaran(
                       ),
                     ),
                   ),
-                ElevatedButton(
-                  onPressed: isButtonEnabled
-                      ? () {
-                          setState(() {
-                            pilihPembayaran = 'Transfer';
-                            isOptionSelected = true;
-                          });
-                          konfirmasiTipePembayaran(
-                            contextPemesanan,
-                            setState,
-                            onSelect,
-                          );
-                        }
-                      : null, // Disabled jika false
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    elevation: 0,
-                    backgroundColor: isButtonEnabled
-                        ? AppColors.backgroundColor
-                        : Colors.grey, // Warna tombol saat nonaktif
-                    shadowColor: Colors.transparent,
-                    overlayColor: AppColors.textColorBlack.withOpacity(0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    width: double.infinity,
-                    child: Row(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                          child: const Icon(
-                            Icons.currency_exchange_outlined,
-                            size: 24.0,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Transfer",
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: semibold,
-                                color: AppColors.textColorBlack,
-                              ),
-                            ),
-                            Text(
-                              isButtonEnabled
-                                  ? "by Mandiri"
-                                  : "Maintenance", // Ubah teks berdasarkan status
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: regular,
-                                color: AppColors.textColorBlack.withOpacity(
-                                  isButtonEnabled ? 1.0 : 0.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                // ElevatedButton(
+                //   onPressed: isButtonEnabled
+                //       ? () {
+                //           setState(() {
+                //             pilihPembayaran = 'Transfer';
+                //             isOptionSelected = true;
+                //           });
+                //           konfirmasiTipePembayaran(
+                //             contextPemesanan,
+                //             setState,
+                //             onSelect,
+                //           );
+                //         }
+                //       : null, // Disabled jika false
+                //   style: ElevatedButton.styleFrom(
+                //     padding: EdgeInsets.zero,
+                //     elevation: 0,
+                //     backgroundColor: isButtonEnabled
+                //         ? AppColors.backgroundColor
+                //         : Colors.grey, // Warna tombol saat nonaktif
+                //     shadowColor: Colors.transparent,
+                //     overlayColor: AppColors.textColorBlack.withOpacity(0.5),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(0),
+                //     ),
+                //   ),
+                //   child: Container(
+                //     padding: EdgeInsets.symmetric(vertical: 10),
+                //     width: double.infinity,
+                //     child: Row(
+                //       children: [
+                //         Container(
+                //           margin: EdgeInsets.symmetric(
+                //             horizontal: 20,
+                //             vertical: 10,
+                //           ),
+                //           child: const Icon(
+                //             Icons.currency_exchange_outlined,
+                //             size: 24.0,
+                //           ),
+                //         ),
+                //         Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             Text(
+                //               "Transfer",
+                //               style: GoogleFonts.poppins(
+                //                 fontSize: 16,
+                //                 fontWeight: semibold,
+                //                 color: AppColors.textColorBlack,
+                //               ),
+                //             ),
+                //             Text(
+                //               isButtonEnabled
+                //                   ? "by Mandiri"
+                //                   : "Maintenance", // Ubah teks berdasarkan status
+                //               style: GoogleFonts.poppins(
+                //                 fontSize: 14,
+                //                 fontWeight: regular,
+                //                 color: AppColors.textColorBlack.withOpacity(
+                //                   isButtonEnabled ? 1.0 : 0.5,
+                //                 ),
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -277,6 +277,6 @@ void konfirmasiTipePembayaran(
       Navigator.of(contextPemesanan).pop();
     });
     onSelect(pilihPembayaran);
-    log(pilihPembayaran.toString());
+    log("cokk:" + pilihPembayaran.toString());
   }
 }

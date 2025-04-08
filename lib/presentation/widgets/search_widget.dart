@@ -179,11 +179,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 
+// ignore: must_be_immutable
 class SearchWidget extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String tittle;
   final double paddingHorizontal;
   final double paddingVertical;
+  double? formHeight;
   TextEditingController? controller;
   FocusNode? focusNode;
 
@@ -193,6 +195,7 @@ class SearchWidget extends StatefulWidget {
     required this.tittle,
     required this.paddingHorizontal,
     required this.paddingVertical,
+    this.formHeight,
     this.controller,
     this.focusNode,
   }) : super(key: key);
@@ -235,21 +238,18 @@ class _SearchWidgetState extends State<SearchWidget> {
         vertical: widget.paddingVertical,
       ),
       child: Container(
+        height: widget.formHeight,
         decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          border: Border.all(
+            width: 0.3,
+            color: AppColors.containerColorGrey,
+          ),
           borderRadius: BorderRadius.circular(20),
         ),
         child: TextFormField(
           style: GoogleFonts.poppins(
             color: AppColors.textColorBlack,
-            fontSize: 15,
+            fontSize: 12,
           ),
           cursorColor: Colors.grey,
           textAlign: TextAlign.start,

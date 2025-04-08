@@ -5,12 +5,14 @@ class Pesanan {
   final int id;
   final int userId;
   final String status;
+  String? catatan;
   int? ruanganId;
   final int total;
   final int ongkosKirim;
   final int biayaLayanan;
   final int isAntar;
   final String metodePembayaran;
+  int? driverId;
   final String orderId;
   final int subTotal;
   String? gedung;
@@ -24,12 +26,14 @@ class Pesanan {
       {required this.id,
       required this.userId,
       required this.status,
+      required this.catatan,
       this.ruanganId,
       required this.total,
       required this.ongkosKirim,
       required this.biayaLayanan,
       required this.isAntar,
       required this.metodePembayaran,
+      this.driverId,
       required this.orderId,
       required this.subTotal,
       this.gedung,
@@ -43,12 +47,14 @@ class Pesanan {
         id: json["id"],
         userId: json["user_id"],
         status: json["status"],
+        catatan: json["catatan"],
         ruanganId: json["ruangan_id"],
         total: json["total"],
         ongkosKirim: json["ongkos_kirim"],
         biayaLayanan: json["biaya_layanan"],
         isAntar: json["isAntar"],
         metodePembayaran: json["metode_pembayaran"],
+        driverId: json["driver_id"],
         orderId: json["order_id"],
         subTotal: json["sub_total"],
         gedung: json["gedung"],

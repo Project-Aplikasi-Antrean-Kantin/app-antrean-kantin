@@ -173,13 +173,11 @@ class _PesananTenantState extends State<PesananTenant> {
           physics: const NeverScrollableScrollPhysics(),
           key: UniqueKey(),
           children: [
-            RefreshIndicator(
-              onRefresh: _refreshPesananMasuk,
-              child: pesananMasuk.isEmpty
-                  ? ListView(
-                      children: [
-                        Container(
-                          height: MediaQuery.of(context).size.height / 1.4,
+            pesananMasuk.isEmpty
+                ? Column(
+                    children: [
+                      Expanded(
+                        child: Container(
                           color: AppColors.backgroundColor,
                           child: Center(
                             child: Text(
@@ -191,28 +189,21 @@ class _PesananTenantState extends State<PesananTenant> {
                             ),
                           ),
                         ),
-                      ],
-                    )
-                  : PesananMasuk(
-                      pesananMasuk: pesananMasuk,
-                      terimaPesanan: terimaPesanan,
-                      tolakPesanan: tolakPesanan,
-                      onRefresh: _refreshPesananMasuk,
-                    ),
-            ),
-            RefreshIndicator(
-              onRefresh: () async {
-                List<Pesanan> fetchedPesananDiproses =
-                    await fetchPesananPembeli(user.token, 'pesanan_diproses');
-                setState(() {
-                  pesananDiproses = fetchedPesananDiproses;
-                });
-              },
-              child: pesananDiproses.isEmpty
-                  ? ListView(
-                      children: [
-                        Container(
-                          height: MediaQuery.of(context).size.height / 1.4,
+                      ),
+                    ],
+                  )
+                : PesananMasuk(
+                    pesananMasuk: pesananMasuk,
+                    terimaPesanan: terimaPesanan,
+                    tolakPesanan: tolakPesanan,
+                    onRefresh: _refreshPesananMasuk,
+                  ),
+            pesananDiproses.isEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Container(
                           color: AppColors.backgroundColor,
                           child: Center(
                             child: Text(
@@ -224,13 +215,13 @@ class _PesananTenantState extends State<PesananTenant> {
                             ),
                           ),
                         ),
-                      ],
-                    )
-                  : PesananDiproses(
-                      pesananDiproses: pesananDiproses,
-                      removePesanan: removePesananDiproses,
-                    ),
-            ),
+                      )
+                    ],
+                  )
+                : PesananDiproses(
+                    pesananDiproses: pesananDiproses,
+                    removePesanan: removePesananDiproses,
+                  ),
           ],
         ),
       ),

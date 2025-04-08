@@ -174,6 +174,8 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return Dialog(
+                                        backgroundColor:
+                                            AppColors.backgroundColor,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10),
@@ -469,6 +471,7 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return Dialog(
+                                    backgroundColor: AppColors.backgroundColor,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),

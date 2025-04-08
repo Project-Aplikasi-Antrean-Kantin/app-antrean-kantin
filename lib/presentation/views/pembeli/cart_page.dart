@@ -13,6 +13,7 @@ import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/core/http/fetch_data_ruangan.dart';
 import 'package:testgetdata/data/provider/coin_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
+import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/list_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
@@ -60,6 +61,155 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  void _balanceCoinLow(coin, email) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CustomAlert(
+          title: "Koin anda kurang",
+          message:
+              "Saldo koin anda kurang, harap top up terlebih dahulu sebelum melanjutkan.",
+          onConfirmCancle: () {
+            Navigator.of(context).pop(); // close dialog
+          },
+          textButtonCancel: "Tutup",
+          textButtonCancelColor: AppColors.primaryColor,
+          cancelBorderColor: AppColors.primaryColor,
+          textButtonOk: "Top Up",
+          onConfirmOk: () {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    TopupPage(
+                  coin: coin,
+                  email: email,
+                ),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(1.0, 0.0);
+                  const end = Offset(0.0, 0.0);
+                  const curve = Curves.easeInOut;
+
+                  var tween = Tween(begin: begin, end: end)
+                      .chain(CurveTween(curve: curve));
+                  var offsetAnimation = animation.drive(tween);
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // void handleTransaction(
+  //   BuildContext context,
+  //   KasirProvider kasirProvider,
+  //   CartProvider cartProvider,
+  //   CoinProvider coinProvider,
+  //   UserModel user,
+  //   int? selectRoom,
+  //   String paymentMethod, // ✅ Tambahkan metode pembayaran sebagai parameter
+  // ) {
+  //   Route SuccessPageUser() {
+  //     return PageRouteBuilder(
+  //       pageBuilder: (context, animation, secondaryAnimation) =>
+  //           const OrderSuccess(),
+  //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //         const begin = Offset(1.0, 0.0);
+  //         const end = Offset(0.0, 0.0);
+  //         const curve = Curves.easeInOut;
+
+  //         var tween =
+  //             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+  //         var offsetAnimation = animation.drive(tween);
+
+  //         return SlideTransition(
+  //           position: offsetAnimation,
+  //           child: child,
+  //         );
+  //       },
+  //     );
+  //   }
+
+  //   if (!kasirProvider.cart.isNotEmpty &&
+  //       !cartProvider.isCartValid(selectRoom)) {
+  //     _incompleteDataDialog();
+  //     return;
+  //   } else {
+  //     cartProvider.setTransactionStatus(
+  //       isLoading: true,
+  //       isTransactionCompleted: true,
+  //     );
+
+  //     if (kasirProvider.cart.isNotEmpty) {
+  //       kasirProvider.buatTransaksi(user.token).then((value) {
+  //         kasirProvider.clearCart();
+  //         Navigator.pushAndRemoveUntil(
+  //           context,
+  //           SuccessPageUser(),
+  //           (route) => false,
+  //         );
+  //         cartProvider.setTransactionStatus(isLoading: false);
+  //       });
+  //     } else {
+  //       cartProvider.createTransaction(context, user.token).then((value) async {
+  //         if (value.status == 'success') {
+  //           int totalHarga = cartProvider.getTotal();
+
+  //           // bayar dengan metode transfer (bug)
+  //           if (paymentMethod == 'transfer') {
+  //             if (value.snap != null) {
+  //               _midtrans.startPaymentUiFlow(token: value.snap!.token);
+  //             } else {
+  //               cartProvider.clearCart();
+  //               Navigator.pushAndRemoveUntil(
+  //                 context,
+  //                 SuccessPageUser(),
+  //                 (route) => false,
+  //               );
+  //             }
+  //           }
+  //           // bayar dengan metode coin (bug)
+  //           else if (paymentMethod == 'koin') {
+  //             bool success =
+  //                 await coinProvider.deductCoin(user.token, totalHarga);
+  //             if (success) {
+  //               cartProvider.clearCart();
+  //               Navigator.pushAndRemoveUntil(
+  //                 context,
+  //                 SuccessPageUser(),
+  //                 (route) => false,
+  //               );
+  //             } else {
+  //               print('Gagal mengurangi saldo koin');
+  //               return;
+  //             }
+  //           }
+
+  //           // bayar dengan metode bayar tunai (udah bisa)
+  //           else if (paymentMethod == 'cod') {
+  //             cartProvider.clearCart();
+  //             Navigator.pushAndRemoveUntil(
+  //               context,
+  //               SuccessPageUser(),
+  //               (route) => false,
+  //             );
+  //           }
+  //         } else {
+  //           print('Transaksi gagal');
+  //         }
+  //         cartProvider.setTransactionStatus(isLoading: false);
+  //       });
+  //     }
+  //   }
+  // }
   void handleTransaction(
     BuildContext context,
     KasirProvider kasirProvider,
@@ -67,75 +217,103 @@ class _CartPageState extends State<CartPage> {
     CoinProvider coinProvider,
     UserModel user,
     int? selectRoom,
-    String paymentMethod, // ✅ Tambahkan metode pembayaran sebagai parameter
-  ) {
+    String paymentMethod,
+    int saldoCoin,
+  ) async {
+    Route SuccessPageUser() {
+      return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const OrderSuccess(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset(0.0, 0.0);
+          const curve = Curves.easeInOut;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      );
+    }
+
     if (!kasirProvider.cart.isNotEmpty &&
         !cartProvider.isCartValid(selectRoom)) {
       _incompleteDataDialog();
+      return;
+    }
+
+    cartProvider.setTransactionStatus(
+      isLoading: true,
+      isTransactionCompleted: true,
+    );
+
+    // CEK SALDO KOIN SEBELUM MEMBUAT TRANSAKSI
+    if (paymentMethod == 'koin') {
+      int totalHarga = cartProvider.getTotal();
+      bool success = await coinProvider.deductCoin(user.token, totalHarga);
+
+      if (!success) {
+        print('Gagal mengurangi saldo koin, transaksi dibatalkan.');
+        _balanceCoinLow(saldoCoin, user.email);
+        cartProvider.setTransactionStatus(isLoading: false);
+        return;
+      }
+    }
+
+    if (kasirProvider.cart.isNotEmpty) {
+      kasirProvider.buatTransaksi(user.token).then((value) {
+        kasirProvider.clearCart();
+        Navigator.pushAndRemoveUntil(
+          context,
+          SuccessPageUser(),
+          (route) => false,
+        );
+        cartProvider.setTransactionStatus(isLoading: false);
+      });
     } else {
-      cartProvider.setTransactionStatus(
-        isLoading: true,
-        isTransactionCompleted: true,
-      );
-
-      if (kasirProvider.cart.isNotEmpty) {
-        kasirProvider.buatTransaksi(user.token).then((value) {
-          kasirProvider.clearCart();
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const OrderSuccess()),
-            (route) => false,
-          );
-          cartProvider.setTransactionStatus(isLoading: false);
-        });
-      } else {
-        cartProvider.createTransaction(context, user.token).then((value) async {
-          if (value.status == 'success') {
-            int totalHarga = cartProvider.getTotal();
-
-            // bayar dengan metode transfer (bug)
-            if (paymentMethod == 'transfer') {
-              if (value.snap != null) {
-                _midtrans.startPaymentUiFlow(token: value.snap!.token);
-              } else {
-                cartProvider.clearCart();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const OrderSuccess()),
-                  (route) => false,
-                );
-              }
-            }
-            // bayar dengan metode coin (bug)
-            else if (paymentMethod == 'koin') {
-              bool success =
-                  await coinProvider.deductCoin(user.token, totalHarga);
-              if (success) {
-                cartProvider.clearCart();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const OrderSuccess()),
-                  (route) => false,
-                );
-              } else {
-                print('Gagal mengurangi saldo koin');
-              }
-            }
-            // bayar dengan metode bayar tunai (udah bisa)
-            else if (paymentMethod == 'cod') {
+      // BUAT TRANSAKSI JIKA SEMUA SYARAT TERPENUHI
+      cartProvider.createTransaction(context, user.token).then((value) {
+        if (value.status == 'success') {
+          if (paymentMethod == 'transfer') {
+            if (value.snap != null) {
+              _midtrans.startPaymentUiFlow(token: value.snap!.token);
+            } else {
               cartProvider.clearCart();
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => const OrderSuccess()),
+                SuccessPageUser(),
                 (route) => false,
               );
             }
-          } else {
-            print('Transaksi gagal');
           }
-          cartProvider.setTransactionStatus(isLoading: false);
-        });
-      }
+          // ✅ Pembayaran dengan koin (sudah dicek sebelumnya)
+          else if (paymentMethod == 'koin') {
+            cartProvider.clearCart();
+            Navigator.pushAndRemoveUntil(
+              context,
+              SuccessPageUser(),
+              (route) => false,
+            );
+          }
+          // ✅ Pembayaran COD (Tunai)
+          else if (paymentMethod == 'cod') {
+            cartProvider.clearCart();
+            Navigator.pushAndRemoveUntil(
+              context,
+              SuccessPageUser(),
+              (route) => false,
+            );
+          }
+        } else {
+          print('Transaksi gagal');
+        }
+        cartProvider.setTransactionStatus(isLoading: false);
+      });
     }
   }
 
@@ -144,11 +322,15 @@ class _CartPageState extends State<CartPage> {
     super.initState();
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
     final user = authProvider.user;
 
     // Set the initial value of plihPengantaran and pilihRuangan to null
     _selectedRoom = null;
+    _selectedPaymentMethod = kasirProvider.isKasir ? 'cod' : 'koin';
     // _selectedPaymentMethod = "koin";
+
+    context.read<CoinProvider>().fetchData(user.token);
 
     // Fetch the list of ruangan from the API using the user's token
     fetchDataRuangan(user.token).then((value) {
@@ -163,6 +345,8 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+    final int saldoCoin = context.watch<CoinProvider>().saldoKoin;
+
     Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -235,7 +419,7 @@ class _CartPageState extends State<CartPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Ada pesanan yang tertinggal?",
+                              "Pesanan masih kurang?",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: AppColors.textColorBlack,
@@ -244,7 +428,7 @@ class _CartPageState extends State<CartPage> {
                               ),
                             ),
                             Text(
-                              "Tambah menu lain yang kamu mau.",
+                              "Tambah menu lainnya disini",
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 color: AppColors.textColorBlack,
@@ -256,9 +440,9 @@ class _CartPageState extends State<CartPage> {
                         ),
                         PrimaryButton(
                           elevation: 0,
-                          color: AppColors.backgroundColor,
+                          color: AppColors.primaryColor,
                           borderColor: AppColors.primaryColor,
-                          height: 45,
+                          // height: 45,
                           width: 25,
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -267,7 +451,7 @@ class _CartPageState extends State<CartPage> {
                             'Tambah',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: AppColors.primaryColor,
+                              color: AppColors.textColorwhite,
                               fontWeight: semibold,
                             ),
                           ),
@@ -398,6 +582,7 @@ class _CartPageState extends State<CartPage> {
                             user,
                             _selectedRoom,
                             _selectedPaymentMethod!,
+                            saldoCoin,
                           );
                         },
                       )

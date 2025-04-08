@@ -15,13 +15,13 @@ class CartProvider extends ChangeNotifier {
 
   // Delivery details
   int deliveryCost = 0;
-  int deliveryCostPerItem = 1000;
+  int deliveryCostPerItem = 2000;
   // int isDelivery = 0; // 0: Pickup, 1: Delivery
   int? roomId;
 
   // Fees and payment
   int serviceFee = 1000;
-  String? paymentMethod;
+  String? paymentMethod = 'koin';
 
   // UI state
   bool isCartVisible = false;
@@ -140,8 +140,10 @@ class CartProvider extends ChangeNotifier {
   // Calculates and returns the total price including additional costs
   int getTotal() {
     final additionalCost = _selectedDeliveryOption == 1
-        ? getTotalItemCount() * deliveryCostPerItem
+        // ? getTotalItemCount() * deliveryCostPerItem
+        ? deliveryCostPerItem
         : 0;
+    // totalPrice = deliveryCost + serviceFee + additionalCost;
     totalPrice = deliveryCost + serviceFee + additionalCost;
     log("hitung delivery cost: $additionalCost");
     return totalPrice; // Kembalikan nilai totalPrice

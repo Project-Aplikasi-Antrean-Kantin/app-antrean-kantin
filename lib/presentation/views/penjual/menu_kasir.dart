@@ -94,10 +94,78 @@ class _MenuKasirState extends State<MenuKasir> {
           ),
         ),
       ),
+      //   floatingActionButton: AnimatedSwitcher(
+      //     duration: const Duration(
+      //       milliseconds: 100,
+      //     ),
+      //     switchInCurve: Curves.easeIn,
+      //     switchOutCurve: Curves.easeOut,
+      //     child: context.watch<KasirProvider>().isCartVisible
+      //         ? SizedBox(
+      //             width: MediaQuery.of(context).size.width - 20,
+      //             child: FloatingActionButton(
+      //               onPressed: () {
+      //                 Navigator.push(context, MaterialPageRoute(
+      //                   builder: (context) {
+      //                     return const CartPage();
+      //                   },
+      //                 ));
+      //               },
+      //               backgroundColor: AppColors.primaryColor,
+      //               shape: RoundedRectangleBorder(
+      //                 borderRadius: BorderRadius.circular(25),
+      //               ),
+      //               child: Consumer<KasirProvider>(
+      //                 builder: (context, data, _) {
+      //                   return Padding(
+      //                     padding: const EdgeInsets.symmetric(
+      //                       horizontal: 30,
+      //                       vertical: 10,
+      //                     ),
+      //                     child: Row(
+      //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                       children: [
+      //                         const Icon(
+      //                           Icons.shopping_cart,
+      //                           color: Colors.white,
+      //                         ),
+      //                         const SizedBox(
+      //                           width: 10,
+      //                         ),
+      //                         Expanded(
+      //                           child: Text(
+      //                             FormatCurrency.intToStringCurrency(
+      //                               data.cartCost,
+      //                             ),
+      //                             style: GoogleFonts.poppins(
+      //                               fontSize: 18,
+      //                               fontWeight: FontWeight.w500,
+      //                               color: Colors.white,
+      //                             ),
+      //                           ),
+      //                         ),
+      //                         Text(
+      //                           data.totalItems >= 2
+      //                               ? "${data.totalItems} items"
+      //                               : "${data.totalItems} item",
+      //                           style: GoogleFonts.poppins(
+      //                             fontSize: 18,
+      //                             color: Colors.white,
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                   );
+      //                 },
+      //               ),
+      //             ),
+      //           )
+      //         : null,
+      //   ),
+      //   floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // );
       floatingActionButton: AnimatedSwitcher(
-        duration: const Duration(
-          milliseconds: 100,
-        ),
+        duration: const Duration(milliseconds: 100),
         switchInCurve: Curves.easeIn,
         switchOutCurve: Curves.easeOut,
         child: context.watch<KasirProvider>().isCartVisible
@@ -105,11 +173,32 @@ class _MenuKasirState extends State<MenuKasir> {
                 width: MediaQuery.of(context).size.width - 20,
                 child: FloatingActionButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return const CartPage();
-                      },
-                    ));
+                    // Trigger perubahan state Kasir
+                    final kasirProvider = context.read<KasirProvider>();
+                    kasirProvider.setIsKasir(!kasirProvider.isKasir);
+
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            CartPage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset(0.0, 0.0);
+                          const curve = Curves.easeInOut;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
                   },
                   backgroundColor: AppColors.primaryColor,
                   shape: RoundedRectangleBorder(
@@ -129,9 +218,7 @@ class _MenuKasirState extends State<MenuKasir> {
                               Icons.shopping_cart,
                               color: Colors.white,
                             ),
-                            const SizedBox(
-                              width: 10,
-                            ),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 FormatCurrency.intToStringCurrency(

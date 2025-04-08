@@ -37,6 +37,7 @@ class _MenuTersediaState extends State<MenuTersedia> {
     UserModel user = authProvider.user;
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.symmetric(

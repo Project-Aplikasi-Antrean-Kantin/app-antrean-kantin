@@ -3,29 +3,32 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/constants.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/provider/cart_provider.dart';
 import 'package:testgetdata/data/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 
 class DetailMenu {
+  TenantFoods dataFoods;
   String? namaTenant;
-  final int idMenu;
-  final String title;
-  final String gambar;
-  final String? description;
-  final int price;
-  final int isReady;
-  bool? isTambah;
+  // final int idMenu;
+  // final String title;
+  // final String gambar;
+  // final String? description;
+  // final int price;
+  // final int isReady;
+  // bool? isTambah;
 
   DetailMenu({
+    required this.dataFoods,
     this.namaTenant,
-    required this.idMenu,
-    required this.title,
-    required this.gambar,
-    this.description,
-    required this.price,
-    required this.isReady,
-    this.isTambah,
+    // required this.idMenu,
+    // required this.title,
+    // required this.gambar,
+    // this.description,
+    // required this.price,
+    // required this.isReady,
+    // this.isTambah,
   });
 }
 
@@ -81,7 +84,7 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: Image.network(
-                    "${MasbroConstants.baseUrl}${menu.gambar}",
+                    "${MasbroConstants.baseUrl}${menu.dataFoods.gambar}",
                     height: 200,
                     fit: BoxFit.cover,
                   ),
@@ -90,7 +93,7 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
               const SizedBox(height: 8),
               // nama menu
               Text(
-                menu.title,
+                menu.dataFoods.nama ?? menu.dataFoods.nama,
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -100,7 +103,7 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
               // harga menu
               Text(
                 FormatCurrency.intToStringCurrency(
-                  menu.price,
+                  menu.dataFoods.harga,
                 ),
                 style: const TextStyle(
                   fontSize: 16.0,
@@ -109,47 +112,33 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
               const SizedBox(height: 8),
               // deskripsi menu
               Text(
-                menu.description!.isNotEmpty
-                    ? menu.description!
-                    : 'Deskripsi tidak tersedia',
+                menu.dataFoods.deskripsi != null
+                    ? menu.dataFoods.deskripsi!
+                    : '-',
                 style: TextStyle(
                   fontSize: 14,
                 ),
               ),
               const SizedBox(height: 50),
               GestureDetector(
-                // onTap: () {
-                //   if (menu.isReady == 1) {
-                //     cartProvider.addRemove(
-                //       menu.idMenu,
-                //       menu.title,
-                //       menu.price,
-                //       menu.gambar,
-                //       menu.description,
-                //       menu.namaTenant,
-                //       true,
-                //     );
-                //     Navigator.of(context).pop();
-                //   }
-                // },
                 onTap: () {
-                  if (menu.isReady == 1) {
+                  if (menu.dataFoods.isReady == 1) {
                     if (isCashier) {
                       kasirProvider.addItemToCartOrUpdateQuantity(
-                        menu.idMenu,
-                        menu.title,
-                        menu.price,
-                        menu.gambar,
-                        menu.description.toString(),
+                        menu.dataFoods.id,
+                        menu.dataFoods.nama,
+                        menu.dataFoods.harga,
+                        menu.dataFoods.gambar,
+                        menu.dataFoods.deskripsi.toString(),
                         true,
                       );
                     } else {
                       cartProvider.addItemToCartOrUpdateQuantity(
-                        menu.idMenu,
-                        menu.title,
-                        menu.price,
-                        menu.gambar,
-                        menu.description!,
+                        menu.dataFoods.id,
+                        menu.dataFoods.nama,
+                        menu.dataFoods.harga,
+                        menu.dataFoods.gambar,
+                        menu.dataFoods.deskripsi ?? "-",
                         menu.namaTenant!,
                         true,
                       );
@@ -159,7 +148,7 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: menu.isReady == 1
+                    color: menu.dataFoods.isReady == 1
                         ? AppColors.primaryColor
                         : Colors.grey,
                     borderRadius: BorderRadius.circular(20),
@@ -172,7 +161,7 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                       ),
                       child: Center(
                         child: Text(
-                          menu.isReady == 1 ? 'Tambah' : 'Habis',
+                          menu.dataFoods.isReady == 1 ? 'Tambah' : 'Habis',
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 12,
