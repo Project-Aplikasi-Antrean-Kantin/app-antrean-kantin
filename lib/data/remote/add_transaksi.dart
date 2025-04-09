@@ -29,7 +29,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 
 Future<OrderModel> addTransaksi(String auth, String data) async {

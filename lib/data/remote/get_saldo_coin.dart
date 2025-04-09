@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/coin_model.dart';
 
 Future<CoinModel?> fetchSaldoCoin(String token) async {

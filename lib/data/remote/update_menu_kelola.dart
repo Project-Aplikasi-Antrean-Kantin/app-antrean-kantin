@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 
 Future<bool> updateMenuKelola(String auth, String data, int id) async {
   print(data);

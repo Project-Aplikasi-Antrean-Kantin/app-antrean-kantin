@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/data/model/fitur_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
-import 'package:testgetdata/data/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 

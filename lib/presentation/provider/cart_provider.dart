@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/data/model/order_model.dart';
-import 'package:testgetdata/core/http/add_transaksi.dart';
+import 'package:testgetdata/data/remote/add_transaksi.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
-import 'package:testgetdata/core/http/fetch_data_ruangan.dart';
+import 'package:testgetdata/data/remote/fetch_data_ruangan.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 
 /// A provider class responsible for managing the cart functionality.

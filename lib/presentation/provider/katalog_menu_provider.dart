@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:testgetdata/core/http/delete_menu_tenant.dart';
-import 'package:testgetdata/core/http/fetch_katalog_tenant.dart';
+import 'package:testgetdata/data/remote/delete_menu_tenant.dart';
+import 'package:testgetdata/data/remote/fetch_katalog_tenant.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 
 class KatalogMenuProvider extends ChangeNotifier {

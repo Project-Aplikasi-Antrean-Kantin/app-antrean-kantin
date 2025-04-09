@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/core/constants.dart';
-import 'package:testgetdata/core/http/update_menu_kelola.dart';
+import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/remote/update_menu_kelola.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/user_model.dart';
-import 'package:testgetdata/data/provider/auth_provider.dart';
-import 'package:testgetdata/data/provider/katalog_menu_provider.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 
 class EditMenuPage extends StatefulWidget {
   final TenantFoods tenantFoods;

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/model/tenant_model.dart';

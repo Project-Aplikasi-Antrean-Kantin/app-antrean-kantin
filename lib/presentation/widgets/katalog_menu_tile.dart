@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
-import 'package:testgetdata/data/provider/auth_provider.dart';
-import 'package:testgetdata/data/provider/katalog_menu_provider.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_menu.dart';
 

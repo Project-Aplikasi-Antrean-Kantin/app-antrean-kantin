@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
 
 Future<List<Ruangan>> fetchDataRuangan(String auth) async {

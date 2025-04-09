@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:testgetdata/core/controller/scroll_controller_positionerd.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 
 class ListFoodsByCategory extends StatelessWidget {
@@ -14,7 +13,8 @@ class ListFoodsByCategory extends StatelessWidget {
     // final keysMenu = listMenu.keys;
     return Expanded(
       child: ScrollablePositionedList.builder(
-        itemScrollController: ScrollPositionedControl.itemController,
+        // itemScrollController: ScrollPositionedControl.itemController,
+        itemScrollController: ItemScrollController(),
         shrinkWrap: true,
         itemCount: listMenu!.length,
         itemBuilder: (BuildContext context, int index) {

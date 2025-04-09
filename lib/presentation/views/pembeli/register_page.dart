@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
-import 'package:testgetdata/data/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';

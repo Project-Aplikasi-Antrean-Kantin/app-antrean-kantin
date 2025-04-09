@@ -4,20 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
-import 'package:testgetdata/data/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_catatan.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_detail_menu.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 import 'package:testgetdata/presentation/widgets/sliver_appbar_shadow_delegate.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
-import '../../../core/http/fetch_data_tenant.dart';
+import '../../../data/remote/fetch_data_tenant.dart';
 import '../../../data/model/tenant_foods.dart';
-import '../../../data/provider/cart_provider.dart';
+import '../../provider/cart_provider.dart';
 import 'cart_page.dart';
 
 class MenuTenant extends StatefulWidget {

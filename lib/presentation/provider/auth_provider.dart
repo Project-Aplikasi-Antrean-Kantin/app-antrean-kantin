@@ -2,9 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:testgetdata/core/http/login_with_token.dart';
+import 'package:testgetdata/data/remote/login_with_token.dart';
 import 'package:testgetdata/data/model/user_model.dart';
-import 'package:testgetdata/data/services/auth_futrue.dart';
+import 'package:testgetdata/data/remote/auth_remote_data_source.dart';
 import 'package:testgetdata/presentation/views/common/token_manager.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -15,7 +15,8 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> register(String nama, String email, String password) async {
     try {
-      bool? succes = await AuthFuture().register(nama, email, password);
+      bool? succes =
+          await AuthRemoteDataSource().register(nama, email, password);
       // tokenManager.putToken(user.token);
       return succes;
     } catch (e) {
@@ -26,7 +27,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> login(String email, String password) async {
     try {
-      UserModel? user = await AuthFuture().login(email, password);
+      UserModel? user = await AuthRemoteDataSource().login(email, password);
       _user = user;
       tokenManager.putToken(user.token);
       print(user);
@@ -39,7 +40,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> logout(String token) async {
     try {
-      await AuthFuture().logout(token);
+      await AuthRemoteDataSource().logout(token);
       _user = null;
       tokenManager.clearToken();
       print("Success Logout");

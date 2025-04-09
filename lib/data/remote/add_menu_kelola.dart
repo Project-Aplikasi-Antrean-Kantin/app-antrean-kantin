@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 
 Future<bool> addMenuKelola(String auth, String data) async {
   print(data);

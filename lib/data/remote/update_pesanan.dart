@@ -23,7 +23,7 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
 
 Future<bool> updatePesanan(String status, String auth, int id) async {

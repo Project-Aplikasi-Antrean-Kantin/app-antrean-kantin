@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/core/http/fetch_pesanan_pembeli.dart';
-import 'package:testgetdata/core/http/update_pesanan.dart';
+import 'package:testgetdata/data/remote/fetch_pesanan_pembeli.dart';
+import 'package:testgetdata/data/remote/update_pesanan.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
-import 'package:testgetdata/data/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_diproses.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_masuk.dart';
 

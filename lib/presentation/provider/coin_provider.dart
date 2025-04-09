@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
-import 'package:testgetdata/core/http/add_transaksi.dart';
-import 'package:testgetdata/core/http/get_saldo_coin.dart';
+import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/remote/add_transaksi.dart';
+import 'package:testgetdata/data/remote/get_saldo_coin.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 
 class CoinProvider extends ChangeNotifier {

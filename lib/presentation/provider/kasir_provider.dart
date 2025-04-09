@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:testgetdata/core/http/add_transaksi.dart';
-import 'package:testgetdata/core/http/fetch_penjualan_offline.dart';
+import 'package:testgetdata/data/remote/add_transaksi.dart';
+import 'package:testgetdata/data/remote/fetch_penjualan_offline.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';

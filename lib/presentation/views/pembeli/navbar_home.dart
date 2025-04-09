@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/fitur_model.dart';
-import 'package:testgetdata/data/provider/auth_provider.dart';
-import 'package:testgetdata/data/provider/kasir_provider.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/widgets/switch_route.dart';
 
 class NavbarHome extends StatefulWidget {

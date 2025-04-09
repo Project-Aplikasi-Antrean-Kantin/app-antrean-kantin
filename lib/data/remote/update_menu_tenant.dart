@@ -1,5 +1,5 @@
 import 'package:http/http.dart' as http;
-import 'package:testgetdata/core/constants.dart';
+import 'package:testgetdata/data/constants.dart';
 
 Future<bool> updateMenuTenant(bool status, String auth, int id) async {
   final response = await http.post(

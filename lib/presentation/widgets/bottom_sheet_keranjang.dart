@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
-import 'package:testgetdata/data/provider/cart_provider.dart';
-import 'package:testgetdata/data/provider/coin_provider.dart';
-import 'package:testgetdata/data/provider/kasir_provider.dart';
+import 'package:testgetdata/presentation/provider/cart_provider.dart';
+import 'package:testgetdata/presentation/provider/coin_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 
 String? pilihPembayaran = 'koin';
 bool isOptionSelected = false;
