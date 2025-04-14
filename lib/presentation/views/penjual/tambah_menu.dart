@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/data/remote/add_menu_kelola.dart';
+import 'package:testgetdata/data/remote/menu_tenant_remote_data_source.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
@@ -553,7 +553,8 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                                 "gambar": selectedImagePath,
                               };
 
-                              addMenuKelolaFile(user.token, (data))
+                              MenuTenantRemoteDataSource()
+                                  .createMenuTenant(user.token, (data))
                                   .then((value) {
                                 if (value) {
                                   // Navigator.pushAndRemoveUntil(

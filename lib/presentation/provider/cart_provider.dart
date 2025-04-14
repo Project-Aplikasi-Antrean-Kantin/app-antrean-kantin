@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/data/model/order_model.dart';
-import 'package:testgetdata/data/remote/add_transaksi.dart';
+import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
-import 'package:testgetdata/data/remote/fetch_data_ruangan.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 
 /// A provider class responsible for managing the cart functionality.
@@ -169,7 +168,7 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
 
     // Add transaction using server API
-    return addTransaksi(token, toJson());
+    return TransactionRemoteDataSource().createTransaction(token, toJson());
   }
 
   // Converts the current state to JSON format
@@ -200,7 +199,7 @@ class CartProvider extends ChangeNotifier {
 
   // Fetches room data from the server
   Future<void> getRoom(String token) async {
-    listRuangan = await fetchDataRuangan(token);
+    listRuangan = await TransactionRemoteDataSource().getRoomData(token);
   }
 
   // Validates the cart based on delivery and room selection

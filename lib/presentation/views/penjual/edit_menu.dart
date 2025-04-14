@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/data/constants.dart';
-import 'package:testgetdata/data/remote/update_menu_kelola.dart';
+import 'package:testgetdata/data/remote/menu_tenant_remote_data_source.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
@@ -704,7 +704,8 @@ class _EditMenuPageState extends State<EditMenuPage> {
                                   "gambar": selectedImagePath,
                                 };
 
-                                updateMenuKelolaFile(user.token, (data),
+                                MenuTenantRemoteDataSource()
+                                    .updateMenuTenant(user.token, (data),
                                         widget.tenantFoods.id)
                                     .then((value) {
                                   debugPrint('value setelah edit $value');

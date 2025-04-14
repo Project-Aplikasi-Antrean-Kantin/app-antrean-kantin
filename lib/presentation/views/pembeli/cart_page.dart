@@ -8,9 +8,9 @@ import 'package:midtrans_sdk/midtrans_sdk.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
+import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
-import 'package:testgetdata/data/remote/fetch_data_ruangan.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
@@ -333,7 +333,7 @@ class _CartPageState extends State<CartPage> {
     context.read<CoinProvider>().fetchData(user.token);
 
     // Fetch the list of ruangan from the API using the user's token
-    fetchDataRuangan(user.token).then((value) {
+    TransactionRemoteDataSource().getRoomData(user.token).then((value) {
       setState(() {
         // Set the list of ruangan to the state of this widget
         _roomList = value;

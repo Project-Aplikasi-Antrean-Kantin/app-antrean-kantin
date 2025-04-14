@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/data/remote/fetch_riwayat_transaksi.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
+import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
@@ -37,7 +37,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
 
-    List<Pesanan> pesananList = await fetchRiwayat(user.token, widget.role);
+    List<Pesanan> pesananList = await TransactionRemoteDataSource()
+        .getHistory(context, user.token, widget.role);
 
     if (!mounted) return; // Cek apakah widget masih ada sebelum setState
     setState(() {
@@ -120,11 +121,11 @@ class _RiwayatPageState extends State<RiwayatPage> {
   Widget _buildPesananItem(Pesanan pesanan) {
     Route detailRiwayatPage() {
       return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => DetialRwiayat(
+        pageBuilder: (context, animation, secondaryAnimation) => DetailRiwayat(
           pesanan: pesanan,
           refreshData: _refreshData,
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        transitionsBuilder: (context, animation, secondaryWAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset(0.0, 0.0);
           const curve = Curves.easeInOut;

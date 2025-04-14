@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/constants.dart';
-import 'package:testgetdata/data/remote/get_saldo_coin.dart';
+import 'package:testgetdata/data/remote/coin_remote_data_source.dart';
 
 class CoinProvider extends ChangeNotifier {
   int saldoKoin = 0;
@@ -19,7 +19,7 @@ class CoinProvider extends ChangeNotifier {
   Future<void> fetchData(String token) async {
     isLoading = true;
     try {
-      final fetchedData = await fetchSaldoCoin(token);
+      final fetchedData = await CoinRemoteDataSource().getCoinAmount(token);
 
       // Log nilai saldo_koin yang diterima dari API
       debugPrint('Fetched Saldo Koin: ${fetchedData!.saldoKoin}');
@@ -36,7 +36,7 @@ class CoinProvider extends ChangeNotifier {
   Future<bool> deductCoin(String token, int jumlah) async {
     try {
       // Fetch saldo terbaru langsung dari API
-      final fetchedData = await fetchSaldoCoin(token);
+      final fetchedData = await CoinRemoteDataSource().getCoinAmount(token);
 
       if (fetchedData == null || fetchedData.saldoKoin < jumlah) {
         debugPrint('Saldo koin tidak mencukupi (langsung dari API)');

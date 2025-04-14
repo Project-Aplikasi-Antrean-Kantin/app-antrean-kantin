@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/data/remote/update_menu_tenant.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/user_model.dart';
+import 'package:testgetdata/data/remote/menu_tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
@@ -118,7 +118,9 @@ class _MenuTersediaState extends State<MenuTersedia> {
                         .map((item) => KatalogMenuTile(
                               item: item,
                               onChanged: (value) {
-                                updateMenuTenant(value, user.token, item.id)
+                                MenuTenantRemoteDataSource()
+                                    .updateMenuisReady(
+                                        value, user.token, item.id)
                                     .then((value) {
                                   if (value) {
                                     setState(() {

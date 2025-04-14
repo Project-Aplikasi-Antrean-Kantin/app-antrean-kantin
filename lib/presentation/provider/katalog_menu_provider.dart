@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:testgetdata/data/remote/delete_menu_tenant.dart';
-import 'package:testgetdata/data/remote/fetch_katalog_tenant.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
+import 'package:testgetdata/data/remote/menu_tenant_remote_data_source.dart';
 
 class KatalogMenuProvider extends ChangeNotifier {
   List<TenantFoods> data = [];
@@ -21,7 +20,8 @@ class KatalogMenuProvider extends ChangeNotifier {
   Future<void> fetchData(String token) async {
     setLoading(true);
     try {
-      final fetchedData = await fetchKatalogTenant(token);
+      final fetchedData =
+          await MenuTenantRemoteDataSource().getMenuTenant(token);
       data = fetchedData.tenantFoods ?? [];
     } catch (error) {
     } finally {
@@ -33,7 +33,8 @@ class KatalogMenuProvider extends ChangeNotifier {
     // bearerToken = token;
     // notifyListeners();
     try {
-      bool result = await deleteMenu(token, menuId);
+      bool result =
+          await MenuTenantRemoteDataSource().deleteMenuTenant(token, menuId);
       if (result) {
         data.removeWhere((food) => food.id == menuId);
         fetchData(token);

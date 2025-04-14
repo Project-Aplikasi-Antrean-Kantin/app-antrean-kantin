@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/data/remote/fetch_pengantaran.dart';
-import 'package:testgetdata/data/remote/update_pengantaran.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
+import 'package:testgetdata/data/remote/driver_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/pengantar/pesanan_diantar.dart';
 import 'package:testgetdata/presentation/views/pengantar/pesanan_menunggu.dart';
@@ -24,7 +23,9 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
   bool isLoading = false;
 
   void diantar(int idPesanan, Pesanan pesanan, auth) async {
-    updatePengantaran('diantar', auth, idPesanan).then((value) {
+    DriverDataSource()
+        .updateOrderDelivery('diantar', auth, idPesanan)
+        .then((value) {
       if (value) {
         setState(() {
           pesananSiapDiantar.removeWhere((element) => element.id == pesanan.id);
@@ -46,7 +47,9 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
   }
 
   void removePesananDiantar(int idPesanan, auth) async {
-    updatePengantaran('selesai', auth, idPesanan).then((value) {
+    DriverDataSource()
+        .updateOrderDelivery('selesai', auth, idPesanan)
+        .then((value) {
       if (value) {
         setState(() {
           pesananDiantar.removeWhere((element) => element.id == idPesanan);
@@ -70,7 +73,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
     UserModel user = authProvider.user;
     await Future.delayed(const Duration(seconds: 1));
     List<Pesanan> fetchedPesananMasuk =
-        await fetchPengantaran(user.token, 'siap_diantar');
+        await DriverDataSource().getOrderDelivery(user.token, 'siap_diantar');
     setState(() {
       pesananSiapDiantar = fetchedPesananMasuk;
     });
@@ -83,15 +86,15 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
-    fetchPengantaran(user.token, 'siap_diantar').then(
-      (value) => setState(
-        () {
-          isLoading = false;
-          print(value);
-          pesananSiapDiantar = value;
-        },
-      ),
-    );
+    DriverDataSource().getOrderDelivery(user.token, 'siap_diantar').then(
+          (value) => setState(
+            () {
+              isLoading = false;
+              print(value);
+              pesananSiapDiantar = value;
+            },
+          ),
+        );
   }
 
   @override
@@ -119,14 +122,18 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
           bottom: TabBar(
             onTap: (value) {
               if (value == 0) {
-                fetchPengantaran(user.token, 'siap_diantar').then((value) {
+                DriverDataSource()
+                    .getOrderDelivery(user.token, 'siap_diantar')
+                    .then((value) {
                   setState(() {
                     pesananSiapDiantar = value;
                   });
                 });
               } else {
                 print(value);
-                fetchPengantaran(user.token, 'diantar').then((value) {
+                DriverDataSource()
+                    .getOrderDelivery(user.token, 'diantar')
+                    .then((value) {
                   setState(() {
                     pesananDiantar = value;
                   });

@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:testgetdata/data/remote/add_transaksi.dart';
-import 'package:testgetdata/data/remote/fetch_penjualan_offline.dart';
+import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
@@ -33,7 +32,8 @@ class KasirProvider extends ChangeNotifier {
     isLoading = true;
     try {
       // await Future.delayed(const Duration(seconds: 1));
-      final fetchedData = await fetchPenjualanOffline(token);
+      final fetchedData =
+          await TransactionRemoteDataSource().getCashierData(token);
       tenantFoodsList = fetchedData.tenantFoods ?? [];
     } finally {
       isLoading = false;
@@ -102,7 +102,7 @@ class KasirProvider extends ChangeNotifier {
   }
 
   Future<OrderModel> buatTransaksi(String token) {
-    return addTransaksi(token, toJson());
+    return TransactionRemoteDataSource().createTransaction(token, toJson());
   }
 
   String toJson() => jsonEncode({
