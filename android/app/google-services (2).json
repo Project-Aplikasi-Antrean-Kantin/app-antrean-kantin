@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:417325859636:android:9be14ac5036cbfdcc65b61",
+        "mobilesdk_app_id": "1:417325859636:android:dad2ee39fb2afd5bc65b61",
         "android_client_info": {
-          "package_name": "com.masbro.canteen"
+          "package_name": "com.example.masbro"
         }
       },
       "oauth_client": [],

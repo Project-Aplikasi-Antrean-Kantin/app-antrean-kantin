@@ -2,6 +2,7 @@
     package="com.masbro.canteen"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
    <application
         android:label="Masbro Canteen"
         android:name="${applicationName}"
@@ -32,6 +33,11 @@
                 android:name="firebase_analytics_collection_enabled"
                 android:value="false" 
               />
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="fcm_fallback_notification_channel"
+              />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
