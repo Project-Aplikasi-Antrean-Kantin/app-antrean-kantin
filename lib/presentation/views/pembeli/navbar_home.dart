@@ -97,31 +97,58 @@ class _NavbarHomeState extends State<NavbarHome> {
             height: 0.2,
             color: Colors.grey,
           ),
-          BottomNavigationBar(
-            backgroundColor: AppColors.backgroundColor,
-            type: BottomNavigationBarType.fixed,
-            elevation: 0,
-            selectedFontSize: 12,
-            selectedLabelStyle: GoogleFonts.poppins(
-              fontSize: 9,
+          // BottomNavigationBar(
+          //   backgroundColor: AppColors.backgroundColor,
+          //   type: BottomNavigationBarType.fixed,
+          //   elevation: 0,
+          //   selectedFontSize: 12,
+          //   selectedLabelStyle: GoogleFonts.poppins(
+          //     fontSize: 9,
+          //   ),
+          //   unselectedLabelStyle: GoogleFonts.poppins(
+          //     fontSize: 9,
+          //   ),
+          //   unselectedFontSize: 12,
+          //   unselectedItemColor: AppColors.unselectedIconColor,
+          //   selectedItemColor: AppColors.selectedIconColor,
+          //   currentIndex: _currentIndex,
+          //   showUnselectedLabels: true,
+          //   onTap: (index) {
+          //     // Panggil fungsi clearCartIfRequired saat pengguna mengubah halaman
+          //     clearCartIfRequired(index);
+          //     setState(() {
+          //       _currentIndex = index;
+          //     });
+          //   },
+          //   items: _buildBottomNavigationBarItems(listFitur),
+          // ),
+          Theme(
+            data: Theme.of(context).copyWith(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
             ),
-            unselectedLabelStyle: GoogleFonts.poppins(
-              fontSize: 9,
+            child: BottomNavigationBar(
+              backgroundColor: AppColors.backgroundColor,
+              type: BottomNavigationBarType.fixed,
+              elevation: 0,
+              selectedFontSize: 12,
+              selectedLabelStyle: GoogleFonts.poppins(fontSize: 9),
+              unselectedLabelStyle: GoogleFonts.poppins(fontSize: 9),
+              unselectedFontSize: 12,
+              unselectedItemColor: AppColors.unselectedIconColor,
+              selectedItemColor: AppColors.selectedIconColor,
+              currentIndex: _currentIndex,
+              showUnselectedLabels: true,
+              onTap: (index) {
+                clearCartIfRequired(index);
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              items: _buildBottomNavigationBarItems(listFitur),
             ),
-            unselectedFontSize: 12,
-            unselectedItemColor: AppColors.unselectedIconColor,
-            selectedItemColor: AppColors.selectedIconColor,
-            currentIndex: _currentIndex,
-            showUnselectedLabels: true,
-            onTap: (index) {
-              // Panggil fungsi clearCartIfRequired saat pengguna mengubah halaman
-              clearCartIfRequired(index);
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            items: _buildBottomNavigationBarItems(listFitur),
-          ),
+          )
         ],
       ),
     );

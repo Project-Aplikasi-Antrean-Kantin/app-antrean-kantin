@@ -57,6 +57,24 @@ class AuthRemoteDataSource {
       rethrow;
     }
   }
+
+  Future<UserModel> fetchUserData(String token) async {
+    final response = await http.get(
+      Uri.parse("${MasbroConstants.url}/user"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return UserModel.fromJson(data);
+    } else {
+      throw Exception('Failed to load user data');
+    }
+  }
+
   // Future<UserModel> login(String email, String password, String token) async {
   //   try {
   //     final response = await http.post(

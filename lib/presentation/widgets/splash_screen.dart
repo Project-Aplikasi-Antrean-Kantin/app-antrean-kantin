@@ -34,6 +34,9 @@ class _SplashScreenState extends State<SplashScreen> {
   Future authCheck() async {
     debugPrint("MASUK TOKEN AUTH");
     final token = await tokenManager.getToken();
+    final role = await tokenManager.getRoles();
+
+    log("role user: $role");
 
     if (!mounted) return;
 

@@ -20,6 +20,7 @@ class Pesanan {
   final List<ListTransaksiDetail> listTransaksiDetail;
   Ruangan? ruangan;
   String? namaPembeli;
+  String? phone;
   final DateTime createdAt;
 
   Pesanan(
@@ -41,6 +42,7 @@ class Pesanan {
       required this.listTransaksiDetail,
       this.ruangan,
       this.namaPembeli,
+      this.phone,
       required this.createdAt});
 
   factory Pesanan.fromJson(Map<String, dynamic> json) => Pesanan(
@@ -64,6 +66,7 @@ class Pesanan {
               .map((x) => ListTransaksiDetail.fromJson(x)),
         ),
         namaPembeli: json["nama_pembeli"],
+        phone: json["user"]["phone"],
         createdAt: DateTime.parse(json["created_at"]).toLocal(),
         // ruangan: Ruangan.fromJson(json["ruangan"]),
       );

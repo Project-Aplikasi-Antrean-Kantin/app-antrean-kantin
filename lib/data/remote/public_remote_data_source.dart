@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/settings_model.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 
 class PublicRemoteDataSource {
@@ -73,6 +75,36 @@ class PublicRemoteDataSource {
     } catch (e) {
       print("An error occurred while fetching tenant foods: $e");
       throw Exception('Failed to fetch tenant foods');
+    }
+  }
+
+  Future<List<SettingsModel>> getOngkir(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${MasbroConstants.url}/pengaturan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      debugPrint('Raw API Response: ${response.body}'); // Tambahkan log
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['status'] == 'success') {
+          List<dynamic> data = jsonResponse['data'];
+          return data.map((json) => SettingsModel.fromJson(json)).toList();
+        } else {
+          throw Exception(
+              'Failed to load settings: ${jsonResponse['message']}');
+        }
+      } else {
+        throw Exception('Failed to load settings: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching saldo: $e');
+      return [];
     }
   }
 }

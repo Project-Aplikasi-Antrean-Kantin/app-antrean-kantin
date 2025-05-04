@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/data/model/order_model.dart';
+import 'package:testgetdata/data/model/settings_model.dart';
+import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
@@ -14,12 +16,12 @@ class CartProvider extends ChangeNotifier {
 
   // Delivery details
   int deliveryCost = 0;
-  int deliveryCostPerItem = 2000;
+  // int deliveryCostPerItem = 2000;
   // int isDelivery = 0; // 0: Pickup, 1: Delivery
   int? roomId;
 
   // Fees and payment
-  int serviceFee = 1000;
+  // int serviceFee = 1000;
   String? paymentMethod = 'koin';
 
   // UI state
@@ -40,6 +42,41 @@ class CartProvider extends ChangeNotifier {
   int _selectedDeliveryOption = 1;
 
   int get selectedDeliveryOption => _selectedDeliveryOption;
+
+  List<SettingsModel> settings = [];
+  int ongkir = 0;
+  int biayaLayanan = 0;
+  String jumlahItem = '0';
+
+  Future<void> getOngkir(String token) async {
+    try {
+      // Ambil data dari PublicRemoteDataSource
+      settings = await PublicRemoteDataSource().getOngkir(token);
+
+      // Cari ongkos_kirim dan biaya_layanan dari settings
+      for (var setting in settings) {
+        if (setting.nama == 'ongkos_kirim') {
+          // ongkir = setting.nilai;
+          ongkir = int.parse(setting.nilai);
+        } else if (setting.nama == 'biaya_layanan') {
+          biayaLayanan = int.parse(setting.nilai);
+        }
+        // Jika jumlahItem juga ada di settings, tambahkan logika serupa
+        // else if (setting.nama == 'jumlah_item') {
+        //   jumlahItem = setting.nilai;
+        // }
+      }
+
+      // Beritahu UI bahwa data telah berubah
+      notifyListeners();
+    } catch (e) {
+      // Tangani error, misalnya set nilai default
+      ongkir = 0;
+      biayaLayanan = 0;
+      notifyListeners();
+      debugPrint('Error fetching settings: $e');
+    }
+  }
 
   void setDeliveryOption(int option) {
     if (_selectedDeliveryOption != option) {
@@ -133,6 +170,7 @@ class CartProvider extends ChangeNotifier {
     isCartVisible = false;
     deliveryCost = 0;
     totalItemCount = 0;
+    roomId = null;
     notifyListeners();
   }
 
@@ -140,11 +178,13 @@ class CartProvider extends ChangeNotifier {
   int getTotal() {
     final additionalCost = _selectedDeliveryOption == 1
         // ? getTotalItemCount() * deliveryCostPerItem
-        ? deliveryCostPerItem
+        ? ongkir
         : 0;
     // totalPrice = deliveryCost + serviceFee + additionalCost;
-    totalPrice = deliveryCost + serviceFee + additionalCost;
+    totalPrice = deliveryCost + biayaLayanan + additionalCost;
     log("hitung delivery cost: $additionalCost");
+    log("ongkir CP: $ongkir");
+    log("biaya layanan CP: $biayaLayanan");
     return totalPrice; // Kembalikan nilai totalPrice
   }
 

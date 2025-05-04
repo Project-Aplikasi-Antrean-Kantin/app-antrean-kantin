@@ -12,6 +12,7 @@ class CustomAlert extends StatelessWidget {
   final Color? cancelBorderColor;
   final Color? textButtonOkColor;
   final Color? textButtonCancelColor;
+  final bool isLoading;
 
   const CustomAlert({
     Key? key,
@@ -25,6 +26,7 @@ class CustomAlert extends StatelessWidget {
     this.cancelBorderColor,
     this.textButtonOkColor,
     this.textButtonCancelColor,
+    this.isLoading = false,
   })  : assert(textButtonOk != null || textButtonCancel != null,
             'At least one button text (textButtonOk or textButtonCancel) must be provided.'),
         super(key: key);
@@ -54,13 +56,15 @@ class CustomAlert extends StatelessWidget {
           children: [
             if (textButtonCancel != null)
               TextButton(
-                onPressed: onConfirmCancle,
+                onPressed: isLoading ? null : onConfirmCancle,
                 style: ButtonStyle(
                   shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                       side: BorderSide(
-                        color: cancelBorderColor ?? Colors.grey,
+                        color: isLoading
+                            ? Colors.grey
+                            : (cancelBorderColor ?? Colors.grey),
                       ),
                     ),
                   ),
@@ -68,40 +72,66 @@ class CustomAlert extends StatelessWidget {
                     const Size(100, 30),
                   ),
                 ),
-                child: Text(
-                  textButtonCancel ?? "Batal",
-                  style: TextStyle(
-                    color: textButtonCancelColor ?? Colors.grey,
-                  ),
-                ),
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.grey),
+                        ),
+                      )
+                    : Text(
+                        textButtonCancel ?? "Batal",
+                        style: TextStyle(
+                          color: isLoading
+                              ? Colors.grey
+                              : (textButtonCancelColor ?? Colors.grey),
+                        ),
+                      ),
               ),
             if (textButtonCancel != null && textButtonOk != null)
               const SizedBox(width: 16),
             if (textButtonOk != null)
               TextButton(
-                onPressed: onConfirmOk,
+                onPressed: isLoading ? null : onConfirmOk,
                 style: ButtonStyle(
                   shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                       side: BorderSide(
-                        color: okBorderColor ?? Colors.transparent,
+                        color: isLoading
+                            ? Colors.grey
+                            : (okBorderColor ?? Colors.transparent),
                       ),
                     ),
                   ),
                   backgroundColor: WidgetStateProperty.all<Color>(
-                    AppColors.primaryColor,
+                    isLoading ? Colors.grey : AppColors.primaryColor,
                   ),
                   minimumSize: WidgetStateProperty.all(
                     const Size(100, 30),
                   ),
                 ),
-                child: Text(
-                  textButtonOk ?? "Ok",
-                  style: TextStyle(
-                    color: textButtonOkColor ?? Colors.white,
-                  ),
-                ),
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        textButtonOk ?? "Ok",
+                        style: TextStyle(
+                          color: isLoading
+                              ? Colors.grey
+                              : (textButtonOkColor ?? Colors.white),
+                        ),
+                      ),
               ),
           ],
         ),

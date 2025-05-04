@@ -26,7 +26,7 @@ class PesananItemWidget extends StatelessWidget {
         pesanan.menus?.nama ??
         'iki jeneng e kosong ketok e';
 
-    final int harga = pesanan.harga;
+    final int harga = pesanan.menus!.harga;
     final int jumlah = pesanan.jumlah;
     final String catatan = pesanan.catatan ?? '-';
 

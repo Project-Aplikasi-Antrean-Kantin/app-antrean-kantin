@@ -1,15 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/widgets/menu_tenant_tilee.dart';
+import 'package:testgetdata/presentation/widgets/menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
-import 'package:testgetdata/data/remote/public_remote_data/fetch_data_tenant.dart';
 import 'cart_page.dart';
 
 class MenuTenant extends StatefulWidget {
@@ -29,7 +32,8 @@ class _MenuTenantState extends State<MenuTenant> {
     super.initState();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
-    _futureTenantFoods = fetchTenantFoods(context, widget.url, user.token);
+    _futureTenantFoods = PublicRemoteDataSource()
+        .getTenantFoods(context, widget.url, user.token);
   }
 
   @override
@@ -57,8 +61,12 @@ class _MenuTenantState extends State<MenuTenant> {
       BuildContext context, TenantModel tenant, CartProvider cartProvider) {
     return WillPopScope(
       onWillPop: () async {
-        if (cartProvider.cart.isEmpty) return true;
+        if (cartProvider.cart.isEmpty) {
+          FocusScope.of(context).unfocus();
+          return true;
+        }
         await _showExitConfirmationDialog(context, cartProvider);
+        FocusScope.of(context).unfocus();
         return false;
       },
       child: CustomScrollView(
@@ -77,7 +85,7 @@ class _MenuTenantState extends State<MenuTenant> {
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
       pinned: true,
-      expandedHeight: MediaQuery.of(context).size.width / 2.5,
+      expandedHeight: MediaQuery.of(context).size.height / 4.5,
       flexibleSpace: _buildFlexibleSpaceBar(tenant),
     );
   }
@@ -117,6 +125,7 @@ class _MenuTenantState extends State<MenuTenant> {
                       Provider.of<CartProvider>(context, listen: false);
                   if (cartProvider.cart.isEmpty) {
                     Navigator.of(context).pop();
+                    FocusScope.of(context).unfocus();
                   } else {
                     _showExitConfirmationDialog(context, cartProvider);
                   }
@@ -163,10 +172,29 @@ class _MenuTenantState extends State<MenuTenant> {
   SliverList _buildMenuList(TenantModel tenant) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (context, index) => MenuItemTile(
-          food: tenant.tenantFoods![index],
-          tenantName: tenant.namaTenant,
-        ),
+        (context, index) {
+          return Column(
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                child: MenuTile(
+                  food: tenant.tenantFoods![index],
+                  tenantName: tenant.namaTenant,
+                  isTenantMenu: true,
+                  enableNotes: true,
+                ),
+              ),
+              if (index < tenant.tenantFoods!.length - 1)
+                Divider(
+                  color: Colors.grey,
+                  thickness: 0.2,
+                  height: 1,
+                  indent: 15,
+                  endIndent: 15,
+                ),
+            ],
+          );
+        },
         childCount: tenant.tenantFoods!.length,
       ),
     );
@@ -201,7 +229,13 @@ class _MenuTenantState extends State<MenuTenant> {
           ? SizedBox(
               width: MediaQuery.of(context).size.width - 20,
               child: FloatingActionButton(
-                onPressed: () => Navigator.push(context, _buildCartPageRoute()),
+                onPressed: () {
+                  KasirProvider kasirProvider =
+                      Provider.of<KasirProvider>(context, listen: false);
+                  kasirProvider.setIsKasir(false);
+                  log("Is Kasir: ${kasirProvider.isKasir}");
+                  Navigator.push(context, _buildCartPageRoute());
+                },
                 backgroundColor: AppColors.primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -306,6 +340,8 @@ class _MenuTenantState extends State<MenuTenant> {
                       cartProvider.clearCart();
                       Navigator.of(context).pop();
                       Navigator.pop(context);
+                      FocusScope.of(context).unfocus();
+                      cartProvider.roomId == null;
                     },
                     style: ButtonStyle(
                       shape: WidgetStateProperty.all<RoundedRectangleBorder>(

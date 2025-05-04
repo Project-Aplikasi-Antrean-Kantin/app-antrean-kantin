@@ -1,23 +1,18 @@
-import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/coin_transaction_model.dart';
 import 'package:testgetdata/data/remote/coin_remote_data_source.dart';
 
 class CoinProvider extends ChangeNotifier {
+  bool _isLoading = false;
   int saldoKoin = 0;
-  bool isLoading = false;
   int totalPrice = 0;
-  int? roomId;
-  String? paymentMethod;
-  bool orderSuccessful = false;
+  List<CoinTransactionModel> transactionCoin = [];
+  bool get isLoading => _isLoading;
 
-  int _selectedDeliveryOption = 1;
-  int get selectedDeliveryOption => _selectedDeliveryOption;
-
-  Future<void> fetchData(String token) async {
-    isLoading = true;
+  Future<void> getCoinAmount(String token) async {
+    _isLoading = true;
     try {
       final fetchedData = await CoinRemoteDataSource().getCoinAmount(token);
 
@@ -28,46 +23,25 @@ class CoinProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error fetching saldo koin: $e');
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<bool> deductCoin(String token, int jumlah) async {
+  Future<void> getHistoryCoin(String token) async {
+    _isLoading = true;
+
     try {
-      // Fetch saldo terbaru langsung dari API
-      final fetchedData = await CoinRemoteDataSource().getCoinAmount(token);
-
-      if (fetchedData == null || fetchedData.saldoKoin < jumlah) {
-        debugPrint('Saldo koin tidak mencukupi (langsung dari API)');
-        return false;
-      }
-
-      final url = Uri.parse('${MasbroConstants.url}/saldo/kurang');
-      final headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      };
-      final body = jsonEncode({"jumlah": jumlah});
-
-      final response = await http.post(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success']) {
-          saldoKoin =
-              data['saldo_koin']; // Update saldo lokal setelah pengurangan
-          notifyListeners();
-          debugPrint('Saldo Koin berhasil dikurangi: $saldoKoin');
-          return true;
-        }
-      }
-
-      debugPrint('Gagal mengurangi saldo koin');
-      return false;
-    } catch (e) {
-      debugPrint('Error saat mengurangi saldo koin: $e');
-      return false;
+      final fetchedData =
+          await CoinRemoteDataSource().getHistoryTransactionCoin(token);
+      transactionCoin = fetchedData;
+      log(transactionCoin.toString());
+    } catch (error) {
+      debugPrint('Error fetching transaction: $error');
+      transactionCoin = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

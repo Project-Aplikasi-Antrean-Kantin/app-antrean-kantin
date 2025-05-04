@@ -28,7 +28,7 @@ import 'package:testgetdata/data/model/tenant_model.dart';
 //     // throw Exception('Data cant be load');
 //   }
 // }
-class MenuTenantRemoteDataSource {
+class TenantRemoteDataSource {
   Future<bool> createMenuTenant(String auth, Map<String, dynamic> data) async {
     var request = http.MultipartRequest(
         'POST', Uri.parse('${MasbroConstants.url}/tenant/menu'));
@@ -88,6 +88,7 @@ class MenuTenantRemoteDataSource {
       }
     } catch (e) {
       // Log untuk error yang tidak terduga
+      print("Error in fetchData: $e");
       print("An error occurred: $e");
       throw Exception('Failed to fetch data');
     }
@@ -165,6 +166,36 @@ class MenuTenantRemoteDataSource {
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future<bool> updateStatusTenant(String token, bool isOnline) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${MasbroConstants.url}/update-user"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json', // Tambahkan ini
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'isOnline': isOnline,
+        }),
+      );
+      log("Nilai isOnline yang dikirim: $isOnline");
+
+      if (response.statusCode == 200) {
+        log("success cokkkkk");
+        log("status code update status tenant: ${response.statusCode}");
+        log("body success: ${response.body}");
+        return true;
+      } else {
+        log("Failed with status code: ${response.statusCode}, body: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      log("An error occurred: $e");
+      throw Exception('Failed to update status buka tutup tenant');
     }
   }
 }

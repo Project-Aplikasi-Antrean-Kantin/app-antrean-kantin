@@ -9,4 +9,23 @@ class FormatCurrency {
     );
     return formatCurrency.format(amount);
   }
+
+  static String intToStringCoin(int amount) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: '',
+      decimalDigits: 0,
+    );
+    return formatCurrency.format(amount);
+  }
+
+  static String stringCurrency(String amount) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    );
+    // Convert String to int (or double if needed)
+    return formatCurrency.format(int.parse(amount));
+  }
 }

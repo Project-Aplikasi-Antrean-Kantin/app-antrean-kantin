@@ -1,15 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
-import 'package:testgetdata/data/model/user_model.dart';
-import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
-import 'package:testgetdata/presentation/widgets/menu_tenant_tile.dart';
+import 'package:testgetdata/presentation/widgets/menu_tile.dart';
 
 class MenuKasir extends StatefulWidget {
   final List<TenantFoods> data;
@@ -35,17 +35,14 @@ class _MenuKasirState extends State<MenuKasir> {
   @override
   Widget build(BuildContext context) {
     print("object");
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-    UserModel user = authProvider.user;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 10,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 15,
+            vertical: 15,
           ),
           child: Column(
             children: [
@@ -85,85 +82,34 @@ class _MenuKasirState extends State<MenuKasir> {
               const SizedBox(
                 height: 10,
               ),
-              ...searchResult
-                  .map((item) => MenuTenantTile(
-                        item1: item,
-                      ))
-                  .toList(),
+              // ...searchResult
+              //     .map((item) => MenuTile(
+              //           food: item,
+              //           isTenantMenu: false,
+              //           enableNotes: false,
+              //         ))
+              //     .toList(),
+              ...searchResult.asMap().entries.expand((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return [
+                  MenuTile(
+                    food: item,
+                    isTenantMenu: false,
+                    enableNotes: false,
+                  ),
+                  if (index < searchResult.length - 1)
+                    Divider(
+                      color: Colors.grey,
+                      thickness: 0.2,
+                      height: 1,
+                    ),
+                ];
+              }).toList(),
             ],
           ),
         ),
       ),
-      //   floatingActionButton: AnimatedSwitcher(
-      //     duration: const Duration(
-      //       milliseconds: 100,
-      //     ),
-      //     switchInCurve: Curves.easeIn,
-      //     switchOutCurve: Curves.easeOut,
-      //     child: context.watch<KasirProvider>().isCartVisible
-      //         ? SizedBox(
-      //             width: MediaQuery.of(context).size.width - 20,
-      //             child: FloatingActionButton(
-      //               onPressed: () {
-      //                 Navigator.push(context, MaterialPageRoute(
-      //                   builder: (context) {
-      //                     return const CartPage();
-      //                   },
-      //                 ));
-      //               },
-      //               backgroundColor: AppColors.primaryColor,
-      //               shape: RoundedRectangleBorder(
-      //                 borderRadius: BorderRadius.circular(25),
-      //               ),
-      //               child: Consumer<KasirProvider>(
-      //                 builder: (context, data, _) {
-      //                   return Padding(
-      //                     padding: const EdgeInsets.symmetric(
-      //                       horizontal: 30,
-      //                       vertical: 10,
-      //                     ),
-      //                     child: Row(
-      //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //                       children: [
-      //                         const Icon(
-      //                           Icons.shopping_cart,
-      //                           color: Colors.white,
-      //                         ),
-      //                         const SizedBox(
-      //                           width: 10,
-      //                         ),
-      //                         Expanded(
-      //                           child: Text(
-      //                             FormatCurrency.intToStringCurrency(
-      //                               data.cartCost,
-      //                             ),
-      //                             style: GoogleFonts.poppins(
-      //                               fontSize: 18,
-      //                               fontWeight: FontWeight.w500,
-      //                               color: Colors.white,
-      //                             ),
-      //                           ),
-      //                         ),
-      //                         Text(
-      //                           data.totalItems >= 2
-      //                               ? "${data.totalItems} items"
-      //                               : "${data.totalItems} item",
-      //                           style: GoogleFonts.poppins(
-      //                             fontSize: 18,
-      //                             color: Colors.white,
-      //                           ),
-      //                         ),
-      //                       ],
-      //                     ),
-      //                   );
-      //                 },
-      //               ),
-      //             ),
-      //           )
-      //         : null,
-      //   ),
-      //   floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      // );
       floatingActionButton: AnimatedSwitcher(
         duration: const Duration(milliseconds: 100),
         switchInCurve: Curves.easeIn,
@@ -175,7 +121,9 @@ class _MenuKasirState extends State<MenuKasir> {
                   onPressed: () {
                     // Trigger perubahan state Kasir
                     final kasirProvider = context.read<KasirProvider>();
-                    kasirProvider.setIsKasir(!kasirProvider.isKasir);
+                    // kasirProvider.setIsKasir(!kasirProvider.isKasir == true);
+                    kasirProvider.setIsKasir(true);
+                    log(kasirProvider.isKasir.toString());
 
                     Navigator.push(
                       context,

@@ -28,7 +28,7 @@ class _CarouselWidgetState extends State<CarouselWidget> {
           CarouselSlider(
             options: CarouselOptions(
               // height: MediaQuery.of(context).size.height * 0.28,
-              height: 220,
+              height: 300,
               enableInfiniteScroll: true,
               autoPlay: true,
               viewportFraction: 1,

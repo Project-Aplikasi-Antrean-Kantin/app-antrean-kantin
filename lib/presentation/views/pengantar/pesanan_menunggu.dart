@@ -50,7 +50,9 @@ class PesananMenungguState extends State<PesananMenunggu> {
                 final int idPesanan = entry.id;
                 final List<ListTransaksiDetail> pesananPembeli =
                     entry.listTransaksiDetail;
-                int subtotal = 0;
+                final totalItemMenu = entry.listTransaksiDetail
+                    .map((item) => item.jumlah)
+                    .fold(0, (prev, jumlah) => prev + jumlah);
                 return Container(
                   margin: const EdgeInsets.only(
                     bottom: 5,
@@ -90,7 +92,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                               textAlign: TextAlign.left,
                               "${entry.namaRuangan}",
                               style: GoogleFonts.poppins(
-                                color: AppColors.textColorBlack,
+                                color: AppColors.primaryColor,
                                 fontSize: 14,
                                 fontWeight: semibold,
                               ),
@@ -136,6 +138,8 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                 ),
                               ],
                             ),
+
+                            // ganti button redirect ke WA untuk driver chat customer
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -151,7 +155,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                   height: 3,
                                 ),
                                 Text(
-                                  "0000$idPesanan",
+                                  "ORDER-0$idPesanan",
                                   style: GoogleFonts.poppins(
                                     color: AppColors.textColorBlack,
                                     fontSize: 14,
@@ -176,7 +180,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Tenant',
+                              'Tempat Ambil',
                               style: GoogleFonts.poppins(
                                 color: AppColors.textColorBlack,
                                 fontSize: 10,
@@ -190,19 +194,19 @@ class PesananMenungguState extends State<PesananMenunggu> {
                               capitalizeFirstLetter(
                                   '${entry.listTransaksiDetail[0].menus?.tenants?.namaTenant}'),
                               style: GoogleFonts.poppins(
-                                color: AppColors.textColorBlack,
-                                fontSize: 14,
-                                fontWeight: semibold,
+                                color: AppColors.primaryColor,
+                                fontSize: 16,
+                                fontWeight: bold,
                               ),
                             ),
                           ],
                         ),
                       ),
                       ...pesananPembeli.map((item) {
-                        int harga = item.harga;
-                        int jumlah = item.jumlah;
-                        subtotal += (harga * jumlah);
-                        totalItem += jumlah;
+                        // int harga = item.harga;
+                        // int jumlah = item.jumlah;
+                        // subtotal += (harga * jumlah);
+                        // totalItem += jumlah;
                         return PesananItemWidget(
                           pesanan: item,
                           tolakPesanan: () {
@@ -229,7 +233,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "Subtotal (${entry.listTransaksiDetail.length} menu)",
+                                  "Subtotal ($totalItemMenu menu)",
                                   style: GoogleFonts.poppins(
                                     color: AppColors.textColorBlack,
                                     fontSize: 12,
@@ -239,7 +243,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                 Column(children: [
                                   Text(
                                     FormatCurrency.intToStringCurrency(
-                                      subtotal,
+                                      entry.subTotal,
                                     ),
                                     style: GoogleFonts.poppins(
                                       color: AppColors.textColorBlack,
@@ -292,30 +296,15 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                   ),
                                 ),
                                 // Menampilkan jumlah menu dikalikan dengan 10000
-                                Row(
-                                  children: [
-                                    Text(
-                                      "$totalItem x",
-                                      style: GoogleFonts.poppins(
-                                        color: AppColors.textColorBlack,
-                                        fontSize: 12,
-                                        fontWeight: semibold,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    Text(
-                                      FormatCurrency.intToStringCurrency(
-                                        1000,
-                                      ),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: AppColors.textColorBlack,
-                                        fontWeight: medium,
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  FormatCurrency.intToStringCurrency(
+                                    entry.ongkosKirim,
+                                  ),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: AppColors.textColorBlack,
+                                    fontWeight: medium,
+                                  ),
                                 ),
                               ],
                             ),
@@ -336,7 +325,7 @@ class PesananMenungguState extends State<PesananMenunggu> {
                                 ),
                                 Text(
                                   FormatCurrency.intToStringCurrency(
-                                    subtotal,
+                                    entry.total,
                                   ),
                                   style: GoogleFonts.poppins(
                                     color: AppColors.textColorBlack,

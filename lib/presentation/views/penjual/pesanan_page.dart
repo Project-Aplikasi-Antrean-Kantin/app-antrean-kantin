@@ -22,29 +22,6 @@ class _PesananTenantState extends State<PesananTenant> {
   List<Pesanan> pesananDiproses = [];
   bool isLoading = false;
 
-  // void terimaPesanan(int idPesanan, Pesanan pesanan, auth) async {
-  //   OrderTenantRemoteDataSource()
-  //       .updateOrderCustomer('pesanan_diproses', auth, idPesanan)
-  //       .then((value) {
-  //     if (value) {
-  //       setState(() {
-  //         pesananMasuk.removeWhere((element) => element.id == pesanan.id);
-  //         pesananDiproses.add(pesanan);
-  //       });
-  //       Fluttertoast.showToast(
-  //         msg: "Segera proses pesanan!",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.grey,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0,
-  //       );
-  //     } else {
-  //       debugPrint("GAK BISA");
-  //     }
-  //   });
-  // }
   void terimaPesanan(int idPesanan, Pesanan pesanan, auth) async {
     OrderTenantRemoteDataSource()
         .updateOrderCustomer('pesanan_diproses', auth, idPesanan)
@@ -69,20 +46,21 @@ class _PesananTenantState extends State<PesananTenant> {
     });
   }
 
-  // void tolakPesanan(int idPesanan, Pesanan pesanan, auth) async {
-  //   OrderTenantRemoteDataSource()
-  //       .updateOrderCustomer('pesanan_ditolak', auth, idPesanan)
-  //       .then((value) {
-  //     if (value) {
-  //       setState(() {
-  //         pesananMasuk.removeWhere((element) => element.id == pesanan.id);
-  //       });
-  //     } else {
-  //       print("GAK BISA");
-  //     }
-  //   });
-  // }
   void tolakPesanan(int idPesanan, Pesanan pesanan, auth) async {
+    OrderTenantRemoteDataSource()
+        .cancelOrderCustomer(auth, idPesanan)
+        .then((value) {
+      if (value && mounted) {
+        setState(() {
+          pesananMasuk.removeWhere((element) => element.id == pesanan.id);
+        });
+      } else {
+        print("GAK BISA");
+      }
+    });
+  }
+
+  void tolakPesananBaru(int idPesanan, Pesanan pesanan, auth) async {
     OrderTenantRemoteDataSource()
         .updateOrderCustomer('pesanan_ditolak', auth, idPesanan)
         .then((value) {
@@ -96,27 +74,6 @@ class _PesananTenantState extends State<PesananTenant> {
     });
   }
 
-  // void removePesananDiproses(Pesanan pesanan, auth) async {
-  //   final status = pesanan.isAntar == 1 ? 'siap_diantar' : 'selesai';
-  //   OrderTenantRemoteDataSource()
-  //       .updateOrderCustomer(status, auth, pesanan.id)
-  //       .then((value) {
-  //     if (value) {
-  //       setState(() {
-  //         pesananDiproses.removeWhere((element) => element.id == pesanan.id);
-  //       });
-  //       Fluttertoast.showToast(
-  //         msg: "Pesanan Siap",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.grey,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0,
-  //       );
-  //     }
-  //   });
-  // }
   void removePesananDiproses(Pesanan pesanan, auth) async {
     final status = pesanan.isAntar == 1 ? 'siap_diantar' : 'selesai';
     OrderTenantRemoteDataSource()
@@ -145,7 +102,7 @@ class _PesananTenantState extends State<PesananTenant> {
     UserModel user = authProvider.user;
     await Future.delayed(const Duration(seconds: 1));
     List<Pesanan> fetchedPesananMasuk = await OrderTenantRemoteDataSource()
-        .getOrderCustomer(user.token, 'pesanan_masuk');
+        .getOrderCustomer(context, user.token, 'pesanan_masuk');
     setState(() {
       pesananMasuk = fetchedPesananMasuk;
     });
@@ -176,7 +133,7 @@ class _PesananTenantState extends State<PesananTenant> {
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
     OrderTenantRemoteDataSource()
-        .getOrderCustomer(user.token, 'pesanan_masuk')
+        .getOrderCustomer(context, user.token, 'pesanan_masuk')
         .then((value) {
       if (mounted) {
         setState(() {
@@ -212,7 +169,7 @@ class _PesananTenantState extends State<PesananTenant> {
             onTap: (value) {
               if (value == 0) {
                 OrderTenantRemoteDataSource()
-                    .getOrderCustomer(user.token, 'pesanan_masuk')
+                    .getOrderCustomer(context, user.token, 'pesanan_masuk')
                     .then((value) {
                   setState(() {
                     pesananMasuk = value;
@@ -220,7 +177,7 @@ class _PesananTenantState extends State<PesananTenant> {
                 });
               } else {
                 OrderTenantRemoteDataSource()
-                    .getOrderCustomer(user.token, 'pesanan_diproses')
+                    .getOrderCustomer(context, user.token, 'pesanan_diproses')
                     .then((value) {
                   setState(() {
                     pesananDiproses = value;

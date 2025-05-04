@@ -11,24 +11,10 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 class DetailMenu {
   TenantFoods dataFoods;
   String? namaTenant;
-  // final int idMenu;
-  // final String title;
-  // final String gambar;
-  // final String? description;
-  // final int price;
-  // final int isReady;
-  // bool? isTambah;
 
   DetailMenu({
     required this.dataFoods,
     this.namaTenant,
-    // required this.idMenu,
-    // required this.title,
-    // required this.gambar,
-    // this.description,
-    // required this.price,
-    // required this.isReady,
-    // this.isTambah,
   });
 }
 

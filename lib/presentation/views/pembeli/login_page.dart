@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -216,8 +217,8 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 40),
                 GestureDetector(
                   onTap: () async {
-                    // String? token = await FirebaseMessaging.instance.getToken();
-                    // print("ini token $token");
+                    String? token = await FirebaseMessaging.instance.getToken();
+                    print("ini token $token");
                     if (email.text.isEmpty || password.text.isEmpty) {
                       setState(() {
                         isLoading = true;
@@ -236,7 +237,11 @@ class _LoginPageState extends State<LoginPage> {
                         isLoading = true;
                       });
                       try {
-                        await authProvider.login(email.text, password.text);
+                        await authProvider.login(
+                          email.text,
+                          password.text,
+                          token!,
+                        );
                         // ignore: use_build_context_synchronously
                         Navigator.pushAndRemoveUntil(
                           context,
@@ -353,11 +358,12 @@ class _LoginPageState extends State<LoginPage> {
 // import 'package:flutter/services.dart';
 // import 'package:google_fonts/google_fonts.dart';
 // import 'package:provider/provider.dart';
-// import 'package:testgetdata/exceptions/api_exception.dart';
-// import 'package:testgetdata/provider/auth_provider.dart';
-// import 'package:testgetdata/views/components/custom_snackbar.dart';
-// import 'package:testgetdata/views/home/pages/navbar_home.dart';
-// import 'package:testgetdata/views/theme.dart';
+// import 'package:testgetdata/core/exceptions/api_exception.dart';
+// import 'package:testgetdata/core/theme/colors_theme.dart';
+// import 'package:testgetdata/core/theme/text_theme.dart';
+// import 'package:testgetdata/presentation/provider/auth_provider.dart';
+// import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+// import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 
 // class LoginPage extends StatefulWidget {
 //   const LoginPage({super.key});
@@ -379,12 +385,12 @@ class _LoginPageState extends State<LoginPage> {
 
 //     SystemChrome.setSystemUIOverlayStyle(
 //       SystemUiOverlayStyle(
-//         statusBarColor: backgroundColor,
+//         statusBarColor: AppColors.backgroundColor,
 //         statusBarIconBrightness: Brightness.dark,
 //       ),
 //     );
 //     return Scaffold(
-//       backgroundColor: backgroundColor,
+//       backgroundColor: AppColors.backgroundColor,
 //       body: Padding(
 //         padding: EdgeInsets.only(
 //           top: MediaQuery.of(context).padding.top,
@@ -405,7 +411,7 @@ class _LoginPageState extends State<LoginPage> {
 //                         Text(
 //                           'Halo Bro!',
 //                           style: GoogleFonts.poppins(
-//                             color: textColorBlack,
+//                             color: AppColors.textColorBlack,
 //                             fontSize: 32,
 //                             fontWeight: semibold,
 //                           ),
@@ -416,7 +422,7 @@ class _LoginPageState extends State<LoginPage> {
 //                             textAlign: TextAlign.center,
 //                             'Pastikan kamu sudah memiliki akun ya bro...',
 //                             style: GoogleFonts.poppins(
-//                               color: textColorBlack,
+//                               color: AppColors.textColorBlack,
 //                               fontSize: 15,
 //                               fontWeight: regular,
 //                             ),
@@ -429,7 +435,7 @@ class _LoginPageState extends State<LoginPage> {
 //                     height: 30,
 //                   ),
 //                   TextFormField(
-//                     cursorColor: primaryColor,
+//                     cursorColor: AppColors.primaryColor,
 //                     controller: email,
 //                     decoration: InputDecoration(
 //                       fillColor: Colors.white,
@@ -608,7 +614,7 @@ class _LoginPageState extends State<LoginPage> {
 //                       width: double.infinity,
 //                       height: 40,
 //                       decoration: BoxDecoration(
-//                         color: primaryColor,
+//                         color: AppColors.primaryColor,
 //                         borderRadius: BorderRadius.circular(20),
 //                       ),
 //                       child: Center(
@@ -655,7 +661,7 @@ class _LoginPageState extends State<LoginPage> {
 //                       Text(
 //                         'Belum punya akun? ',
 //                         style: GoogleFonts.poppins(
-//                           color: textColorBlack,
+//                           color: AppColors.textColorBlack,
 //                         ),
 //                       ),
 //                       GestureDetector(
@@ -666,7 +672,7 @@ class _LoginPageState extends State<LoginPage> {
 //                         child: Text(
 //                           'Daftar',
 //                           style: GoogleFonts.poppins(
-//                             color: primaryColor,
+//                             color: AppColors.primaryColor,
 //                             fontWeight: semibold,
 //                           ),
 //                         ),

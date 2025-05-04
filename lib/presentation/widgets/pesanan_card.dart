@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
+import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 
@@ -21,7 +24,9 @@ class PesananCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int subtotal = 0;
+    final totalItemMenu = pesanan.listTransaksiDetail
+        .map((item) => item.jumlah)
+        .fold(0, (prev, jumlah) => prev + jumlah);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 5),
@@ -95,11 +100,14 @@ class PesananCard extends StatelessWidget {
                         style: GoogleFonts.poppins(
                             color: AppColors.textColorBlack, fontSize: 10)),
                     const SizedBox(height: 3),
-                    Text("0000${pesanan.id}",
-                        style: GoogleFonts.poppins(
-                            color: AppColors.textColorBlack,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600)),
+                    Text(
+                      "ORDER-0${pesanan.id}",
+                      style: GoogleFonts.poppins(
+                        color: AppColors.textColorBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -117,9 +125,9 @@ class PesananCard extends StatelessWidget {
                     color: AppColors.textColorBlack, fontSize: 10)),
           ),
           ...pesanan.listTransaksiDetail.map((item) {
-            int harga = item.harga;
-            int jumlah = item.jumlah;
-            subtotal += (harga * jumlah);
+            // int harga = item.harga;
+            // int totalItems = item.jumlah;
+            // subtotal += (harga * jumlah);
             return PesananItemWidget(
               pesanan: item,
               tolakPesanan: () {}, // Bisa dikosongkan jika tidak diperlukan
@@ -140,18 +148,19 @@ class PesananCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Subtotal (${pesanan.listTransaksiDetail.length} menu)",
+                      "Subtotal ($totalItemMenu menu)",
                       style: GoogleFonts.poppins(
                           color: AppColors.textColorBlack,
                           fontSize: 12,
                           fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      FormatCurrency.intToStringCurrency(subtotal),
+                      FormatCurrency.intToStringCurrency(pesanan.subTotal),
                       style: GoogleFonts.poppins(
-                          color: AppColors.textColorBlack,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500),
+                        color: AppColors.textColorBlack,
+                        fontSize: 12,
+                        fontWeight: medium,
+                      ),
                     ),
                   ],
                 ),
@@ -159,13 +168,20 @@ class PesananCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total",
-                        style: GoogleFonts.poppins(
-                            color: AppColors.textColorBlack,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold)),
                     Text(
-                      FormatCurrency.intToStringCurrency(subtotal),
+                      "Total",
+                      style: GoogleFonts.poppins(
+                        color: AppColors.textColorBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      pesanan.isAntar == 0
+                          ? FormatCurrency.intToStringCurrency(pesanan.total)
+                          : FormatCurrency.intToStringCurrency(
+                              pesanan.total - pesanan.ongkosKirim,
+                            ),
                       style: GoogleFonts.poppins(
                           color: AppColors.textColorBlack,
                           fontSize: 14,

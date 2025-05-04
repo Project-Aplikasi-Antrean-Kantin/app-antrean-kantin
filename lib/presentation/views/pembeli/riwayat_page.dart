@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -174,6 +176,9 @@ class _RiwayatPageState extends State<RiwayatPage> {
 
   /// **Widget untuk header pesanan (gambar dan nama tenant)**
   Widget _buildPesananHeader(Pesanan pesanan) {
+    final totalItemMenu = pesanan.listTransaksiDetail
+        .map((item) => item.jumlah)
+        .fold(0, (prev, jumlah) => prev + jumlah);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Row(
@@ -202,7 +207,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
               ),
               const SizedBox(height: 5),
               Text(
-                "${pesanan.listTransaksiDetail[0].jumlah} Item Menu",
+                "$totalItemMenu Item Menu",
                 style: GoogleFonts.poppins(
                   color: AppColors.textColorBlack,
                   fontSize: 12,

@@ -12,7 +12,6 @@ import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
-import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 
@@ -83,113 +82,6 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     }
   }
 
-  // Future<void> _saveForm(UserModel user) async {
-  //   String message = '';
-  //   if (namaMenuController.text.isEmpty) {
-  //     message = 'Nama menu belum diisi.';
-  //   } else if (hargaMenuController.text.isEmpty) {
-  //     message = 'Harga menu belum diisi.';
-  //   } else if (selectedCategory == null) {
-  //     message = 'Kategori menu belum dipilih.';
-  //   } else if (double.tryParse(hargaMenuController.text) == null ||
-  //       double.parse(hargaMenuController.text) <= 0) {
-  //     message = 'Harga menu harus lebih besar dari 0.';
-  //   }
-
-  //   if (message.isNotEmpty) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) => CustomAlertDialog(
-  //         title: 'Koreksi field!',
-  //         message: message,
-  //         showCancelButton: false,
-  //       ),
-  //     );
-  //     return;
-  //   }
-
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-
-  //   final data = {
-  //     'kategori_id': selectedCategory,
-  //     'nama_menu': namaMenuController.text,
-  //     'deskripsi_menu': deskripsiMenuController.text,
-  //     'harga': hargaMenuController.text,
-  //     'gambar': selectedImagePath,
-  //   };
-
-  //   try {
-  //     final source = TenantRemoteDataSource();
-  //     final success = widget.initialData == null
-  //         ? await source.createMenuTenant(user.token, data)
-  //         : await source.updateMenuTenant(
-  //             user.token, data, widget.initialData!.id);
-
-  //     if (success) {
-  //       Navigator.of(context).pushAndRemoveUntil(
-  //         MaterialPageRoute(builder: (context) => const KatalogMenu()),
-  //         (route) => route.isFirst,
-  //       );
-  //     } else {
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) => CustomAlertDialog(
-  //           title: 'Gagal!',
-  //           message: 'Gagal menyimpan menu. Coba lagi.',
-  //           showCancelButton: false,
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     debugPrint('Error saving menu: $e');
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) => CustomAlertDialog(
-  //         title: 'Error!',
-  //         message: 'Terjadi kesalahan. Coba lagi nanti.',
-  //         showCancelButton: false,
-  //       ),
-  //     );
-  //   } finally {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
-  // Future<void> _deleteMenu(UserModel user) async {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => CustomAlertDialog(
-  //       title: 'Hapus Menu',
-  //       message: 'Apakah Anda yakin ingin menghapus menu ini?',
-  //       showCancelButton: true,
-  //       onOkPressed: () async {
-  //         try {
-  //           await context
-  //               .read<KatalogMenuProvider>()
-  //               .deleteFood(user.token, widget.initialData!.id);
-  //           Navigator.of(context).pop();
-  //           Navigator.of(context).pop();
-  //         } catch (e) {
-  //           debugPrint('Error deleting menu: $e');
-  //           showDialog(
-  //             context: context,
-  //             builder: (context) => CustomAlertDialog(
-  //               title: 'Gagal!',
-  //               message: 'Gagal menghapus menu. Coba lagi.',
-  //               showCancelButton: false,
-  //             ),
-  //           );
-  //         }
-  //       },
-  //     ),
-  //   );
-  // }
-
-  // Di _saveForm
   Future<void> _saveForm(UserModel user) async {
     String message = '';
     if (namaMenuController.text.isEmpty) {
@@ -264,7 +156,6 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     }
   }
 
-// Di _deleteMenu
   Future<void> _deleteMenu(UserModel user) async {
     showDialog(
       context: context,

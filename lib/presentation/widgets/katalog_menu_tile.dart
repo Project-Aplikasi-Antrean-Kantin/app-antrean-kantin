@@ -5,7 +5,7 @@ import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/views/penjual/edit_menu.dart';
+import 'package:testgetdata/presentation/views/penjual/katalog_menu_form.dart';
 
 class KatalogMenuTile extends StatelessWidget {
   final TenantFoods item;
@@ -41,7 +41,7 @@ class KatalogMenuTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.nama ?? item.nama,
+                  item.nama,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -64,21 +64,18 @@ class KatalogMenuTile extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    print('tile gesture detector jalan');
+                    debugPrint('Navigasi ke edit menu');
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EditMenuPage(
-                          tenantFoods: item,
-                        ),
+                        builder: (context) =>
+                            KatalogMenuForm(initialData: item),
                       ),
                     ).then((value) {
-                      print("runtime type : " + value.runtimeType.toString());
-                      print('value $value');
-                      if ((value as bool?) == true) {
-                        context
-                            .read<KatalogMenuProvider>()
-                            .fetchData(context.read<AuthProvider>().user.token);
+                      if (value == true) {
+                        context.read<KatalogMenuProvider>().fetchData(
+                              context.read<AuthProvider>().user.token,
+                            );
                       }
                     });
                   },

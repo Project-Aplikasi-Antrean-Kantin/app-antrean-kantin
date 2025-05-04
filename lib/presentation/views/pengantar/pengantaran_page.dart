@@ -26,7 +26,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
     DriverDataSource()
         .updateOrderDelivery('diantar', auth, idPesanan)
         .then((value) {
-      if (value) {
+      if (value && mounted) {
         setState(() {
           pesananSiapDiantar.removeWhere((element) => element.id == pesanan.id);
           pesananDiantar.add(pesanan);
@@ -50,7 +50,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
     DriverDataSource()
         .updateOrderDelivery('selesai', auth, idPesanan)
         .then((value) {
-      if (value) {
+      if (value && mounted) {
         setState(() {
           pesananDiantar.removeWhere((element) => element.id == idPesanan);
         });
@@ -86,15 +86,17 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
-    DriverDataSource().getOrderDelivery(user.token, 'siap_diantar').then(
-          (value) => setState(
-            () {
-              isLoading = false;
-              print(value);
-              pesananSiapDiantar = value;
-            },
-          ),
-        );
+    DriverDataSource()
+        .getOrderDelivery(user.token, 'siap_diantar')
+        .then((value) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          print(value);
+          pesananSiapDiantar = value;
+        });
+      }
+    });
   }
 
   @override

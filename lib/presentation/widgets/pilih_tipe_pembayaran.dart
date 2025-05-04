@@ -31,15 +31,15 @@ class PilihTipePembayaran extends StatelessWidget {
     log("pembayaran: " + pilihTipePembayaran.toString());
     return GestureDetector(
       onTap: () {
-        bottomSheetTipePembayaran(context, (option2) {
-          if (option2 == 'Bayar Tunai') {
-            selectedPembayaran('cod');
-          } else if (option2 == 'Transfer') {
-            selectedPembayaran('Transfer');
-          } else {
-            selectedPembayaran('koin');
-          }
-        });
+        // bottomSheetTipePembayaran(context, (option2) {
+        //   if (option2 == 'Bayar Tunai') {
+        //     selectedPembayaran('cod');
+        //   } else if (option2 == 'Transfer') {
+        //     selectedPembayaran('Transfer');
+        //   } else {
+        //     selectedPembayaran('koin');
+        //   }
+        // });
       },
       child: Container(
         decoration: BoxDecoration(
@@ -120,17 +120,17 @@ class PilihTipePembayaran extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color.fromARGB(255, 62, 62, 62),
-              ),
-              child: const Icon(
-                Icons.more_horiz,
-                size: 20,
-                color: AppColors.backgroundColor,
-              ),
-            ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     shape: BoxShape.circle,
+            //     color: const Color.fromARGB(255, 62, 62, 62),
+            //   ),
+            //   child: const Icon(
+            //     Icons.more_horiz,
+            //     size: 20,
+            //     color: AppColors.backgroundColor,
+            //   ),
+            // ),
           ],
         ),
       ),

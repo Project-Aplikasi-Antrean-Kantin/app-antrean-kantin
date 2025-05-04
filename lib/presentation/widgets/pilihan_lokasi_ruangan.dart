@@ -1,114 +1,9 @@
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:testgetdata/core/theme/colors_theme.dart';
-// import 'package:testgetdata/core/theme/text_theme.dart';
-// import 'package:testgetdata/presentation/widgets/bottom_sheet_keranjang.dart';
-
-// class PilihLokasiRuangan extends StatelessWidget {
-//   final int? selectedLocation;
-//   final Function(int?)? onLocationSelected;
-//   final listRuangan;
-//   final String token;
-
-//   PilihLokasiRuangan({
-//     required this.listRuangan,
-//     required this.token,
-//     this.selectedLocation,
-//     this.onLocationSelected,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     print(listRuangan);
-//     return Column(
-//       children: [
-//         Container(
-//           alignment: Alignment.centerLeft,
-//           child: Text(
-//             'Lokasi Pengantaran',
-//             style: GoogleFonts.poppins(
-//               fontSize: 14,
-//               fontWeight: semibold,
-//               color: AppColors.textColorBlack,
-//             ),
-//           ),
-//         ),
-//         const SizedBox(
-//           height: 10,
-//         ),
-//         GestureDetector(
-//           onTap: () {
-//             bottomSheetLokasiRuangan(context, listRuangan, (option) {
-//               if (onLocationSelected != null) {
-//                 onLocationSelected!(option);
-//               }
-//             });
-//           },
-//           child: Container(
-//             padding: const EdgeInsets.symmetric(
-//               vertical: 10,
-//               horizontal: 25,
-//             ),
-//             height: MediaQuery.of(context).size.width * 0.18,
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.all(
-//                 Radius.circular(10),
-//               ),
-//               border: Border.all(
-//                 color: Colors.grey,
-//                 width: 0.2,
-//               ),
-//             ),
-//             child: Row(
-//               children: [
-//                 if (selectedLocation != null) Icon(Icons.location_on),
-//                 Expanded(
-//                   child: Container(
-//                     padding: EdgeInsets.symmetric(
-//                       horizontal: selectedLocation != null ? 25 : 0,
-//                     ),
-//                     alignment: Alignment.centerLeft,
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       mainAxisAlignment: MainAxisAlignment.center,
-//                       children: [
-//                         selectedLocation == null
-//                             ? Text(
-//                                 'Silahkan pilih ruangan',
-//                                 style: GoogleFonts.poppins(
-//                                   fontSize: 14,
-//                                 ),
-//                               )
-//                             // : Text('haha')
-//                             : Text(
-//                                 listRuangan
-//                                     .where((element) =>
-//                                         element.id == selectedLocation)
-//                                     .first
-//                                     .namaRuangan
-//                                     .toString(),
-//                                 style: TextStyle(fontSize: 14),
-//                               ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 Icon(Icons.arrow_drop_down),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'dart:developer' as developer;
 
 class PilihLokasiRuangan extends StatefulWidget {
   final int? selectedLocation;
@@ -116,12 +11,13 @@ class PilihLokasiRuangan extends StatefulWidget {
   final List<dynamic> listRuangan;
   final String token;
 
-  PilihLokasiRuangan({
+  const PilihLokasiRuangan({
     required this.listRuangan,
     required this.token,
     this.selectedLocation,
     this.onLocationSelected,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   _PilihLokasiRuanganState createState() => _PilihLokasiRuanganState();
@@ -132,6 +28,21 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
   final TextEditingController textEditingController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Inisialisasi selectedValue dengan selectedLocation jika ada
+    selectedValue = widget.selectedLocation;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      developer.log(
+          "PilihLokasiRuangan init: selectedLocation = ${widget.selectedLocation}, selectedValue = $selectedValue");
+      // Panggil onLocationSelected untuk menyinkronkan state
+      if (widget.onLocationSelected != null && selectedValue != null) {
+        widget.onLocationSelected!(selectedValue);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     textEditingController.dispose();
     super.dispose();
@@ -139,6 +50,11 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
 
   @override
   Widget build(BuildContext context) {
+    developer.log(
+        "PilihLokasiRuangan build: selectedLocation = ${widget.selectedLocation}, selectedValue = $selectedValue");
+    developer
+        .log("ListRuangan: ${widget.listRuangan.map((r) => r.id).toList()}");
+
     return Column(
       children: [
         Container(
@@ -155,6 +71,14 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
         const SizedBox(height: 10),
         DropdownButtonHideUnderline(
           child: DropdownButton2<int>(
+            iconStyleData: IconStyleData(
+                icon: Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Icon(
+                Icons.arrow_drop_down_outlined,
+                color: AppColors.textColorBlack,
+              ),
+            )),
             isExpanded: true,
             hint: Text(
               'Silahkan pilih ruangan',
@@ -181,21 +105,24 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
               setState(() {
                 selectedValue = value;
               });
+              developer.log(
+                  "Dropdown onChanged: memilih ruangan dengan id = $value");
               if (widget.onLocationSelected != null) {
                 widget.onLocationSelected!(value);
               }
             },
             buttonStyleData: ButtonStyleData(
-                height: MediaQuery.of(context).size.width * 0.15,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 0.2,
-                    color: Colors.grey,
-                  ),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                )),
+              height: 60,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 0.2,
+                  color: Colors.grey,
+                ),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(10),
+                ),
+              ),
+            ),
             dropdownStyleData: const DropdownStyleData(
               maxHeight: 200,
               elevation: 4,
@@ -213,8 +140,7 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
               searchController: textEditingController,
               searchInnerWidgetHeight: 50,
               searchInnerWidget: Container(
-                // color: AppColors.debugColor,
-                height: MediaQuery.of(context).size.width * 0.15,
+                height: 60,
                 padding: const EdgeInsets.only(
                   top: 8,
                   bottom: 4,
@@ -234,7 +160,7 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
                     hintText: 'Cari nama ruangan...',
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: AppColors.textColorBlack,
+                      color: AppColors.textColorBlack.withOpacity(0.5),
                       fontWeight: regular,
                     ),
                     border: OutlineInputBorder(

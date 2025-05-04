@@ -21,7 +21,6 @@ import 'package:testgetdata/presentation/views/pembeli/register_page.dart';
 import 'package:testgetdata/presentation/widgets/splash_screen.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_page.dart';
-import 'package:testgetdata/presentation/views/penjual/tambah_menu.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 // // Background messages firebase
@@ -89,12 +88,41 @@ import 'package:firebase_core/firebase_core.dart';
 //   // Background messages
 //   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 // }
+
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+Future<void> setupNotificationChannels() async {
+  const tenant_channel = AndroidNotificationChannel(
+    'tenant_channel',
+    'Tenant Notification',
+    description: 'Notifikasi untuk tenant',
+    importance: Importance.high,
+    sound: RawResourceAndroidNotificationSound('tnt_fdlb'),
+  );
+
+  const driver_fdlb_channel = AndroidNotificationChannel(
+    'driver_fdlb_channel',
+    'Driver Notification',
+    description: 'Notifikasi untuk driver',
+    importance: Importance.high,
+    sound: RawResourceAndroidNotificationSound('drv_fdlb'),
+  );
+
+  final plugin = FlutterLocalNotificationsPlugin();
+  final androidImpl = plugin.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>();
+
+  await androidImpl?.createNotificationChannel(tenant_channel);
+  await androidImpl?.createNotificationChannel(driver_fdlb_channel);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging.instance.getToken().then((token) {
-    log("Token: $token");
-  });
+  await setupNotificationChannels();
+  // FirebaseMessaging.instance.getToken().then((token) {
+  //   log("Token: $token");
+  // });
   runApp(const MyApp());
 }
 
@@ -132,7 +160,6 @@ class MyApp extends StatelessWidget {
           '/riwayat': (context) => const RiwayatPageAsRole(),
           '/profile': (context) => const ProfilePage(),
           '/katalog_menu': (context) => const KatalogMenu(),
-          '/tambah_menu': (context) => const TambahMenuPage(),
           '/kasir': (context) => const KasirPage(),
         },
       ),

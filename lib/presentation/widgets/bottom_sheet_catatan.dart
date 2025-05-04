@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 
-Future bottomSheetCatatan(BuildContext context, String catatan) {
+Future bottomSheetCatatan(BuildContext context, String catatan, String title) {
   TextEditingController _textEditingController =
       TextEditingController(text: catatan);
 
   return showModalBottomSheet(
+    backgroundColor: AppColors.backgroundColor,
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
@@ -19,13 +22,31 @@ Future bottomSheetCatatan(BuildContext context, String catatan) {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Container(
-          padding: const EdgeInsets.all(18),
+          // padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(
+            top: 8,
+            bottom: 18,
+            left: 18,
+            right: 18,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              Container(
+                height: 5,
+                margin: const EdgeInsets.only(
+                  bottom: 20,
+                  left: 150,
+                  right: 150,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               Text(
-                'Tambah catatan untuk pesanan',
+                title,
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -53,18 +74,56 @@ Future bottomSheetCatatan(BuildContext context, String catatan) {
                     border: InputBorder.none,
                   ),
                   maxLines: 3,
+                  maxLength: 200,
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Lakukan sesuatu dengan catatan yang dimasukkan
+              // ElevatedButton(
+              //   onPressed: () {
+              //     // Lakukan sesuatu dengan catatan yang dimasukkan
+              //     String catatan = _textEditingController.text;
+              //     print('Catatan: $catatan');
+              //     // Tutup BottomSheet
+              //     Navigator.pop(context, catatan);
+              //   },
+              //   child: Text(
+              //     'Konfirmasi',
+              //     style: TextStyle(
+              //       fontSize: 14,
+              //       fontWeight: semibold,
+              //       color: AppColors.textColorBlack,
+              //     ),
+              //   ),
+              // ),
+              GestureDetector(
+                onTap: () {
                   String catatan = _textEditingController.text;
                   print('Catatan: $catatan');
                   // Tutup BottomSheet
                   Navigator.pop(context, catatan);
                 },
-                child: const Text('Konfirmasi'),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal: 16.0,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "konfirmasi",
+                        style: GoogleFonts.poppins(
+                          color: AppColors.textColorwhite,
+                          fontSize: 14,
+                          fontWeight: medium,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
