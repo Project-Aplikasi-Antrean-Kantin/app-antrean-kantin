@@ -114,7 +114,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     final data = {
       'kategori_id': selectedCategory,
       'nama_menu': namaMenuController.text,
-      'deskripsi_menu': deskripsiMenuController.text,
+      'deskripsi': deskripsiMenuController.text,
       'harga': hargaMenuController.text,
       'gambar': selectedImagePath,
     };

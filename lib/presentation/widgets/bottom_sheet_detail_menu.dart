@@ -26,6 +26,7 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
       Provider.of<KasirProvider>(context, listen: false);
 
   return showModalBottomSheet(
+    backgroundColor: AppColors.backgroundColor,
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(

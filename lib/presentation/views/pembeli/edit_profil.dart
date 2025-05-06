@@ -1,432 +1,396 @@
-// import 'dart:async';
-// import 'dart:io';
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:provider/provider.dart';
-// import 'package:testgetdata/core/theme/text_theme.dart';
-// import 'package:testgetdata/data/constants.dart';
-// import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
-// import 'package:testgetdata/core/theme/colors_theme.dart';
-// import 'package:testgetdata/data/model/kategori_menu_model.dart';
-// import 'package:testgetdata/data/model/tenant_foods.dart';
-// import 'package:testgetdata/data/model/user_model.dart';
-// import 'package:testgetdata/presentation/provider/auth_provider.dart';
-// import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
-// import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
-// import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
-// import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:testgetdata/data/remote/auth_remote_data_source.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/model/kategori_menu_model.dart';
+import 'package:testgetdata/data/model/user_model.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
+import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart'; // For temporary file storage
 
-// class EditProfil extends StatefulWidget {
-//   final UserModel userProfil;
+class EditProfil extends StatefulWidget {
+  const EditProfil({
+    Key? key,
+  }) : super(key: key);
 
-//   const EditProfil({
-//     Key? key,
-//     required this.userProfil,
-//   }) : super(key: key);
+  @override
+  State<EditProfil> createState() => _EditProfilState();
+}
 
-//   // static const int EditMenuPageIndex = 0;
+Future<int> _getImageSize(String imagePath) async {
+  File imageFile = File(imagePath);
+  int sizeInBytes = await imageFile.length();
+  int sizeInKB = sizeInBytes ~/ 1024; // Convert bytes to KB
+  return sizeInKB;
+}
 
-//   @override
-//   State<EditProfil> createState() => _EditProfilState();
-// }
+class _EditProfilState extends State<EditProfil> {
+  late ImagePicker _imagePicker;
+  bool isLoading = false;
 
-// Future<int> _getImageSize(String imagePath) async {
-//   File imageFile = File(imagePath);
-//   int sizeInBytes = await imageFile.length();
-//   int sizeInKB = sizeInBytes ~/ 1024; // Convert bytes to KB
-//   return sizeInKB;
-// }
+  List<KategoriMenu> kategoriMenu = [
+    KategoriMenu(id: 1, nama: 'Makanan', kategoriId: 1),
+    KategoriMenu(id: 2, nama: 'Minuman', kategoriId: 1),
+    KategoriMenu(id: 3, nama: 'Snack', kategoriId: 2),
+  ];
+  String? selectedImagePath;
 
-// class MenuItem {
-//   final String value;
-//   MenuItem(this.value);
-// }
+  late TextEditingController namaUserController;
+  late TextEditingController emailUserController;
+  late TextEditingController phoneUserController;
 
-// class _EditProfilState extends State<EditProfil> {
-//   late ImagePicker _imagePicker;
-//   int selectedCategory = 0;
-//   bool isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    _imagePicker = ImagePicker();
+    namaUserController = TextEditingController();
+    emailUserController = TextEditingController();
+    phoneUserController = TextEditingController();
+  }
 
-//   List<KategoriMenu> kategoriMenu = [
-//     KategoriMenu(id: 1, nama: 'Makanan', kategoriId: 1),
-//     KategoriMenu(id: 2, nama: 'Minuman', kategoriId: 1),
-//     KategoriMenu(id: 3, nama: 'Snack', kategoriId: 2),
-//   ];
-//   String? selectedImagePath;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    UserModel user = authProvider.user;
+    namaUserController.text = user.nama;
+    emailUserController.text = user.email;
+    phoneUserController.text = user.phone.toString();
+  }
 
-//   late TextEditingController namaMenuController;
-//   late TextEditingController deskripsiMenuController;
-//   late TextEditingController hargaMenuController;
+  Future<void> _getImageFromGallery() async {
+    final pickedImage =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      debugPrint('Original image path: ${pickedImage.path}');
+      final tempDir = await getTemporaryDirectory();
+      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempPath = '${tempDir.path}/$tempFileName';
+      debugPrint('Target path for compressed image: $tempPath');
 
-//   @override
-//   void initState() {
-//     namaMenuController =
-//         TextEditingController(text: widget.userProfil.nama ?? '');
-//     // deskripsiMenuController =
-//     //     TextEditingController(text: widget.userProfil.deskripsi);
-//     // hargaMenuController =
-//     //     TextEditingController(text: widget.userProfil.harga.toString());
+      try {
+        final compressedImage = await FlutterImageCompress.compressAndGetFile(
+          pickedImage.path,
+          tempPath,
+          quality: 70,
+          minWidth: 1024,
+          minHeight: 1024,
+        );
+        if (compressedImage != null) {
+          debugPrint('Compressed image path: ${compressedImage.path}');
+          selectedImagePath = compressedImage.path;
+          int imageSizeKB = await _getImageSize(selectedImagePath!);
+          debugPrint('Compressed image size: $imageSizeKB KB');
+          if (imageSizeKB > 2048) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CustomAlertDialog(
+                  title: "Peringatan!",
+                  message:
+                      "Gambar yang kamu pilih lebih dari 2MB bahkan setelah kompresi.",
+                  showCancelButton: false,
+                );
+              },
+            );
+            selectedImagePath = null;
+          }
+          setState(() {});
+        } else {
+          debugPrint('Compression returned null');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CustomAlertDialog(
+                title: "Gagal!",
+                message: "Gagal mengompresi gambar. Silakan coba lagi.",
+                showCancelButton: false,
+              );
+            },
+          );
+        }
+      } catch (e) {
+        debugPrint('Compression error: $e');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CustomAlertDialog(
+              title: "Error!",
+              message: "Terjadi kesalahan saat mengompresi gambar: $e",
+              showCancelButton: false,
+            );
+          },
+        );
+      }
+    }
+  }
 
-//     super.initState();
-//     // selectedCategory = widget.userProfil.kategoriId;
-//     _imagePicker = ImagePicker();
-//   }
+  @override
+  Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
 
-//   Future<void> _getImageFromGallery() async {
-//     final pickedImage =
-//         await _imagePicker.pickImage(source: ImageSource.gallery);
-//     if (pickedImage != null) {
-//       selectedImagePath = pickedImage.path;
-//       int imageSizeKB = await _getImageSize(selectedImagePath!);
-//       if (imageSizeKB > 2048) {
-//         showDialog(
-//           context: context,
-//           builder: (BuildContext context) {
-//             return CustomAlertDialog(
-//               title: "Peringatan!",
-//               message: "Gambar yang kamu pilih lebih dari 2MB.",
-//               showCancelButton: false,
-//             );
-//           },
-//         );
-//         selectedImagePath = null;
-//       }
-//       setState(() {});
-//     }
-//   }
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      appBar: AppBar(
+        backgroundColor: AppColors.backgroundColor,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 50,
+        title: Text(
+          'Edit Profil',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            color: Colors.black,
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            margin: const EdgeInsets.all(15),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 250,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: selectedImagePath != null
+                                ? DecorationImage(
+                                    image: FileImage(File(selectedImagePath!)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : authProvider.user.gambar != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                          "${authProvider.user.gambar}",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : const DecorationImage(
+                                        image: AssetImage(
+                                            'assets/images/dummy.jpeg'),
+                                        fit: BoxFit.cover,
+                                      ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        IconButton(
+                          onPressed: _getImageFromGallery,
+                          icon: const Icon(Icons.edit_square),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    CustomTextFormField(
+                      label: 'Nama Kamu',
+                      hintText: 'Tuliskan nama kamu',
+                      isRequired: true,
+                      controller: namaUserController,
+                    ),
+                    CustomTextFormField(
+                      label: 'Email Kamu',
+                      hintText: 'Tuliskan email kamu',
+                      controller: emailUserController,
+                      isEnabled: false,
+                    ),
+                    CustomTextFormField(
+                      label: 'Nomor Telp',
+                      hintText: '089XX',
+                      isRequired: true,
+                      inputType: TextInputType.number,
+                      controller: phoneUserController,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 50),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Color.fromARGB(255, 68, 68, 68),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 68, 68, 68),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (namaUserController.text.isEmpty ||
+                                phoneUserController.text.isEmpty) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CustomAlertDialog(
+                                    title: 'Koreksi!',
+                                    message:
+                                        'Nama dan nomor telepon harus diisi.',
+                                    showCancelButton: false,
+                                  );
+                                },
+                              );
+                              return;
+                            }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     AuthProvider authProvider = Provider.of<AuthProvider>(context);
-//     UserModel user = authProvider.user;
-//     print(selectedCategory);
+                            setState(() {
+                              isLoading = true;
+                            });
 
-//     return Scaffold(
-//       backgroundColor: AppColors.backgroundColor,
-//       appBar: AppBar(
-//         scrolledUnderElevation: 0,
-//         automaticallyImplyLeading: false,
-//         toolbarHeight: 50,
-//         title: Text(
-//           'Edit Profil',
-//           style: GoogleFonts.poppins(
-//             fontWeight: FontWeight.bold,
-//             fontSize: 20,
-//             color: Colors.black,
-//           ),
-//         ),
-//         centerTitle: true,
-//         leading: IconButton(
-//           icon: const Icon(
-//             Icons.keyboard_backspace,
-//             color: Colors.black,
-//             size: 24,
-//           ),
-//           onPressed: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//         // actions: [
-//         //   IconButton(
-//         //     icon: const Icon(
-//         //       Icons.delete,
-//         //       color: Colors.red,
-//         //       size: 24,
-//         //     ),
-//         //     onPressed: () {
-//         //       showDialog(
-//         //         context: context,
-//         //         builder: (BuildContext context) {
-//         //           return CustomAlertDialog(
-//         //             title: "Hapus Menu",
-//         //             message:
-//         //                 "Apakah Anda yakin ingin untuk menghapus menu ini?",
-//         //             showCancelButton: true,
-//         //             onOkPressed: () {
-//         //               context
-//         //                   .read<KatalogMenuProvider>()
-//         //                   .deleteFood(user.token, widget.tenantFoods.id);
-//         //               Navigator.of(context).pop();
-//         //               Navigator.of(context).pop();
-//         //             },
-//         //           );
-//         //         },
-//         //       );
-//         //     },
-//         //   ),
-//         // ],
-//       ),
-//       body: GestureDetector(
-//         onTap: () {
-//           FocusScope.of(context).requestFocus(FocusNode());
-//         },
-//         child: SingleChildScrollView(
-//           physics: const AlwaysScrollableScrollPhysics(),
-//           child: Container(
-//             margin: const EdgeInsets.all(15),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Row(
-//                       children: [
-//                         Container(
-//                           width: 250,
-//                           height: 150,
-//                           decoration: BoxDecoration(
-//                             borderRadius: BorderRadius.circular(8),
-//                             image: selectedImagePath != null
-//                                 ? DecorationImage(
-//                                     image: FileImage(File(selectedImagePath!)),
-//                                     fit: BoxFit.cover,
-//                                   )
-//                                 : widget.userProfil. != null &&
-//                                         widget.tenantFoods.gambar.isNotEmpty
-//                                     ? DecorationImage(
-//                                         image: NetworkImage(
-//                                           "${MasbroConstants.baseUrl}${widget.tenantFoods.gambar}",
-//                                         ),
-//                                         fit: BoxFit.cover,
-//                                       )
-//                                     : const DecorationImage(
-//                                         image: AssetImage(
-//                                             'assets/images/dummy.jpeg'),
-//                                         fit: BoxFit.cover,
-//                                       ),
-//                           ),
-//                         ),
-//                         const SizedBox(width: 10),
-//                         IconButton(
-//                           onPressed: _getImageFromGallery,
-//                           icon: const Icon(Icons.edit_square),
-//                         ),
-//                       ],
-//                     ),
-//                     const SizedBox(height: 20),
-//                     CustomTextFormField(
-//                       label: 'Nama Tenant',
-//                       hintText: 'Tuliskan nama menu',
-//                       isRequired: true,
-//                       controller: namaMenuController,
-//                     ),
-//                     CustomTextFormField(
-//                       label: 'Deskripsi menu',
-//                       hintText: 'Masukan deskripsi',
-//                       controller: deskripsiMenuController,
-//                       maxLine: 3,
-//                     ),
-//                     CustomTextFormField(
-//                       label: 'Harga Menu',
-//                       hintText: 'Rp',
-//                       isRequired: true,
-//                       inputType: TextInputType.number,
-//                       controller: hargaMenuController,
-//                     ),
-//                   ],
-//                 ),
-//                 Row(
-//                   children: [
-//                     Text(
-//                       'Kategori Menu',
-//                       style: GoogleFonts.poppins(
-//                         fontWeight: FontWeight.bold,
-//                         fontSize: 14,
-//                       ),
-//                     ),
-//                     const Text(
-//                       ' *',
-//                       style: TextStyle(
-//                         color: Colors.red,
-//                         fontSize: 14,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 SizedBox(height: 8),
-//                 Container(
-//                   height: 50,
-//                   decoration: BoxDecoration(
-//                     border: Border.all(
-//                       color: Colors.grey,
-//                       width: 1.0,
-//                     ),
-//                     borderRadius: BorderRadius.circular(10.0),
-//                   ),
-//                   padding: EdgeInsets.symmetric(horizontal: 12.0),
-//                   child: Align(
-//                     alignment: Alignment.center,
-//                     child: DropdownButton<int>(
-//                       value: selectedCategory,
-//                       items: kategoriMenu.map((value) {
-//                         return DropdownMenuItem<int>(
-//                           value: value.id,
-//                           child: Text(
-//                             value.nama,
-//                             style: GoogleFonts.poppins(
-//                               fontWeight: regular,
-//                               fontSize: 14,
-//                             ),
-//                           ),
-//                         );
-//                       }).toList(),
-//                       onChanged: (int? newValue) {
-//                         setState(() {
-//                           selectedCategory = newValue!;
-//                         });
-//                       },
-//                       hint: const Text(
-//                         'Pilih kategori menu',
-//                       ),
-//                       isExpanded: true,
-//                       dropdownColor: Color.fromARGB(255, 236, 236, 236),
-//                       borderRadius: BorderRadius.circular(8.0),
-//                     ),
-//                   ),
-//                 ),
-//                 const SizedBox(height: 50),
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     Expanded(
-//                       child: Container(
-//                         margin: const EdgeInsets.only(right: 5),
-//                         decoration: BoxDecoration(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                         child: OutlinedButton(
-//                           onPressed: () {
-//                             Navigator.pop(context);
-//                           },
-//                           style: OutlinedButton.styleFrom(
-//                             side: const BorderSide(
-//                               color: Color.fromARGB(255, 68, 68, 68),
-//                             ),
-//                             shape: RoundedRectangleBorder(
-//                               borderRadius: BorderRadius.circular(10),
-//                             ),
-//                           ),
-//                           child: const Text(
-//                             'Batal',
-//                             style: TextStyle(
-//                               color: Color.fromARGB(255, 68, 68, 68),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     Expanded(
-//                       child: Container(
-//                         margin: const EdgeInsets.only(left: 5),
-//                         decoration: BoxDecoration(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                         child: ElevatedButton(
-//                           onPressed: () {
-//                             String message = '';
-//                             if (hargaMenuController.text.isEmpty &&
-//                                 selectedCategory == null) {
-//                               message = "Kategori dan harga menu belum diisi.";
-//                             } else if (hargaMenuController.text.isEmpty) {
-//                               message = "Harga menu belum diisi.";
-//                             } else if (selectedCategory == null) {
-//                               message = "Kategori menu belum dipilih.";
-//                             } else if (double.tryParse(
-//                                     hargaMenuController.text)! <=
-//                                 0) {
-//                               message =
-//                                   "Koreksi harga! Harga menu harus lebih besar dari 0";
-//                             }
+                            final data = {
+                              'name': namaUserController.text,
+                              'phone': phoneUserController.text,
+                              'image': selectedImagePath,
+                            };
 
-//                             if (message.isNotEmpty) {
-//                               showDialog(
-//                                 context: context,
-//                                 builder: (BuildContext context) {
-//                                   return CustomAlertDialog(
-//                                     title: "Koreksi field!",
-//                                     message: message,
-//                                     showCancelButton: false,
-//                                   );
-//                                 },
-//                               );
-//                             } else {
-//                               setState(() {
-//                                 isLoading = true;
-//                               });
+                            AuthRemoteDataSource()
+                                .updateProfileUser(
+                                    authProvider.user.token, data)
+                                .then((value) {
+                              debugPrint('value setelah edit $value');
+                              if (value) {
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  CustomPageBuilder(
+                                    page: Builder(
+                                      builder: (context) {
+                                        final roles = authProvider.user.role;
 
-//                               final kategori_id = selectedCategory;
-//                               final nama_menu = namaMenuController.text;
-//                               final harga_menu = hargaMenuController.text;
-//                               final deskripsi_menu =
-//                                   deskripsiMenuController.text;
+                                        // Cek kombinasi tenant dan driver
+                                        if (roles.contains('tenant') &&
+                                            roles.contains('driver')) {
+                                          return const NavbarHome(pageIndex: 5);
+                                        }
+                                        // Cek peran individu
+                                        else if (roles.contains('tenant')) {
+                                          return const NavbarHome(pageIndex: 4);
+                                        } else if (roles.contains('driver')) {
+                                          return const NavbarHome(pageIndex: 3);
+                                        } else {
+                                          return const NavbarHome(pageIndex: 2);
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  (route) => route.isFirst,
+                                );
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CustomAlertDialog(
+                                      title: 'Gagal!',
+                                      message:
+                                          'Gagal memperbarui profil. Silakan coba lagi.',
+                                      showCancelButton: false,
+                                    );
+                                  },
+                                );
+                              }
+                            }).whenComplete(() {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            side: BorderSide(
+                              color: AppColors.primaryColor,
+                            ),
+                            backgroundColor: AppColors.primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Edit User',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-//                               final data = {
-//                                 "kategori_id": kategori_id,
-//                                 "nama_menu": nama_menu,
-//                                 "deskripsi_menu": deskripsi_menu,
-//                                 "harga": harga_menu,
-//                                 "gambar": selectedImagePath,
-//                               };
-
-//                               TenantRemoteDataSource()
-//                                   .updateMenuTenant(
-//                                       user.token, (data), widget.tenantFoods.id)
-//                                   .then((value) {
-//                                 debugPrint('value setelah edit $value');
-//                                 if (value) {
-//                                   Navigator.of(context).pushAndRemoveUntil(
-//                                     MaterialPageRoute(
-//                                       builder: (context) => const KatalogMenu(),
-//                                     ),
-//                                     (route) => route.isFirst,
-//                                   );
-//                                 } else {
-//                                   debugPrint('gagall');
-//                                 }
-//                               }).whenComplete(() {
-//                                 setState(() {
-//                                   isLoading = false;
-//                                 });
-//                               });
-//                             }
-//                           },
-//                           style: ElevatedButton.styleFrom(
-//                             side: BorderSide(
-//                               color: AppColors.primaryColor,
-//                             ),
-//                             backgroundColor: AppColors.primaryColor,
-//                             shape: RoundedRectangleBorder(
-//                               borderRadius: BorderRadius.circular(10),
-//                             ),
-//                           ),
-//                           child: isLoading
-//                               ? const SizedBox(
-//                                   width: 20,
-//                                   height: 20,
-//                                   child: CircularProgressIndicator(
-//                                     valueColor: AlwaysStoppedAnimation<Color>(
-//                                         Colors.white),
-//                                     strokeWidth: 2,
-//                                   ),
-//                                 )
-//                               : const Text(
-//                                   'Edit',
-//                                   style: TextStyle(
-//                                     color: Colors.white,
-//                                   ),
-//                                 ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  void dispose() {
+    namaUserController.dispose();
+    emailUserController.dispose();
+    phoneUserController.dispose();
+    super.dispose();
+  }
+}

@@ -117,4 +117,14 @@ class AuthProvider extends ChangeNotifier {
       print("Error updating tenant status: $e");
     }
   }
+
+  Future<void> fetchUserData(String token) async {
+    try {
+      _user = await AuthRemoteDataSource().fetchUserData(token);
+      log("berhasil di get ");
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Error in provider: $e');
+    }
+  }
 }

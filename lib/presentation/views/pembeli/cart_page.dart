@@ -14,6 +14,7 @@ import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/add_more_items_button.dart';
 import 'package:testgetdata/presentation/widgets/bottom_navigation_cart_payment.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/delivery_option_toggle.dart';
 import 'package:testgetdata/presentation/widgets/list_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
@@ -62,7 +63,7 @@ class _CartPageState extends State<CartPage> {
         textButtonOk: "Top Up",
         onConfirmOk: () => Navigator.push(
           context,
-          _buildPageRoute(TopupPage(coin: coin, email: email)),
+          CustomPageBuilder(page: TopupPage(coin: coin, email: email)),
         ),
       ),
     );
@@ -166,25 +167,25 @@ class _CartPageState extends State<CartPage> {
   void _navigateToSuccessPage(BuildContext context) {
     Navigator.pushAndRemoveUntil(
       context,
-      _buildPageRoute(const OrderSuccess()),
+      CustomPageBuilder(page: const OrderSuccess()),
       (route) => false,
     );
   }
 
-  PageRouteBuilder _buildPageRoute(Widget page) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset(0.0, 0.0);
-        const curve = Curves.easeInOut;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-        return SlideTransition(position: offsetAnimation, child: child);
-      },
-    );
-  }
+  // PageRouteBuilder _buildPageRoute(Widget page) {
+  //   return PageRouteBuilder(
+  //     pageBuilder: (context, animation, secondaryAnimation) => page,
+  //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //       const begin = Offset(1.0, 0.0);
+  //       const end = Offset(0.0, 0.0);
+  //       const curve = Curves.easeInOut;
+  //       var tween =
+  //           Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+  //       var offsetAnimation = animation.drive(tween);
+  //       return SlideTransition(position: offsetAnimation, child: child);
+  //     },
+  //   );
+  // }
 
   @override
   void initState() {

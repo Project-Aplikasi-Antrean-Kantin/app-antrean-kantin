@@ -3,7 +3,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -20,6 +22,16 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    // UserModel user = authProvider.user;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      authProvider.fetchUserData(authProvider.user.token);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
@@ -52,35 +64,34 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    // void handleRouteEditProfil() {
-    //   Navigator.of(context).push(
-    //     PageRouteBuilder(
-    //       pageBuilder: (context, animation, secondaryAnimation) => EditProfil(
-    //         userProfil: user,
-    //       ),
-    //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    //         const begin = Offset(1.0, 0.0);
-    //         const end = Offset(0.0, 0.0);
-    //         const curve = Curves.easeInOut;
+    void handleRouteEditProfil() {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => EditProfil(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset(0.0, 0.0);
+            const curve = Curves.easeInOut;
 
-    //         var tween =
-    //             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-    //         var offsetAnimation = animation.drive(tween);
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
 
-    //         return SlideTransition(
-    //           position: offsetAnimation,
-    //           child: child,
-    //         );
-    //       },
-    //     ),
-    //   );
-    // }
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        ),
+      );
+    }
 
     void showTenantStatusBottomSheet(BuildContext context) {
-      bool?
-          selectedStatus; // null = belum pilih, true = online, false = offline
+      bool? selectedStatus;
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       showModalBottomSheet(
+        backgroundColor: AppColors.backgroundColor,
         context: context,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -95,13 +106,48 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Ubah Status Tenant',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        color: AppColors.textColorBlack,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Ubah Status Tenant',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            color: AppColors.textColorBlack,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(right: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 1),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            border: Border.all(
+                              width: 0.5,
+                              // color: iconColor ??
+                              //     AppColors
+                              //         .textColorBlack, // Fallback ke warna default
+                              color: authProvider.user.isOnline == true
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          ),
+                          child: Text(
+                            authProvider.user.isOnline == true
+                                ? "Buka"
+                                : "Tutup",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: regular,
+                              color: authProvider.user.isOnline == true
+                                  ? Colors.green
+                                  : Colors.red, // Fallback
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 15),
 
@@ -293,22 +339,46 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(80),
-                      image: const DecorationImage(
-                        image: AssetImage("assets/images/dummy.jpeg"),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
                     height: 160,
                     width: 160,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(80),
+                      color: Colors.grey[200],
+                    ),
+                    child: authProvider.user.gambar != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(80),
+                            child: Image.network(
+                              "${authProvider.user.gambar}",
+                              // '${MasbroConstants.baseUrl}/${authProvider.user.gambar!}',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  Icons.person,
+                                  size: 80,
+                                  color: Colors.grey[600],
+                                );
+                              },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              },
+                            ),
+                          )
+                        : Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Colors.grey[600],
+                          ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 15),
                     child: Column(
                       children: [
                         Text(
-                          capitalizeFirstLetter(user.nama),
+                          capitalizeFirstLetter(authProvider.user.nama),
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             color: Colors.white,
@@ -317,7 +387,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          user.email,
+                          authProvider.user.email,
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.white,
@@ -364,21 +434,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                 handleRouteKatalogMenuPage();
                               },
                             ),
-                            // ProfileMenuItem(
-                            //   icon: Icons.restaurant,
-                            //   title: 'log',
-                            //   onTap: () {
-                            //     // handleRouteKatalogMenuPage();
-                            //     log(user.isOnline.toString());
-                            //     log(authProvider.user.isOnline.toString());
-                            //   },
-                            // ),
                             ProfileMenuItem(
-                              // status: authProvider.user.isOnline,
+                              status: authProvider.user.isOnline,
                               icon: Icons.radio_button_on,
-                              // iconColor: authProvider.user.isOnline!
-                              //     ? Colors.green
-                              //     : Colors.red,
+                              iconColor: authProvider.user.isOnline!
+                                  ? Colors.green
+                                  : Colors.red,
                               title: 'Status Tenant',
                               onTap: () {
                                 // handleRouteKatalogMenuPage();
@@ -398,13 +459,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
-                  // ProfileMenuItem(
-                  //   icon: Icons.account_circle_outlined,
-                  //   title: 'Edit Profil',
-                  //   onTap: () {
-                  //     handleRouteEditProfil();
-                  //   },
-                  // ),
+                  ProfileMenuItem(
+                    icon: Icons.account_circle_outlined,
+                    title: 'Edit Profil',
+                    onTap: () {
+                      handleRouteEditProfil();
+                    },
+                  ),
                   ProfileMenuItem(
                     icon: Icons.logout,
                     title: 'Keluar',

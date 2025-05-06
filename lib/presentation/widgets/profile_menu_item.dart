@@ -65,28 +65,28 @@ class ProfileMenuItem extends StatelessWidget {
             const Spacer(
               flex: 1,
             ),
-            // if (title == 'Status Tenant') // Hanya untuk Status Tenant
-            //   Container(
-            //     margin: const EdgeInsets.only(right: 10),
-            //     padding:
-            //         const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
-            //     decoration: BoxDecoration(
-            //       borderRadius: const BorderRadius.all(Radius.circular(10)),
-            //       border: Border.all(
-            //         width: 0.5,
-            //         color: iconColor ??
-            //             AppColors.textColorBlack, // Fallback ke warna default
-            //       ),
-            //     ),
-            //     child: Text(
-            //       status! ? "Buka" : "Tutup",
-            //       style: GoogleFonts.poppins(
-            //         fontSize: 12,
-            //         fontWeight: regular,
-            //         color: iconColor ?? AppColors.textColorBlack, // Fallback
-            //       ),
-            //     ),
-            //   ),
+            if (title == 'Status Tenant') // Hanya untuk Status Tenant
+              Container(
+                margin: const EdgeInsets.only(right: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  border: Border.all(
+                    width: 0.5,
+                    color: iconColor ??
+                        AppColors.textColorBlack, // Fallback ke warna default
+                  ),
+                ),
+                child: Text(
+                  status! ? "Buka" : "Tutup",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: regular,
+                    color: iconColor ?? AppColors.textColorBlack, // Fallback
+                  ),
+                ),
+              ),
             if (showIconArrow)
               const Icon(
                 Icons.keyboard_arrow_right_outlined,

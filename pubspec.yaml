@@ -54,6 +54,7 @@ dependencies:
   dropdown_button2: ^2.3.9
   shimmer: ^3.0.0
   flutter_local_notifications: ^18.0.1
+  flutter_image_compress: ^2.3.0
 
 dev_dependencies:
   flutter_test:
