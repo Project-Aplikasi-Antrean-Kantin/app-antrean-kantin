@@ -14,6 +14,9 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 class KatalogMenuForm extends StatefulWidget {
   final TenantFoods? initialData; // Null untuk tambah, non-null untuk edit
@@ -60,24 +63,50 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     return sizeInBytes ~/ 1024; // KB
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _getImageFromGallery() async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
-      final sizeInKB = await _getImageSize(pickedImage.path);
-      if (sizeInKB > 2048) {
+      debugPrint('Original image path: ${pickedImage.path}');
+      final tempDir = await getTemporaryDirectory();
+      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempPath = '${tempDir.path}/$tempFileName';
+      debugPrint('Target path for compressed image: $tempPath');
+
+      try {
+        final compressedImage = await FlutterImageCompress.compressAndGetFile(
+          pickedImage.path,
+          tempPath,
+          quality: 70,
+          minWidth: 1024,
+          minHeight: 1024,
+        );
+        if (compressedImage != null) {
+          debugPrint('Compressed image path: ${compressedImage.path}');
+          setState(() {
+            selectedImagePath = compressedImage.path;
+          });
+        } else {
+          debugPrint('Compression returned null');
+          showDialog(
+            context: context,
+            builder: (context) => CustomAlertDialog(
+              title: 'Gagal!',
+              message: 'Gagal mengompresi gambar. Silakan coba lagi.',
+              showCancelButton: false,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Compression error: $e');
         showDialog(
           context: context,
           builder: (context) => CustomAlertDialog(
-            title: 'Peringatan!',
-            message: 'Gambar lebih dari 2MB.',
+            title: 'Error!',
+            message: 'Terjadi kesalahan saat mengompresi gambar.',
             showCancelButton: false,
           ),
         );
-      } else {
-        setState(() {
-          selectedImagePath = pickedImage.path;
-        });
       }
     }
   }
@@ -127,7 +156,6 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
               user.token, data, widget.initialData!.id);
 
       if (success) {
-        // Kembalikan true untuk memicu refresh
         Navigator.of(context).pop(true);
       } else {
         showDialog(
@@ -271,7 +299,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
                     ),
                     const SizedBox(width: 10),
                     IconButton(
-                      onPressed: _pickImage,
+                      onPressed: _getImageFromGallery,
                       icon: const Icon(Icons.edit_square),
                     ),
                   ],

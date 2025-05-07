@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/menu_list_page.dart';
@@ -44,7 +45,7 @@ class _KatalogMenuState extends State<KatalogMenu> {
             style: GoogleFonts.poppins(
               color: AppColors.textColorBlack,
               fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontWeight: semibold,
             ),
           ),
           centerTitle: true,
@@ -60,11 +61,12 @@ class _KatalogMenuState extends State<KatalogMenu> {
           ),
           bottom: TabBar(
             dividerColor: Colors.transparent,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
             indicatorColor: AppColors.primaryColor,
             labelColor: AppColors.primaryColor,
-            labelStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            labelStyle: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: medium,
             ),
             tabs: const [
               Tab(text: 'Tersedia'),

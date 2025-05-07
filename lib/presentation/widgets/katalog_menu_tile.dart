@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
@@ -19,8 +21,15 @@ class KatalogMenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
+    return Container(
+      // decoration: BoxDecoration(
+      //   color: Colors.white,
+      //   border: Border.all(
+      //     width: 1.0,
+      //     color: Colors.grey[900]!,
+      //   ),
+      // ),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -45,9 +54,9 @@ class KatalogMenuTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: semibold,
                     fontSize: 14,
-                    color: Colors.black,
+                    color: AppColors.textColorBlack,
                   ),
                 ),
                 const SizedBox(
@@ -57,6 +66,7 @@ class KatalogMenuTile extends StatelessWidget {
                   FormatCurrency.intToStringCurrency(item.harga),
                   style: TextStyle(
                     fontSize: 12,
+                    color: AppColors.textColorBlack,
                   ),
                 ),
                 const SizedBox(

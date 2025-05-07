@@ -54,7 +54,7 @@ class _MenuListPageState extends State<MenuListPage> {
           backgroundColor: AppColors.backgroundColor,
           body: SingleChildScrollView(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Column(
                 children: [
                   SearchWidget(
@@ -71,69 +71,59 @@ class _MenuListPageState extends State<MenuListPage> {
                     tittle: "Cari menu . . .",
                   ),
                   const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFB3B3B3)),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(left: 10, bottom: 10),
-                          decoration: const BoxDecoration(
-                            border: Border(bottom: BorderSide(width: 1)),
-                          ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Container(
+                      //   margin: const EdgeInsets.only(left: 10, bottom: 10),
+                      //   decoration: const BoxDecoration(
+                      //     border: Border(bottom: BorderSide(width: 1)),
+                      //   ),
+                      //   child: Text(
+                      //     'Makanan',
+                      //     style: GoogleFonts.poppins(
+                      //       fontSize: 14,
+                      //       fontWeight: FontWeight.bold,
+                      //     ),
+                      //   ),
+                      // ),
+                      if (filteredData.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(10),
                           child: Text(
-                            'Makanan',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            'Tidak ada menu ditemukan',
+                            style: GoogleFonts.poppins(fontSize: 14),
                           ),
-                        ),
-                        if (filteredData.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Text(
-                              'Tidak ada menu ditemukan',
-                              style: GoogleFonts.poppins(fontSize: 14),
-                            ),
-                          )
-                        else
-                          ...filteredData.map((item) => KatalogMenuTile(
-                                item: item,
-                                onChanged: (value) async {
-                                  try {
-                                    final result =
-                                        await TenantRemoteDataSource()
-                                            .updateMenuisReady(
-                                                value, user.token, item.id);
-                                    if (result) {
-                                      await provider.fetchData(user.token);
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Gagal memperbarui status'),
-                                        ),
-                                      );
-                                    }
-                                  } catch (e) {
-                                    debugPrint('Error updating status: $e');
+                        )
+                      else
+                        ...filteredData.map((item) => KatalogMenuTile(
+                              item: item,
+                              onChanged: (value) async {
+                                try {
+                                  final result = await TenantRemoteDataSource()
+                                      .updateMenuisReady(
+                                          value, user.token, item.id);
+                                  if (result) {
+                                    await provider.fetchData(user.token);
+                                  } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Terjadi kesalahan'),
+                                        content:
+                                            Text('Gagal memperbarui status'),
                                       ),
                                     );
                                   }
-                                },
-                              )),
-                      ],
-                    ),
+                                } catch (e) {
+                                  debugPrint('Error updating status: $e');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Terjadi kesalahan'),
+                                    ),
+                                  );
+                                }
+                              },
+                            )),
+                    ],
                   ),
                   const SizedBox(height: 80),
                 ],
