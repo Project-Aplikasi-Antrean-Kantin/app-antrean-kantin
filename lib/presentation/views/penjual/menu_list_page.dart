@@ -9,6 +9,7 @@ import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_form.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 
@@ -138,8 +139,9 @@ class _MenuListPageState extends State<MenuListPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const KatalogMenuForm()),
+                        CustomPageBuilder(
+                          page: KatalogMenuForm(),
+                        ),
                       ).then((value) {
                         if (value == true) {
                           provider.fetchData(user.token);

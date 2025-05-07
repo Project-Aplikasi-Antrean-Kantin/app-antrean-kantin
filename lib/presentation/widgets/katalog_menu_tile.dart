@@ -8,6 +8,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_form.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 
 class KatalogMenuTile extends StatelessWidget {
   final TenantFoods item;
@@ -77,9 +78,10 @@ class KatalogMenuTile extends StatelessWidget {
                     debugPrint('Navigasi ke edit menu');
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            KatalogMenuForm(initialData: item),
+                      CustomPageBuilder(
+                        page: KatalogMenuForm(
+                          initialData: item,
+                        ),
                       ),
                     ).then((value) {
                       if (value == true) {

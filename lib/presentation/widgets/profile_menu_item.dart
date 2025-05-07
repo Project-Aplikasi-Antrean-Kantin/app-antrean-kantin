@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 
+// ignore: must_be_immutable
 class ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String title;

@@ -15,7 +15,7 @@ import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:testgetdata/presentation/widgets/custom_page_builder.dart'; // For temporary file storage
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 
 class EditProfil extends StatefulWidget {
   const EditProfil({
@@ -175,215 +175,209 @@ class _EditProfilState extends State<EditProfil> {
           child: Container(
             margin: const EdgeInsets.all(15),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 250,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: selectedImagePath != null
+                    Container(
+                      width: 250,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: selectedImagePath != null
+                            ? DecorationImage(
+                                image: FileImage(File(selectedImagePath!)),
+                                fit: BoxFit.cover,
+                              )
+                            : authProvider.user.gambar != null
                                 ? DecorationImage(
-                                    image: FileImage(File(selectedImagePath!)),
+                                    image: NetworkImage(
+                                      "${authProvider.user.gambar}",
+                                    ),
                                     fit: BoxFit.cover,
                                   )
-                                : authProvider.user.gambar != null
-                                    ? DecorationImage(
-                                        image: NetworkImage(
-                                          "${authProvider.user.gambar}",
-                                        ),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : const DecorationImage(
-                                        image: AssetImage(
-                                            'assets/images/dummy.jpeg'),
-                                        fit: BoxFit.cover,
-                                      ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        IconButton(
-                          onPressed: _getImageFromGallery,
-                          icon: const Icon(Icons.edit_square),
-                        ),
-                      ],
+                                : const DecorationImage(
+                                    image:
+                                        AssetImage('assets/images/dummy.jpeg'),
+                                    fit: BoxFit.cover,
+                                  ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    CustomTextFormField(
-                      label: 'Nama Kamu',
-                      hintText: 'Tuliskan nama kamu',
-                      isRequired: true,
-                      controller: namaUserController,
-                    ),
-                    CustomTextFormField(
-                      label: 'Email Kamu',
-                      hintText: 'Tuliskan email kamu',
-                      controller: emailUserController,
-                      isEnabled: false,
-                    ),
-                    CustomTextFormField(
-                      label: 'Nomor Telp',
-                      hintText: '089XX',
-                      isRequired: true,
-                      inputType: TextInputType.number,
-                      controller: phoneUserController,
+                    const SizedBox(width: 10),
+                    IconButton(
+                      onPressed: _getImageFromGallery,
+                      icon: const Icon(Icons.edit_square),
                     ),
                   ],
                 ),
-                const SizedBox(height: 50),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: Color.fromARGB(255, 68, 68, 68),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: const Text(
-                            'Batal',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 68, 68, 68),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(left: 5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (namaUserController.text.isEmpty ||
-                                phoneUserController.text.isEmpty) {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return CustomAlertDialog(
-                                    title: 'Koreksi!',
-                                    message:
-                                        'Nama dan nomor telepon harus diisi.',
-                                    showCancelButton: false,
-                                  );
-                                },
-                              );
-                              return;
-                            }
-
-                            setState(() {
-                              isLoading = true;
-                            });
-
-                            final data = {
-                              'name': namaUserController.text,
-                              'phone': phoneUserController.text,
-                              'image': selectedImagePath,
-                            };
-
-                            AuthRemoteDataSource()
-                                .updateProfileUser(
-                                    authProvider.user.token, data)
-                                .then((value) {
-                              debugPrint('value setelah edit $value');
-                              if (value) {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  CustomPageBuilder(
-                                    page: Builder(
-                                      builder: (context) {
-                                        final roles = authProvider.user.role;
-
-                                        // Cek kombinasi tenant dan driver
-                                        if (roles.contains('tenant') &&
-                                            roles.contains('driver')) {
-                                          return const NavbarHome(pageIndex: 5);
-                                        }
-                                        // Cek peran individu
-                                        else if (roles.contains('tenant')) {
-                                          return const NavbarHome(pageIndex: 4);
-                                        } else if (roles.contains('driver')) {
-                                          return const NavbarHome(pageIndex: 3);
-                                        } else {
-                                          return const NavbarHome(pageIndex: 2);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  (route) => route.isFirst,
-                                );
-                                authProvider
-                                    .fetchUserData(authProvider.user.token);
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return CustomAlertDialog(
-                                      title: 'Gagal!',
-                                      message:
-                                          'Gagal memperbarui profil. Silakan coba lagi.',
-                                      showCancelButton: false,
-                                    );
-                                  },
-                                );
-                              }
-                            }).whenComplete(() {
-                              setState(() {
-                                isLoading = false;
-                              });
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            side: BorderSide(
-                              color: AppColors.primaryColor,
-                            ),
-                            backgroundColor: AppColors.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text(
-                                  'Simpan',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 20),
+                CustomTextFormField(
+                  label: 'Nama Kamu',
+                  hintText: 'Tuliskan nama kamu',
+                  isRequired: true,
+                  controller: namaUserController,
+                ),
+                CustomTextFormField(
+                  label: 'Email Kamu',
+                  hintText: 'Tuliskan email kamu',
+                  controller: emailUserController,
+                  isEnabled: false,
+                ),
+                CustomTextFormField(
+                  label: 'Nomor Telp',
+                  hintText: '089XX',
+                  isRequired: true,
+                  inputType: TextInputType.number,
+                  controller: phoneUserController,
                 ),
               ],
             ),
           ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(right: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(
+                      color: Color.fromARGB(255, 68, 68, 68),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Batal',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 68, 68, 68),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(left: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (namaUserController.text.isEmpty ||
+                        phoneUserController.text.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CustomAlertDialog(
+                            title: 'Koreksi!',
+                            message: 'Nama dan nomor telepon harus diisi.',
+                            showCancelButton: false,
+                          );
+                        },
+                      );
+                      return;
+                    }
+
+                    setState(() {
+                      isLoading = true;
+                    });
+
+                    final data = {
+                      'name': namaUserController.text,
+                      'phone': phoneUserController.text,
+                      'image': selectedImagePath,
+                    };
+
+                    AuthRemoteDataSource()
+                        .updateProfileUser(authProvider.user.token, data)
+                        .then((value) {
+                      debugPrint('value setelah edit $value');
+                      if (value) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          CustomPageBuilder(
+                            page: Builder(
+                              builder: (context) {
+                                final roles = authProvider.user.role;
+
+                                // Cek kombinasi tenant dan driver
+                                if (roles.contains('tenant') &&
+                                    roles.contains('driver')) {
+                                  return const NavbarHome(pageIndex: 5);
+                                }
+                                // Cek peran individu
+                                else if (roles.contains('tenant')) {
+                                  return const NavbarHome(pageIndex: 4);
+                                } else if (roles.contains('driver')) {
+                                  return const NavbarHome(pageIndex: 3);
+                                } else {
+                                  return const NavbarHome(pageIndex: 2);
+                                }
+                              },
+                            ),
+                          ),
+                          (route) => route.isFirst,
+                        );
+                        authProvider.fetchUserData(authProvider.user.token);
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomAlertDialog(
+                              title: 'Gagal!',
+                              message:
+                                  'Gagal memperbarui profil. Silakan coba lagi.',
+                              showCancelButton: false,
+                            );
+                          },
+                        );
+                      }
+                    }).whenComplete(() {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    side: BorderSide(
+                      color: AppColors.primaryColor,
+                    ),
+                    backgroundColor: AppColors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Simpan',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
