@@ -9,6 +9,7 @@ class ProfileMenuItem extends StatelessWidget {
   final VoidCallback onTap;
   final bool showIconArrow;
   Color? iconColor;
+  Color? titleColor;
   bool? status;
 
   ProfileMenuItem({
@@ -18,6 +19,7 @@ class ProfileMenuItem extends StatelessWidget {
     required this.onTap,
     this.showIconArrow = true,
     this.iconColor,
+    this.titleColor,
     this.status,
   }) : super(key: key);
 
@@ -60,6 +62,7 @@ class ProfileMenuItem extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: medium,
+                color: titleColor,
               ),
             ),
             const Spacer(

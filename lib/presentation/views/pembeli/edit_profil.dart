@@ -5,6 +5,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/remote/auth_remote_data_source.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
@@ -148,9 +149,9 @@ class _EditProfilState extends State<EditProfil> {
         title: Text(
           'Edit Profil',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.black,
+            fontSize: 18,
+            color: AppColors.textColorBlack,
+            fontWeight: semibold,
           ),
         ),
         centerTitle: true,
@@ -329,6 +330,8 @@ class _EditProfilState extends State<EditProfil> {
                                   ),
                                   (route) => route.isFirst,
                                 );
+                                authProvider
+                                    .fetchUserData(authProvider.user.token);
                               } else {
                                 showDialog(
                                   context: context,
@@ -368,7 +371,7 @@ class _EditProfilState extends State<EditProfil> {
                                   ),
                                 )
                               : const Text(
-                                  'Edit User',
+                                  'Simpan',
                                   style: TextStyle(
                                     color: Colors.white,
                                   ),

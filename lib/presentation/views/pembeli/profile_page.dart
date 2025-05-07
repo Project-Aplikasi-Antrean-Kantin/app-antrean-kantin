@@ -1,21 +1,20 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
-import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
+import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/profile_menu_item.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -23,288 +22,9 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   @override
-  void initState() {
-    super.initState();
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    // UserModel user = authProvider.user;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      authProvider.fetchUserData(authProvider.user.token);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
-    UserModel user = authProvider.user;
-    handleLogout() async {
-      await authProvider.logout(user.token);
-      Navigator.pushReplacementNamed(context, '/');
-    }
-
-    void handleRouteKatalogMenuPage() {
-      Navigator.of(context).push(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              KatalogMenu(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset(0.0, 0.0);
-            const curve = Curves.easeInOut;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
-
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-        ),
-      );
-    }
-
-    void handleRouteEditProfil() {
-      Navigator.of(context).push(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => EditProfil(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset(0.0, 0.0);
-            const curve = Curves.easeInOut;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
-
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-        ),
-      );
-    }
-
-    void showTenantStatusBottomSheet(BuildContext context) {
-      bool? selectedStatus;
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-      showModalBottomSheet(
-        backgroundColor: AppColors.backgroundColor,
-        context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-        ),
-        isScrollControlled: true,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setModalState) {
-              return Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Ubah Status Tenant',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            color: AppColors.textColorBlack,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 1),
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(
-                              width: 0.5,
-                              // color: iconColor ??
-                              //     AppColors
-                              //         .textColorBlack, // Fallback ke warna default
-                              color: authProvider.user.isOnline == true
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                          ),
-                          child: Text(
-                            authProvider.user.isOnline == true
-                                ? "Buka"
-                                : "Tutup",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: regular,
-                              color: authProvider.user.isOnline == true
-                                  ? Colors.green
-                                  : Colors.red, // Fallback
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-
-                    // === ONLINE OPTION ===
-                    GestureDetector(
-                      onTap: () {
-                        setModalState(() => selectedStatus = true);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: selectedStatus == true
-                              ? AppColors.primaryColor.withOpacity(0.1)
-                              : null,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: selectedStatus == true
-                                ? AppColors.primaryColor
-                                : Colors.grey,
-                            width: 0.8,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Online',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: AppColors.textColorBlack,
-                                    fontWeight: semibold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Pengguna bisa langsung memesan',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: AppColors.textColorBlack,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Icon(
-                              selectedStatus == true
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_off,
-                              color: selectedStatus == true
-                                  ? AppColors.primaryColor
-                                  : Colors.grey,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // === OFFLINE OPTION ===
-                    GestureDetector(
-                      onTap: () {
-                        setModalState(() => selectedStatus = false);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: selectedStatus == false
-                              ? AppColors.primaryColor.withOpacity(0.1)
-                              : null,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: selectedStatus == false
-                                ? AppColors.primaryColor
-                                : Colors.grey,
-                            width: 0.8,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Offline',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: AppColors.textColorBlack,
-                                    fontWeight: semibold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Pengguna belum bisa memesan dari tokomu',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: AppColors.textColorBlack,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Icon(
-                              selectedStatus == false
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_off,
-                              color: selectedStatus == false
-                                  ? AppColors.primaryColor
-                                  : Colors.grey,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // === Submit Button ===
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: selectedStatus != null
-                            ? () async {
-                                await authProvider.updateTenantStatus(
-                                    user.token, selectedStatus!);
-                                Navigator.pop(context);
-                              }
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: selectedStatus != null
-                              ? AppColors.primaryColor
-                              : Colors.grey,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Simpan',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      );
-    }
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -313,189 +33,368 @@ class _ProfilePageState extends State<ProfilePage> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 0, // Minimal AppBar to maintain status bar transparency
+        toolbarHeight: 0,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header section (moved from AppBar)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(top: 60, bottom: 20),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor,
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 15),
-                    child: Text(
-                      'Akun Saya',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 160,
-                    width: 160,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(80),
-                      color: Colors.grey[200],
-                    ),
-                    child: authProvider.user.gambar != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(80),
-                            child: Image.network(
-                              "${authProvider.user.gambar}",
-                              // '${MasbroConstants.baseUrl}/${authProvider.user.gambar!}',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(
-                                  Icons.person,
-                                  size: 80,
-                                  color: Colors.grey[600],
-                                );
-                              },
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              },
-                            ),
-                          )
-                        : Icon(
-                            Icons.person,
-                            size: 80,
-                            color: Colors.grey[600],
-                          ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Column(
-                      children: [
-                        Text(
-                          capitalizeFirstLetter(authProvider.user.nama),
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: medium,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          authProvider.user.email,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            _buildHeaderSection(context, user),
+            _buildMenuSection(context, user, authProvider),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderSection(BuildContext context, UserModel user) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(top: 60, bottom: 20),
+      decoration: BoxDecoration(color: AppColors.primaryColor),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15),
+            child: Text(
+              'Akun Saya',
+              style: GoogleFonts.poppins(
+                fontSize: 20,
+                color: AppColors.textColorwhite,
+                fontWeight: semibold,
               ),
             ),
-            // Menu section
-            Container(
-              width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  user.permission.contains('read katalog')
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Text(
-                                'Penjual',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                            // ProfileMenuItem(
-                            //   icon: Icons.storefront_outlined,
-                            //   title: 'Edit Profil Tenant',
-                            //   onTap: () {
-                            //     // handleRouteKatalogMenuPage();
-                            //   },
-                            // ),
-                            ProfileMenuItem(
-                              icon: Icons.restaurant,
-                              title: 'Katalog Menu',
-                              onTap: () {
-                                handleRouteKatalogMenuPage();
-                              },
-                            ),
-                            ProfileMenuItem(
-                              status: authProvider.user.isOnline,
-                              icon: Icons.radio_button_on,
-                              iconColor: authProvider.user.isOnline!
-                                  ? Colors.green
-                                  : Colors.red,
-                              title: 'Status Tenant',
-                              onTap: () {
-                                // handleRouteKatalogMenuPage();
-                                showTenantStatusBottomSheet(context);
-                              },
-                            ),
-                          ],
-                        )
-                      : const SizedBox(height: 0),
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 10, top: 20),
-                    child: Text(
-                      'Pengaturan',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+          ),
+          Container(
+            height: 160,
+            width: 160,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(80),
+              color: Colors.grey[200],
+            ),
+            child: user.gambar != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(80),
+                    child: Image.network(
+                      user.gambar!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.person,
+                        size: 80,
+                        color: Colors.grey[600],
                       ),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child; // Gambar selesai dimuat
+                        }
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          child: Container(
+                            height: 160,
+                            width: 160,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(80),
+                              color: Colors.grey[300],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : Icon(
+                    Icons.person,
+                    size: 80,
+                    color: Colors.grey[600],
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 15),
+            child: Column(
+              children: [
+                Text(
+                  _capitalizeFirstLetter(user.nama),
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: medium,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  user.email,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuSection(
+      BuildContext context, UserModel user, AuthProvider authProvider) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // profil penjual
+          if (user.permission.contains('read katalog')) ...[
+            Text(
+              'Penjual',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: semibold,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 10),
+            ProfileMenuItem(
+              icon: Icons.storefront_outlined,
+              title: 'Edit Profil Tenant',
+              titleColor: AppColors.textColorBlack,
+              onTap: () => Navigator.of(context).push(
+                CustomPageBuilder(page: EditProfileTenant()),
+              ),
+            ),
+            ProfileMenuItem(
+              icon: Icons.library_books_outlined,
+              title: 'Katalog Menu',
+              titleColor: AppColors.textColorBlack,
+              onTap: () => Navigator.of(context).push(
+                CustomPageBuilder(page: KatalogMenu()),
+              ),
+            ),
+            ProfileMenuItem(
+              status: user.isOnline,
+              icon: Icons.access_time_outlined,
+              iconColor: user.isOnline! ? Colors.green : Colors.red,
+              title: 'Status Tenant',
+              onTap: () => _showTenantStatusBottomSheet(context, authProvider),
+            ),
+            const SizedBox(height: 20),
+          ],
+
+          // profil semua user
+          Text(
+            'Pengaturan',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: semibold,
+              color: AppColors.primaryColor,
+            ),
+          ),
+          const SizedBox(height: 10),
+          ProfileMenuItem(
+            icon: Icons.account_circle_outlined,
+            title: 'Edit Profil',
+            onTap: () async {
+              final result = await Navigator.of(context).push(
+                CustomPageBuilder(page: const EditProfil()),
+              );
+              if (result == true && mounted) {
+                await authProvider.fetchUserData(user.token);
+              }
+            },
+          ),
+          ProfileMenuItem(
+            icon: Icons.logout,
+            title: 'Keluar',
+            showIconArrow: false,
+            onTap: () => _showLogoutDialog(context, authProvider, user.token),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showLogoutDialog(
+      BuildContext context, AuthProvider authProvider, String token) async {
+    showDialog(
+      context: context,
+      builder: (context) => CustomAlertDialog(
+        title: 'Konfirmasi Keluar',
+        message: 'Apakah Anda yakin ingin keluar?',
+        showCancelButton: true,
+        onOkPressed: () async {
+          await authProvider.logout(token);
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/');
+          }
+        },
+        onCancelPressed: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  void _showTenantStatusBottomSheet(
+      BuildContext context, AuthProvider authProvider) {
+    bool? selectedStatus = authProvider.user.isOnline;
+
+    showModalBottomSheet(
+      backgroundColor: AppColors.backgroundColor,
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTenantStatusHeader(authProvider),
+              const SizedBox(height: 15),
+              _buildStatusOption(
+                isOnline: true,
+                selectedStatus: selectedStatus,
+                onTap: () => setModalState(() => selectedStatus = true),
+              ),
+              const SizedBox(height: 10),
+              _buildStatusOption(
+                isOnline: false,
+                selectedStatus: selectedStatus,
+                onTap: () => setModalState(() => selectedStatus = false),
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: selectedStatus != null
+                      ? () async {
+                          await authProvider.updateTenantStatus(
+                              authProvider.user.token, selectedStatus!);
+                          if (mounted) Navigator.pop(context);
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: selectedStatus != null
+                        ? AppColors.primaryColor
+                        : Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  ProfileMenuItem(
-                    icon: Icons.account_circle_outlined,
-                    title: 'Edit Profil',
-                    onTap: () {
-                      handleRouteEditProfil();
-                    },
+                  child: Text(
+                    'Simpan',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  ProfileMenuItem(
-                    icon: Icons.logout,
-                    title: 'Keluar',
-                    showIconArrow: false,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CustomAlertDialog(
-                            title: "Konfirmasi Keluar",
-                            message: "Apakah Anda yakin ingin keluar?",
-                            showCancelButton: true,
-                            onOkPressed: () {
-                              handleLogout();
-                              Navigator.of(context).pop();
-                            },
-                            onCancelPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
+                ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTenantStatusHeader(AuthProvider authProvider) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Ubah Status Tenant',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            color: AppColors.textColorBlack,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(right: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            border: Border.all(
+              width: 0.5,
+              color: authProvider.user.isOnline! ? Colors.green : Colors.red,
+            ),
+          ),
+          child: Text(
+            authProvider.user.isOnline! ? 'Buka' : 'Tutup',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: regular,
+              color: authProvider.user.isOnline! ? Colors.green : Colors.red,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusOption({
+    required bool isOnline,
+    required bool? selectedStatus,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        decoration: BoxDecoration(
+          color: selectedStatus == isOnline
+              ? AppColors.primaryColor.withOpacity(0.1)
+              : null,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: selectedStatus == isOnline
+                ? AppColors.primaryColor
+                : Colors.grey,
+            width: 0.8,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isOnline ? 'Online' : 'Offline',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: AppColors.textColorBlack,
+                    fontWeight: semibold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  isOnline
+                      ? 'Pengguna bisa langsung memesan'
+                      : 'Pengguna belum bisa memesan dari tokomu',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: AppColors.textColorBlack,
+                  ),
+                ),
+              ],
+            ),
+            Icon(
+              selectedStatus == isOnline
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+              color: selectedStatus == isOnline
+                  ? AppColors.primaryColor
+                  : Colors.grey,
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 }

@@ -51,6 +51,8 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       });
 
+      authProvider.fetchUserData(authProvider.user.token);
+
       if (!mounted) return;
 
       if (success) {

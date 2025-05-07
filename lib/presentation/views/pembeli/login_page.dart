@@ -19,56 +19,132 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  var showPassword = true;
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
-  bool isLoading = false;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _showPassword = true;
+  bool _isLoading = false;
 
-  Route routeToHomePage() {
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Route _createRouteToHomePage() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => NavbarHome(
+      pageBuilder: (context, animation, secondaryAnimation) => const NavbarHome(
         pageIndex: 0,
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
-        const end = Offset(0.0, 0.0);
+        const end = Offset.zero;
         const curve = Curves.easeInOut;
-
-        var tween =
+        final tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
+        return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
   }
 
-  Route routeToRegisterPage() {
+  Route _createRouteToRegisterPage() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => RegisterPage(),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const RegisterPage(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
-        const end = Offset(0.0, 0.0);
+        const end = Offset.zero;
         const curve = Curves.easeInOut;
-
-        var tween =
+        final tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
+        return SlideTransition(position: animation.drive(tween), child: child);
       },
+    );
+  }
+
+  Future<void> _handleLogin(
+      BuildContext context, AuthProvider authProvider) async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Harap isi email dan password terlebih dahulu")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token == null) {
+        throw const ApiException(
+            status: 'failed', message: 'Gagal mendapatkan token');
+      }
+
+      await authProvider.login(
+          _emailController.text, _passwordController.text, token);
+      await authProvider.fetchUserData(authProvider.user.token);
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          _createRouteToHomePage(),
+          (route) => false,
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackBar(status: e.status, message: e.message),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackBar(status: 'failed', message: e.toString()),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  InputDecoration _buildInputDecoration(String hintText, {Widget? suffixIcon}) {
+    return InputDecoration(
+      fillColor: Colors.white,
+      filled: true,
+      hintText: hintText,
+      hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      suffixIcon: suffixIcon,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -76,20 +152,17 @@ class _LoginPageState extends State<LoginPage> {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-          left: 32,
-          right: 32,
-        ),
-        child: SingleChildScrollView(
-          child: Container(
-            margin: const EdgeInsets.only(top: 40),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 40),
                 Center(
                   child: Column(
                     children: [
@@ -101,11 +174,11 @@ class _LoginPageState extends State<LoginPage> {
                           fontWeight: semibold,
                         ),
                       ),
-                      Container(
+                      Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 30),
                         child: Text(
-                          textAlign: TextAlign.center,
                           'Pastikan kamu sudah memiliki akun ya bro...',
+                          textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             color: AppColors.textColorBlack,
                             fontSize: 15,
@@ -116,176 +189,54 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 TextFormField(
+                  controller: _emailController,
                   cursorColor: AppColors.primaryColor,
-                  controller: email,
-                  decoration: InputDecoration(
-                    fillColor: Colors.white,
-                    filled: true,
-                    hintText: 'Email address',
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Harap isi email terlebih dahulu';
-                    }
-                    return null;
-                  },
+                  decoration: _buildInputDecoration('Email address'),
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Harap isi email terlebih dahulu'
+                      : null,
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
                 TextFormField(
-                  obscureText: showPassword,
-                  controller: password,
-                  decoration: InputDecoration(
-                    fillColor: Colors.white,
-                    filled: true,
-                    hintText: 'Password',
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 20),
+                  controller: _passwordController,
+                  cursorColor: AppColors.primaryColor,
+                  obscureText: _showPassword,
+                  decoration: _buildInputDecoration(
+                    'Password',
                     suffixIcon: IconButton(
                       icon: Icon(
-                        showPassword
+                        _showPassword
                             ? Icons.remove_red_eye
                             : Icons.remove_red_eye_outlined,
                       ),
-                      onPressed: () => setState(() {
-                        showPassword = !showPassword;
-                      }),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      onPressed: () =>
+                          setState(() => _showPassword = !_showPassword),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Harap isi password terlebih dahulu';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Harap isi password terlebih dahulu'
+                      : null,
                 ),
                 const SizedBox(height: 40),
                 GestureDetector(
-                  onTap: () async {
-                    String? token = await FirebaseMessaging.instance.getToken();
-                    print("ini token $token");
-                    if (email.text.isEmpty || password.text.isEmpty) {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      // ignore: use_build_context_synchronously
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Harap isi data terlebih dahulu"),
-                        ),
-                      );
-                      setState(() {
-                        isLoading = false;
-                      });
-                    } else {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      try {
-                        await authProvider.login(
-                          email.text,
-                          password.text,
-                          token!,
-                        );
-                        // ignore: use_build_context_synchronously
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          routeToHomePage(),
-                          (route) => false,
-                        );
-                      } catch (e) {
-                        if (e is ApiException) {
-                          // ignore: use_build_context_synchronously
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            CustomSnackBar(
-                              status: e.status,
-                              message: e.message,
-                            ),
-                          );
-                        } else {
-                          // ignore: use_build_context_synchronously
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            CustomSnackBar(
-                              status: 'failed',
-                              message: e.toString(),
-                            ),
-                          );
-                        }
-                      }
-                      setState(() {
-                        isLoading = false;
-                      });
-                    }
-                  },
+                  onTap: _isLoading
+                      ? null
+                      : () => _handleLogin(context, authProvider),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
-                    width: double.infinity,
                     height: 40,
                     decoration: BoxDecoration(
                       color: AppColors.primaryColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: isLoading
-                            ? [
-                                const SizedBox(
+                      child: _isLoading
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                SizedBox(
                                   width: 15,
                                   height: 15,
                                   child: CircularProgressIndicator(
@@ -293,47 +244,36 @@ class _LoginPageState extends State<LoginPage> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                const Text(
+                                SizedBox(width: 10),
+                                Text(
                                   "Tunggu sebentar",
                                   style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ]
-                            : [
-                                Text(
-                                  "Masuk",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontWeight: medium,
-                                  ),
+                                      color: Colors.white, fontSize: 14),
                                 ),
                               ],
-                      ),
+                            )
+                          : Text(
+                              "Masuk",
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: medium,
+                              ),
+                            ),
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Belum punya akun? ',
-                      style: GoogleFonts.poppins(
-                        color: AppColors.textColorBlack,
-                      ),
+                      style:
+                          GoogleFonts.poppins(color: AppColors.textColorBlack),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        debugPrint('Daftar tapped');
-                        Navigator.of(context).push(
-                          routeToRegisterPage(),
-                        );
-                      },
+                      onTap: () => Navigator.of(context)
+                          .push(_createRouteToRegisterPage()),
                       child: Text(
                         'Daftar',
                         style: GoogleFonts.poppins(
@@ -352,339 +292,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-// import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:provider/provider.dart';
-// import 'package:testgetdata/core/exceptions/api_exception.dart';
-// import 'package:testgetdata/core/theme/colors_theme.dart';
-// import 'package:testgetdata/core/theme/text_theme.dart';
-// import 'package:testgetdata/presentation/provider/auth_provider.dart';
-// import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
-// import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
-
-// class LoginPage extends StatefulWidget {
-//   const LoginPage({super.key});
-
-//   @override
-//   State<LoginPage> createState() => _LoginPageState();
-// }
-
-// class _LoginPageState extends State<LoginPage> {
-//   final _formKey = GlobalKey<FormState>();
-//   var showPassword = true;
-//   TextEditingController email = TextEditingController();
-//   TextEditingController password = TextEditingController();
-//   bool isLoading = false;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     AuthProvider authProvider = Provider.of<AuthProvider>(context);
-
-//     SystemChrome.setSystemUIOverlayStyle(
-//       SystemUiOverlayStyle(
-//         statusBarColor: AppColors.backgroundColor,
-//         statusBarIconBrightness: Brightness.dark,
-//       ),
-//     );
-//     return Scaffold(
-//       backgroundColor: AppColors.backgroundColor,
-//       body: Padding(
-//         padding: EdgeInsets.only(
-//           top: MediaQuery.of(context).padding.top,
-//           left: 32,
-//           right: 32,
-//         ),
-//         child: SingleChildScrollView(
-//           child: Container(
-//             margin: const EdgeInsets.only(top: 40),
-//             child: Form(
-//               key: _formKey,
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Center(
-//                     child: Column(
-//                       children: [
-//                         Text(
-//                           'Halo Bro!',
-//                           style: GoogleFonts.poppins(
-//                             color: AppColors.textColorBlack,
-//                             fontSize: 32,
-//                             fontWeight: semibold,
-//                           ),
-//                         ),
-//                         Container(
-//                           padding: const EdgeInsets.symmetric(horizontal: 30),
-//                           child: Text(
-//                             textAlign: TextAlign.center,
-//                             'Pastikan kamu sudah memiliki akun ya bro...',
-//                             style: GoogleFonts.poppins(
-//                               color: AppColors.textColorBlack,
-//                               fontSize: 15,
-//                               fontWeight: regular,
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   const SizedBox(
-//                     height: 30,
-//                   ),
-//                   TextFormField(
-//                     cursorColor: AppColors.primaryColor,
-//                     controller: email,
-//                     decoration: InputDecoration(
-//                       fillColor: Colors.white,
-//                       filled: true,
-//                       hintText: 'Email address',
-//                       hintStyle: GoogleFonts.poppins(
-//                         color: Colors.grey,
-//                         fontSize: 14,
-//                       ),
-//                       contentPadding: const EdgeInsets.symmetric(
-//                           vertical: 20, horizontal: 20),
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       enabledBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       focusedBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       errorBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: const BorderSide(color: Colors.red),
-//                       ),
-//                       disabledBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       errorStyle: GoogleFonts.poppins(
-//                         color: Colors.red,
-//                         fontSize: 12,
-//                       ),
-//                     ),
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Harap isi email terlebih dahulu';
-//                       }
-//                       // You can add more validation for email format here
-//                       String pattern =
-//                           r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
-//                       RegExp regex = RegExp(pattern);
-//                       if (!regex.hasMatch(value)) {
-//                         return 'Email tidak valid';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   const SizedBox(
-//                     height: 20,
-//                   ),
-//                   TextFormField(
-//                     obscureText: showPassword,
-//                     controller: password,
-//                     decoration: InputDecoration(
-//                       fillColor: Colors.white,
-//                       filled: true,
-//                       hintText: 'Password',
-//                       hintStyle: GoogleFonts.poppins(
-//                         color: Colors.grey,
-//                         fontSize: 14,
-//                       ),
-//                       contentPadding: const EdgeInsets.symmetric(
-//                           vertical: 20, horizontal: 20),
-//                       suffixIcon: IconButton(
-//                         icon: Icon(
-//                           showPassword
-//                               ? Icons.remove_red_eye
-//                               : Icons.remove_red_eye_outlined,
-//                         ),
-//                         onPressed: () => setState(() {
-//                           showPassword = !showPassword;
-//                         }),
-//                       ),
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       enabledBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       focusedBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       errorBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: const BorderSide(color: Colors.red),
-//                       ),
-//                       disabledBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       errorStyle: GoogleFonts.poppins(
-//                         color: Colors.red,
-//                         fontSize: 12,
-//                       ),
-//                     ),
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Harap isi password terlebih dahulu';
-//                       }
-//                       if (value.length < 8) {
-//                         return 'Password harus terdiri dari minimal 8 karakter';
-//                       }
-//                       if (!RegExp(r'[A-Z]').hasMatch(value)) {
-//                         return 'Password harus memiliki setidaknya satu huruf besar';
-//                       }
-//                       if (!RegExp(r'[a-z]').hasMatch(value)) {
-//                         return 'Password harus memiliki setidaknya satu huruf kecil';
-//                       }
-//                       if (!RegExp(r'\d').hasMatch(value)) {
-//                         return 'Password harus memiliki setidaknya satu angka';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   const SizedBox(height: 40),
-//                   GestureDetector(
-//                     onTap: () async {
-//                       if (_formKey.currentState?.validate() ?? false) {
-//                         String? token =
-//                             await FirebaseMessaging.instance.getToken();
-//                         print("ini token $token");
-//                         setState(() {
-//                           isLoading = true;
-//                         });
-//                         try {
-//                           await authProvider.login(
-//                               email.text, password.text, token!);
-//                           // ignore: use_build_context_synchronously
-//                           Navigator.pushAndRemoveUntil(
-//                             context,
-//                             MaterialPageRoute(
-//                               builder: (context) => const NavbarHome(
-//                                 pageIndex: 0,
-//                               ),
-//                             ),
-//                             (route) => false,
-//                           );
-//                         } catch (e) {
-//                           if (e is ApiException) {
-//                             // ignore: use_build_context_synchronously
-//                             ScaffoldMessenger.of(context).showSnackBar(
-//                               CustomSnackBar(
-//                                 status: e.status,
-//                                 message: e.message,
-//                               ),
-//                             );
-//                           } else {
-//                             // ignore: use_build_context_synchronously
-//                             ScaffoldMessenger.of(context).showSnackBar(
-//                               CustomSnackBar(
-//                                 status: 'failed',
-//                                 message: e.toString(),
-//                               ),
-//                             );
-//                           }
-//                         }
-//                         setState(() {
-//                           isLoading = false;
-//                         });
-//                       } else {
-//                         ScaffoldMessenger.of(context).showSnackBar(
-//                           const SnackBar(
-//                             content: Text("Harap isi data dengan benar"),
-//                           ),
-//                         );
-//                       }
-//                     },
-//                     child: Container(
-//                       margin: const EdgeInsets.symmetric(horizontal: 20),
-//                       width: double.infinity,
-//                       height: 40,
-//                       decoration: BoxDecoration(
-//                         color: AppColors.primaryColor,
-//                         borderRadius: BorderRadius.circular(20),
-//                       ),
-//                       child: Center(
-//                         child: Row(
-//                           mainAxisAlignment: MainAxisAlignment.center,
-//                           children: isLoading
-//                               ? [
-//                                   const SizedBox(
-//                                     width: 15,
-//                                     height: 15,
-//                                     child: CircularProgressIndicator(
-//                                       strokeWidth: 3,
-//                                       color: Colors.white,
-//                                     ),
-//                                   ),
-//                                   const SizedBox(width: 10),
-//                                   const Text(
-//                                     "Tunggu sebentar",
-//                                     style: TextStyle(
-//                                       color: Colors.white,
-//                                       fontSize: 14,
-//                                     ),
-//                                   ),
-//                                 ]
-//                               : [
-//                                   Text(
-//                                     "Masuk",
-//                                     style: GoogleFonts.poppins(
-//                                       color: Colors.white,
-//                                       fontWeight: medium,
-//                                     ),
-//                                   ),
-//                                 ],
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                   const SizedBox(
-//                     height: 20,
-//                   ),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       Text(
-//                         'Belum punya akun? ',
-//                         style: GoogleFonts.poppins(
-//                           color: AppColors.textColorBlack,
-//                         ),
-//                       ),
-//                       GestureDetector(
-//                         onTap: () {
-//                           debugPrint('Daftar tapped');
-//                           Navigator.of(context).pushNamed('/daftar');
-//                         },
-//                         child: Text(
-//                           'Daftar',
-//                           style: GoogleFonts.poppins(
-//                             color: AppColors.primaryColor,
-//                             fontWeight: semibold,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
