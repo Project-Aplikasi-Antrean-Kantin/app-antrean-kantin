@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +7,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
+import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/home_page.dart';
 import 'package:testgetdata/presentation/views/penjual/kasir_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/riwayat_page_as_role.dart';
@@ -139,6 +137,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => KatalogMenuProvider()),
         ChangeNotifierProvider(create: (_) => KasirProvider()),
         ChangeNotifierProvider(create: (_) => CoinProvider()),
+        ChangeNotifierProvider(create: (_) => TenantProvider()),
       ],
       child: MaterialApp(
         home: const SplashScreen(),

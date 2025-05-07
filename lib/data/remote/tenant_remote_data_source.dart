@@ -198,4 +198,76 @@ class TenantRemoteDataSource {
       throw Exception('Failed to update status buka tutup tenant');
     }
   }
+
+  Future<TenantModel> fetchTenantData(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse("${MasbroConstants.url}/tenant/profile-tenant"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        log(response.body);
+        return TenantModel.fromJson(jsonData['tenant']);
+      } else {
+        throw Exception('Failed to load user data: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching user data: $e');
+    }
+  }
+
+  Future<bool> updateProfileTenant(
+      String token, Map<String, dynamic> data) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${MasbroConstants.url}/tenant/profile-tenant'),
+    );
+
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+    });
+
+    try {
+      for (var entry in data.entries) {
+        if (entry.key == 'gambar' && entry.value != null) {
+          File file = File(entry.value);
+          if (await file.exists()) {
+            String fileName = file.path.split('/').last;
+            request.files.add(
+              await http.MultipartFile.fromPath(
+                'gambar',
+                file.path,
+                filename: fileName,
+              ),
+            );
+          }
+        } else if (entry.value != null) {
+          request.fields[entry.key] = entry.value.toString();
+        }
+      }
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: $responseBody');
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Failed to update user: $responseBody');
+        return false;
+      }
+    } catch (e) {
+      print('Error updating user: $e');
+      return false;
+    }
+  }
 }
