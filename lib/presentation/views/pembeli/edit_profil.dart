@@ -327,7 +327,7 @@ class _EditProfilState extends State<EditProfil> {
                               },
                             ),
                           ),
-                          (route) => route.isFirst,
+                          (route) => false,
                         );
                         authProvider.fetchUserData(authProvider.user.token);
                       } else {

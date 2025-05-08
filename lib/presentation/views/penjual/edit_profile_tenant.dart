@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
-import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
@@ -38,6 +37,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
   String? selectedImagePath;
 
   @override
+  @override
   void initState() {
     super.initState();
     _imagePicker = ImagePicker();
@@ -48,19 +48,18 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final tenantProvider = context.read<TenantProvider>();
-      tenantProvider.fetchTenantData(context.read<AuthProvider>().user.token);
+      tenantProvider
+          .fetchTenantData(context.read<AuthProvider>().user.token)
+          .then((_) {
+        // Isi controller hanya sekali setelah data diambil
+        final tenantData = tenantProvider.tenant;
+        namaTenantController.text = tenantData?.namaTenant ?? '';
+        nomorKavlingController.text = tenantData?.namaKavling ?? '';
+        nomorRekeningTokoController.text = tenantData?.nomorRekeningToko ?? '';
+        nomorRekeningPribadiController.text =
+            tenantData?.nomorRekeningPribadi ?? '';
+      });
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final tenantData = context.read<TenantProvider>().tenant;
-    namaTenantController.text = tenantData?.namaTenant ?? '';
-    nomorKavlingController.text = tenantData?.namaKavling ?? '';
-    nomorRekeningTokoController.text = tenantData?.nomorRekeningToko ?? '';
-    nomorRekeningPribadiController.text =
-        tenantData?.nomorRekeningPribadi ?? '';
   }
 
   Future<int> _getImageSize(String imagePath) async {
@@ -169,7 +168,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
               },
             ),
           ),
-          (route) => route.isFirst,
+          (route) => false,
         );
         tenantProvider.fetchTenantData(authProvider.user.token);
       } else {

@@ -16,7 +16,6 @@ import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 
 class KatalogMenuForm extends StatefulWidget {
   final TenantFoods? initialData; // Null untuk tambah, non-null untuk edit
@@ -140,7 +139,15 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
       isLoading = true;
     });
 
-    final data = {
+    final dataCreate = {
+      'kategori_id': selectedCategory,
+      'nama_menu': namaMenuController.text,
+      'deskripsi_menu': deskripsiMenuController.text,
+      'harga': hargaMenuController.text,
+      'gambar': selectedImagePath,
+    };
+
+    final dataEdit = {
       'kategori_id': selectedCategory,
       'nama_menu': namaMenuController.text,
       'deskripsi': deskripsiMenuController.text,
@@ -151,9 +158,9 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     try {
       final source = TenantRemoteDataSource();
       final success = widget.initialData == null
-          ? await source.createMenuTenant(user.token, data)
+          ? await source.createMenuTenant(user.token, dataCreate)
           : await source.updateMenuTenant(
-              user.token, data, widget.initialData!.id);
+              user.token, dataEdit, widget.initialData!.id);
 
       if (success) {
         Navigator.of(context).pop(true);
