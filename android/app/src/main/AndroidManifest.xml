@@ -1,10 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.masbro.canteen"
+    package="com.foodlab.pens">
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
    <application
-        android:label="Masbro Canteen"
+        android:label="FoodLab"
         android:name="${applicationName}"
         tools:replace="android:label"
         android:theme="@style/AppTheme"

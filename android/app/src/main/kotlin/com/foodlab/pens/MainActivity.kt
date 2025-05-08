@@ -1,4 +1,4 @@
-package com.masbro.canteen
+package com.foodlab.pens
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
