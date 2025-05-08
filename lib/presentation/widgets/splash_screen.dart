@@ -51,8 +51,6 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       });
 
-      authProvider.fetchUserData(authProvider.user.token);
-
       if (!mounted) return;
 
       if (success) {
@@ -63,6 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
             builder: (context) => const NavbarHome(pageIndex: 0),
           ),
         );
+        authProvider.fetchUserData(authProvider.user.token);
       } else {
         log("Token Tidak Tersedia");
         Navigator.pushReplacement(
@@ -86,10 +85,23 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: AppColors.backgroundColor,
       body: Center(
         child: Image(
-          width: MediaQuery.of(context).size.width,
-          image: const AssetImage('assets/images/Frame 1.png'),
+          width: 300,
+          height: 300,
+          image: const AssetImage('assets/images/splash_screen_foodlab.png'),
+          fit: BoxFit.cover, // Gunakan BoxFit.cover untuk efek cover
         ),
       ),
     );
   }
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     backgroundColor: AppColors.backgroundColor,
+  //     body: Center(
+  //       child: Image(
+  //         width: MediaQuery.of(context).size.width,
+  //         image: const AssetImage('assets/images/splash_screen_foodlab.png'),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
