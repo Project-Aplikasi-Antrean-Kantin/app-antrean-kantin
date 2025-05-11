@@ -90,7 +90,6 @@ class BottomNavigationCartPayment extends StatelessWidget {
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
                           TopupPage(
-                        coin: saldoCoin,
                         email: user.email,
                       ),
                       transitionsBuilder:

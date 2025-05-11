@@ -20,6 +20,7 @@ class CoinProvider extends ChangeNotifier {
       debugPrint('Fetched Saldo Koin: ${fetchedData!.saldoKoin}');
 
       saldoKoin = fetchedData.saldoKoin; // Default ke 0 jika null
+      notifyListeners();
     } catch (e) {
       debugPrint('Error fetching saldo koin: $e');
     } finally {

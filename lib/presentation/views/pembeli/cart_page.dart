@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:developer';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -34,6 +36,8 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   List<Ruangan> _roomList = [];
   PaymentMethod? _selectedPaymentMethod;
+  DateTime? _lastFetch;
+  StreamSubscription<RemoteMessage>? _onMessageSubscription;
 
   void _showIncompleteLocationDialog() {
     showDialog(
@@ -63,7 +67,7 @@ class _CartPageState extends State<CartPage> {
         textButtonOk: "Top Up",
         onConfirmOk: () => Navigator.push(
           context,
-          CustomPageBuilder(page: TopupPage(coin: coin, email: email)),
+          CustomPageBuilder(page: TopupPage(email: email)),
         ),
       ),
     );
@@ -193,11 +197,20 @@ class _CartPageState extends State<CartPage> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final coinProvider = Provider.of<CoinProvider>(context, listen: false);
     final user = authProvider.user;
+
+    coinProvider.getCoinAmount(authProvider.user.token);
+
+    _onMessageSubscription =
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification?.title == 'Top-up Berhasil') {
+        _handleCoinCartByNotification(coinProvider, user);
+      }
+    });
 
     _selectedPaymentMethod =
         kasirProvider.isKasir ? PaymentMethod.cod : PaymentMethod.koin;
-    context.read<CoinProvider>().getCoinAmount(user.token);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       log("CartPage initState: roomId = ${cartProvider.roomId}");
@@ -216,6 +229,20 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
+  void _handleCoinCartByNotification(
+      CoinProvider coinProvider, UserModel user) {
+    print("Handling top-up notification at ${DateTime.now()}");
+    coinProvider.getCoinAmount(user.token);
+    _lastFetch = DateTime.now();
+  }
+
+  @override
+  void dispose() {
+    // Cancel Firebase listeners to prevent accessing context after unmount
+    _onMessageSubscription?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -223,7 +250,6 @@ class _CartPageState extends State<CartPage> {
     final kasirProvider = Provider.of<KasirProvider>(context);
     final coinProvider = Provider.of<CoinProvider>(context);
     final user = authProvider.user;
-    final saldoCoin = context.watch<CoinProvider>().saldoKoin;
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -309,31 +335,62 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
       ),
+      // bottomNavigationBar: context.watch<CartProvider>().isCartVisible ||
+      //         context.watch<KasirProvider>().isCartVisible
+      //     ? BottomNavigationCartPayment(
+      //         cartProvider: cartProvider,
+      //         kasirProvider: kasirProvider,
+      //         coinProvider: coinProvider,
+      //         user: user,
+      //         saldoCoin: coinProvider.saldoKoin,
+      //         selectedPaymentMethod: _selectedPaymentMethod,
+      //         selectedRoom: cartProvider.roomId,
+      //         onPaymentMethodSelected: (method) =>
+      //             setState(() => _selectedPaymentMethod = method),
+      //         onConfirmOrder: () => _showConfirmOrderDialog(
+      //           context,
+      //           kasirProvider,
+      //           cartProvider,
+      //           coinProvider,
+      //           user,
+      //           cartProvider.roomId,
+      //           _selectedPaymentMethod!,
+      //           coinProvider.saldoKoin,
+      //         ),
+      //         onBalanceCoinLow: () =>
+      //             _showBalanceCoinLowDialog(coinProvider.saldoKoin, user.email),
+      //         onIncompleteData: _showIncompleteLocationDialog,
+      //       )
+      //     : null,
       bottomNavigationBar: context.watch<CartProvider>().isCartVisible ||
               context.watch<KasirProvider>().isCartVisible
-          ? BottomNavigationCartPayment(
-              cartProvider: cartProvider,
-              kasirProvider: kasirProvider,
-              coinProvider: coinProvider,
-              user: user,
-              saldoCoin: saldoCoin,
-              selectedPaymentMethod: _selectedPaymentMethod,
-              selectedRoom: cartProvider.roomId,
-              onPaymentMethodSelected: (method) =>
-                  setState(() => _selectedPaymentMethod = method),
-              onConfirmOrder: () => _showConfirmOrderDialog(
-                context,
-                Provider.of<KasirProvider>(context, listen: false),
-                Provider.of<CartProvider>(context, listen: false),
-                Provider.of<CoinProvider>(context, listen: false),
-                user,
-                cartProvider.roomId,
-                _selectedPaymentMethod!,
-                saldoCoin,
-              ),
-              onBalanceCoinLow: () =>
-                  _showBalanceCoinLowDialog(saldoCoin, user.email),
-              onIncompleteData: _showIncompleteLocationDialog,
+          ? Consumer<CoinProvider>(
+              builder: (context, coinProvider, _) {
+                return BottomNavigationCartPayment(
+                  cartProvider: cartProvider,
+                  kasirProvider: kasirProvider,
+                  coinProvider: coinProvider,
+                  user: user,
+                  saldoCoin: coinProvider.saldoKoin,
+                  selectedPaymentMethod: _selectedPaymentMethod,
+                  selectedRoom: cartProvider.roomId,
+                  onPaymentMethodSelected: (method) =>
+                      setState(() => _selectedPaymentMethod = method),
+                  onConfirmOrder: () => _showConfirmOrderDialog(
+                    context,
+                    kasirProvider,
+                    cartProvider,
+                    coinProvider,
+                    user,
+                    cartProvider.roomId,
+                    _selectedPaymentMethod!,
+                    coinProvider.saldoKoin,
+                  ),
+                  onBalanceCoinLow: () => _showBalanceCoinLowDialog(
+                      coinProvider.saldoKoin, user.email),
+                  onIncompleteData: _showIncompleteLocationDialog,
+                );
+              },
             )
           : null,
     );

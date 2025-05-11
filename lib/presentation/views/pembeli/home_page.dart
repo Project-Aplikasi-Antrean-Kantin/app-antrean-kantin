@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,12 +9,13 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
+import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/list_tenant.dart';
-import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 
@@ -28,6 +32,9 @@ class _HomePageState extends State<HomePage> {
   List<TenantModel> foundTenant = [];
   List<TenantModel> fullTenant = [];
   bool isFirstLoad = true;
+  DateTime? _lastFetch;
+
+  StreamSubscription<RemoteMessage>? _onMessageSubscription;
 
   // Tambahkan variabel untuk overlay
   // final _scrollController = ScrollController();
@@ -50,7 +57,6 @@ class _HomePageState extends State<HomePage> {
   Route topUpPgae(coin, email) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => TopupPage(
-        coin: coin,
         email: email,
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -74,9 +80,36 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final coinProvider = Provider.of<CoinProvider>(context, listen: false);
     final user = authProvider.user;
+    authProvider.fetchUserData(authProvider.user.token);
     futureTenant = PublicRemoteDataSource().getTenant(context, url, user.token);
-    context.read<CoinProvider>().getCoinAmount(user.token);
+    coinProvider.getCoinAmount(authProvider.user.token);
+
+    _onMessageSubscription =
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification?.title == 'Refund Berhasil') {
+        _handleCoinByNotification(coinProvider, user);
+      }
+    });
+  }
+
+  void _handleCoinByNotification(CoinProvider coinProvider, UserModel user) {
+    // Debounce to prevent frequent fetches (e.g., within 5 seconds)
+    if (_lastFetch == null ||
+        DateTime.now().difference(_lastFetch!).inSeconds > 5) {
+      if (mounted) {
+        coinProvider.getCoinAmount(user.token);
+        _lastFetch = DateTime.now();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    // Cancel Firebase listeners to prevent accessing context after unmount
+    _onMessageSubscription?.cancel();
+    super.dispose();
   }
 
   void _handleNavigation(Widget page) {
@@ -108,9 +141,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final coinProvider = Provider.of<CoinProvider>(context);
     final double expandedHeight = MediaQuery.of(context).size.height / 4;
     final user = Provider.of<AuthProvider>(context, listen: false).user;
-    final int saldoCoin = context.watch<CoinProvider>().saldoKoin;
     if (!user.permission.contains('read beranda')) {
       return const Center(child: Text('TIDAK ADA AKSES WOY'));
     }
@@ -209,7 +242,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         Text(
-                          '$saldoCoin',
+                          // '$saldoCoin',
+                          FormatCurrency.intToStringCoin(
+                            coinProvider.saldoKoin,
+                          ),
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: semibold,
@@ -223,7 +259,6 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         _handleNavigation(
                           TopupPage(
-                            coin: saldoCoin,
                             email: user.email,
                           ),
                         );
