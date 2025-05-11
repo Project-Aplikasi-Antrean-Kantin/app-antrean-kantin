@@ -152,24 +152,25 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
         .then((success) {
       log('value setelah edit tenant: $success');
       if (success) {
-        Navigator.of(context).pushAndRemoveUntil(
-          CustomPageBuilder(
-            page: Builder(
-              builder: (context) {
-                final roles = authProvider.user.role;
-                if (roles.contains('tenant') && roles.contains('driver')) {
-                  return const NavbarHome(pageIndex: 5);
-                } else if (roles.contains('tenant')) {
-                  return const NavbarHome(pageIndex: 4);
-                } else if (roles.contains('driver')) {
-                  return const NavbarHome(pageIndex: 3);
-                }
-                return const NavbarHome(pageIndex: 2);
-              },
-            ),
-          ),
-          (route) => false,
-        );
+        // Navigator.of(context).pushAndRemoveUntil(
+        //   CustomPageBuilder(
+        //     page: Builder(
+        //       builder: (context) {
+        //         final roles = authProvider.user.role;
+        //         if (roles.contains('tenant') && roles.contains('driver')) {
+        //           return const NavbarHome(pageIndex: 5);
+        //         } else if (roles.contains('tenant')) {
+        //           return const NavbarHome(pageIndex: 4);
+        //         } else if (roles.contains('driver')) {
+        //           return const NavbarHome(pageIndex: 3);
+        //         }
+        //         return const NavbarHome(pageIndex: 2);
+        //       },
+        //     ),
+        //   ),
+        //   (route) => false,
+        // );
+        Navigator.of(context).pop();
         tenantProvider.fetchTenantData(authProvider.user.token);
       } else {
         _showErrorDialog(

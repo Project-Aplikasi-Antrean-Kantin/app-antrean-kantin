@@ -65,7 +65,7 @@ class _EditProfilState extends State<EditProfil> {
     UserModel user = authProvider.user;
     namaUserController.text = user.nama;
     emailUserController.text = user.email;
-    phoneUserController.text = user.phone.toString();
+    phoneUserController.text = user.phone?.toString() ?? '';
   }
 
   Future<void> _getImageFromGallery() async {
@@ -305,30 +305,31 @@ class _EditProfilState extends State<EditProfil> {
                         .then((value) {
                       debugPrint('value setelah edit $value');
                       if (value) {
-                        Navigator.of(context).pushAndRemoveUntil(
-                          CustomPageBuilder(
-                            page: Builder(
-                              builder: (context) {
-                                final roles = authProvider.user.role;
+                        // Navigator.of(context).pushAndRemoveUntil(
+                        //   CustomPageBuilder(
+                        //     page: Builder(
+                        //       builder: (context) {
+                        //         final roles = authProvider.user.role;
 
-                                // Cek kombinasi tenant dan driver
-                                if (roles.contains('tenant') &&
-                                    roles.contains('driver')) {
-                                  return const NavbarHome(pageIndex: 5);
-                                }
-                                // Cek peran individu
-                                else if (roles.contains('tenant')) {
-                                  return const NavbarHome(pageIndex: 4);
-                                } else if (roles.contains('driver')) {
-                                  return const NavbarHome(pageIndex: 3);
-                                } else {
-                                  return const NavbarHome(pageIndex: 2);
-                                }
-                              },
-                            ),
-                          ),
-                          (route) => false,
-                        );
+                        //         // Cek kombinasi tenant dan driver
+                        //         if (roles.contains('tenant') &&
+                        //             roles.contains('driver')) {
+                        //           return const NavbarHome(pageIndex: 5);
+                        //         }
+                        //         // Cek peran individu
+                        //         else if (roles.contains('tenant')) {
+                        //           return const NavbarHome(pageIndex: 4);
+                        //         } else if (roles.contains('driver')) {
+                        //           return const NavbarHome(pageIndex: 3);
+                        //         } else {
+                        //           return const NavbarHome(pageIndex: 2);
+                        //         }
+                        //       },
+                        //     ),
+                        //   ),
+                        //   (route) => false,
+                        // );
+                        Navigator.of(context).pop();
                         authProvider.fetchUserData(authProvider.user.token);
                       } else {
                         showDialog(

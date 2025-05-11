@@ -61,7 +61,6 @@ class _SplashScreenState extends State<SplashScreen> {
             builder: (context) => const NavbarHome(pageIndex: 0),
           ),
         );
-        authProvider.fetchUserData(authProvider.user.token);
       } else {
         log("Token Tidak Tersedia");
         Navigator.pushReplacement(
