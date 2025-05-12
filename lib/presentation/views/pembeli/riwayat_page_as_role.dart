@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
-import 'package:testgetdata/presentation/widgets/appbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/riwayat_page.dart';
 
 class RiwayatPageAsRole extends StatelessWidget {
@@ -14,37 +16,75 @@ class RiwayatPageAsRole extends StatelessWidget {
         Provider.of<AuthProvider>(context, listen: false);
     UserModel user = authProvider.user;
 
-    List<Widget> tabs = [];
+    // Build tabs and tab views dynamically based on permissions
+    List<Widget> tabViews = [];
+    List<Tab> tabHeaders = [];
 
     if (user.permission.contains('read order user')) {
-      tabs.add(const RiwayatPage(role: 'user'));
+      tabViews.add(const RiwayatPage(role: 'user'));
+      tabHeaders.add(const Tab(text: 'Beli'));
     }
     if (user.permission.contains('read order tenant')) {
-      tabs.add(const RiwayatPage(role: 'tenant'));
+      tabViews.add(const RiwayatPage(role: 'tenant'));
+      tabHeaders.add(const Tab(text: 'Jual'));
     }
     if (user.permission.contains('read order masbro')) {
-      tabs.add(const RiwayatPage(role: 'masbro'));
+      tabViews.add(const RiwayatPage(role: 'masbro'));
+      tabHeaders.add(const Tab(text: 'Antar'));
     }
 
     return DefaultTabController(
-      length: tabs.length,
+      length: tabViews.length,
       child: Scaffold(
-        appBar: AppBarWidget(
-          title: "Riwayat",
-          tab1Title:
-              user.permission.contains('read order user') ? "Beli" : null,
-          tab2Title:
-              user.permission.contains('read order tenant') ? "Jual" : null,
-          tab3Title:
-              user.permission.contains('read order masbro') ? "Antar" : null,
+        appBar: AppBar(
+          backgroundColor: AppColors.backgroundColor,
+          scrolledUnderElevation: 0,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 50,
+          title: Text(
+            'Riwayat',
+            style: GoogleFonts.poppins(
+              color: AppColors.textColorBlack,
+              fontSize: 18,
+              fontWeight: semibold,
+            ),
+          ),
+          centerTitle: true,
+          // Tambahkan border hanya jika tabHeaders.length == 1
+          // Jika lebih dari 1 tab, tampilkan TabBar
+          bottom: tabHeaders.length == 1
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(1.0),
+                  child: Container(
+                    height: 1.0,
+                    color: AppColors.textColorBlack
+                        .withOpacity(0.2), // Warna garis
+                  ),
+                )
+              : tabHeaders.length > 1
+                  ? TabBar(
+                      overlayColor: WidgetStateProperty.all(Colors.transparent),
+                      indicatorColor: AppColors.primaryColor,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      labelColor: AppColors.primaryColor,
+                      labelStyle: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: regular,
+                      ),
+                      tabs: tabHeaders,
+                    )
+                  : null,
         ),
-        body: tabs.isEmpty
+        body: tabViews.isEmpty
             ? const Center(
                 child: Text("Anda tidak memiliki akses ke riwayat."),
               )
-            : TabBarView(
-                children: tabs,
-              ),
+            : tabHeaders.length == 1
+                ? tabViews[
+                    0] // Langsung tampilkan widget tunggal jika hanya 1 tab
+                : TabBarView(
+                    children: tabViews,
+                  ),
       ),
     );
   }

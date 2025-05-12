@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -42,6 +43,8 @@ class DetailRiwayat extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       appBar: _buildAppBar(),
       body: RefreshIndicator(
+        backgroundColor: AppColors.backgroundColor,
+        color: AppColors.primaryColor,
         onRefresh: _refreshData,
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(
@@ -93,8 +96,8 @@ class DetailRiwayat extends StatelessWidget {
         'Rincian Pesananmu',
         style: GoogleFonts.poppins(
           color: AppColors.textColorBlack,
-          fontSize: 20,
-          fontWeight: medium,
+          fontSize: 18,
+          fontWeight: semibold,
         ),
       ),
       centerTitle: true,
