@@ -171,7 +171,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
         //   (route) => false,
         // );
         Navigator.of(context).pop();
-        tenantProvider.fetchTenantData(authProvider.user.token);
+        // tenantProvider.fetchTenantData(authProvider.user.token);
       } else {
         _showErrorDialog(
           'Gagal!',
@@ -217,7 +217,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Priview User',
+                  'Tampilan Pembeli',
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: semibold,

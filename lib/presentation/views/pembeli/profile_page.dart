@@ -7,6 +7,7 @@ import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
+import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
@@ -223,7 +224,13 @@ class _ProfilePageState extends State<ProfilePage> {
         onOkPressed: () async {
           await authProvider.logout(token);
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/');
+            // Navigator.pushReplacementNamed(context, '/');
+            Navigator.of(context).pushAndRemoveUntil(
+              CustomPageBuilder(
+                page: LoginPage(),
+              ),
+              (route) => false,
+            );
           }
         },
         onCancelPressed: () => Navigator.of(context).pop(),
