@@ -114,7 +114,7 @@ Future bottomSheetCatatan(BuildContext context, String catatan, String title) {
                     ),
                     child: Center(
                       child: Text(
-                        "konfirmasi",
+                        "Konfirmasi",
                         style: GoogleFonts.poppins(
                           color: AppColors.textColorwhite,
                           fontSize: 14,

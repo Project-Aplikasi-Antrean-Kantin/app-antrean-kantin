@@ -35,12 +35,53 @@ class _MenuTileState extends State<MenuTile> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildFoodImage(context),
-          Expanded(child: _buildFoodDetails(context)),
-        ],
+      child: Consumer<CartProvider>(
+        builder: (context, cartProvider, _) {
+          final cartItemIndex = cartProvider.cart
+              .indexWhere((item) => item.menuId == widget.food.id);
+          final note = cartItemIndex != -1
+              ? cartProvider.cart[cartItemIndex].catatan
+              : null;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildFoodImage(context),
+                  Expanded(child: _buildFoodDetails(context)),
+                ],
+              ),
+              if (note != null && note.isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.only(top: 8, left: 5),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Catatan: ',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: semibold,
+                            color: AppColors.textColorBlack,
+                          ),
+                        ),
+                        TextSpan(
+                          text: note,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: regular,
+                            color: AppColors.textColorBlack,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
