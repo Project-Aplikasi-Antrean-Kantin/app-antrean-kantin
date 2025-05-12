@@ -5,6 +5,8 @@ import 'package:testgetdata/firebase/notification_service.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
+import 'package:testgetdata/presentation/provider/delivery_provider.dart';
+import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
@@ -16,7 +18,7 @@ import 'package:testgetdata/presentation/views/pembeli/riwayat_page_as_role.dart
 import 'package:testgetdata/presentation/widgets/sukses_order.dart';
 import 'package:testgetdata/presentation/views/pembeli/profile_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
-import 'package:testgetdata/presentation/views/pengantar/pengantaran_page.dart';
+import 'package:testgetdata/presentation/views/pengantar/delivery_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/register_page.dart';
 import 'package:testgetdata/presentation/widgets/splash_screen.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
@@ -142,6 +144,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TenantProvider()),
         ChangeNotifierProvider(create: (_) => TopupProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
+        ChangeNotifierProvider(create: (_) => DeliveryProvider()),
       ],
       child: MaterialApp(
         home: const SplashScreen(),
