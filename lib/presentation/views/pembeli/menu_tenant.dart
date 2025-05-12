@@ -12,7 +12,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/menu_tile.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
+import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'cart_page.dart';
 
 class MenuTenant extends StatefulWidget {
@@ -49,7 +49,7 @@ class _MenuTenantState extends State<MenuTenant> {
           } else if (snapshot.hasError) {
             return Center(child: Text('${snapshot.error}'));
           }
-          return _buildLoadingShimmer();
+          return ShimmerCard(pageType: 'menuTenant');
         },
       ),
       floatingActionButton: _buildFloatingActionButton(context, cartProvider),
@@ -202,25 +202,6 @@ class _MenuTenantState extends State<MenuTenant> {
         },
         childCount: tenant.tenantFoods!.length,
       ),
-    );
-  }
-
-  Widget _buildLoadingShimmer() {
-    return ShimmerLoadingWidget(
-      shimmerContainerHome: true,
-      itemCount: 3,
-      borderRadiusList: BorderRadius.circular(0),
-      padding: const EdgeInsets.all(0),
-      marginContainer: const EdgeInsets.only(bottom: 13),
-      borderRadiusContainer: BorderRadius.circular(0),
-      showContainer: true,
-      containerHeight: 205,
-      itemHeight: 140,
-      showContainerTitle: true,
-      containerTittleHeight: 35,
-      marginContainerTitle:
-          const EdgeInsets.only(left: 15, right: 60, bottom: 11),
-      borderRadiusContainerTitle: BorderRadius.circular(0),
     );
   }
 
