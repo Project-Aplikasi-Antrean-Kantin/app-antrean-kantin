@@ -6,7 +6,7 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/menu_list_page.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
+import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 
 class KatalogMenu extends StatefulWidget {
   const KatalogMenu({Key? key}) : super(key: key);
@@ -63,6 +63,7 @@ class _KatalogMenuState extends State<KatalogMenu> {
             dividerColor: Colors.transparent,
             overlayColor: WidgetStateProperty.all(Colors.transparent),
             indicatorColor: AppColors.primaryColor,
+            indicatorSize: TabBarIndicatorSize.tab,
             labelColor: AppColors.primaryColor,
             labelStyle: GoogleFonts.poppins(
               fontSize: 14,
@@ -82,20 +83,10 @@ class _KatalogMenuState extends State<KatalogMenu> {
             return TabBarView(
               children: [
                 provider.isLoading
-                    ? const ShimmerLoadingWidget(
-                        itemCount: 4,
-                        itemHeight: 120,
-                        showContainer: true,
-                        shimmerContainerHome: true,
-                      )
+                    ? ShimmerCard(pageType: 'katalogMenuList')
                     : MenuListPage(isAvailable: true),
                 provider.isLoading
-                    ? const ShimmerLoadingWidget(
-                        itemCount: 4,
-                        itemHeight: 120,
-                        showContainer: true,
-                        shimmerContainerHome: true,
-                      )
+                    ? ShimmerCard(pageType: 'katalogMenuList')
                     : MenuListPage(isAvailable: false),
               ],
             );
