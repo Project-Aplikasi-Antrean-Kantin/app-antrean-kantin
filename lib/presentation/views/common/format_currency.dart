@@ -28,4 +28,11 @@ class FormatCurrency {
     // Convert String to int (or double if needed)
     return formatCurrency.format(int.parse(amount));
   }
+
+  static String formatNumber(String nominal) {
+    return nominal.replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => "${m[1]}.",
+    );
+  }
 }

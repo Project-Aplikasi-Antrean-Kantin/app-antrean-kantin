@@ -13,6 +13,8 @@ class TopupProvider extends ChangeNotifier {
   String noDgs = '';
   String noMandiri = '';
   String noJago = '';
+  String _lastCopiedPaymentMethod = '';
+  String get lastCopiedPaymentMethod => _lastCopiedPaymentMethod;
 
   Future<void> getDataTopUp(String token) async {
     try {
@@ -22,10 +24,8 @@ class TopupProvider extends ChangeNotifier {
       // Cari ongkos_kirim dan biaya_layanan dari settings
       for (var setting in settings) {
         if (setting.nama == 'nomor_konfirmasi') {
-          // ongkir = setting.nilai;
           namaKonfirmasi = setting.nama;
           noKonfirmasi = setting.nilai;
-          // noKonfirmasi = int.parse(setting.nilai);
         } else if (setting.nama == 'DANA/Gopay/Shopee') {
           namaDgs = setting.nama;
           noDgs = setting.nilai;
@@ -36,10 +36,6 @@ class TopupProvider extends ChangeNotifier {
           namaJago = setting.nama;
           noJago = setting.nilai;
         }
-        // Jika jumlahItem juga ada di settings, tambahkan logika serupa
-        // else if (setting.nama == 'jumlah_item') {
-        //   jumlahItem = setting.nilai;
-        // }
       }
 
       // Beritahu UI bahwa data telah berubah
@@ -51,5 +47,10 @@ class TopupProvider extends ChangeNotifier {
       notifyListeners();
       debugPrint('Error fetching settings: $e');
     }
+  }
+
+  void setLastCopiedPaymentMethod(String methodName) {
+    _lastCopiedPaymentMethod = methodName;
+    notifyListeners();
   }
 }
