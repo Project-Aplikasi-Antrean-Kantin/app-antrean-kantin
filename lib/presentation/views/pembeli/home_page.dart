@@ -17,6 +17,7 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/list_tenant.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
+import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   DateTime? _lastFetch;
 
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  StreamSubscription<RemoteMessage>? _onMessageTopupSuccessSubscription;
 
   // Tambahkan variabel untuk overlay
   // final _scrollController = ScrollController();
@@ -92,6 +94,12 @@ class _HomePageState extends State<HomePage> {
         _handleCoinByNotification(coinProvider, user);
       }
     });
+    _onMessageTopupSuccessSubscription =
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification?.title == 'Top-up Berhasil') {
+        _handleCoinByNotification(coinProvider, user);
+      }
+    });
   }
 
   void _handleCoinByNotification(CoinProvider coinProvider, UserModel user) {
@@ -108,6 +116,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     // Cancel Firebase listeners to prevent accessing context after unmount
+    _onMessageTopupSuccessSubscription?.cancel();
     _onMessageSubscription?.cancel();
     super.dispose();
   }
@@ -312,11 +321,12 @@ class _HomePageState extends State<HomePage> {
               future: futureTenant,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SliverToBoxAdapter(
-                    child: ShimmerLoadingWidget(
-                      shimmerContainerHome: true,
-                      itemCount: 4,
-                      itemHeight: 200,
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => ShimmerCard(
+                        pageType: 'tenant',
+                      ),
+                      childCount: 2,
                     ),
                   );
                 }
