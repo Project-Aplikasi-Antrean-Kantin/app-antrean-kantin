@@ -23,6 +23,7 @@ class PesananTenant extends StatefulWidget {
 class _PesananTenantState extends State<PesananTenant> {
   DateTime? _lastFetch;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  StreamSubscription<RemoteMessage>? _onMessageTimeOutSubscription;
 
   @override
   void initState() {
@@ -44,6 +45,12 @@ class _PesananTenantState extends State<PesananTenant> {
         _handleNewOrderNotification(orderProvider, user);
       }
     });
+    _onMessageTimeOutSubscription =
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification?.title == 'Pesanan Dibatalkan Otomatis') {
+        _handleNewOrderNotification(orderProvider, user);
+      }
+    });
   }
 
   void _handleNewOrderNotification(
@@ -62,6 +69,7 @@ class _PesananTenantState extends State<PesananTenant> {
   @override
   void dispose() {
     // Cancel Firebase listeners to prevent accessing context after unmount
+    _onMessageTimeOutSubscription?.cancel();
     _onMessageSubscription?.cancel();
     super.dispose();
   }
@@ -96,6 +104,7 @@ class _PesananTenantState extends State<PesananTenant> {
             },
             overlayColor: WidgetStateProperty.all(Colors.transparent),
             indicatorColor: AppColors.primaryColor,
+            indicatorSize: TabBarIndicatorSize.tab,
             labelColor: AppColors.primaryColor,
             labelStyle: GoogleFonts.poppins(
               fontSize: 14,
@@ -123,9 +132,11 @@ class _PesananTenantState extends State<PesananTenant> {
                 backgroundColor: AppColors.backgroundColor,
                 body: ListView.builder(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   itemCount: 2,
-                  itemBuilder: (context, index) => const ShimmerCard(),
+                  itemBuilder: (context, index) => ShimmerCard(
+                    pageType: 'pesanan',
+                  ),
                 ),
               );
             }
