@@ -5,11 +5,11 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-class DeliveryOptionToggle extends StatelessWidget {
+class CardSelectedDeliveryOptionToggle extends StatelessWidget {
   final CartProvider cartProvider;
   final double screenWidth;
 
-  const DeliveryOptionToggle({
+  const CardSelectedDeliveryOptionToggle({
     required this.cartProvider,
     required this.screenWidth,
     Key? key,
