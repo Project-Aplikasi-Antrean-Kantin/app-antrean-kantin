@@ -3,6 +3,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:testgetdata/presentation/views/common/http_exception.dart';
 
 class DriverDataSource {
   Future<List<Pesanan>> getOrderDelivery(String auth, status) async {
@@ -29,8 +30,12 @@ class DriverDataSource {
       body: {'status': "$status"},
     );
     print({"status code update pesanan": response.statusCode});
+    print({"body update pesanan": response.body});
+
     if (response.statusCode == 200) {
       return true;
+    } else if (response.statusCode == 403) {
+      throw CustomHttpException('Pesanan telah diantar oleh driver lain', 403);
     } else {
       return false;
     }

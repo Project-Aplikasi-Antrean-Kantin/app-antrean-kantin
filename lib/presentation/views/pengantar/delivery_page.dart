@@ -19,13 +19,17 @@ class PerluPengantaran extends StatefulWidget {
   State<PerluPengantaran> createState() => _PerluPengantaranState();
 }
 
-class _PerluPengantaranState extends State<PerluPengantaran> {
+class _PerluPengantaranState extends State<PerluPengantaran>
+    with SingleTickerProviderStateMixin {
   DateTime? _lastFetch;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  TabController? _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController =
+        TabController(length: DeliveryStatus.values.length, vsync: this);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final deliveryProvider =
         Provider.of<DeliveryProvider>(context, listen: false);
@@ -33,7 +37,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
 
     Future.wait([
       for (var status in DeliveryStatus.values)
-        deliveryProvider.fetchOrders(context, user.token, status),
+        deliveryProvider.fetchOrders(user.token, status),
     ]);
 
     _onMessageSubscription =
@@ -47,13 +51,9 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
   void _handleNewDeliveryNotification(
       DeliveryProvider deliveryProvider, UserModel user) {
     // Debounce to prevent frequent fetches (e.g., within 5 seconds)
-    if (_lastFetch == null ||
-        DateTime.now().difference(_lastFetch!).inSeconds > 5) {
-      if (mounted) {
-        deliveryProvider.fetchOrders(
-            context, user.token, DeliveryStatus.siapDiantar);
-        _lastFetch = DateTime.now();
-      }
+    if (mounted) {
+      deliveryProvider.fetchOrders(user.token, DeliveryStatus.siapDiantar);
+      _lastFetch = DateTime.now();
     }
   }
 
@@ -74,6 +74,7 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
       initialIndex: 0,
       length: DeliveryStatus.values.length,
       child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           toolbarHeight: 50,
@@ -88,9 +89,10 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
           backgroundColor: AppColors.backgroundColor,
           centerTitle: true,
           bottom: TabBar(
+            controller: _tabController,
             onTap: (index) {
               final status = DeliveryStatus.values[index];
-              deliveryProvider.fetchOrders(context, user.token, status);
+              deliveryProvider.fetchOrders(user.token, status);
             },
             overlayColor: WidgetStateProperty.all(Colors.transparent),
             indicatorColor: AppColors.primaryColor,
@@ -114,63 +116,52 @@ class _PerluPengantaranState extends State<PerluPengantaran> {
           ),
         ),
         body: TabBarView(
+          controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
           children: DeliveryStatus.values.map((status) {
             final pesanan = deliveryProvider.getPesananByStatus(status);
             if (deliveryProvider.isLoading) {
-              return Scaffold(
-                backgroundColor: AppColors.backgroundColor,
-                body: ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  itemCount: 2,
-                  itemBuilder: (context, index) => ShimmerCard(
-                    pageType: 'pesanan',
-                  ),
+              return ListView.builder(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                itemCount: 2,
+                itemBuilder: (context, index) => ShimmerCard(
+                  pageType: 'pesanan',
                 ),
               );
             }
             if (pesanan.isEmpty) {
-              return _buildEmptyState(status, user, deliveryProvider);
+              return RefreshIndicator(
+                backgroundColor: AppColors.backgroundColor,
+                color: AppColors.primaryColor,
+                onRefresh: () =>
+                    deliveryProvider.fetchOrders(user.token, status),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height -
+                        kToolbarHeight -
+                        kBottomNavigationBarHeight -
+                        80,
+                    child: Center(
+                      child: Text(
+                        'Pengantaran kosong',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.textColorBlack,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
             }
             return DeliveryList(
+              tabController: _tabController,
               status: status,
-              onRefresh: () =>
-                  deliveryProvider.fetchOrders(context, user.token, status),
+              onRefresh: () => deliveryProvider.fetchOrders(user.token, status),
             );
           }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(DeliveryStatus status, UserModel user,
-      DeliveryProvider deliveryProvider) {
-    return RefreshIndicator(
-      backgroundColor: AppColors.backgroundColor,
-      color: AppColors.primaryColor,
-      onRefresh: () =>
-          deliveryProvider.fetchOrders(context, user.token, status),
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        body: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  kToolbarHeight,
-            ),
-            child: Center(
-              child: Text(
-                'Pengantaran kosong',
-                style: GoogleFonts.poppins(
-                  color: AppColors.textColorBlack,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
         ),
       ),
     );

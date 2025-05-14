@@ -6,11 +6,13 @@ import 'package:testgetdata/presentation/provider/delivery_provider.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_card.dart';
 
 class DeliveryList extends StatelessWidget {
+  final TabController? tabController;
   final DeliveryStatus status;
   final Future<void> Function() onRefresh;
 
   const DeliveryList({
     Key? key,
+    required this.tabController,
     required this.status,
     required this.onRefresh,
   }) : super(key: key);
@@ -22,24 +24,24 @@ class DeliveryList extends StatelessWidget {
     final user = authProvider.user;
     final pesanan = deliveryProvider.getPesananByStatus(status);
 
-    return Scaffold(
+    return RefreshIndicator(
       backgroundColor: AppColors.backgroundColor,
-      body: RefreshIndicator(
-        backgroundColor: AppColors.backgroundColor,
-        color: AppColors.primaryColor,
-        onRefresh: onRefresh,
-        child: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          itemCount: pesanan.length,
-          itemBuilder: (context, index) {
-            final pesananItem = pesanan[index];
-            return DeliveryCard(
-              pesanan: pesananItem,
-              status: status,
-              userToken: user.token,
-            );
-          },
-        ),
+      color: AppColors.primaryColor,
+      onRefresh: onRefresh,
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        itemCount: pesanan.length,
+        itemBuilder: (context, index) {
+          final pesananItem = pesanan[index];
+          return DeliveryCard(
+            onSuccess: () {
+              tabController!.animateTo(1);
+            },
+            pesanan: pesananItem,
+            status: status,
+            userToken: user.token,
+          );
+        },
       ),
     );
   }

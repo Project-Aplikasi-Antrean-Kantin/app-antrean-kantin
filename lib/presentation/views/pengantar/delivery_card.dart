@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,14 +10,17 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class DeliveryCard extends StatelessWidget {
+  final VoidCallback onSuccess;
   final Pesanan pesanan;
   final DeliveryStatus status;
   final String userToken;
 
   const DeliveryCard({
     Key? key,
+    required this.onSuccess,
     required this.pesanan,
     required this.status,
     required this.userToken,
@@ -33,6 +38,9 @@ class DeliveryCard extends StatelessWidget {
         ? capitalizeFirstLetter(
             pesanan.listTransaksiDetail[0].menus!.tenants!.namaTenant)
         : 'Unknown Tenant';
+
+    final isLoading = context.watch<DeliveryProvider>().isLoadingItem;
+    final screenSize = MediaQuery.of(context).size;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 5),
@@ -112,7 +120,21 @@ class DeliveryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ElevatedButton(
+              PrimaryButton(
+                isLoading: isLoading,
+                elevation: 0,
+                width: screenSize.width * 0.5,
+                height: screenSize.height * 0.05,
+                borderRadius: 100,
+                child: Text(
+                  status == DeliveryStatus.siapDiantar
+                      ? 'Antar Pesanan'
+                      : 'Selesai Antar',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 onPressed: () async {
                   final success = await deliveryProvider.updateOrder(
                     status == DeliveryStatus.siapDiantar
@@ -120,38 +142,25 @@ class DeliveryCard extends StatelessWidget {
                         : 'selesai',
                     userToken,
                     pesanan.id,
-                    context,
-                    status == DeliveryStatus.siapDiantar ? pesanan : null,
+                    pesanan,
                   );
+                  log(deliveryProvider.errorMessage.toString());
+
                   Fluttertoast.showToast(
                     msg: success
                         ? status == DeliveryStatus.siapDiantar
                             ? 'Segera antar pesanan!'
                             : 'Pesanan selesai 🎉'
-                        : 'Gagal memperbarui pesanan',
+                        : deliveryProvider.errorMessage ??
+                            'ORDER-${pesanan.id} telah diantar oleh driver lain',
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
                     backgroundColor: success ? Colors.grey : Colors.red,
                     textColor: Colors.white,
                     fontSize: 16.0,
                   );
+                  if (success) onSuccess();
                 },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  side: BorderSide(color: AppColors.primaryColor),
-                  backgroundColor: AppColors.primaryColor,
-                  fixedSize: const Size(180, 35),
-                ),
-                child: Text(
-                  status == DeliveryStatus.siapDiantar
-                      ? 'Antar Pesanan'
-                      : 'Selesai Antar',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: medium,
-                  ),
-                ),
               ),
             ],
           ),
