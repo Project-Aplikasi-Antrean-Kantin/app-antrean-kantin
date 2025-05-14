@@ -54,6 +54,7 @@ void main() {
         (tester) async {
       when(mockAuthProvider.user).thenReturn(
         UserModel(
+          role: ['user'],
           nama: 'Test User',
           token: 'dummy-token',
           permission: ['read beranda'],
@@ -69,6 +70,7 @@ void main() {
     testWidgets('Displays tenant list when data is available', (tester) async {
       when(mockAuthProvider.user).thenReturn(
         UserModel(
+          role: ['user'],
           nama: 'Test User',
           token: 'dummy-token',
           permission: ['read beranda'],

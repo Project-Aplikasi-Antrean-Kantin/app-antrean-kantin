@@ -1,6 +1,6 @@
-projectKey=antran-canteen
+projectKey=foodlab-1
 serverUrl=http://localhost:9000
 serverVersion=24.12.0.100206
-dashboardUrl=http://localhost:9000/dashboard?id=antran-canteen
-ceTaskId=482f47bc-1e71-4b91-8a61-e8f76c349d45
-ceTaskUrl=http://localhost:9000/api/ce/task?id=482f47bc-1e71-4b91-8a61-e8f76c349d45
+dashboardUrl=http://localhost:9000/dashboard?id=foodlab-1
+ceTaskId=c2987188-3ec9-4ade-8cf9-b7fbb1bee727
+ceTaskUrl=http://localhost:9000/api/ce/task?id=c2987188-3ec9-4ade-8cf9-b7fbb1bee727

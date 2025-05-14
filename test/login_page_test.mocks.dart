@@ -97,8 +97,9 @@ class MockAuthProvider extends _i1.Mock implements _i4.AuthProvider {
 
   @override
   _i5.Future<bool> login(
-    String? email,
-    String? password,
+    String email,
+    String password,
+    String token,
   ) =>
       (super.noSuchMethod(
         Invocation.method(

@@ -43,6 +43,7 @@ void main() {
       mockAuthProvider = MockAuthProvider();
       // Mock the user property to return a valid user
       when(mockAuthProvider.user).thenReturn(UserModel(
+        role: ['user'],
         nama: 'Test User',
         token: 'dummy-token',
         permission: ['read beranda'],
@@ -89,7 +90,8 @@ void main() {
       await tester.tap(loginButton);
       await tester.pumpAndSettle();
 
-      verify(mockAuthProvider.login('adam@gmail.com', 'adam1234')).called(1);
+      verify(mockAuthProvider.login('adam@gmail.com', 'adam1234', 'asdashg'))
+          .called(1);
     });
   });
 }
