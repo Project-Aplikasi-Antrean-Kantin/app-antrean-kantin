@@ -7,7 +7,8 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
-import 'package:testgetdata/presentation/widgets/pesanan_card.dart';
+import 'package:testgetdata/presentation/views/penjual/pesanan_card.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class PesananList extends StatelessWidget {
   final OrderStatus status;
@@ -26,9 +27,11 @@ class PesananList extends StatelessWidget {
     final user = authProvider.user;
     final pesanan = orderProvider.getPesananByStatus(status);
 
-    return Scaffold(
+    return RefreshIndicator(
+      onRefresh: onRefresh,
       backgroundColor: AppColors.backgroundColor,
-      body: SingleChildScrollView(
+      color: AppColors.primaryColor,
+      child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: ListView.builder(
@@ -51,69 +54,77 @@ class PesananList extends StatelessWidget {
   Widget _buildActionButton(
       BuildContext context, Pesanan pesanan, String token) {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final isLoading = context.watch<OrderProvider>().isLoadingItem;
+    final screenSize = MediaQuery.of(context).size;
 
     switch (status) {
       case OrderStatus.pesananMasuk:
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ElevatedButton(
-              onPressed: () async {
-                final success =
-                    await orderProvider.cancelOrder(token, pesanan.id);
-                if (success) {
-                  Fluttertoast.showToast(
-                    msg: "Pesanan ditolak",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.grey,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                side: BorderSide(color: AppColors.primaryColor),
-                backgroundColor: AppColors.backgroundColor,
-                fixedSize: const Size(160, 30),
-              ),
-              child: Text(
-                'Tolak',
-                style: GoogleFonts.poppins(
-                  color: AppColors.primaryColor,
-                  fontWeight: FontWeight.w500,
+            Expanded(
+              child: PrimaryButton(
+                isEnabled: !isLoading,
+                elevation: 0,
+                forgroundColor: AppColors.debugColor,
+                borderColor: AppColors.debugColor,
+                color: AppColors.containerColorWhite,
+                height: screenSize.height * 0.05,
+                borderRadius: 100,
+                child: Text(
+                  'Tolak',
+                  style: GoogleFonts.poppins(
+                    color: !isLoading
+                        ? AppColors.debugColor
+                        : AppColors.containerColorGrey,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                onPressed: () async {
+                  final success =
+                      await orderProvider.cancelOrder(token, pesanan.id);
+                  if (success) {
+                    Fluttertoast.showToast(
+                      msg: "Pesanan telah ditolak",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.grey,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  }
+                },
               ),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                final success = await orderProvider.updateOrder(
-                    'pesanan_diproses', token, pesanan.id, pesanan);
-                if (success) {
-                  Fluttertoast.showToast(
-                    msg: "Segera proses pesanan!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.grey,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                backgroundColor: AppColors.primaryColor,
-                fixedSize: const Size(160, 30),
-              ),
-              child: Text(
-                'Terima',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
+            SizedBox(width: screenSize.width * 0.03),
+            Expanded(
+              child: PrimaryButton(
+                isEnabled: !isLoading,
+                isLoading: isLoading,
+                elevation: 0,
+                height: screenSize.height * 0.05,
+                borderRadius: 100,
+                child: Text(
+                  'Terima',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                onPressed: () async {
+                  final success = await orderProvider.updateOrder(
+                      'pesanan_diproses', token, pesanan.id, pesanan);
+                  if (success) {
+                    Fluttertoast.showToast(
+                      msg: "Segera proses pesanan!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.grey,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  }
+                },
               ),
             ),
           ],
@@ -122,7 +133,20 @@ class PesananList extends StatelessWidget {
         return Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            ElevatedButton(
+            PrimaryButton(
+              isLoading: isLoading,
+              elevation: 0,
+              width: screenSize.width * 0.5,
+              height: screenSize.height * 0.05,
+              borderRadius: 100,
+              color: AppColors.primaryColor,
+              child: Text(
+                'Pesanan Siap',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               onPressed: () async {
                 final status =
                     pesanan.isAntar == 1 ? 'siap_diantar' : 'selesai';
@@ -139,25 +163,9 @@ class PesananList extends StatelessWidget {
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                backgroundColor: AppColors.primaryColor,
-                fixedSize: const Size(180, 30),
-              ),
-              child: Text(
-                'Pesanan Siap',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
             ),
           ],
         );
-      // // case OrderStatus.pesananMenunggu:
-      //   // Placeholder untuk status baru
-      //   return const SizedBox.shrink();
     }
   }
 }

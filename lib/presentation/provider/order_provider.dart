@@ -10,9 +10,11 @@ class OrderProvider with ChangeNotifier {
     // OrderStatus.pesananMenunggu: [],
   };
   bool _isLoading = false;
+  bool _isLoadingItem = false;
 
   List<Pesanan> getPesananByStatus(OrderStatus status) => _pesanan[status]!;
   bool get isLoading => _isLoading;
+  bool get isLoadingItem => _isLoadingItem;
 
   Future<void> fetchOrders(
       BuildContext context, String token, OrderStatus status) async {
@@ -31,23 +33,33 @@ class OrderProvider with ChangeNotifier {
 
   Future<bool> updateOrder(
       String status, String auth, int id, Pesanan pesanan) async {
-    final success = await OrderTenantRemoteDataSource()
-        .updateOrderCustomer(status, auth, id);
-    if (success) {
-      if (status == 'pesanan_diproses') {
-        _pesanan[OrderStatus.pesananMasuk]!
-            .removeWhere((element) => element.id == id);
-        _pesanan[OrderStatus.pesananDiproses]!.add(pesanan);
-      } else if (status == 'pesanan_ditolak') {
-        _pesanan[OrderStatus.pesananMasuk]!
-            .removeWhere((element) => element.id == id);
-      } else if (status == 'siap_diantar' || status == 'selesai') {
-        _pesanan[OrderStatus.pesananDiproses]!
-            .removeWhere((element) => element.id == id);
+    if (_isLoadingItem) return false; // Prevent concurrent updates
+    _isLoadingItem = true;
+    notifyListeners();
+    try {
+      final success = await OrderTenantRemoteDataSource()
+          .updateOrderCustomer(status, auth, id);
+      if (success) {
+        if (status == 'pesanan_diproses') {
+          _pesanan[OrderStatus.pesananMasuk]!
+              .removeWhere((element) => element.id == id);
+          _pesanan[OrderStatus.pesananDiproses]!.add(pesanan);
+        } else if (status == 'pesanan_ditolak') {
+          _pesanan[OrderStatus.pesananMasuk]!
+              .removeWhere((element) => element.id == id);
+        } else if (status == 'siap_diantar' || status == 'selesai') {
+          _pesanan[OrderStatus.pesananDiproses]!
+              .removeWhere((element) => element.id == id);
+        }
       }
+      return success;
+    } catch (e) {
+      debugPrint('Error updating order: $e');
+      return false;
+    } finally {
+      _isLoadingItem = false;
       notifyListeners();
     }
-    return success;
   }
 
   Future<bool> cancelOrder(String auth, int id) async {

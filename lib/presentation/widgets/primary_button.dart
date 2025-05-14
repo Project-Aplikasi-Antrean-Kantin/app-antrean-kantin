@@ -16,6 +16,7 @@ class PrimaryButton extends StatelessWidget {
   final Color? borderColor;
   final bool? reverseLoading;
   final double? borderRadius;
+  final Color? forgroundColor;
   const PrimaryButton({
     super.key,
     required this.child,
@@ -29,6 +30,7 @@ class PrimaryButton extends StatelessWidget {
     this.elevation,
     this.borderColor,
     this.borderRadius,
+    this.forgroundColor,
   });
 
   @override
@@ -53,7 +55,8 @@ class PrimaryButton extends StatelessWidget {
           ),
           side: borderColor != null
               ? BorderSide(
-                  color: borderColor!,
+                  color:
+                      isEnabled! ? borderColor! : AppColors.containerColorGrey,
                 )
               : BorderSide.none,
         ),
@@ -62,9 +65,10 @@ class PrimaryButton extends StatelessWidget {
                 ? color ?? AppColors.primaryColor
                 : reverseLoading!
                     ? Colors.white
-                    : AppColors.textColorBlack
-            : AppColors.textColorBlack,
-        foregroundColor: AppColors.primaryColor.withOpacity(0.5),
+                    : AppColors.containerColorGrey
+            : AppColors.containerColorWhite,
+        foregroundColor:
+            forgroundColor ?? AppColors.primaryColor.withOpacity(0.5),
         shadowColor: elevation != 0 ? null : Colors.transparent,
         minimumSize: Size(
           width ?? double.infinity,

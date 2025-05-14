@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
-import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 
 class PesananCard extends StatelessWidget {
   final Pesanan pesanan;
-  final VoidCallback? terimaPesanan;
-  final VoidCallback? tolakPesanan;
   final Widget? actionButton; // Bisa null jika tidak butuh button khusus
 
   const PesananCard({
     Key? key,
     required this.pesanan,
-    this.terimaPesanan, // Opsional
-    this.tolakPesanan, // Opsional
     this.actionButton, // Opsional
   }) : super(key: key);
 
@@ -189,50 +183,9 @@ class PesananCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                // Action Buttons
-                if (terimaPesanan != null || tolakPesanan != null)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      if (tolakPesanan != null)
-                        ElevatedButton(
-                          onPressed: tolakPesanan,
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            backgroundColor: Colors.red,
-                            minimumSize: Size(100, 40),
-                          ),
-                          child: Text(
-                            'Tolak',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      if (terimaPesanan != null)
-                        ElevatedButton(
-                          onPressed: terimaPesanan,
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            backgroundColor: Colors.green,
-                            minimumSize: Size(100, 40),
-                          ),
-                          child: Text(
-                            'Terima',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                SizedBox(
+                  height: 20,
+                ),
                 if (actionButton != null) actionButton!,
               ],
             ),

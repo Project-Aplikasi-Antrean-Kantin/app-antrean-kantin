@@ -84,6 +84,7 @@ class _PesananTenantState extends State<PesananTenant> {
       initialIndex: 0, // Start at "Masuk" tab
       length: OrderStatus.values.length,
       child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           toolbarHeight: 50,
@@ -141,7 +142,30 @@ class _PesananTenantState extends State<PesananTenant> {
               );
             }
             if (pesanan.isEmpty) {
-              return _buildEmptyState(status);
+              return RefreshIndicator(
+                backgroundColor: AppColors.backgroundColor,
+                color: AppColors.primaryColor,
+                onRefresh: () =>
+                    orderProvider.fetchOrders(context, user.token, status),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height -
+                        kToolbarHeight -
+                        kBottomNavigationBarHeight -
+                        80,
+                    child: Center(
+                      child: Text(
+                        'Pesanan kosong',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.textColorBlack,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
             }
             return PesananList(
               status: status,
@@ -154,37 +178,37 @@ class _PesananTenantState extends State<PesananTenant> {
     );
   }
 
-  Widget _buildEmptyState(OrderStatus status) {
-    final orderProvider = Provider.of<OrderProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.user;
+  // Widget _buildEmptyState(OrderStatus status) {
+  //   final orderProvider = Provider.of<OrderProvider>(context);
+  //   final authProvider = Provider.of<AuthProvider>(context);
+  //   final user = authProvider.user;
 
-    return RefreshIndicator(
-      backgroundColor: AppColors.backgroundColor,
-      color: AppColors.primaryColor,
-      onRefresh: () => orderProvider.fetchOrders(context, user.token, status),
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        body: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  kToolbarHeight,
-            ),
-            child: Center(
-              child: Text(
-                'Pesanan kosong',
-                style: GoogleFonts.poppins(
-                  color: AppColors.textColorBlack,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  //   return RefreshIndicator(
+  //     backgroundColor: AppColors.backgroundColor,
+  //     color: AppColors.primaryColor,
+  //     onRefresh: () => orderProvider.fetchOrders(context, user.token, status),
+  //     child: Scaffold(
+  //       backgroundColor: AppColors.backgroundColor,
+  //       body: SingleChildScrollView(
+  //         physics: const AlwaysScrollableScrollPhysics(),
+  //         child: Container(
+  //           constraints: BoxConstraints(
+  //             minHeight: MediaQuery.of(context).size.height -
+  //                 MediaQuery.of(context).padding.top -
+  //                 kToolbarHeight,
+  //           ),
+  //           child: Center(
+  //             child: Text(
+  //               'Pesanan kosong',
+  //               style: GoogleFonts.poppins(
+  //                 color: AppColors.textColorBlack,
+  //                 fontSize: 14,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
