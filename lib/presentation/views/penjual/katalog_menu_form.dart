@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -56,10 +57,15 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     selectedCategory = widget.initialData?.kategoriId;
   }
 
-  Future<int> _getImageSize(String imagePath) async {
-    final file = File(imagePath);
-    final sizeInBytes = await file.length();
-    return sizeInBytes ~/ 1024; // KB
+  TextInputFormatter noDotFormatter() {
+    return TextInputFormatter.withFunction((oldValue, newValue) {
+      // Hapus semua titik dari input baru
+      String newText = newValue.text.replaceAll('.', '');
+      return TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: newText.length),
+      );
+    });
   }
 
   Future<void> _getImageFromGallery() async {
@@ -330,6 +336,10 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
                   isRequired: true,
                   inputType: TextInputType.number,
                   controller: hargaMenuController,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    noDotFormatter(),
+                  ],
                 ),
                 Row(
                   children: [
