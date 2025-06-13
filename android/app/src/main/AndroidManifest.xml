@@ -3,12 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" /> -->
    <application
         android:label="FoodLab"
         android:name="${applicationName}"
         tools:replace="android:label"
         android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher">
+        <!-- <receiver android:name=".AlarmReceiver" android:exported="true" /> -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -33,10 +37,15 @@
                 android:name="firebase_analytics_collection_enabled"
                 android:value="false" 
               />
+            <!-- Set default notification channel -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
                 android:value="fcm_fallback_notification_channel"
               />
+            <!-- Disable FCM auto-initialization to prevent automatic notification display -->
+            <meta-data
+                android:name="firebase_messaging_auto_init_enabled"
+                android:value="false" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -48,6 +57,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+       
     </application>
     
     <queries>
