@@ -19,6 +19,15 @@ class FormatCurrency {
     return formatCurrency.format(amount);
   }
 
+  static String stringCoin(String amount) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: '',
+      decimalDigits: 0,
+    );
+    return formatCurrency.format(int.parse(amount));
+  }
+
   static String stringCurrency(String amount) {
     final formatCurrency = NumberFormat.currency(
       locale: 'id_ID',

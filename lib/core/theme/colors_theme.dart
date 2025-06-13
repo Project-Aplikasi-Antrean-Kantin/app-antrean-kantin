@@ -12,10 +12,13 @@ class AppColors {
   static const Color containerColorGrey = Color(0xffBAC2C7);
   static const Color containerColorSemiBlack = Color(0xff686A6A);
   static const Color containerColorWhite = Color(0xffFFFFFF);
+  static const Color containerColorGrey200 = Color(0xFFE5E7EB);
 
   // static const Color textColorBlack = Color(0xff303030);
   static const Color textColorBlack = Color(0xFF323232);
   static const Color textColorwhite = Color(0xFFFFFFFF);
+  static const Color textColorGrey700 = Color(0xFF374151);
+  static const Color textColorGrey500 = Color(0xFF9E9E9E);
 }
 
 Color getStatusColor(String status) {
