@@ -22,9 +22,7 @@ class PesananItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // final String food =
     //     pesanan.menusKelola?.nama ?? pesanan.menusKelola?.menus.nama;
-    final String food = pesanan.namaMenu ??
-        pesanan.menus?.nama ??
-        'iki jeneng e kosong ketok e';
+    final String namaMenu = pesanan.namaMenu;
 
     final int harga = pesanan.menus!.harga;
     final int jumlah = pesanan.jumlah;
@@ -38,6 +36,42 @@ class PesananItemWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Row(
+          //   children: [
+          //     Text(
+          //       '$jumlah x',
+          //       style: GoogleFonts.poppins(
+          //         color: AppColors.textColorBlack,
+          //         fontSize: 14,
+          //         fontWeight: medium,
+          //       ),
+          //     ),
+          //     const SizedBox(
+          //       width: 20,
+          //     ),
+          //     Text(
+          //       namaMenu,
+          //       style: GoogleFonts.poppins(
+          //         color: AppColors.textColorBlack,
+          //         fontSize: 14,
+          //         fontWeight: medium,
+          //       ),
+          //     ),
+          //     const Spacer(
+          //       flex: 1,
+          //     ),
+          //     Text(
+          //       FormatCurrency.intToStringCurrency(
+          //         harga,
+          //       ),
+          //       style: GoogleFonts.poppins(
+          //         color: AppColors.textColorBlack,
+          //         fontSize: 14,
+          //         fontWeight: medium,
+          //       ),
+          //     ),
+          //   ],
+          // ),
           Row(
             children: [
               Text(
@@ -48,24 +82,23 @@ class PesananItemWidget extends StatelessWidget {
                   fontWeight: medium,
                 ),
               ),
-              const SizedBox(
-                width: 20,
-              ),
-              Text(
-                food,
-                style: GoogleFonts.poppins(
-                  color: AppColors.textColorBlack,
-                  fontSize: 14,
-                  fontWeight: medium,
+              const SizedBox(width: 20),
+              Expanded(
+                // <- gunakan Expanded di sini
+                child: Text(
+                  namaMenu,
+                  style: GoogleFonts.poppins(
+                    color: AppColors.textColorBlack,
+                    fontSize: 14,
+                    fontWeight: medium,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(
-                flex: 1,
-              ),
+              // const Spacer(flex: 1),
               Text(
-                FormatCurrency.intToStringCurrency(
-                  harga,
-                ),
+                FormatCurrency.intToStringCurrency(harga),
                 style: GoogleFonts.poppins(
                   color: AppColors.textColorBlack,
                   fontSize: 14,

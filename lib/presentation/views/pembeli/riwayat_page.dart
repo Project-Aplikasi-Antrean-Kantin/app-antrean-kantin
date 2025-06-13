@@ -10,36 +10,107 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_card.dart'; // Import ShimmerCard
+import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 
-class RiwayatPage extends StatelessWidget {
+class RiwayatPage extends StatefulWidget {
   final String role;
 
   const RiwayatPage({super.key, required this.role});
 
   @override
-  Widget build(BuildContext context) {
+  State<RiwayatPage> createState() => _RiwayatPageState();
+}
+
+class _RiwayatPageState extends State<RiwayatPage>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+  @override
+  bool get wantKeepAlive => true;
+
+  bool _hasInitialized = false;
+  DateTime? _lastFetchTime;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _fetchDataIfNeeded();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Refresh data ketika app kembali dari background
+    if (state == AppLifecycleState.resumed) {
+      _fetchDataIfNeeded(forceRefresh: true);
+    }
+  }
+
+  // Method untuk mengecek apakah perlu fetch data
+  void _fetchDataIfNeeded({bool forceRefresh = false}) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
-    final user = authProvider.user;
 
-    // Memulai pengambilan data saat halaman dibuka
+    final now = DateTime.now();
+    final shouldRefresh = forceRefresh ||
+        !_hasInitialized ||
+        historyProvider.getListPesanan(widget.role).isEmpty ||
+        (_lastFetchTime != null &&
+            now.difference(_lastFetchTime!).inMinutes >
+                5); // Refresh setiap 5 menit
+
+    if (shouldRefresh && !historyProvider.getIsLoading(widget.role)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        historyProvider.fetchHistory(context, authProvider.user, widget.role);
+        _lastFetchTime = now;
+        _hasInitialized = true;
+      });
+    }
+  }
+
+  // Method yang dipanggil saat tab menjadi visible
+  void _onTabVisible() {
+    _fetchDataIfNeeded(forceRefresh: false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    // Panggil _onTabVisible setiap kali build (ketika tab menjadi aktif)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      historyProvider.fetchHistory(context, user, role);
+      _onTabVisible();
     });
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
 
     return Scaffold(
       body: RefreshIndicator(
         backgroundColor: AppColors.backgroundColor,
         color: AppColors.primaryColor,
-        onRefresh: () => historyProvider.refreshHistory(context, user, role),
+        onRefresh: () async {
+          final historyProvider =
+              Provider.of<HistoryProvider>(context, listen: false);
+          await historyProvider.refreshHistory(context, user, widget.role);
+          _lastFetchTime = DateTime.now();
+        },
         child: Consumer<HistoryProvider>(
           builder: (context, historyProvider, _) {
+            final isLoading = historyProvider.getIsLoading(widget.role);
+            final errorMessage = historyProvider.getErrorMessage(widget.role);
+            final listPesanan = historyProvider.getListPesanan(widget.role);
+
             return Container(
               color: AppColors.backgroundColor,
               height: MediaQuery.of(context).size.height,
-              child: historyProvider.isLoading
+              child: isLoading
                   ? SingleChildScrollView(
                       physics: const BouncingScrollPhysics(
                         parent: AlwaysScrollableScrollPhysics(),
@@ -47,20 +118,20 @@ class RiwayatPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Column(
                         children: List.generate(
-                          4, // Show 5 shimmer cards as placeholders
+                          4,
                           (index) => ShimmerCard(
                             pageType: 'riwayat',
                           ),
                         ),
                       ),
                     )
-                  : historyProvider.errorMessage != null
+                  : errorMessage != null
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                historyProvider.errorMessage!,
+                                errorMessage,
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: regular,
@@ -69,14 +140,17 @@ class RiwayatPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 10),
                               ElevatedButton(
-                                onPressed: () => historyProvider.fetchHistory(
-                                    context, user, role),
+                                onPressed: () {
+                                  historyProvider.fetchHistory(
+                                      context, user, widget.role);
+                                  _lastFetchTime = DateTime.now();
+                                },
                                 child: const Text("Coba Lagi"),
                               ),
                             ],
                           ),
                         )
-                      : historyProvider.listPesanan.isEmpty
+                      : listPesanan.isEmpty
                           ? Center(
                               child: Text(
                                 "Belum ada riwayat",
@@ -94,7 +168,7 @@ class RiwayatPage extends StatelessWidget {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 8),
                               child: Column(
-                                children: historyProvider.listPesanan
+                                children: listPesanan
                                     .map((pesanan) =>
                                         _buildPesananItem(pesanan, context))
                                     .toList(),
@@ -108,7 +182,6 @@ class RiwayatPage extends StatelessWidget {
   }
 
   Widget _buildPesananItem(Pesanan pesanan, BuildContext context) {
-    // Existing _buildPesananItem code remains unchanged
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
@@ -124,7 +197,9 @@ class RiwayatPage extends StatelessWidget {
             page: DetailRiwayat(
               pesanan: pesanan,
               refreshData: () {
-                historyProvider.fetchHistory(context, authProvider.user, role);
+                historyProvider.fetchHistory(
+                    context, authProvider.user, widget.role);
+                _lastFetchTime = DateTime.now();
               },
             ),
           ),
