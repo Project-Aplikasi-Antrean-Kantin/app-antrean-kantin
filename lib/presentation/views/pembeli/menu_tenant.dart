@@ -76,7 +76,7 @@ class _MenuTenantState extends State<MenuTenant> {
           _buildMenuList(tenant),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 100,
+              height: 70,
             ),
           ),
         ],

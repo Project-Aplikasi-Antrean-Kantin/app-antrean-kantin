@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -76,6 +78,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final token = await FirebaseMessaging.instance.getToken();
+      log("ini fcm token: $token");
       if (token == null) {
         throw const ApiException(
             status: 'failed', message: 'Gagal mendapatkan token');

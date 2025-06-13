@@ -31,115 +31,118 @@ class MenuTile extends StatefulWidget {
 }
 
 class _MenuTileState extends State<MenuTile> {
+  void _showDetailBottomSheet() {
+    showDetailMenuBottomSheet(
+      context,
+      DetailMenu(
+        namaTenant: widget.tenantName ?? '',
+        dataFoods: widget.food,
+      ),
+      isCashier: !widget.isTenantMenu,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 15),
-      child: Consumer<CartProvider>(
-        builder: (context, cartProvider, _) {
-          final cartItemIndex = cartProvider.cart
-              .indexWhere((item) => item.menuId == widget.food.id);
-          final note = cartItemIndex != -1
-              ? cartProvider.cart[cartItemIndex].catatan
-              : null;
+    return GestureDetector(
+      onTap: _showDetailBottomSheet,
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 15),
+        child: Consumer<CartProvider>(
+          builder: (context, cartProvider, _) {
+            final cartItemIndex = cartProvider.cart
+                .indexWhere((item) => item.menuId == widget.food.id);
+            final note = cartItemIndex != -1
+                ? cartProvider.cart[cartItemIndex].catatan
+                : null;
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildFoodImage(context),
-                  Expanded(child: _buildFoodDetails(context)),
-                ],
-              ),
-              if (note != null && note.isNotEmpty)
-                Container(
-                  margin: const EdgeInsets.only(top: 8, left: 5),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Catatan: ',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: semibold,
-                            color: AppColors.textColorBlack,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildFoodImage(context),
+                    Expanded(child: _buildFoodDetails(context)),
+                  ],
+                ),
+                if (note != null && note.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8, left: 5),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Catatan: ',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: semibold,
+                              color: AppColors.textColorBlack,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: note,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: regular,
-                            color: AppColors.textColorBlack,
+                          TextSpan(
+                            text: note,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: regular,
+                              color: AppColors.textColorBlack,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildFoodImage(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        showDetailMenuBottomSheet(
-          context,
-          DetailMenu(
-            namaTenant: widget.tenantName ?? '',
-            dataFoods: widget.food,
-          ),
-          isCashier: !widget.isTenantMenu,
-        );
-      },
-      child: Container(
-        height: 100,
-        width: 100,
-        margin: const EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: const Color.fromARGB(255, 200, 200, 200),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: widget.food.gambar.isNotEmpty
-              ? Image.network(
-                  "${MasbroConstants.baseUrl}${widget.food.gambar}",
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    return Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        color: Colors.white,
-                        width: 100,
-                        height: 100,
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.photo,
-                      color: Color.fromARGB(255, 120, 120, 120),
-                      size: 30,
-                    );
-                  },
-                )
-              : const Icon(
-                  Icons.photo,
-                  color: Color.fromARGB(255, 120, 120, 120),
-                  size: 30,
-                ),
-        ),
+    return Container(
+      height: 120,
+      width: 120,
+      margin: const EdgeInsets.only(right: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: const Color.fromARGB(255, 200, 200, 200),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: widget.food.gambar.isNotEmpty
+            ? Image.network(
+                "${MasbroConstants.baseUrl}${widget.food.gambar}",
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      color: Colors.white,
+                      width: 100,
+                      height: 100,
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.photo,
+                    color: Color.fromARGB(255, 120, 120, 120),
+                    size: 30,
+                  );
+                },
+              )
+            : const Icon(
+                Icons.photo,
+                color: Color.fromARGB(255, 120, 120, 120),
+                size: 30,
+              ),
       ),
     );
   }
@@ -154,16 +157,29 @@ class _MenuTileState extends State<MenuTile> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: GoogleFonts.poppins(
-            fontWeight: semibold,
+            fontWeight: medium,
             fontSize: 16,
             color: AppColors.textColorBlack,
           ),
         ),
         const SizedBox(height: 5),
         Text(
+          widget.food.deskripsi ?? '-',
+          // 'makanan enak bergisi besar dan super enak, pokoknya dijamin enak dan super enak',
+          style: GoogleFonts.poppins(
+            fontWeight: regular,
+            fontSize: 12,
+            color: AppColors.textColorGrey700,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.left,
+        ),
+        const SizedBox(height: 5),
+        Text(
           FormatCurrency.intToStringCurrency(widget.food.harga),
           style: GoogleFonts.poppins(
-            fontWeight: medium,
+            fontWeight: bold,
             fontSize: 14,
             color: AppColors.textColorBlack,
           ),
@@ -195,7 +211,7 @@ class _MenuTileState extends State<MenuTile> {
                 _buildNoteButton(context, cartProvider, cartItemIndex),
               Row(
                 children: [
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       cartProvider.addItemToCartOrUpdateQuantity(
                         widget.food.id,
@@ -207,7 +223,7 @@ class _MenuTileState extends State<MenuTile> {
                         false,
                       );
                     },
-                    splashColor: Colors.transparent,
+                    behavior: HitTestBehavior.opaque,
                     child: Icon(
                       Icons.indeterminate_check_box_outlined,
                       color: AppColors.primaryColor,
@@ -226,7 +242,7 @@ class _MenuTileState extends State<MenuTile> {
                       ),
                     ),
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       cartProvider.addItemToCartOrUpdateQuantity(
                         widget.food.id,
@@ -238,7 +254,7 @@ class _MenuTileState extends State<MenuTile> {
                         true,
                       );
                     },
-                    splashColor: Colors.transparent,
+                    behavior: HitTestBehavior.opaque,
                     child: Icon(
                       Icons.add_box,
                       color: AppColors.primaryColor,
@@ -266,7 +282,7 @@ class _MenuTileState extends State<MenuTile> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   kasirProvider.addItemToCartOrUpdateQuantity(
                     widget.food.id,
@@ -277,7 +293,7 @@ class _MenuTileState extends State<MenuTile> {
                     false,
                   );
                 },
-                splashColor: Colors.transparent,
+                behavior: HitTestBehavior.opaque,
                 child: Icon(
                   Icons.indeterminate_check_box_outlined,
                   color: AppColors.primaryColor,
@@ -296,7 +312,7 @@ class _MenuTileState extends State<MenuTile> {
                   ),
                 ),
               ),
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   kasirProvider.addItemToCartOrUpdateQuantity(
                     widget.food.id,
@@ -307,7 +323,7 @@ class _MenuTileState extends State<MenuTile> {
                     true,
                   );
                 },
-                splashColor: Colors.transparent,
+                behavior: HitTestBehavior.opaque,
                 child: Icon(
                   Icons.add_box,
                   color: AppColors.primaryColor,
@@ -354,6 +370,7 @@ class _MenuTileState extends State<MenuTile> {
               }
             }
           },
+          behavior: HitTestBehavior.opaque,
           child: Container(
             width: 90,
             height: 35,
@@ -401,6 +418,7 @@ class _MenuTileState extends State<MenuTile> {
           cartProvider.addNote(widget.food.id, catatan);
         }
       },
+      behavior: HitTestBehavior.opaque,
       child: Container(
         width: 90,
         height: 35,
