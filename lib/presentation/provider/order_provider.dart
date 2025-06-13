@@ -10,11 +10,9 @@ class OrderProvider with ChangeNotifier {
     // OrderStatus.pesananMenunggu: [],
   };
   bool _isLoading = false;
-  bool _isLoadingItem = false;
 
   List<Pesanan> getPesananByStatus(OrderStatus status) => _pesanan[status]!;
   bool get isLoading => _isLoading;
-  bool get isLoadingItem => _isLoadingItem;
 
   Future<void> fetchOrders(
       BuildContext context, String token, OrderStatus status) async {
@@ -33,8 +31,8 @@ class OrderProvider with ChangeNotifier {
 
   Future<bool> updateOrder(
       String status, String auth, int id, Pesanan pesanan) async {
-    if (_isLoadingItem) return false; // Prevent concurrent updates
-    _isLoadingItem = true;
+    if (_isLoading) return false; // Prevent concurrent updates
+    _isLoading = true;
     notifyListeners();
     try {
       final success = await OrderTenantRemoteDataSource()
@@ -47,7 +45,25 @@ class OrderProvider with ChangeNotifier {
         } else if (status == 'pesanan_ditolak') {
           _pesanan[OrderStatus.pesananMasuk]!
               .removeWhere((element) => element.id == id);
-        } else if (status == 'siap_diantar' || status == 'selesai') {
+        }
+
+        // else if (status == 'siap_diantar') {
+        //   _pesanan[OrderStatus.pesananMasuk]!
+        //       .removeWhere((element) => element.id == id);
+        // }
+        // else if (status == 'siap_diambil') {
+        //   _pesanan[OrderStatus.pesananMasuk]!
+        //       .removeWhere((element) => element.id == id);
+        // } else if (status == 'selesai') {
+        //   _pesanan[OrderStatus.pesananMasuk]!
+        //       .removeWhere((element) => element.id == id);
+        // }
+
+        /// seng siap diantar dan diantar maka dia masih stay dihalaman pengambilan
+        /// seng siap diambil dia stay di halaman pengambilan dan hilang ketika diambil
+        /// pada pesanan diproses maka diberi timeout sekitar 10 menit
+
+        else if (status == 'siap_diantar' || status == 'selesai') {
           _pesanan[OrderStatus.pesananDiproses]!
               .removeWhere((element) => element.id == id);
         }
@@ -55,9 +71,10 @@ class OrderProvider with ChangeNotifier {
       return success;
     } catch (e) {
       debugPrint('Error updating order: $e');
+      notifyListeners();
       return false;
     } finally {
-      _isLoadingItem = false;
+      _isLoading = false;
       notifyListeners();
     }
   }

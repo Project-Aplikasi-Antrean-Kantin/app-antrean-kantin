@@ -1,7 +1,7 @@
 enum OrderStatus {
   pesananMasuk('pesanan_masuk', 'Masuk'),
   pesananDiproses('pesanan_diproses', 'Diproses');
-  // pesananMenunggu('pesanan_menunggu', 'Menunggu');
+  // pesananMenunggu('pesanan_menunggu', 'Pengambilan');
 
   final String value;
   final String label;
