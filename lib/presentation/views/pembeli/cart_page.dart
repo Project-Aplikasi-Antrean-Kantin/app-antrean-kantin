@@ -380,7 +380,8 @@ class _CartPageState extends State<CartPage> {
 
     _onMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification?.title == 'Top-up Berhasil') {
+      final title = message.data['title']?.toString().toLowerCase();
+      if (title == 'top-up berhasil') {
         _handleCoinCartByNotification(coinProvider, user);
       }
     });

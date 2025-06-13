@@ -98,7 +98,8 @@ Future<void> setupNotificationChannels() async {
     'tenant_channel',
     'Tenant Notification',
     description: 'Notifikasi untuk tenant',
-    importance: Importance.high,
+    importance: Importance.max,
+    playSound: true,
     sound: RawResourceAndroidNotificationSound('tnt_fdlb'),
   );
 
@@ -106,7 +107,8 @@ Future<void> setupNotificationChannels() async {
     'driver_fdlb_channel',
     'Driver Notification',
     description: 'Notifikasi untuk driver',
-    importance: Importance.high,
+    importance: Importance.max,
+    playSound: true,
     sound: RawResourceAndroidNotificationSound('drv_fdlb'),
   );
 
@@ -122,9 +124,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await setupNotificationChannels();
-  // FirebaseMessaging.instance.getToken().then((token) {
-  //   log("Token: $token");
-  // });
+  await NotificationService.initialize();
   runApp(const MyApp());
 }
 
@@ -133,7 +133,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    NotificationService.initializeAppNotification(context);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CartProvider()),

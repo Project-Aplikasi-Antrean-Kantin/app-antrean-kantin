@@ -41,13 +41,16 @@ class _PesananTenantState extends State<PesananTenant> {
     // Listen for foreground notifications
     _onMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification?.title == 'Pesanan Masuk') {
+      final title = message.data['title']?.toString().toLowerCase();
+      if (title == 'pesanan masuk') {
         _handleNewOrderNotification(orderProvider, user);
       }
     });
+
     _onMessageTimeOutSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification?.title == 'Pesanan Dibatalkan Otomatis') {
+      final title = message.data['title']?.toString().toLowerCase();
+      if (title == 'pesanan dibatalkan otomatis') {
         _handleNewOrderNotification(orderProvider, user);
       }
     });
@@ -177,38 +180,4 @@ class _PesananTenantState extends State<PesananTenant> {
       ),
     );
   }
-
-  // Widget _buildEmptyState(OrderStatus status) {
-  //   final orderProvider = Provider.of<OrderProvider>(context);
-  //   final authProvider = Provider.of<AuthProvider>(context);
-  //   final user = authProvider.user;
-
-  //   return RefreshIndicator(
-  //     backgroundColor: AppColors.backgroundColor,
-  //     color: AppColors.primaryColor,
-  //     onRefresh: () => orderProvider.fetchOrders(context, user.token, status),
-  //     child: Scaffold(
-  //       backgroundColor: AppColors.backgroundColor,
-  //       body: SingleChildScrollView(
-  //         physics: const AlwaysScrollableScrollPhysics(),
-  //         child: Container(
-  //           constraints: BoxConstraints(
-  //             minHeight: MediaQuery.of(context).size.height -
-  //                 MediaQuery.of(context).padding.top -
-  //                 kToolbarHeight,
-  //           ),
-  //           child: Center(
-  //             child: Text(
-  //               'Pesanan kosong',
-  //               style: GoogleFonts.poppins(
-  //                 color: AppColors.textColorBlack,
-  //                 fontSize: 14,
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }

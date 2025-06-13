@@ -50,7 +50,8 @@ class _TopupPageState extends State<TopupPage> {
 
   void _setupFirebaseListener() {
     _onMessageSubscription = FirebaseMessaging.onMessage.listen((message) {
-      if (message.notification?.title == 'Top-up Berhasil') {
+      final title = message.data['title']?.toString().toLowerCase();
+      if (title == 'top-up berhasil') {
         final coinProvider = Provider.of<CoinProvider>(context, listen: false);
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         _handleCoinTopUpByNotification(coinProvider, authProvider.user);

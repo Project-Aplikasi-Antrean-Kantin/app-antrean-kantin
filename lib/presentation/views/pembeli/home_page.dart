@@ -90,13 +90,16 @@ class _HomePageState extends State<HomePage> {
 
     _onMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification?.title == 'Refund Berhasil') {
+      final title = message.data['title']?.toString().toLowerCase();
+      if (title == 'refund berhasil') {
         _handleCoinByNotification(coinProvider, user);
       }
     });
+
     _onMessageTopupSuccessSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification?.title == 'Top-up Berhasil') {
+      final title = message.data['title']?.toString().toLowerCase();
+      if (title == 'top-up berhasil') {
         _handleCoinByNotification(coinProvider, user);
       }
     });
@@ -184,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                   Positioned.fill(
                     child: FlexibleSpaceBar(
                       background: Image.asset(
-                        'assets/images/onesolutioneveryneedfood.png',
+                        'assets/images/beranda_banner3.png',
                         fit: BoxFit
                             .cover, // atau BoxFit.fill, tergantung kebutuhan
                       ),
