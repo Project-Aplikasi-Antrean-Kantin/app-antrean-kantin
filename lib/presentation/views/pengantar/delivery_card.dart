@@ -12,7 +12,7 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
-class DeliveryCard extends StatelessWidget {
+class DeliveryCard extends StatefulWidget {
   final VoidCallback onSuccess;
   final Pesanan pesanan;
   final DeliveryStatus status;
@@ -27,19 +27,26 @@ class DeliveryCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<DeliveryCard> createState() => _DeliveryCardState();
+}
+
+class _DeliveryCardState extends State<DeliveryCard> {
+  bool _isLoading = false; // Local loading state for this card's button
+
+  @override
   Widget build(BuildContext context) {
     final deliveryProvider =
         Provider.of<DeliveryProvider>(context, listen: false);
-    final totalItemMenu = pesanan.listTransaksiDetail
+    final totalItemMenu = widget.pesanan.listTransaksiDetail
         .map((item) => item.jumlah)
         .fold(0, (prev, jumlah) => prev + jumlah);
-    final tenantName = pesanan.listTransaksiDetail.isNotEmpty &&
-            pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant != null
+    final tenantName = widget.pesanan.listTransaksiDetail.isNotEmpty &&
+            widget.pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant !=
+                null
         ? capitalizeFirstLetter(
-            pesanan.listTransaksiDetail[0].menus!.tenants!.namaTenant)
+            widget.pesanan.listTransaksiDetail[0].menus!.tenants!.namaTenant)
         : 'Unknown Tenant';
 
-    final isLoading = context.watch<DeliveryProvider>().isLoadingItem;
     final screenSize = MediaQuery.of(context).size;
 
     return Container(
@@ -55,7 +62,7 @@ class DeliveryCard extends StatelessWidget {
         children: [
           _buildSection(
             label: 'Alamat pengantaran',
-            value: pesanan.namaRuangan ?? '-',
+            value: widget.pesanan.namaRuangan ?? '-',
             valueStyle: GoogleFonts.poppins(
               color: AppColors.primaryColor,
               fontSize: 14,
@@ -71,7 +78,7 @@ class DeliveryCard extends StatelessWidget {
             children: [
               _buildSection(
                 label: 'Penerima',
-                value: capitalizeFirstLetter(pesanan.namaPembeli ?? '-'),
+                value: capitalizeFirstLetter(widget.pesanan.namaPembeli ?? '-'),
                 valueStyle: GoogleFonts.poppins(
                   color: AppColors.textColorBlack,
                   fontSize: 14,
@@ -80,7 +87,7 @@ class DeliveryCard extends StatelessWidget {
               ),
               _buildSection(
                 label: 'No.',
-                value: 'ORDER-${pesanan.id.toString().padLeft(3, '0')}',
+                value: 'ORDER-${widget.pesanan.id.toString().padLeft(3, '0')}',
                 valueStyle: GoogleFonts.poppins(
                   color: AppColors.textColorBlack,
                   fontSize: 14,
@@ -94,7 +101,7 @@ class DeliveryCard extends StatelessWidget {
             child: Divider(color: Colors.grey, height: 1),
           ),
           _buildSection(
-            label: status == DeliveryStatus.siapDiantar
+            label: widget.status == DeliveryStatus.siapDiantar
                 ? 'Tempat Ambil'
                 : 'Tenant',
             value: tenantName,
@@ -104,7 +111,7 @@ class DeliveryCard extends StatelessWidget {
               fontWeight: bold,
             ),
           ),
-          ...pesanan.listTransaksiDetail
+          ...widget.pesanan.listTransaksiDetail
               .map((item) => PesananItemWidget(
                     pesanan: item,
                     tolakPesanan: () {},
@@ -115,19 +122,19 @@ class DeliveryCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 20),
             child: Divider(color: Colors.grey, height: 1),
           ),
-          _buildCostSection(pesanan, totalItemMenu),
+          _buildCostSection(widget.pesanan, totalItemMenu),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               PrimaryButton(
-                isLoading: isLoading,
+                isLoading: _isLoading, // Use local loading state
                 elevation: 0,
                 width: screenSize.width * 0.5,
                 height: screenSize.height * 0.05,
                 borderRadius: 100,
                 child: Text(
-                  status == DeliveryStatus.siapDiantar
+                  widget.status == DeliveryStatus.siapDiantar
                       ? 'Antar Pesanan'
                       : 'Selesai Antar',
                   style: GoogleFonts.poppins(
@@ -136,30 +143,39 @@ class DeliveryCard extends StatelessWidget {
                   ),
                 ),
                 onPressed: () async {
+                  setState(() {
+                    _isLoading = true; // Set local loading state
+                  });
                   final success = await deliveryProvider.updateOrder(
-                    status == DeliveryStatus.siapDiantar
+                    widget.status == DeliveryStatus.siapDiantar
                         ? 'diantar'
                         : 'selesai',
-                    userToken,
-                    pesanan.id,
-                    pesanan,
+                    widget.userToken,
+                    widget.pesanan.id,
+                    widget.pesanan,
                   );
                   log(deliveryProvider.errorMessage.toString());
 
                   Fluttertoast.showToast(
                     msg: success
-                        ? status == DeliveryStatus.siapDiantar
+                        ? widget.status == DeliveryStatus.siapDiantar
                             ? 'Segera antar pesanan!'
                             : 'Pesanan selesai 🎉'
                         : deliveryProvider.errorMessage ??
-                            'ORDER-${pesanan.id} telah diantar oleh driver lain',
+                            'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
                     backgroundColor: success ? Colors.grey : Colors.red,
                     textColor: Colors.white,
                     fontSize: 16.0,
                   );
-                  if (success) onSuccess();
+                  if (mounted) {
+                    // Check if the widget is still mounted
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                  if (success) widget.onSuccess();
                 },
               ),
             ],

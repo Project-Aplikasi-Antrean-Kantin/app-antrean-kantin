@@ -19,12 +19,10 @@ class DeliveryProvider with ChangeNotifier {
     DeliveryStatus.diantar: [],
   };
   bool _isLoading = false;
-  bool _isLoadingItem = false;
   String? _errorMessage; // Store error message for UI feedback
 
   List<Pesanan> getPesananByStatus(DeliveryStatus status) => _pesanan[status]!;
   bool get isLoading => _isLoading;
-  bool get isLoadingItem => _isLoadingItem;
   String? get errorMessage => _errorMessage;
 
   Future<void> fetchOrders(String token, DeliveryStatus status) async {
@@ -46,23 +44,12 @@ class DeliveryProvider with ChangeNotifier {
 
   Future<bool> updateOrder(
       String newStatus, String token, int id, Pesanan pesanan) async {
-    if (_isLoadingItem) return false; // Prevent concurrent updates
-    _isLoadingItem = true;
+    if (_isLoading) return false; // Prevent concurrent updates
+    _isLoading = true;
     notifyListeners();
     try {
       final success =
           await DriverDataSource().updateOrderDelivery(newStatus, token, id);
-      // if (success) {
-      //   _errorMessage = null;
-      //   print('Success: _errorMessage cleared');
-      //   notifyListeners();
-      //   return true;
-      // } else {
-      //   _errorMessage = 'Gagal memperbarui pesanan';
-      //   print('Failed: _errorMessage set to $_errorMessage');
-      //   notifyListeners();
-      //   return false;
-      // }
       if (success) {
         if (newStatus == 'diantar') {
           _pesanan[DeliveryStatus.siapDiantar]!
@@ -86,7 +73,7 @@ class DeliveryProvider with ChangeNotifier {
       notifyListeners();
       return false;
     } finally {
-      _isLoadingItem = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
