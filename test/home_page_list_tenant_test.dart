@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:testgetdata/model/tenant_model.dart';
-import 'package:testgetdata/views/home/widgets/list_tenant.dart';
+import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/presentation/widgets/list_tenant.dart';
 
 void main() {
   group('ListTenant Widget Test', () {
@@ -32,6 +32,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ListTenant(
+              onNavigate: (page) => {},
               url: mockUrl,
               foundTenant: mockTenants,
             ),

@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/model/fitur_model.dart';
-import 'package:testgetdata/model/tenant_model.dart';
-import 'package:testgetdata/model/user_model.dart';
-import 'package:testgetdata/provider/auth_provider.dart';
-import 'package:testgetdata/views/home/pages/beranda/home_page.dart';
-
+import 'package:testgetdata/data/model/fitur_model.dart';
+import 'package:testgetdata/data/model/user_model.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/views/pembeli/home_page.dart';
 import 'login_page_test.mocks.dart';
 
 // @GenerateMocks([AuthProvider])
@@ -56,6 +54,7 @@ void main() {
         (tester) async {
       when(mockAuthProvider.user).thenReturn(
         UserModel(
+          role: ['user'],
           nama: 'Test User',
           token: 'dummy-token',
           permission: ['read beranda'],
@@ -71,6 +70,7 @@ void main() {
     testWidgets('Displays tenant list when data is available', (tester) async {
       when(mockAuthProvider.user).thenReturn(
         UserModel(
+          role: ['user'],
           nama: 'Test User',
           token: 'dummy-token',
           permission: ['read beranda'],

@@ -3,11 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/model/fitur_model.dart';
-import 'package:testgetdata/model/user_model.dart';
-import 'package:testgetdata/provider/auth_provider.dart';
-import 'package:testgetdata/views/home/pages/login/login_page.dart';
-import 'package:testgetdata/views/home/pages/navbar_home.dart';
+import 'package:testgetdata/data/model/fitur_model.dart';
+import 'package:testgetdata/data/model/user_model.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 
 import 'login_page_test.mocks.dart';
 
@@ -43,6 +43,7 @@ void main() {
       mockAuthProvider = MockAuthProvider();
       // Mock the user property to return a valid user
       when(mockAuthProvider.user).thenReturn(UserModel(
+        role: ['user'],
         nama: 'Test User',
         token: 'dummy-token',
         permission: ['read beranda'],
@@ -89,7 +90,8 @@ void main() {
       await tester.tap(loginButton);
       await tester.pumpAndSettle();
 
-      verify(mockAuthProvider.login('adam@gmail.com', 'adam1234')).called(1);
+      verify(mockAuthProvider.login('adam@gmail.com', 'adam1234', 'asdashg'))
+          .called(1);
     });
   });
 }

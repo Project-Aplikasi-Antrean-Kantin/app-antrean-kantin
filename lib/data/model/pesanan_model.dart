@@ -1,0 +1,77 @@
+import 'package:testgetdata/data/model/ruangan_model.dart';
+import 'package:testgetdata/data/model/transaksi_detail_model.dart';
+
+class Pesanan {
+  final int id;
+  final int userId;
+  final String status;
+  String? catatan;
+  String? kodePemesanan;
+  int? ruanganId;
+  final int total;
+  final int ongkosKirim;
+  final int biayaLayanan;
+  final int isAntar;
+  final String metodePembayaran;
+  int? driverId;
+  final String orderId;
+  final int subTotal;
+  String? gedung;
+  String? namaRuangan;
+  final List<ListTransaksiDetail> listTransaksiDetail;
+  Ruangan? ruangan;
+  String? namaPembeli;
+  String? phone;
+  final DateTime createdAt;
+
+  Pesanan({
+    required this.id,
+    required this.userId,
+    required this.status,
+    required this.catatan,
+    required this.kodePemesanan,
+    this.ruanganId,
+    required this.total,
+    required this.ongkosKirim,
+    required this.biayaLayanan,
+    required this.isAntar,
+    required this.metodePembayaran,
+    this.driverId,
+    required this.orderId,
+    required this.subTotal,
+    this.gedung,
+    this.namaRuangan,
+    required this.listTransaksiDetail,
+    this.ruangan,
+    this.namaPembeli,
+    this.phone,
+    required this.createdAt,
+  });
+
+  factory Pesanan.fromJson(Map<String, dynamic> json) => Pesanan(
+        id: json["id"],
+        userId: json["user_id"],
+        status: json["status"],
+        catatan: json["catatan"],
+        kodePemesanan: json["kode_pemesanan"],
+        ruanganId: json["ruangan_id"],
+        total: json["total"],
+        ongkosKirim: json["ongkos_kirim"],
+        biayaLayanan: json["biaya_layanan"],
+        isAntar: json["isAntar"],
+        metodePembayaran: json["metode_pembayaran"],
+        driverId: json["driver_id"],
+        orderId: json["order_id"],
+        subTotal: json["sub_total"],
+        gedung: json["gedung"],
+        namaRuangan: json["nama_ruangan"],
+        listTransaksiDetail: List<ListTransaksiDetail>.from(
+          json["list_transaksi_detail"]
+              .map((x) => ListTransaksiDetail.fromJson(x)),
+        ),
+        namaPembeli: json["nama_pembeli"],
+        phone: json["user"]["phone"],
+        createdAt: DateTime.parse(json["created_at"]).toLocal(),
+        // ruangan: Ruangan.fromJson(json["ruangan"]),
+      );
+}
