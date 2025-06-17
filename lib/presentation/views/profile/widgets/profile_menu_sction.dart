@@ -1,11 +1,10 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
-import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
@@ -14,130 +13,54 @@ import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/profile_menu_item.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ProfileMenuSection extends StatelessWidget {
+  final UserModel user;
+  final AuthProvider authProvider;
 
-  @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
+  const ProfileMenuSection({
+    Key? key,
+    required this.user,
+    required this.authProvider,
+  }) : super(key: key);
 
-class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.user;
-
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        toolbarHeight: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeaderSection(context, user),
-            _buildMenuSection(context, user, authProvider),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeaderSection(BuildContext context, UserModel user) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 60, bottom: 20),
-      decoration: BoxDecoration(color: AppColors.primaryColor),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 15),
-            child: Text(
-              'Akun Saya',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                color: AppColors.textColorwhite,
-                fontWeight: semibold,
+    void showBatteryOptimizationDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Izinkan Aplikasi Berjalan di Latar Belakang'),
+            content: const Text(
+              '1. Setelah halaman pengaturan aplikasi FoodLab terbuka, cari dan pilih menu "Baterai" atau "Optimasi Baterai".\n'
+              '2. Pastikan opsi "Izinkan aktivitas latar belakang" atau "Jangan optimalkan" sudah diaktifkan untuk FoodLab.\n'
+              '3. Jika tidak menemukan menu tersebut, cari di bagian "Baterai" pada pengaturan utama ponsel Anda.\n\n'
+              'Langkah ini akan memastikan FoodLab tetap berjalan di latar belakang dan notifikasi dapat diterima secara real-time.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Batal'),
               ),
-            ),
-          ),
-          Container(
-            height: 160,
-            width: 160,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(80),
-              color: Colors.grey[200],
-            ),
-            child: user.gambar != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(80),
-                    child: Image.network(
-                      user.gambar!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.person,
-                        size: 80,
-                        color: Colors.grey[600],
-                      ),
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child; // Gambar selesai dimuat
-                        }
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[400]!,
-                          highlightColor: Colors.grey[200]!,
-                          child: Container(
-                            height: 160,
-                            width: 160,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(80),
-                              color: Colors.grey[300],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                : Icon(
-                    Icons.person,
-                    size: 80,
-                    color: Colors.grey[600],
-                  ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 15),
-            child: Column(
-              children: [
-                Text(
-                  _capitalizeFirstLetter(user.nama),
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: medium,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  user.email,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // AppSettings.openAppSettingsPanel(AppSettingsPanelType.volume);
 
-  Widget _buildMenuSection(
-      BuildContext context, UserModel user, AuthProvider authProvider) {
+                  // AppSettings.openAppSettings(
+                  //     type: AppSettingsType.batteryOptimization);
+                  AppSettings.openAppSettings(type: AppSettingsType.settings);
+                },
+                child: const Text('Buka Pengaturan'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.all(20),
       child: Column(
@@ -175,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: Icons.access_time_outlined,
               iconColor: user.isOnline! ? Colors.green : Colors.red,
               title: 'Status Tenant',
-              onTap: () => _showTenantStatusBottomSheet(context, authProvider),
+              onTap: () => _showTenantStatusBottomSheet(context),
             ),
             const SizedBox(height: 20),
           ],
@@ -197,24 +120,28 @@ class _ProfilePageState extends State<ProfilePage> {
               final result = await Navigator.of(context).push(
                 CustomPageBuilder(page: const EditProfil()),
               );
-              if (result == true && mounted) {
+              if (result == true && context.mounted) {
                 await authProvider.fetchUserData(user.token);
               }
             },
           ),
+          // ProfileMenuItem(
+          //   icon: Icons.app_settings_alt_outlined,
+          //   title: 'Atur Izin Latar Belakang',
+          //   onTap: () => showBatteryOptimizationDialog(context),
+          // ),
           ProfileMenuItem(
             icon: Icons.logout,
             title: 'Keluar',
             showIconArrow: false,
-            onTap: () => _showLogoutDialog(context, authProvider, user.token),
+            onTap: () => _showLogoutDialog(context),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _showLogoutDialog(
-      BuildContext context, AuthProvider authProvider, String token) async {
+  void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => CustomAlertDialog(
@@ -222,9 +149,8 @@ class _ProfilePageState extends State<ProfilePage> {
         message: 'Apakah Anda yakin ingin keluar?',
         showCancelButton: true,
         onOkPressed: () async {
-          await authProvider.logout(token);
-          if (mounted) {
-            // Navigator.pushReplacementNamed(context, '/');
+          await authProvider.logout(user.token);
+          if (context.mounted) {
             Navigator.of(context).pushAndRemoveUntil(
               CustomPageBuilder(
                 page: LoginPage(),
@@ -238,9 +164,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _showTenantStatusBottomSheet(
-      BuildContext context, AuthProvider authProvider) {
-    bool? selectedStatus = authProvider.user.isOnline;
+  void _showTenantStatusBottomSheet(BuildContext context) {
+    bool? selectedStatus = user.isOnline;
 
     showModalBottomSheet(
       backgroundColor: AppColors.backgroundColor,
@@ -256,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTenantStatusHeader(authProvider),
+              _buildTenantStatusHeader(),
               const SizedBox(height: 15),
               _buildStatusOption(
                 isOnline: true,
@@ -276,8 +201,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: selectedStatus != null
                       ? () async {
                           await authProvider.updateTenantStatus(
-                              authProvider.user.token, selectedStatus!);
-                          if (mounted) Navigator.pop(context);
+                              user.token, selectedStatus!);
+                          if (context.mounted) Navigator.pop(context);
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -304,7 +229,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildTenantStatusHeader(AuthProvider authProvider) {
+  Widget _buildTenantStatusHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -323,15 +248,15 @@ class _ProfilePageState extends State<ProfilePage> {
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             border: Border.all(
               width: 0.5,
-              color: authProvider.user.isOnline! ? Colors.green : Colors.red,
+              color: user.isOnline! ? Colors.green : Colors.red,
             ),
           ),
           child: Text(
-            authProvider.user.isOnline! ? 'Buka' : 'Tutup',
+            user.isOnline! ? 'Buka' : 'Tutup',
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: regular,
-              color: authProvider.user.isOnline! ? Colors.green : Colors.red,
+              color: user.isOnline! ? Colors.green : Colors.red,
             ),
           ),
         ),
@@ -398,10 +323,5 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
-  }
-
-  String _capitalizeFirstLetter(String text) {
-    if (text.isEmpty) return text;
-    return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 }
