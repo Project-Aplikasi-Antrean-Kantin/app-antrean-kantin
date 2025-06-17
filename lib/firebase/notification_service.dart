@@ -2,16 +2,15 @@ import 'dart:developer';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  log('[BG Handler] Message received: ${message.data}');
   await Firebase.initializeApp();
-  await NotificationService._initializeNotificationChannels();
   await NotificationService._showNotification(message);
-  print("Background message: ${message.messageId}");
-  print("Notification payload: ${message.data}");
-  log("TEKO BG");
+  log('[BG Handler] Notification processed');
 }
 
 class NotificationService {
@@ -21,7 +20,7 @@ class NotificationService {
     'fcm_fallback_notification_channel',
     'Miscellaneous',
     description: 'Default notification channel',
-    importance: Importance.high,
+    importance: Importance.max,
     playSound: true,
   );
 
@@ -50,6 +49,7 @@ class NotificationService {
     await androidImpl?.createNotificationChannel(_defaultChannel);
     await androidImpl?.createNotificationChannel(_tenantChannel);
     await androidImpl?.createNotificationChannel(_driverChannel);
+    await androidImpl?.requestExactAlarmsPermission();
     print("Notification channels initialized");
   }
 
@@ -97,54 +97,13 @@ class NotificationService {
 
     FirebaseMessaging.onMessage.listen((message) {
       print('Foreground message: ${message.data}');
+      // Clipboard.setData(ClipboardData(text: message.data.toString()));
       _showNotification(message);
     });
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
-  // static Future<void> _showNotification(RemoteMessage message) async {
-  //   // Ambil title dan body dari data, bukan dari message.notification
-  //   final data = message.data;
-  //   final String? title = data['title'] ?? 'Notifikasi';
-  //   final String? body = data['body'] ?? '';
-
-  //   // Pilih channel berdasarkan title
-  //   AndroidNotificationChannel channel = _defaultChannel;
-  //   if (title != null && title.toLowerCase().contains('pesanan masuk')) {
-  //     channel = _tenantChannel;
-  //   } else if (title != null &&
-  //       title.toLowerCase().contains('ada pesanan siap diantar')) {
-  //     channel = _driverChannel;
-  //   }
-
-  //   print(
-  //       "Showing notification with channel: ${channel.id}, sound: ${channel.sound}");
-
-  //   final androidDetails = AndroidNotificationDetails(
-  //     channel.id,
-  //     channel.name,
-  //     channelDescription: channel.description,
-  //     importance: channel.importance,
-  //     priority: Priority.max,
-  //     playSound: channel.playSound,
-  //     sound: channel.sound,
-  //     icon: '@mipmap/ic_launcher',
-  //     enableVibration: true,
-  //     visibility: NotificationVisibility.public,
-  //     enableLights: true,
-  //   );
-
-  //   final platformDetails = NotificationDetails(android: androidDetails);
-
-  //   await _notificationsPlugin.show(
-  //     title.hashCode ^ body.hashCode,
-  //     title,
-  //     body,
-  //     platformDetails,
-  //     payload: data.toString(),
-  //   );
-  // }
   static Future<void> _showNotification(RemoteMessage message) async {
     // Ambil title dan body dari data saja
     final data = message.data;
@@ -201,8 +160,10 @@ class NotificationService {
 
     final platformDetails = NotificationDetails(android: androidDetails);
 
+    final notificationId =
+        DateTime.now().millisecondsSinceEpoch.remainder(100000);
     await _notificationsPlugin.show(
-      finalTitle.hashCode ^ finalBody.hashCode,
+      notificationId,
       finalTitle,
       finalBody,
       platformDetails,
