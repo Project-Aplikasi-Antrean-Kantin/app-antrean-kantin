@@ -9,9 +9,9 @@ import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/register_page.dart';
-import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
-import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,10 +21,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _showPassword = true;
   bool _isLoading = false;
+
+  String? emailError;
+  String? passwordError;
 
   @override
   void dispose() {
@@ -35,9 +38,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Route _createRouteToHomePage() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const NavbarHome(
-        pageIndex: 0,
-      ),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const NavbarHome(pageIndex: 0),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
@@ -64,24 +66,75 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> _handleLogin(
-      BuildContext context, AuthProvider authProvider) async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Harap isi email dan password terlebih dahulu")),
-      );
-      return;
-    }
+  void showCustomSnackbar(String message, {bool success = false}) {
+    final snackBar = SnackBar(
+      content: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        },
+        child: Row(
+          children: [
+            Icon(
+              success ? Icons.check_circle : Icons.error_outline,
+              color: success ? Colors.green : Colors.redAccent,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: success ? Colors.green : Colors.redAccent,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.white,
+      behavior: SnackBarBehavior.floating,
+      elevation: 6,
+      duration: const Duration(seconds: 3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  bool validateInputs() {
+    setState(() {
+      emailError = _emailController.text.isEmpty
+          ? "Email wajib diisi."
+          : (!_emailController.text.contains('@')
+              ? "Format email tidak valid."
+              : null);
+      passwordError = _passwordController.text.isEmpty
+          ? "Password wajib diisi."
+          : (_passwordController.text.length < 8
+              ? "Password minimal 8 karakter."
+              : null);
+    });
+    return [emailError, passwordError].every((e) => e == null);
+  }
+
+  Future<void> _handleLogin(AuthProvider authProvider) async {
+    if (!validateInputs()) return;
 
     setState(() => _isLoading = true);
 
     try {
       final token = await FirebaseMessaging.instance.getToken();
-      log("ini fcm token: $token");
+      log("Token fcm: " + token.toString());
       if (token == null) {
-        throw const ApiException(
-            status: 'failed', message: 'Gagal mendapatkan token');
+        showCustomSnackbar("Gagal mengakses perangkat. Silakan coba lagi.",
+            success: false);
+        setState(() => _isLoading = false);
+        return;
       }
 
       await authProvider.login(
@@ -89,60 +142,40 @@ class _LoginPageState extends State<LoginPage> {
       await authProvider.fetchUserData(authProvider.user.token);
 
       if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          _createRouteToHomePage(),
-          (route) => false,
-        );
+        showCustomSnackbar("Login berhasil! Selamat datang.", success: true);
+        Future.delayed(const Duration(milliseconds: 1000), () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            _createRouteToHomePage(),
+            (route) => false,
+          );
+        });
       }
     } on ApiException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          CustomSnackBar(status: e.status, message: e.message),
+      // --- Ini bagian penting: deteksi error email belum terdaftar
+      if (e.message.toLowerCase().contains('tidak ditemukan') ||
+          e.message.toLowerCase().contains('not found') ||
+          e.message.toLowerCase().contains('belum terdaftar')) {
+        showCustomSnackbar(
+          "Email belum terdaftar. Silakan daftar akun terlebih dahulu.",
+          success: false,
+        );
+      } else {
+        showCustomSnackbar(
+          e.message.isNotEmpty
+              ? e.message
+              : "Email atau password salah. Silakan periksa kembali.",
+          success: false,
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          CustomSnackBar(status: 'failed', message: e.toString()),
-        );
-      }
+      showCustomSnackbar(
+        "Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.",
+        success: false,
+      );
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  InputDecoration _buildInputDecoration(String hintText, {Widget? suffixIcon}) {
-    return InputDecoration(
-      fillColor: Colors.white,
-      filled: true,
-      hintText: hintText,
-      hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
-      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      suffixIcon: suffixIcon,
-    );
   }
 
   @override
@@ -156,138 +189,159 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40),
-                Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        'Halo Bro!',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.textColorBlack,
-                          fontSize: 32,
-                          fontWeight: semibold,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Text(
-                          'Pastikan kamu sudah memiliki akun ya bro...',
-                          textAlign: TextAlign.center,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40),
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Halo Bro!',
                           style: GoogleFonts.poppins(
                             color: AppColors.textColorBlack,
-                            fontSize: 15,
-                            fontWeight: regular,
+                            fontSize: 32,
+                            fontWeight: semibold,
                           ),
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Text(
+                            'Pastikan kamu sudah memiliki akun ya bro...',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: AppColors.textColorBlack,
+                              fontSize: 15,
+                              fontWeight: regular,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                TextFormField(
-                  controller: _emailController,
-                  cursorColor: AppColors.primaryColor,
-                  decoration: _buildInputDecoration('Email address'),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Harap isi email terlebih dahulu'
-                      : null,
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _passwordController,
-                  cursorColor: AppColors.primaryColor,
-                  obscureText: _showPassword,
-                  decoration: _buildInputDecoration(
-                    'Password',
+                  const SizedBox(height: 30),
+                  CustomTextFormField(
+                    label: 'Email',
+                    controller: _emailController,
+                    hintText: 'Alamat email kamu',
+                    inputType: TextInputType.emailAddress,
+                    isRequired: true,
+                    errorText: emailError,
+                  ),
+                  CustomTextFormField(
+                    label: 'Password',
+                    controller: _passwordController,
+                    hintText: 'Kata sandi',
+                    obscureText: _showPassword,
+                    isRequired: true,
+                    errorText: passwordError,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _showPassword
-                            ? Icons.remove_red_eye
-                            : Icons.remove_red_eye_outlined,
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                        color: Colors.grey[500],
                       ),
                       onPressed: () =>
                           setState(() => _showPassword = !_showPassword),
                     ),
                   ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Harap isi password terlebih dahulu'
-                      : null,
-                ),
-                const SizedBox(height: 40),
-                GestureDetector(
-                  onTap: _isLoading
-                      ? null
-                      : () => _handleLogin(context, authProvider),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Center(
-                      child: _isLoading
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                SizedBox(
-                                  width: 15,
-                                  height: 15,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 3,
-                                    color: Colors.white,
+                  const SizedBox(height: 30),
+                  GestureDetector(
+                    onTap: _isLoading ? null : () => _handleLogin(authProvider),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      height: 45,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.07),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: _isLoading
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                      color: Colors.white,
+                                    ),
                                   ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    "Memproses...",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                "Masuk",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: medium,
+                                  fontSize: 15,
                                 ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Tunggu sebentar",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 14),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              "Masuk",
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: medium,
                               ),
-                            ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Belum punya akun? ',
-                      style:
-                          GoogleFonts.poppins(color: AppColors.textColorBlack),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .push(_createRouteToRegisterPage()),
-                      child: Text(
-                        'Daftar',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.primaryColor,
-                          fontWeight: semibold,
-                        ),
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Belum punya akun? ',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.textColorBlack,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context)
+                            .push(_createRouteToRegisterPage()),
+                        child: Text(
+                          'Daftar',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.primaryColor,
+                            fontWeight: semibold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      "Jika mengalami kendala login, pastikan email & password sudah benar atau hubungi tim support kami.",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey[600],
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
