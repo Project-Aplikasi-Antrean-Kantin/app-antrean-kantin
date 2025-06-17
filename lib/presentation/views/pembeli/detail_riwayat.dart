@@ -252,6 +252,10 @@ class DetailRiwayat extends StatelessWidget {
           "Tanggal:",
           FormatDate.formatDateTimeWithWIB(pesanan.createdAt),
         ),
+        _buildInfoRow(
+          "Kode Pengambilan:",
+          pesanan.kodePemesanan ?? '-',
+        ),
       ],
     );
   }

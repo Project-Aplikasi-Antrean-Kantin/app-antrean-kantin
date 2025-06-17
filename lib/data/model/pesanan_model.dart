@@ -6,6 +6,7 @@ class Pesanan {
   final int userId;
   final String status;
   String? catatan;
+  String? kodePemesanan;
   int? ruanganId;
   final int total;
   final int ongkosKirim;
@@ -23,33 +24,36 @@ class Pesanan {
   String? phone;
   final DateTime createdAt;
 
-  Pesanan(
-      {required this.id,
-      required this.userId,
-      required this.status,
-      required this.catatan,
-      this.ruanganId,
-      required this.total,
-      required this.ongkosKirim,
-      required this.biayaLayanan,
-      required this.isAntar,
-      required this.metodePembayaran,
-      this.driverId,
-      required this.orderId,
-      required this.subTotal,
-      this.gedung,
-      this.namaRuangan,
-      required this.listTransaksiDetail,
-      this.ruangan,
-      this.namaPembeli,
-      this.phone,
-      required this.createdAt});
+  Pesanan({
+    required this.id,
+    required this.userId,
+    required this.status,
+    required this.catatan,
+    required this.kodePemesanan,
+    this.ruanganId,
+    required this.total,
+    required this.ongkosKirim,
+    required this.biayaLayanan,
+    required this.isAntar,
+    required this.metodePembayaran,
+    this.driverId,
+    required this.orderId,
+    required this.subTotal,
+    this.gedung,
+    this.namaRuangan,
+    required this.listTransaksiDetail,
+    this.ruangan,
+    this.namaPembeli,
+    this.phone,
+    required this.createdAt,
+  });
 
   factory Pesanan.fromJson(Map<String, dynamic> json) => Pesanan(
         id: json["id"],
         userId: json["user_id"],
         status: json["status"],
         catatan: json["catatan"],
+        kodePemesanan: json["kode_pemesanan"],
         ruanganId: json["ruangan_id"],
         total: json["total"],
         ongkosKirim: json["ongkos_kirim"],

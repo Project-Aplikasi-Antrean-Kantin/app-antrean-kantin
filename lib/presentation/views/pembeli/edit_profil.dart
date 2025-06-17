@@ -11,16 +11,12 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 
 class EditProfil extends StatefulWidget {
-  const EditProfil({
-    Key? key,
-  }) : super(key: key);
+  const EditProfil({Key? key}) : super(key: key);
 
   @override
   State<EditProfil> createState() => _EditProfilState();
@@ -29,7 +25,7 @@ class EditProfil extends StatefulWidget {
 Future<int> _getImageSize(String imagePath) async {
   File imageFile = File(imagePath);
   int sizeInBytes = await imageFile.length();
-  int sizeInKB = sizeInBytes ~/ 1024; // Convert bytes to KB
+  int sizeInKB = sizeInBytes ~/ 1024;
   return sizeInKB;
 }
 
@@ -48,6 +44,10 @@ class _EditProfilState extends State<EditProfil> {
   late TextEditingController emailUserController;
   late TextEditingController phoneUserController;
 
+  // Focus nodes untuk pindah field
+  final _namaFocus = FocusNode();
+  final _phoneFocus = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -55,17 +55,25 @@ class _EditProfilState extends State<EditProfil> {
     namaUserController = TextEditingController();
     emailUserController = TextEditingController();
     phoneUserController = TextEditingController();
+
+    // Ambil data user dari provider setelah frame build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final user = authProvider.user;
+      namaUserController.text = user.nama;
+      emailUserController.text = user.email;
+      phoneUserController.text = user.phone?.toString() ?? '';
+    });
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-    UserModel user = authProvider.user;
-    namaUserController.text = user.nama;
-    emailUserController.text = user.email;
-    phoneUserController.text = user.phone?.toString() ?? '';
+  void dispose() {
+    namaUserController.dispose();
+    emailUserController.dispose();
+    phoneUserController.dispose();
+    _namaFocus.dispose();
+    _phoneFocus.dispose();
+    super.dispose();
   }
 
   Future<void> _getImageFromGallery() async {
@@ -135,260 +143,243 @@ class _EditProfilState extends State<EditProfil> {
     }
   }
 
+  void _submit(AuthProvider authProvider) {
+    if (namaUserController.text.isEmpty || phoneUserController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CustomAlertDialog(
+            title: 'Koreksi!',
+            message: 'Nama dan nomor telepon harus diisi.',
+            showCancelButton: false,
+          );
+        },
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final data = {
+      'name': namaUserController.text,
+      'phone': phoneUserController.text,
+      'image': selectedImagePath,
+    };
+
+    AuthRemoteDataSource()
+        .updateProfileUser(authProvider.user.token, data)
+        .then((value) {
+      debugPrint('value setelah edit $value');
+      if (value) {
+        Navigator.of(context).pop();
+        authProvider.fetchUserData(authProvider.user.token);
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CustomAlertDialog(
+              title: 'Gagal!',
+              message: 'Gagal memperbarui profil. Silakan coba lagi.',
+              showCancelButton: false,
+            );
+          },
+        );
+      }
+    }).whenComplete(() {
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: AppBar(
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 50,
-        title: Text(
-          'Edit Profil',
-          style: GoogleFonts.poppins(
-            fontSize: 18,
-            color: AppColors.textColorBlack,
-            fontWeight: semibold,
+        appBar: AppBar(
+          backgroundColor: AppColors.backgroundColor,
+          scrolledUnderElevation: 0,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 50,
+          title: Text(
+            'Edit Profil',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              color: AppColors.textColorBlack,
+              fontWeight: semibold,
+            ),
+          ),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.keyboard_backspace,
+              color: Colors.black,
+              size: 24,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
         ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.keyboard_backspace,
-            color: Colors.black,
-            size: 24,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
           },
-        ),
-      ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(FocusNode());
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
-            margin: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 250,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: selectedImagePath != null
-                            ? DecorationImage(
-                                image: FileImage(File(selectedImagePath!)),
-                                fit: BoxFit.cover,
-                              )
-                            : authProvider.user.gambar != null
-                                ? DecorationImage(
-                                    image: NetworkImage(
-                                      "${authProvider.user.gambar}",
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              margin: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 250,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: selectedImagePath != null
+                              ? DecorationImage(
+                                  image: FileImage(File(selectedImagePath!)),
+                                  fit: BoxFit.cover,
+                                )
+                              : authProvider.user.gambar != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(
+                                        "${authProvider.user.gambar}",
+                                      ),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/dummy.jpeg'),
+                                      fit: BoxFit.cover,
                                     ),
-                                    fit: BoxFit.cover,
-                                  )
-                                : const DecorationImage(
-                                    image:
-                                        AssetImage('assets/images/dummy.jpeg'),
-                                    fit: BoxFit.cover,
-                                  ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        onPressed: _getImageFromGallery,
+                        icon: const Icon(Icons.edit_square),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  CustomTextFormField(
+                    label: 'Nama Kamu',
+                    hintText: 'Tuliskan nama kamu',
+                    isRequired: true,
+                    controller: namaUserController,
+                    focusNode: _namaFocus,
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context).requestFocus(_phoneFocus);
+                    },
+                  ),
+                  CustomTextFormField(
+                    label: 'Email Kamu',
+                    hintText: 'Tuliskan email kamu',
+                    controller: emailUserController,
+                    isEnabled: false,
+                  ),
+                  CustomTextFormField(
+                    label: 'Nomor Telp',
+                    hintText: '089XX',
+                    isRequired: true,
+                    inputType: TextInputType.number,
+                    controller: phoneUserController,
+                    focusNode: _phoneFocus,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context).unfocus();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.only(right: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                        color: Color.fromARGB(255, 68, 68, 68),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: _getImageFromGallery,
-                      icon: const Icon(Icons.edit_square),
+                    child: const Text(
+                      'Batal',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 68, 68, 68),
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                CustomTextFormField(
-                  label: 'Nama Kamu',
-                  hintText: 'Tuliskan nama kamu',
-                  isRequired: true,
-                  controller: namaUserController,
+              ),
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.only(left: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : () => _submit(authProvider),
+                    style: ElevatedButton.styleFrom(
+                      side: BorderSide(
+                        color: AppColors.primaryColor,
+                      ),
+                      backgroundColor: AppColors.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Simpan',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
                 ),
-                CustomTextFormField(
-                  label: 'Email Kamu',
-                  hintText: 'Tuliskan email kamu',
-                  controller: emailUserController,
-                  isEnabled: false,
-                ),
-                CustomTextFormField(
-                  label: 'Nomor Telp',
-                  hintText: '089XX',
-                  isRequired: true,
-                  inputType: TextInputType.number,
-                  controller: phoneUserController,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(right: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: Color.fromARGB(255, 68, 68, 68),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Batal',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 68, 68, 68),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(left: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (namaUserController.text.isEmpty ||
-                        phoneUserController.text.isEmpty) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CustomAlertDialog(
-                            title: 'Koreksi!',
-                            message: 'Nama dan nomor telepon harus diisi.',
-                            showCancelButton: false,
-                          );
-                        },
-                      );
-                      return;
-                    }
-
-                    setState(() {
-                      isLoading = true;
-                    });
-
-                    final data = {
-                      'name': namaUserController.text,
-                      'phone': phoneUserController.text,
-                      'image': selectedImagePath,
-                    };
-
-                    AuthRemoteDataSource()
-                        .updateProfileUser(authProvider.user.token, data)
-                        .then((value) {
-                      debugPrint('value setelah edit $value');
-                      if (value) {
-                        // Navigator.of(context).pushAndRemoveUntil(
-                        //   CustomPageBuilder(
-                        //     page: Builder(
-                        //       builder: (context) {
-                        //         final roles = authProvider.user.role;
-
-                        //         // Cek kombinasi tenant dan driver
-                        //         if (roles.contains('tenant') &&
-                        //             roles.contains('driver')) {
-                        //           return const NavbarHome(pageIndex: 5);
-                        //         }
-                        //         // Cek peran individu
-                        //         else if (roles.contains('tenant')) {
-                        //           return const NavbarHome(pageIndex: 4);
-                        //         } else if (roles.contains('driver')) {
-                        //           return const NavbarHome(pageIndex: 3);
-                        //         } else {
-                        //           return const NavbarHome(pageIndex: 2);
-                        //         }
-                        //       },
-                        //     ),
-                        //   ),
-                        //   (route) => false,
-                        // );
-                        Navigator.of(context).pop();
-                        authProvider.fetchUserData(authProvider.user.token);
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CustomAlertDialog(
-                              title: 'Gagal!',
-                              message:
-                                  'Gagal memperbarui profil. Silakan coba lagi.',
-                              showCancelButton: false,
-                            );
-                          },
-                        );
-                      }
-                    }).whenComplete(() {
-                      setState(() {
-                        isLoading = false;
-                      });
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    side: BorderSide(
-                      color: AppColors.primaryColor,
-                    ),
-                    backgroundColor: AppColors.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'Simpan',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    namaUserController.dispose();
-    emailUserController.dispose();
-    phoneUserController.dispose();
-    super.dispose();
   }
 }

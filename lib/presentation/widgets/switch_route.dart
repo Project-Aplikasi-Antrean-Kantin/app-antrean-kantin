@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:testgetdata/presentation/views/pembeli/home_page.dart';
 import 'package:testgetdata/presentation/views/penjual/kasir_page.dart';
-import 'package:testgetdata/presentation/views/pembeli/profile_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/riwayat_page_as_role.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_page.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_tenant.dart';
+import 'package:testgetdata/presentation/views/profile/profile_page.dart';
 
 Widget getFeaturePage(String url) {
   switch (url) {
