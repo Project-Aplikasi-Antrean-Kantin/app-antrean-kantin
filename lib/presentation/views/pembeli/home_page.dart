@@ -156,6 +156,7 @@ class _HomePageState extends State<HomePage> {
     final coinProvider = Provider.of<CoinProvider>(context);
     final double expandedHeight = MediaQuery.of(context).size.height / 4;
     final user = Provider.of<AuthProvider>(context, listen: false).user;
+    print(user.permission.toString());
     if (!user.permission.contains('read beranda')) {
       return const Center(child: Text('TIDAK ADA AKSES WOY'));
     }

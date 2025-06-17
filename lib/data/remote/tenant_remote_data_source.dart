@@ -54,7 +54,7 @@ class TenantRemoteDataSource {
     });
 
     final response = await request.send();
-    print(response.statusCode);
+    print("Response status code: ${response.statusCode}");
     if (response.statusCode == 200) {
       return true;
     } else {
