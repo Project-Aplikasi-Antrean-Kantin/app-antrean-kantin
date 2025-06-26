@@ -1,62 +1,23 @@
 import 'dart:developer';
-
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   log('[BG Handler] Message received: ${message.data}');
+
   await Firebase.initializeApp();
   await NotificationService._showNotification(message);
   log('[BG Handler] Notification processed');
 }
 
 class NotificationService {
-  static final _notificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  static const _defaultChannel = AndroidNotificationChannel(
-    'fcm_fallback_notification_channel',
-    'Miscellaneous',
-    description: 'Default notification channel',
-    importance: Importance.max,
-    playSound: true,
-  );
-
-  static const _tenantChannel = AndroidNotificationChannel(
-    'tenant_channel',
-    'Tenant Notification',
-    description: 'Notifikasi untuk Tenant',
-    importance: Importance.max,
-    playSound: true,
-    sound: RawResourceAndroidNotificationSound('tnt_fdlb'),
-  );
-
-  static const _driverChannel = AndroidNotificationChannel(
-    'driver_fdlb_channel',
-    'Driver Notification',
-    description: 'Notifikasi untuk Driver',
-    importance: Importance.max,
-    playSound: true,
-    sound: RawResourceAndroidNotificationSound('drv_fdlb'),
-  );
-
-  static Future<void> _initializeNotificationChannels() async {
-    final androidImpl =
-        _notificationsPlugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-    await androidImpl?.createNotificationChannel(_defaultChannel);
-    await androidImpl?.createNotificationChannel(_tenantChannel);
-    await androidImpl?.createNotificationChannel(_driverChannel);
-    await androidImpl?.requestExactAlarmsPermission();
-    print("Notification channels initialized");
-  }
-
   static Future<void> initialize() async {
     await Firebase.initializeApp();
     final messaging = FirebaseMessaging.instance;
 
+    // Request notification permissions
     final settings = await messaging.requestPermission(
       alert: true,
       announcement: true,
@@ -66,110 +27,137 @@ class NotificationService {
       provisional: true,
       sound: true,
     );
-    print('User granted permission: ${settings.authorizationStatus}');
+    log('User granted permission: ${settings.authorizationStatus}');
 
+    // Get and log FCM token
     String? fcmToken = await messaging.getToken();
-    print('FCM Token: $fcmToken');
+    log('FCM Token: $fcmToken');
 
     messaging.onTokenRefresh.listen((newToken) {
-      print('FCM Token Refreshed: $newToken');
+      log('FCM Token Refreshed: $newToken');
     }).onError((err) {
-      print('Error getting FCM token: $err');
+      log('Error getting FCM token: $err');
     });
 
+    // Disable foreground notification presentation by Firebase
     await messaging.setForegroundNotificationPresentationOptions(
       alert: false,
       badge: false,
       sound: false,
     );
 
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initSettings = InitializationSettings(android: androidSettings);
-    await _notificationsPlugin.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: (response) {
-        print('Notification tapped: ${response.payload}');
-      },
+    // Initialize Awesome Notifications
+    await AwesomeNotifications().initialize(
+      null, // Use default icon
+      [
+        NotificationChannel(
+          channelKey: 'fcm_fallback_notification_channel',
+          channelName: 'Miscellaneous',
+          channelDescription: 'Default notification channel',
+          importance: NotificationImportance.Max,
+          playSound: true,
+          enableVibration: true,
+          enableLights: true,
+          defaultPrivacy: NotificationPrivacy.Public,
+        ),
+        NotificationChannel(
+          channelKey: 'tenant_channel',
+          channelName: 'Tenant Notification',
+          channelDescription: 'Notifikasi untuk Tenant',
+          importance: NotificationImportance.Max,
+          playSound: true,
+          soundSource: 'resource://raw/tnt_fdlb',
+          enableVibration: true,
+          enableLights: true,
+          defaultPrivacy: NotificationPrivacy.Public,
+        ),
+        NotificationChannel(
+          channelKey: 'driver_fdlb_channel',
+          channelName: 'Driver Notification',
+          channelDescription: 'Notifikasi untuk Driver',
+          importance: NotificationImportance.Max,
+          playSound: true,
+          soundSource: 'resource://raw/drv_fdlb',
+          enableVibration: true,
+          enableLights: true,
+          defaultPrivacy: NotificationPrivacy.Public,
+        ),
+      ],
+      debug: true,
     );
 
-    await _initializeNotificationChannels();
+    // Request notification permission for Awesome Notifications
+    await AwesomeNotifications().requestPermissionToSendNotifications();
 
+    // Handle foreground messages
     FirebaseMessaging.onMessage.listen((message) {
-      print('Foreground message: ${message.data}');
-      // Clipboard.setData(ClipboardData(text: message.data.toString()));
+      log('Foreground message: ${message.data}');
       _showNotification(message);
     });
 
+    // // Handle notification tap
+    // AwesomeNotifications().actionStream.listen((action) {
+    //   log('Notification tapped: ${action.payload}');
+    // });
+
+    // Set background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
   static Future<void> _showNotification(RemoteMessage message) async {
-    // Ambil title dan body dari data saja
+    // Extract title and body from message data
     final data = message.data;
     final String? title = data['title'];
     final String? body = data['body'];
 
     // Debug logging
-    print('=== NOTIFICATION DEBUG ===');
-    print('Message ID: ${message.messageId}');
-    print('Raw data: ${message.data}');
-    print('Extracted title: "$title"');
-    print('Extracted body: "$body"');
-    print('========================');
+    log('=== NOTIFICATION DEBUG ===');
+    log('Message ID: ${message.messageId}');
+    log('Raw data: ${message.data}');
+    log('Extracted title: "$title"');
+    log('Extracted body: "$body"');
+    log('========================');
 
-    // VALIDASI: Jangan tampilkan notifikasi jika title dan body kosong/null
+    // Validation: Skip notification if both title and body are empty/null
     if ((title == null || title.trim().isEmpty) &&
         (body == null || body.trim().isEmpty)) {
-      print('❌ Notification cancelled: both title and body are empty');
+      log('❌ Notification cancelled: both title and body are empty');
       return;
     }
 
-    // Gunakan fallback hanya jika salah satu kosong
+    // Use fallback if either title or body is empty
     final String finalTitle = (title != null && title.trim().isNotEmpty)
         ? title.trim()
         : 'Notifikasi';
     final String finalBody =
         (body != null && body.trim().isNotEmpty) ? body.trim() : '';
 
-    print('Final notification - Title: "$finalTitle", Body: "$finalBody"');
+    log('Final notification - Title: "$finalTitle", Body: "$finalBody"');
 
-    // Pilih channel berdasarkan title
-    AndroidNotificationChannel channel = _defaultChannel;
+    // Select channel based on title
+    String channelKey = 'fcm_fallback_notification_channel';
     if (finalTitle.toLowerCase().contains('pesanan masuk')) {
-      channel = _tenantChannel;
+      channelKey = 'tenant_channel';
     } else if (finalTitle.toLowerCase().contains('ada pesanan siap diantar')) {
-      channel = _driverChannel;
+      channelKey = 'driver_fdlb_channel';
     }
 
-    print("Using channel: ${channel.id}, sound: ${channel.sound}");
+    log('Using channel: $channelKey');
 
-    final androidDetails = AndroidNotificationDetails(
-      channel.id,
-      channel.name,
-      channelDescription: channel.description,
-      importance: channel.importance,
-      priority: Priority.max,
-      playSound: channel.playSound,
-      sound: channel.sound,
-      icon: '@mipmap/ic_launcher',
-      enableVibration: true,
-      visibility: NotificationVisibility.public,
-      enableLights: true,
+    // Show notification using Awesome Notifications
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        channelKey: channelKey,
+        title: finalTitle,
+        body: finalBody,
+        payload: Map<String, String>.from(data),
+        notificationLayout: NotificationLayout.Default,
+        displayOnForeground: true,
+        displayOnBackground: true,
+      ),
     );
 
-    final platformDetails = NotificationDetails(android: androidDetails);
-
-    final notificationId =
-        DateTime.now().millisecondsSinceEpoch.remainder(100000);
-    await _notificationsPlugin.show(
-      notificationId,
-      finalTitle,
-      finalBody,
-      platformDetails,
-      payload: data.toString(),
-    );
-
-    print('✅ Notification shown successfully');
+    log('✅ Notification shown successfully');
   }
 }
