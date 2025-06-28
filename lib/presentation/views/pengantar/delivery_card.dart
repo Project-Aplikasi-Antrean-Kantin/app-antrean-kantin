@@ -122,7 +122,8 @@ class _DeliveryCardState extends State<DeliveryCard> {
             padding: EdgeInsets.symmetric(vertical: 20),
             child: Divider(color: Colors.grey, height: 1),
           ),
-          _buildCostSection(widget.pesanan, totalItemMenu),
+          _buildCostSection(widget.pesanan, totalItemMenu,
+              widget.status == DeliveryStatus.siapDiantar),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -214,18 +215,16 @@ class _DeliveryCardState extends State<DeliveryCard> {
     );
   }
 
-  Widget _buildCostSection(Pesanan pesanan, int totalItemMenu) {
+  Widget _buildCostSection(Pesanan pesanan, int totalItemMenu, bool value) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
+        spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCostRow('Subtotal ($totalItemMenu menu)', pesanan.subTotal),
-          const SizedBox(height: 10),
           _buildCostRow('Biaya layanan', pesanan.biayaLayanan),
-          const SizedBox(height: 10),
           _buildCostRow('Ongkir', pesanan.ongkosKirim),
-          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,6 +247,34 @@ class _DeliveryCardState extends State<DeliveryCard> {
               ),
             ],
           ),
+          !value
+              ? Row(children: [
+                  Text(
+                    'Kode Pemesanan',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.textColorBlack,
+                      fontSize: 12,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.containerColorGrey200,
+                      borderRadius: BorderRadius.all(Radius.circular(100)),
+                    ),
+                    child: Text(
+                      pesanan.kodePemesanan ?? "",
+                      style: GoogleFonts.poppins(
+                        color: AppColors.textColorBlack,
+                        fontSize: 12,
+                        fontWeight: bold,
+                      ),
+                    ),
+                  ),
+                ])
+              : Container(),
         ],
       ),
     );

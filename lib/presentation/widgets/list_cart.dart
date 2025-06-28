@@ -9,6 +9,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_catatan.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 
 class ListCart extends StatelessWidget {
   final CartMenuModel cart;
@@ -60,8 +61,8 @@ class ListCart extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: cart.menuGambar.isNotEmpty
-                        ? Image.network(
-                            "${MasbroConstants.baseUrl}${cart.menuGambar}",
+                        ? ImageByUrl(
+                            url: "${MasbroConstants.baseUrl}${cart.menuGambar}",
                             fit: BoxFit.cover,
                           )
                         : const Icon(

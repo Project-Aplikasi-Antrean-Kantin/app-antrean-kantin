@@ -8,6 +8,7 @@ import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 
 class DetailMenu {
   TenantFoods dataFoods;
@@ -72,8 +73,8 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image.network(
-                      "${MasbroConstants.baseUrl}${menu.dataFoods.gambar}",
+                    child: ImageByUrl(
+                      url: "${MasbroConstants.baseUrl}${menu.dataFoods.gambar}",
                       height: 200,
                       fit: BoxFit.cover,
                     ),

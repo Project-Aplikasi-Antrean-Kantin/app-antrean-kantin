@@ -7,6 +7,7 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 
 class ListTenant extends StatelessWidget {
@@ -168,29 +169,11 @@ class ListTenant extends StatelessWidget {
                             widhtContainerImage: double.infinity,
                           ),
                           tenant.gambar != null && tenant.gambar.isNotEmpty
-                              ? Image.network(
-                                  tenant.gambar,
+                              ? ImageByUrl(
+                                  url: tenant.gambar,
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: 200,
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const ShimmerLoadingWidget(
-                                      shimmerContainerImage: true,
-                                      padding: EdgeInsets.zero,
-                                      heightContainerImage: 200,
-                                      widhtContainerImage: double.infinity,
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/images/dummy.jpeg',
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: 200,
-                                    );
-                                  },
                                 )
                               : Image.asset(
                                   'assets/images/dummy.jpeg',

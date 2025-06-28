@@ -12,6 +12,7 @@ import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_catatan.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_detail_menu.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 
 class MenuTile extends StatefulWidget {
   final TenantFoods food;
@@ -114,30 +115,9 @@ class _MenuTileState extends State<MenuTile> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: widget.food.gambar.isNotEmpty
-            ? Image.network(
-                "${MasbroConstants.baseUrl}${widget.food.gambar}",
+            ? ImageByUrl(
+                url: "${widget.food.gambar}",
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
-                  return Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      color: Colors.white,
-                      width: 100,
-                      height: 100,
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(
-                    Icons.photo,
-                    color: Color.fromARGB(255, 120, 120, 120),
-                    size: 30,
-                  );
-                },
               )
             : const Icon(
                 Icons.photo,

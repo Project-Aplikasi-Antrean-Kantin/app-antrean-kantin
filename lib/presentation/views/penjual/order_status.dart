@@ -1,10 +1,10 @@
 enum OrderStatus {
-  pesananMasuk('pesanan_masuk', 'Masuk'),
-  pesananDiproses('pesanan_diproses', 'Diproses');
-  // pesananMenunggu('pesanan_menunggu', 'Pengambilan');
+  pesananMasuk(['pesanan_masuk'], 'Masuk'),
+  pesananDiproses(['pesanan_diproses'], 'Diproses'),
+  pesananSiapDiambil(['diantar', 'siap_diambil'], 'Pengambilan');
 
-  final String value;
+  final List<String> rawValues;
   final String label;
 
-  const OrderStatus(this.value, this.label);
+  const OrderStatus(this.rawValues, this.label);
 }

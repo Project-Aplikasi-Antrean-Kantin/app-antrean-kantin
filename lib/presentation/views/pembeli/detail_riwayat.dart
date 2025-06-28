@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/presentation/provider/order_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
@@ -13,11 +15,13 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 class DetailRiwayat extends StatelessWidget {
   final Pesanan pesanan;
   final VoidCallback refreshData;
+  final String token;
 
   const DetailRiwayat({
     super.key,
     required this.pesanan,
     required this.refreshData,
+    required this.token,
   });
 
   Future<void> _refreshData() async {
@@ -79,6 +83,7 @@ class DetailRiwayat extends StatelessWidget {
                 const SizedBox(height: 10),
                 _buildRincianPesanan(pesanan),
                 const SizedBox(height: 30),
+                _buildButton(pesanan.status, context),
               ],
             ),
           ),
@@ -101,6 +106,47 @@ class DetailRiwayat extends StatelessWidget {
         ),
       ),
       centerTitle: true,
+    );
+  }
+
+  Widget _buildButton(String status, BuildContext context) {
+    final orderProvider = Provider.of<OrderProvider>(context);
+    if (status != 'siap_diambil') return Container();
+    return Container(
+      height: 50,
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Text(
+          'Selesaikan Pesanan',
+          style: GoogleFonts.poppins(
+            color: AppColors.backgroundColor,
+            fontSize: 14,
+            fontWeight: semibold,
+          ),
+        ),
+        onPressed: () async {
+          final success = await orderProvider.updateOrder(
+              'selesai', token, pesanan.id, pesanan);
+
+          if (success) {
+            Fluttertoast.showToast(
+              msg: "Pesanan Selesai",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+            Navigator.of(context).pop();
+          }
+        },
+      ),
     );
   }
 
@@ -253,7 +299,7 @@ class DetailRiwayat extends StatelessWidget {
           FormatDate.formatDateTimeWithWIB(pesanan.createdAt),
         ),
         _buildInfoRow(
-          "Kode Pengambilan:",
+          "Kode Pemesanan:",
           pesanan.kodePemesanan ?? '-',
         ),
       ],

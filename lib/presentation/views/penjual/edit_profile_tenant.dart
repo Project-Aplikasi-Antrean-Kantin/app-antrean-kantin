@@ -17,6 +17,7 @@ import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 
 class EditProfileTenant extends StatefulWidget {
@@ -309,22 +310,11 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
                       widhtContainerImage: double.infinity,
                     ),
                     if (tenantProvider.tenant?.gambar != null)
-                      Image.network(
-                        tenantProvider.tenant!.gambar!,
+                      ImageByUrl(
+                        url: tenantProvider.tenant!.gambar,
                         fit: BoxFit.cover,
                         width: double.infinity,
                         height: 200,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const ShimmerLoadingWidget(
-                            shimmerContainerImage: true,
-                            padding: EdgeInsets.zero,
-                            heightContainerImage: 200,
-                            widhtContainerImage: double.infinity,
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildDummyImage(),
                       )
                     else
                       _buildDummyImage(),

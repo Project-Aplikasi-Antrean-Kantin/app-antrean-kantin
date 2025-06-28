@@ -185,6 +185,7 @@ class _RiwayatPageState extends State<RiwayatPage>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
+    final user = authProvider.user;
 
     final totalItemMenu = pesanan.listTransaksiDetail
         .map((item) => item.jumlah)
@@ -195,6 +196,7 @@ class _RiwayatPageState extends State<RiwayatPage>
         Navigator.of(context).push(
           CustomPageBuilder(
             page: DetailRiwayat(
+              token: user.token.toString(),
               pesanan: pesanan,
               refreshData: () {
                 historyProvider.fetchHistory(

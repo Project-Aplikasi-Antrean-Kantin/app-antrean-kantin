@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
+import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
@@ -31,10 +32,6 @@ class PesananCardState extends State<PesananCard> {
 
   @override
   Widget build(BuildContext context) {
-    final totalItemMenu = widget.pesanan.listTransaksiDetail
-        .map((item) => item.jumlah)
-        .fold(0, (prev, jumlah) => prev + jumlah);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -65,7 +62,7 @@ class PesananCardState extends State<PesananCard> {
 
             // Rincian Pesanan Section
             Text(
-              'Rincian Pesanan',
+              'Rincian Pesananmu',
               style: GoogleFonts.poppins(
                 color: AppColors.textColorBlack,
                 fontSize: 14,
@@ -80,7 +77,7 @@ class PesananCardState extends State<PesananCard> {
             }).toList(),
 
             // Summary Section
-            _buildSummary(totalItemMenu),
+            _buildSummary(),
 
             const SizedBox(height: 20),
 
@@ -152,7 +149,7 @@ class PesananCardState extends State<PesananCard> {
     );
   }
 
-  Widget _buildMenuItem(dynamic item) {
+  Widget _buildMenuItem(ListTransaksiDetail item) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -259,8 +256,12 @@ class PesananCardState extends State<PesananCard> {
     );
   }
 
-  Widget _buildSummary(int totalItemMenu) {
+  Widget _buildSummary() {
+    final totalItemMenu = widget.pesanan.listTransaksiDetail
+        .map((item) => item.jumlah)
+        .fold(0, (prev, jumlah) => prev + jumlah);
     return Column(
+      spacing: 10,
       children: [
         const Divider(
           height: 30,
@@ -289,9 +290,7 @@ class PesananCardState extends State<PesananCard> {
           ],
         ),
         // tambahin tinggi
-        const SizedBox(
-          height: 10,
-        ),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -314,6 +313,31 @@ class PesananCardState extends State<PesananCard> {
             ),
           ],
         ),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text(
+            'Kode Pemesanan',
+            style: GoogleFonts.poppins(
+              color: AppColors.textColorBlack,
+              fontSize: 12,
+              fontWeight: medium,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: AppColors.containerColorGrey200,
+              borderRadius: BorderRadius.all(Radius.circular(100)),
+            ),
+            child: Text(
+              widget.pesanan.kodePemesanan ?? "",
+              style: GoogleFonts.poppins(
+                color: AppColors.textColorBlack,
+                fontSize: 12,
+                fontWeight: bold,
+              ),
+            ),
+          ),
+        ])
       ],
     );
   }
@@ -453,7 +477,7 @@ class PesananCardState extends State<PesananCard> {
                   _isLoading = true;
                 });
                 final status =
-                    pesanan.isAntar == 1 ? 'siap_diantar' : 'selesai';
+                    pesanan.isAntar == 1 ? 'siap_diantar' : 'siap_diambil';
                 final success = await orderProvider.updateOrder(
                     status, widget.token, pesanan.id, pesanan);
 

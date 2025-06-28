@@ -7,8 +7,9 @@ class OrderProvider with ChangeNotifier {
   final Map<OrderStatus, List<Pesanan>> _pesanan = {
     OrderStatus.pesananMasuk: [],
     OrderStatus.pesananDiproses: [],
-    // OrderStatus.pesananMenunggu: [],
+    OrderStatus.pesananSiapDiambil: [],
   };
+
   bool _isLoading = false;
 
   List<Pesanan> getPesananByStatus(OrderStatus status) => _pesanan[status]!;
@@ -17,10 +18,16 @@ class OrderProvider with ChangeNotifier {
   Future<void> fetchOrders(
       BuildContext context, String token, OrderStatus status) async {
     _isLoading = true;
+    notifyListeners();
+
     try {
-      final orders = await OrderTenantRemoteDataSource()
-          .getOrderCustomer(context, token, status.value);
-      _pesanan[status] = orders;
+      List<Pesanan> allOrders = [];
+      for (final value in status.rawValues) {
+        final orders = await OrderTenantRemoteDataSource()
+            .getOrderCustomer(context, token, value);
+        allOrders.addAll(orders);
+      }
+      _pesanan[status] = allOrders;
     } catch (e) {
       debugPrint('Error fetching orders: $e');
     } finally {

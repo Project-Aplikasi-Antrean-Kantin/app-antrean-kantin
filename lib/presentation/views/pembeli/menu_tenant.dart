@@ -11,6 +11,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'cart_page.dart';
@@ -116,8 +117,8 @@ class _MenuTenantState extends State<MenuTenant> {
                       ),
                     )
                   : null,
-              background: Image.network(
-                tenant.gambar.toString(),
+              background: ImageByUrl(
+                url: tenant.namaGambar.toString(),
                 fit: BoxFit.cover,
               ),
             ),

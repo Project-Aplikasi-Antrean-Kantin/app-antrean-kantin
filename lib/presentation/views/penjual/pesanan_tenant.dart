@@ -111,7 +111,7 @@ class _PesananTenantState extends State<PesananTenant> {
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: AppColors.primaryColor,
             labelStyle: GoogleFonts.poppins(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: medium,
             ),
             tabs: OrderStatus.values
@@ -120,7 +120,7 @@ class _PesananTenantState extends State<PesananTenant> {
                         status.label,
                         style: GoogleFonts.poppins(
                           color: AppColors.textColorBlack,
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
                       ),
                     ))
@@ -159,7 +159,7 @@ class _PesananTenantState extends State<PesananTenant> {
                         80,
                     child: Center(
                       child: Text(
-                        'Pesanan kosong',
+                        'Pesanan ${status.label} kosong',
                         style: GoogleFonts.poppins(
                           color: AppColors.textColorBlack,
                           fontSize: 14,
