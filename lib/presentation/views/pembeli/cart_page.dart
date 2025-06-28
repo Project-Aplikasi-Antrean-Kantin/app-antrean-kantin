@@ -21,6 +21,7 @@ import 'package:testgetdata/presentation/widgets/card_selected_delivery_option_t
 import 'package:testgetdata/presentation/widgets/list_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
+import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/presentation/widgets/sukses_order.dart';
 import 'package:testgetdata/presentation/widgets/pilihan_lokasi_ruangan.dart';
 import 'package:testgetdata/presentation/widgets/ringkasan_pembayaran_cart.dart';
@@ -352,6 +353,21 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  bool _isInit = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isInit) {
+        _isInit = true;
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final cartProvider = Provider.of<CartProvider>(context, listen: false);
+        cartProvider.getActiveDriver(authProvider.user.token);
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -453,6 +469,9 @@ class _CartPageState extends State<CartPage> {
                   if (Navigator.canPop(context)) Navigator.pop(context);
                 });
                 return const SizedBox();
+              }
+              if (cartProvider.isFetchingActiveDriver == true) {
+                return ShimmerCard(pageType: 'cartPage');
               }
 
               return Column(

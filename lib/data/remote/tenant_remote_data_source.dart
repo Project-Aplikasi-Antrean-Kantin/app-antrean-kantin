@@ -183,6 +183,8 @@ class TenantRemoteDataSource {
         }),
       );
       log("Nilai isOnline yang dikirim: $isOnline");
+      print("Nilai isOnline yang dikirim: $isOnline");
+      print("Nilai isOnline yang dikirim: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         log("success cokkkkk");

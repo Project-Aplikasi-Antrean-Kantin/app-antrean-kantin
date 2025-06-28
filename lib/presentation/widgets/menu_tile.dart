@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
@@ -213,15 +214,7 @@ class _MenuTileState extends State<MenuTile> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      cartProvider.addItemToCartOrUpdateQuantity(
-                        widget.food.id,
-                        widget.food.nama,
-                        widget.food.harga,
-                        widget.food.gambar ?? '-',
-                        widget.tenantName ?? '',
-                        widget.food.deskripsi ?? '-',
-                        false,
-                      );
+                      cartProvider.removeItemFromCart(widget.food.id);
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Icon(
@@ -244,15 +237,8 @@ class _MenuTileState extends State<MenuTile> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      cartProvider.addItemToCartOrUpdateQuantity(
-                        widget.food.id,
-                        widget.food.nama,
-                        widget.food.harga,
-                        widget.food.gambar ?? '-',
-                        widget.tenantName ?? '',
-                        widget.food.deskripsi ?? '-',
-                        true,
-                      );
+                      cartProvider.addItemToCart(
+                          newItem: widget.food, tenantName: widget.tenantName);
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Icon(
@@ -358,15 +344,8 @@ class _MenuTileState extends State<MenuTile> {
                   true,
                 );
               } else if (cartProvider != null) {
-                cartProvider.addItemToCartOrUpdateQuantity(
-                  widget.food.id,
-                  widget.food.nama,
-                  widget.food.harga,
-                  widget.food.gambar ?? '-',
-                  widget.tenantName ?? '',
-                  widget.food.deskripsi ?? '-',
-                  true,
-                );
+                cartProvider.addItemToCart(
+                    newItem: widget.food, tenantName: widget.tenantName);
               }
             }
           },

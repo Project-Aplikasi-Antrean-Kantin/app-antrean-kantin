@@ -69,7 +69,8 @@ class ProfileMenuItem extends StatelessWidget {
             const Spacer(
               flex: 1,
             ),
-            if (title == 'Status Tenant') // Hanya untuk Status Tenant
+            if (title == 'Status Tenant' ||
+                title == 'Status Driver') // Hanya untuk Status Tenant
               Container(
                 margin: const EdgeInsets.only(right: 10),
                 padding:
@@ -83,7 +84,13 @@ class ProfileMenuItem extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  status! ? "Buka" : "Tutup",
+                  status!
+                      ? title == "Status Tenant"
+                          ? "Buka"
+                          : "Online"
+                      : title == "Status Tenant"
+                          ? "Tutup"
+                          : "Offline",
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: regular,

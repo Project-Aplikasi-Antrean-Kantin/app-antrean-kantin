@@ -211,7 +211,7 @@ class _MenuTenantState extends State<MenuTenant> {
       duration: const Duration(milliseconds: 100),
       switchInCurve: Curves.easeIn,
       switchOutCurve: Curves.easeOut,
-      child: cartProvider.isCartVisible
+      child: cartProvider.totalItemCount > 0
           ? SizedBox(
               width: MediaQuery.of(context).size.width - 20,
               child: FloatingActionButton(

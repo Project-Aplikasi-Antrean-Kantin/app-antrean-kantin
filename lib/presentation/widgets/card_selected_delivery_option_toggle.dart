@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
@@ -17,36 +20,75 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'Tipe Pemesanan',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: semibold,
-              color: AppColors.textColorBlack,
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Text(
+                'Tipe Pemesanan',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: semibold,
+                  color: AppColors.textColorBlack,
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 15),
-        ToggleSwitch(
-          initialLabelIndex: cartProvider.selectedDeliveryOption == 1 ? 0 : 1,
-          minWidth: (screenWidth - 30) / 2,
-          labels: const ['Pesan Antar', 'Ambil Sendiri'],
-          activeBgColor: const [AppColors.primaryColor],
-          activeFgColor: AppColors.backgroundColor,
-          activeBorders: [Border.all(color: AppColors.primaryColor)],
-          inactiveFgColor: AppColors.textColorBlack,
-          inactiveBgColor: AppColors.backgroundColor,
-          borderColor: const [AppColors.textColorBlack],
-          borderWidth: 1,
-          cornerRadius: 5,
-          onToggle: (index) =>
-              cartProvider.setDeliveryOption(index == 0 ? 1 : 0),
-        ),
-      ],
+            const SizedBox(height: 15),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: cartProvider.isThereActiveDriver
+                        ? () => cartProvider.setDeliveryOption(1)
+                        : () {
+                            Fluttertoast.showToast(
+                              msg: "Driver tidak tersedia",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.TOP,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0,
+                            );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: cartProvider.selectedDeliveryOption == 1
+                          ? AppColors.primaryColor
+                          : Colors.transparent,
+                      foregroundColor: cartProvider.selectedDeliveryOption == 1
+                          ? Colors.white
+                          : Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: const Text("Pesan Antar"),
+                  ),
+                ),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => cartProvider.setDeliveryOption(0),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: cartProvider.selectedDeliveryOption == 0
+                          ? AppColors.primaryColor
+                          : Colors.transparent,
+                      foregroundColor: cartProvider.selectedDeliveryOption == 0
+                          ? Colors.white
+                          : Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: const Text("Ambil Sendiri"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

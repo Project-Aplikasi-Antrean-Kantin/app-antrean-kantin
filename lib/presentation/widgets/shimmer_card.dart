@@ -24,7 +24,9 @@ class ShimmerCard extends StatelessWidget {
                         ? _buildMenuTenantPageShimmer(context)
                         : pageType == 'katalogMenuList'
                             ? _buildMenuListPageShimmer()
-                            : _buildCoinTransactionShimmer(context));
+                            : pageType == 'cartPage'
+                                ? _buildCartPageShimmer()
+                                : _buildCoinTransactionShimmer(context));
   }
 
   Widget _buildPesananPageShimmer() {
@@ -72,6 +74,155 @@ class ShimmerCard extends StatelessWidget {
               height: 50,
               color: Colors.white,
             ),
+            const SizedBox(height: 20),
+            const Divider(color: Colors.grey, height: 1),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(width: 100, height: 14, color: Colors.white),
+                      Container(width: 80, height: 14, color: Colors.white),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(width: 80, height: 16, color: Colors.white),
+                      Container(width: 80, height: 16, color: Colors.white),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCartPageShimmer() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 10,
+                children: [
+                  ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(8), // ini kayak rounded-lg
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 16,
+                          color: Colors.black,
+                        ),
+                        Container(
+                          width: 30,
+                          height: 16,
+                          color: Colors.black,
+                        ),
+                        Container(
+                          width: 80,
+                          height: 24,
+                          color: Colors.black,
+                        ),
+                      ]),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Container(
+                      width: 50,
+                      height: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Divider(color: Colors.grey, height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    spacing: 10,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 14,
+                        color: Colors.white,
+                      ),
+                      Container(
+                        width: 100,
+                        height: 14,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                  Container(width: 120, height: 36, color: Colors.white),
+                ],
+              ),
+            ),
+            const Divider(color: Colors.grey, height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              child: Container(width: 120, height: 14, color: Colors.white),
+            ),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  spacing: 20,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          height: 42,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          height: 42,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
             const SizedBox(height: 20),
             const Divider(color: Colors.grey, height: 1),
             const SizedBox(height: 20),

@@ -107,4 +107,24 @@ class PublicRemoteDataSource {
       return [];
     }
   }
+
+  Future<int> isThereActiveDriver(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${MasbroConstants.url}/order/driver'),
+        headers: {
+          'Authorization': "Bearer $token",
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      final json = jsonDecode(response.body);
+      final data = json['data'];
+      print('data nih bos:${data['jumlah_driver'] > 0}');
+
+      return data['jumlah_driver'];
+    } catch (e) {
+      throw Exception('Failed to get driver active');
+    }
+  }
 }

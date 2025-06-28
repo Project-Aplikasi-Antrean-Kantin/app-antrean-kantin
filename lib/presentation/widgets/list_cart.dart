@@ -218,16 +218,8 @@ class ListCart extends StatelessWidget {
                                         children: [
                                           InkWell(
                                             onTap: () {
-                                              cartProvider
-                                                  .addItemToCartOrUpdateQuantity(
-                                                cart.menuId,
-                                                cart.menuNama,
-                                                cart.menuPrice,
-                                                cart.menuNama,
-                                                cart.deskripsi ?? '',
-                                                cart.tenantName ?? '',
-                                                false,
-                                              );
+                                              cartProvider.removeItemFromCart(
+                                                  cart.menuId);
                                             },
                                             splashColor: Colors.transparent,
                                             child: Icon(
@@ -252,16 +244,8 @@ class ListCart extends StatelessWidget {
                                           ),
                                           InkWell(
                                             onTap: () {
-                                              cartProvider
-                                                  .addItemToCartOrUpdateQuantity(
-                                                cart.menuId,
-                                                cart.menuNama,
-                                                cart.menuPrice,
-                                                cart.menuNama,
-                                                cart.deskripsi ?? '',
-                                                cart.tenantName ?? '',
-                                                true,
-                                              );
+                                              cartProvider.addItemToCart(
+                                                  cart: cart);
                                             },
                                             splashColor: Colors.transparent,
                                             child: Icon(

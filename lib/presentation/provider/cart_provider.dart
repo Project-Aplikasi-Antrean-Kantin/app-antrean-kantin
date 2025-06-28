@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/settings_model.dart';
+import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
@@ -11,11 +12,32 @@ import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 /// A provider class responsible for managing the cart functionality.
 class CartProvider extends ChangeNotifier {
   // Order details
-  int totalItemCount = 0;
   int totalPrice = 0;
+  int _totalActiveDriver = 0;
+
+  int get totalActiveDriver => _totalActiveDriver;
+  bool? _isThereActiveDriver;
+  bool get isThereActiveDriver => _isThereActiveDriver ?? false;
+  bool isFetchingActiveDriver = false;
+  int get totalItemCount =>
+      _cartMenu.fold<int>(0, (sum, item) => sum + item.count);
+
+  void setIsThereActiveDriver(bool value) {
+    final oldIsThereActiveDriver = _isThereActiveDriver;
+
+    _isThereActiveDriver = value;
+    isFetchingActiveDriver = false;
+
+    if (oldIsThereActiveDriver != _isThereActiveDriver) {
+      notifyListeners();
+    } else {
+      notifyListeners(); // Atau tetep dipanggil, tergantung logika kamu
+    }
+  }
 
   // Delivery details
-  int deliveryCost = 0;
+  int get deliveryCost =>
+      _cartMenu.fold(0, (sum, item) => sum + (item.menuPrice * item.count));
   // int deliveryCostPerItem = 2000;
   // int isDelivery = 0; // 0: Pickup, 1: Delivery
   int? roomId;
@@ -31,7 +53,7 @@ class CartProvider extends ChangeNotifier {
   bool orderSuccessful = false;
 
   // A private list to store the items in the cart.
-  final List<CartMenuModel> _cartMenu = <CartMenuModel>[];
+  List<CartMenuModel> _cartMenu = <CartMenuModel>[];
 
   // A public getter to access the list of cart items.
   List<CartMenuModel> get cart => _cartMenu;
@@ -79,6 +101,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   void setDeliveryOption(int option) {
+    print('deliveryOptions ${option}');
     if (_selectedDeliveryOption != option) {
       // Hanya update jika ada perubahan
       setIsDelivery(option);
@@ -95,9 +118,9 @@ class CartProvider extends ChangeNotifier {
 
     // Update the existing item or add a new one
     if (existingItemIndex != -1) {
-      _updateExistingItem(existingItemIndex, price, isAdd);
+      // _updateExistingItem(existingItemIndex, price, isAdd);
     } else if (isAdd) {
-      _addItemToCart(menuId, name, price, image, tenantName, description);
+      // _addItemToCart(menuId, name, price, image, tenantName, description);
     }
 
     // Update the cart visibility
@@ -105,48 +128,59 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Finds the index of an existing item in the cart with the given menu ID.
-  int _findExistingItemIndex(int menuId) {
-    return _cartMenu.indexWhere((element) => element.menuId == menuId);
+  void addItemToCart(
+      {TenantFoods? newItem, String? tenantName, CartMenuModel? cart}) {
+    final cartItem = cart ??
+        (newItem != null && tenantName != null
+            ? CartMenuModel.fromTenantFoods(
+                tenantFoods: newItem,
+                tenantName: tenantName,
+              )
+            : throw ArgumentError(
+                'newItem dan tenantName wajib diisi jika cart null'));
+
+    final index =
+        _cartMenu.indexWhere((item) => item.menuId == cartItem.menuId);
+    print('nambah menu cak $cartItem');
+
+    if (index == -1) {
+      _cartMenu = [..._cartMenu, cartItem];
+    } else {
+      _cartMenu[index] = _cartMenu[index].copyWith(
+        count: _cartMenu[index].count + 1,
+      );
+      print('iki cak cart menu $_cartMenu');
+    }
+
+    notifyListeners();
+    _updateCartVisibility();
   }
 
-  // Updates the count and cost of an existing item in the cart.
-  void _updateExistingItem(int index, int price, bool isAdd) {
-    final existingItem = _cartMenu[index];
-
-    // Update the count and cost
-    if (isAdd) {
-      existingItem.count += 1;
-      totalItemCount += 1;
-      deliveryCost += price;
-    } else if (existingItem.count > 0) {
-      existingItem.count -= 1;
-      totalItemCount -= 1;
-      deliveryCost -= price;
-      if (existingItem.count == 0) {
-        _cartMenu.removeAt(index);
+  void removeItemFromCart(int menuId) {
+    final index = _cartMenu.indexWhere((item) => item.menuId == menuId);
+    if (index != -1) {
+      final currentItem = _cartMenu[index];
+      if (currentItem.count > 1) {
+        final updatedItem = currentItem.copyWith(count: currentItem.count - 1);
+        final newList = [..._cartMenu];
+        newList[index] = updatedItem;
+        _cartMenu = newList;
+      } else {
+        _cartMenu = [..._cartMenu]..removeAt(index);
       }
+      _updateCartVisibility();
+      notifyListeners();
     }
   }
 
-  // Adds a new item to the cart list. The item count is set to 1
-  // and the deliveryCost is incremented by the price of the item.
-  void _addItemToCart(int menuId, String name, int price, String image,
-      String tenantName, String description) {
-    _cartMenu.add(
-      CartMenuModel(
-        menuId: menuId,
-        count: 1,
-        menuGambar: image,
-        menuNama: name,
-        menuPrice: price,
-        deskripsi: description,
-        tenantName: tenantName,
-        catatan: '',
-      ),
-    );
-    totalItemCount += 1;
-    deliveryCost += price;
+  void clearCart() {
+    _cartMenu = [];
+    notifyListeners();
+  }
+
+  // Finds the index of an existing item in the cart with the given menu ID.
+  int _findExistingItemIndex(int menuId) {
+    return _cartMenu.indexWhere((element) => element.menuId == menuId);
   }
 
   // Updates the visibility of the cart's bottom navigation bar based on whether
@@ -161,16 +195,6 @@ class CartProvider extends ChangeNotifier {
   void setTransactionStatus({bool? isLoading, bool? isTransactionCompleted}) {
     isLoading = isLoading ?? false;
     transactionCompleted = isTransactionCompleted ?? false;
-    notifyListeners();
-  }
-
-  // Clears the cart
-  void clearCart() {
-    _cartMenu.clear();
-    isCartVisible = false;
-    deliveryCost = 0;
-    totalItemCount = 0;
-    roomId = null;
     notifyListeners();
   }
 
@@ -190,7 +214,7 @@ class CartProvider extends ChangeNotifier {
 
   // Returns the total number of items in the cart
   int getTotalItemCount() {
-    return cart.fold(0, (sum, item) => sum + item.count as int);
+    return cart.fold(0, (sum, item) => sum + item.count);
   }
 
   // Adds a note to a specific item in the cart
@@ -237,6 +261,11 @@ class CartProvider extends ChangeNotifier {
     roomId = id;
   }
 
+  void setTotalActiveDriver(int total) {
+    _totalActiveDriver = total;
+    notifyListeners();
+  }
+
   // Fetches room data from the server
   Future<void> getRoom(String token) async {
     listRuangan = await TransactionRemoteDataSource().getRoomData(token);
@@ -248,5 +277,21 @@ class CartProvider extends ChangeNotifier {
       return selectRoom != null;
     }
     return true;
+  }
+
+  Future<void> getActiveDriver(String token) async {
+    isFetchingActiveDriver = true;
+    print('getActiveDriver');
+    notifyListeners(); // Tambahkan ini biar shimmer muncul
+    int driverAvailability =
+        await PublicRemoteDataSource().isThereActiveDriver(token);
+    setTotalActiveDriver(driverAvailability);
+    setIsThereActiveDriver(driverAvailability > 0);
+    if (driverAvailability > 0) {
+      setDeliveryOption(1);
+    } else {
+      setDeliveryOption(0);
+    }
+    notifyListeners();
   }
 }

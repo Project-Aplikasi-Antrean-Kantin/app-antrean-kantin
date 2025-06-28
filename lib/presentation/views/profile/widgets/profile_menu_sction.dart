@@ -98,7 +98,27 @@ class ProfileMenuSection extends StatelessWidget {
               icon: Icons.access_time_outlined,
               iconColor: user.isOnline! ? Colors.green : Colors.red,
               title: 'Status Tenant',
-              onTap: () => _showTenantStatusBottomSheet(context),
+              onTap: () => _showStatusBottomSheet(context, true),
+            ),
+            const SizedBox(height: 20),
+          ],
+          //profil driver
+          if (user.permission.contains('read driver status')) ...[
+            Text(
+              'Driver',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: semibold,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 10),
+            ProfileMenuItem(
+              status: user.isOnline,
+              icon: Icons.access_time_outlined,
+              iconColor: user.isOnline! ? Colors.green : Colors.red,
+              title: 'Status Driver',
+              onTap: () => _showStatusBottomSheet(context, false),
             ),
             const SizedBox(height: 20),
           ],
@@ -164,7 +184,7 @@ class ProfileMenuSection extends StatelessWidget {
     );
   }
 
-  void _showTenantStatusBottomSheet(BuildContext context) {
+  void _showStatusBottomSheet(BuildContext context, bool isTenant) {
     bool? selectedStatus = user.isOnline;
 
     showModalBottomSheet(
@@ -181,15 +201,17 @@ class ProfileMenuSection extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTenantStatusHeader(),
+              _buildStatusHeader(isTenant: isTenant),
               const SizedBox(height: 15),
               _buildStatusOption(
+                isTenant: isTenant,
                 isOnline: true,
                 selectedStatus: selectedStatus,
                 onTap: () => setModalState(() => selectedStatus = true),
               ),
               const SizedBox(height: 10),
               _buildStatusOption(
+                isTenant: isTenant,
                 isOnline: false,
                 selectedStatus: selectedStatus,
                 onTap: () => setModalState(() => selectedStatus = false),
@@ -229,12 +251,12 @@ class ProfileMenuSection extends StatelessWidget {
     );
   }
 
-  Widget _buildTenantStatusHeader() {
+  Widget _buildStatusHeader({required bool isTenant}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Ubah Status Tenant',
+          isTenant ? 'Ubah Status Tenant' : 'Ubah Status Driver',
           style: GoogleFonts.poppins(
             fontSize: 18,
             color: AppColors.textColorBlack,
@@ -252,7 +274,13 @@ class ProfileMenuSection extends StatelessWidget {
             ),
           ),
           child: Text(
-            user.isOnline! ? 'Buka' : 'Tutup',
+            user.isOnline!
+                ? isTenant
+                    ? 'Buka'
+                    : 'Online'
+                : isTenant
+                    ? 'Tutup'
+                    : 'Offline',
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: regular,
@@ -268,6 +296,7 @@ class ProfileMenuSection extends StatelessWidget {
     required bool isOnline,
     required bool? selectedStatus,
     required VoidCallback onTap,
+    required bool isTenant,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -302,8 +331,12 @@ class ProfileMenuSection extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   isOnline
-                      ? 'Pengguna bisa langsung memesan'
-                      : 'Pengguna belum bisa memesan dari tokomu',
+                      ? isTenant
+                          ? 'Pengguna bisa langsung memesan'
+                          : 'Bisa antar pesanan'
+                      : isTenant
+                          ? 'Pengguna belum bisa memesan dari tokomu'
+                          : 'Belum bisa antar pesanan',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: AppColors.textColorBlack,

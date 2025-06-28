@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
@@ -128,15 +129,9 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                           true,
                         );
                       } else {
-                        cartProvider.addItemToCartOrUpdateQuantity(
-                          menu.dataFoods.id,
-                          menu.dataFoods.nama,
-                          menu.dataFoods.harga,
-                          menu.dataFoods.gambar,
-                          menu.dataFoods.deskripsi ?? "-",
-                          menu.namaTenant!,
-                          true,
-                        );
+                        cartProvider.addItemToCart(
+                            newItem: menu.dataFoods,
+                            tenantName: menu.namaTenant);
                       }
                       Navigator.of(context).pop();
                     }
