@@ -64,9 +64,11 @@ class _ImageByUrlState extends State<ImageByUrl> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return widget.placeholder ??
-          SizedBox(
-            width: widget.width,
-            height: widget.height,
+          Image.asset(
+            'assets/images/dummy.jpeg',
+            fit: BoxFit.cover,
+            height: widget.width,
+            width: double.infinity,
           );
     }
 

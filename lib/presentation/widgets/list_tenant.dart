@@ -11,6 +11,7 @@ import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 
 class ListTenant extends StatelessWidget {
+  final List<TenantModel> fullTenant;
   final String url;
   final List<TenantModel> foundTenant;
   final void Function(Widget page) onNavigate;
@@ -20,6 +21,7 @@ class ListTenant extends StatelessWidget {
     required this.url,
     required this.foundTenant,
     required this.onNavigate,
+    required this.fullTenant,
   }) : super(key: key);
 
   // Helper untuk cek apakah salah satu menu punya gambar
@@ -88,7 +90,9 @@ class ListTenant extends StatelessWidget {
           onTap: () {
             if (tenant.isOnline == true) {
               debugPrint(url);
-              onNavigate(MenuTenant(url: '$url/${tenant.id}'));
+              onNavigate(MenuTenant(
+                url: '$url/${tenant.id}',
+              ));
               log(tenant.isOnline.toString());
             } else {
               log(tenant.isOnline.toString());
@@ -168,19 +172,12 @@ class ListTenant extends StatelessWidget {
                             heightContainerImage: 200,
                             widhtContainerImage: double.infinity,
                           ),
-                          tenant.gambar != null && tenant.gambar.isNotEmpty
-                              ? ImageByUrl(
-                                  url: tenant.gambar,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: 200,
-                                )
-                              : Image.asset(
-                                  'assets/images/dummy.jpeg',
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: 200,
-                                ),
+                          ImageByUrl(
+                            url: tenant.namaGambar.toString(),
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            height: 200,
+                          )
                         ],
                       ),
                     ),
@@ -267,6 +264,109 @@ class ListTenant extends StatelessWidget {
                     ],
                   ),
                 ),
+                fullTenant.length != foundTenant.length
+                    ? SizedBox(
+                        height: 200,
+                        child: tenant.tenantFoods!.isNotEmpty
+                            ? ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                physics: const ScrollPhysics(),
+                                itemCount: tenant.tenantFoods!.length,
+                                itemBuilder: (context, index) {
+                                  final food = tenant.tenantFoods![index];
+
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: SizedBox(
+                                      width: 100,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (food.gambar != null &&
+                                              food.gambar.toString().isNotEmpty)
+                                            ColorFiltered(
+                                              colorFilter:
+                                                  tenant.isOnline == true
+                                                      ? const ColorFilter.mode(
+                                                          Colors.transparent,
+                                                          BlendMode.multiply)
+                                                      : const ColorFilter
+                                                          .matrix(<double>[
+                                                          0.2126,
+                                                          0.7152,
+                                                          0.0722,
+                                                          0,
+                                                          0,
+                                                          0.2126,
+                                                          0.7152,
+                                                          0.0722,
+                                                          0,
+                                                          0,
+                                                          0.2126,
+                                                          0.7152,
+                                                          0.0722,
+                                                          0,
+                                                          0,
+                                                          0,
+                                                          0,
+                                                          0,
+                                                          1,
+                                                          0,
+                                                        ]),
+                                              child: Stack(
+                                                children: [
+                                                  ImageByUrl(
+                                                    url:
+                                                        '${food.gambar.toString()}',
+                                                    width: 96,
+                                                    height: 96,
+                                                  ),
+                                                  Positioned(
+                                                    bottom: 4,
+                                                    right: 4,
+                                                    child: Container(
+                                                      width: 32,
+                                                      height: 32,
+                                                      decoration: BoxDecoration(
+                                                        color: AppColors
+                                                            .primaryColor,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: Icon(Icons.add,
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          else
+                                            Image.asset(
+                                              'assets/images/dummy.jpeg',
+                                              fit: BoxFit.cover,
+                                              height: 96,
+                                              width: 96,
+                                            ),
+                                          const SizedBox(
+                                              height:
+                                                  5), // spacing antar image & text
+                                          Text(
+                                            '${food.nama.length <= 30 ? capitalizeFirstLetter(food.nama) : capitalizeFirstLetter(food.nama).substring(0, 30) + '...'}',
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            '${FormatCurrency.intToStringCurrency(food.harga)}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(), // atau SizedBox.shrink() kalau mau kosong
+                      )
+                    : Container(),
               ],
             ),
           ),

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,6 +20,7 @@ import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
+import 'package:testgetdata/presentation/widgets/time_picker.dart';
 
 class EditProfileTenant extends StatefulWidget {
   const EditProfileTenant({Key? key}) : super(key: key);
@@ -36,8 +38,19 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
 
   bool isLoading = false;
   String? selectedImagePath;
+  String selectedOpenTime = "00:00:00";
+  String selectedCloseTime = "00:00:00";
 
-  @override
+  void handleTimeChanged(String type, String newTime) {
+    setState(() {
+      if (type == "open") {
+        selectedOpenTime = newTime;
+      } else if (type == "close") {
+        selectedCloseTime = newTime;
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +72,10 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
         nomorRekeningTokoController.text = tenantData?.nomorRekeningToko ?? '';
         nomorRekeningPribadiController.text =
             tenantData?.nomorRekeningPribadi ?? '';
+        setState(() {
+          selectedOpenTime = tenantData?.jamBuka ?? '00:00:00';
+          selectedCloseTime = tenantData?.jamTutup ?? '00:00:00';
+        });
       });
     });
   }
@@ -129,6 +146,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
   }
 
   void _saveProfile(TenantProvider tenantProvider, AuthProvider authProvider) {
+    print('save profile ${selectedCloseTime} ${selectedOpenTime}');
     if (namaTenantController.text.isEmpty ||
         nomorKavlingController.text.isEmpty) {
       _showErrorDialog(
@@ -145,34 +163,20 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
       'nama_kavling': nomorKavlingController.text,
       'no_rekening_toko': nomorRekeningTokoController.text,
       'no_rekening_pribadi': nomorRekeningPribadiController.text,
+      'jam_buka': selectedOpenTime,
+      'jam_tutup': selectedCloseTime,
       'gambar': selectedImagePath,
     };
 
     TenantRemoteDataSource()
         .updateProfileTenant(authProvider.user.token, data)
         .then((success) {
-      log('value setelah edit tenant: $success');
       if (success) {
-        // Navigator.of(context).pushAndRemoveUntil(
-        //   CustomPageBuilder(
-        //     page: Builder(
-        //       builder: (context) {
-        //         final roles = authProvider.user.role;
-        //         if (roles.contains('tenant') && roles.contains('driver')) {
-        //           return const NavbarHome(pageIndex: 5);
-        //         } else if (roles.contains('tenant')) {
-        //           return const NavbarHome(pageIndex: 4);
-        //         } else if (roles.contains('driver')) {
-        //           return const NavbarHome(pageIndex: 3);
-        //         }
-        //         return const NavbarHome(pageIndex: 2);
-        //       },
-        //     ),
-        //   ),
-        //   (route) => false,
-        // );
+        Fluttertoast.showToast(
+            msg: 'Profil berhasil diperbarui',
+            backgroundColor: Colors.green,
+            textColor: Colors.white);
         Navigator.of(context).pop();
-        // tenantProvider.fetchTenantData(authProvider.user.token);
       } else {
         _showErrorDialog(
           'Gagal!',
@@ -444,6 +448,16 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
           hintText: 'Tuliskan nama tenant',
           isRequired: true,
           controller: namaTenantController,
+        ),
+        TimePicker(
+          label: "Jam Buka",
+          selectedTime: selectedOpenTime,
+          onTimeChanged: (newTime) => handleTimeChanged("open", newTime),
+        ),
+        TimePicker(
+          label: "Jam Tutup",
+          selectedTime: selectedCloseTime,
+          onTimeChanged: (newTime) => handleTimeChanged("close", newTime),
         ),
         CustomTextFormField(
           label: 'Nomor Kavling Tenant',

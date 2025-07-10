@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/core/theme/colors_theme.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final String label;
@@ -15,6 +16,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final void Function(String)? onChanged;
+  final bool boldLabel;
 
   // Tambahan properti baru
   final FocusNode? focusNode;
@@ -38,6 +40,7 @@ class CustomTextFormField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.onFieldSubmitted,
+    this.boldLabel = false,
   }) : super(key: key);
 
   @override
@@ -51,7 +54,7 @@ class CustomTextFormField extends StatelessWidget {
             Text(
               label,
               style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
+                fontWeight: boldLabel ? FontWeight.bold : FontWeight.w600,
                 fontSize: 15,
                 color: Colors.grey[800],
               ),
@@ -114,7 +117,7 @@ class CustomTextFormField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: hasError ? Colors.red : Colors.blue,
+                color: hasError ? Colors.red : AppColors.primaryColor,
                 width: 1.5,
               ),
             ),

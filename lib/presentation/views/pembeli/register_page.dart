@@ -6,7 +6,9 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/presentation/views/pembeli/open_email.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -256,11 +258,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                   );
                                   Future.delayed(
                                       const Duration(milliseconds: 1200), () {
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      routeToLoginPage(),
-                                      (route) => false,
-                                    );
+                                    Navigator.pushReplacement(
+                                        context,
+                                        CustomPageBuilder(
+                                            page: const OpenEmail(
+                                          isResetPassword: false,
+                                        )));
                                   });
                                 }
                               } catch (e) {

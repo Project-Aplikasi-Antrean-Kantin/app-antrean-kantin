@@ -78,12 +78,11 @@ class PublicRemoteDataSource {
     }
   }
 
-  Future<List<SettingsModel>> getOngkir(String token) async {
+  Future<List<SettingsModel>> getSettings() async {
     try {
       final response = await http.get(
         Uri.parse('${MasbroConstants.url}/pengaturan'),
         headers: {
-          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );

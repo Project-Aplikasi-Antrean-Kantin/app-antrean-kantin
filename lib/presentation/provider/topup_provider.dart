@@ -19,7 +19,7 @@ class TopupProvider extends ChangeNotifier {
   Future<void> getDataTopUp(String token) async {
     try {
       // Ambil data dari PublicRemoteDataSource
-      settings = await PublicRemoteDataSource().getOngkir(token);
+      settings = await PublicRemoteDataSource().getSettings();
 
       // Cari ongkos_kirim dan biaya_layanan dari settings
       for (var setting in settings) {

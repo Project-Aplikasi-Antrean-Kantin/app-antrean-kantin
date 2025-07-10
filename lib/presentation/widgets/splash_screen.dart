@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,9 @@ import 'package:testgetdata/presentation/views/common/token_manager.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
+
 // import 'package:testgetdata/views/tenant.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,13 +21,32 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with WidgetsBindingObserver {
   final tokenManager = TokenManager();
 
   @override
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     startSplashScreen();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Aplikasi kembali dari background
+      log("APP RESUMED");
+      // Jalankan ulang pengecekan
+      authCheck();
+    }
   }
 
   Future<void> startSplashScreen() async {
@@ -33,14 +56,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future authCheck() async {
     debugPrint("MASUK TOKEN AUTH");
+
     final token = await tokenManager.getToken();
     final role = await tokenManager.getRoles();
-
     log("role user: $role");
 
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final version = await authProvider.getCurrentVersion();
+
+    if (version != '1.0.7') {
+      _showExitConfirmationDialog(context);
+      return;
+    }
 
     if (token != null) {
       debugPrint("TOKEN TERSEDIA");
@@ -88,6 +117,96 @@ class _SplashScreenState extends State<SplashScreen> {
           height: 300,
           image: const AssetImage('assets/images/splash_screen_foodlab.png'),
           fit: BoxFit.cover, // Gunakan BoxFit.cover untuk efek cover
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showExitConfirmationDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: AppColors.backgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Container(
+          padding: const EdgeInsets.all(25),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "Pembaruan aplikasi tersedia!",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Segera lakukan pembaruan untuk mengakses fitur terbaru",
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      // Keluar dari aplikasi
+                      if (Platform.isAndroid) {
+                        SystemNavigator.pop();
+                      } else {
+                        Navigator.of(context).pop(); // iOS disarankan kembali
+                      }
+                    },
+                    style: ButtonStyle(
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          side: const BorderSide(color: Colors.grey),
+                        ),
+                      ),
+                      minimumSize: WidgetStateProperty.all(const Size(100, 30)),
+                    ),
+                    child: const Text(
+                      "Keluar",
+                      style: TextStyle(color: Color.fromARGB(255, 99, 99, 99)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  TextButton(
+                    onPressed: () async {
+                      const url =
+                          'https://play.google.com/store/apps/details?id=com.foodlab.pens';
+                      if (await canLaunchUrl(Uri.parse(url))) {
+                        await launchUrl(Uri.parse(url),
+                            mode: LaunchMode.externalApplication);
+                      } else {
+                        // Jika gagal membuka Play Store
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Gagal membuka Play Store')),
+                        );
+                      }
+                    },
+                    style: ButtonStyle(
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      backgroundColor:
+                          WidgetStateProperty.all(AppColors.primaryColor),
+                      minimumSize: WidgetStateProperty.all(const Size(100, 30)),
+                    ),
+                    child: const Text(
+                      "Update",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

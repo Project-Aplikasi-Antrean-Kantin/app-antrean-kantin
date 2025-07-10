@@ -14,6 +14,7 @@ import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/list_tenant.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
@@ -34,6 +35,8 @@ class _HomePageState extends State<HomePage> {
   List<TenantModel> fullTenant = [];
   bool isFirstLoad = true;
   DateTime? _lastFetch;
+  Timer? _debounce;
+  bool isSearching = false;
 
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   StreamSubscription<RemoteMessage>? _onMessageTopupSuccessSubscription;
@@ -42,17 +45,43 @@ class _HomePageState extends State<HomePage> {
   // final _scrollController = ScrollController();
   // final _containerHeight = 60.0;
 
+  void filterTenantsDebounced(String value) {
+    setState(() {
+      isSearching = true;
+    });
+
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      filterTenants(value); // lakukan filter
+      setState(() {
+        isSearching = false;
+      });
+    });
+  }
+
   void filterTenants(String value) {
     setState(() {
-      foundTenant = value.isEmpty
-          ? fullTenant
-          : fullTenant.where((tenant) {
-              final searchString = (tenant.namaTenant +
-                      tenant.namaKavling +
-                      tenant.tenantFoods!.map((food) => food.nama).join(' '))
-                  .toLowerCase();
-              return searchString.contains(value.toLowerCase());
-            }).toList();
+      if (value.isEmpty) {
+        foundTenant = fullTenant;
+      } else {
+        final lowerKeyword = value.toLowerCase();
+
+        foundTenant = fullTenant.where((tenant) {
+          final tenantText = (tenant.namaTenant +
+                  tenant.namaKavling +
+                  tenant.tenantFoods!.map((food) => food.nama).join(' '))
+              .toLowerCase();
+
+          return tenantText.contains(lowerKeyword);
+        }).map((tenant) {
+          // Buat salinan tenant dengan makanan yang sudah difilter
+          final filteredFoods = tenant.tenantFoods!
+              .where((food) => food.nama.toLowerCase().contains(lowerKeyword))
+              .toList();
+
+          return tenant.copyWith(tenantFoods: filteredFoods);
+        }).toList();
+      }
     });
   }
 
@@ -202,9 +231,30 @@ class _HomePageState extends State<HomePage> {
                       paddingVertical: 0,
                       formHeight: 43,
                       tittle: "Cari menu kesukaanmu . . .",
-                      onChanged: filterTenants,
+                      onChanged: filterTenantsDebounced,
                     ),
                   ),
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 5,
+                    right: 20,
+                    child: InkWell(
+                      onTap: () {
+                        print('halo');
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 30,
+                          color: Colors.yellow[700],
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -323,7 +373,8 @@ class _HomePageState extends State<HomePage> {
             FutureBuilder<List<TenantModel>>(
               future: futureTenant,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting ||
+                    isSearching) {
                   return SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => ShimmerCard(
@@ -365,6 +416,7 @@ class _HomePageState extends State<HomePage> {
                         delegate: SliverChildBuilderDelegate(
                           (context, index) => ListTenant(
                             url: url,
+                            fullTenant: fullTenant,
                             foundTenant: foundTenant,
                             onNavigate: _handleNavigation,
                           ),

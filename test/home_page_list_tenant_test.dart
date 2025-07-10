@@ -34,6 +34,7 @@ void main() {
             body: ListTenant(
               onNavigate: (page) => {},
               url: mockUrl,
+              fullTenant: mockTenants,
               foundTenant: mockTenants,
             ),
           ),

@@ -2,8 +2,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:testgetdata/data/model/settings_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/remote/auth_remote_data_source.dart';
+import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/views/common/token_manager.dart';
 
@@ -12,6 +14,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? _user;
 
   UserModel get user => _user!;
+  List<SettingsModel> settings = [];
 
   Future<bool> register(String nama, String email, String password) async {
     try {
@@ -53,6 +56,40 @@ class AuthProvider extends ChangeNotifier {
   //   }
   // }
 
+  Future<String> getCurrentVersion() async {
+    try {
+      // Ambil data dari PublicRemoteDataSource
+      settings = await PublicRemoteDataSource().getSettings();
+
+      // Cari 'version' di settings
+      for (var setting in settings) {
+        if (setting.nama == 'version') {
+          print('version: ${setting.nilai}');
+          return setting.nilai;
+        }
+      }
+
+      // Jika tidak ditemukan, return kosong
+      return "";
+    } catch (e) {
+      notifyListeners();
+      debugPrint('Error fetching settings: $e');
+      return "";
+    }
+  }
+
+  Future<bool> sendEmailForgetPassword(String email) async {
+    try {
+      final success =
+          await AuthRemoteDataSource().sendEmailForgetPassword(email);
+      print('succes loh cak ${success}');
+      return success;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   Future<bool> login(String email, String password, String token) async {
     try {
       UserModel? user =
@@ -67,6 +104,30 @@ class AuthProvider extends ChangeNotifier {
       log("IS ONLINE FROM SERVER: ${user.isOnline}");
 
       return true;
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<bool> resendVerify(String email) async {
+    try {
+      final success = await AuthRemoteDataSource().resendVerify(email);
+      print('succes loh cak ${success}');
+      return success;
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<bool> resetPassword(String email, String password,
+      String confirmPassword, String token) async {
+    try {
+      final success = await AuthRemoteDataSource()
+          .resetPassword(email, password, confirmPassword, token);
+      print('succes loh cak ${success}');
+      return success;
     } catch (e) {
       print(e);
       rethrow;

@@ -36,6 +36,43 @@ class TenantModel {
     this.tenantFoods,
     this.isOnline,
   });
+  TenantModel copyWith({
+    int? id,
+    String? namaTenant,
+    String? namaKavling,
+    String? nomorRekeningToko,
+    String? nomorRekeningPribadi,
+    String? gambar,
+    int? userId,
+    String? jamBuka,
+    String? jamTutup,
+    int? range,
+    String? namaGambar,
+    dynamic deletedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<TenantFoods>? tenantFoods,
+    bool? isOnline,
+  }) {
+    return TenantModel(
+      id: id ?? this.id,
+      namaTenant: namaTenant ?? this.namaTenant,
+      namaKavling: namaKavling ?? this.namaKavling,
+      nomorRekeningToko: nomorRekeningToko ?? this.nomorRekeningToko,
+      nomorRekeningPribadi: nomorRekeningPribadi ?? this.nomorRekeningPribadi,
+      gambar: gambar ?? this.gambar,
+      userId: userId ?? this.userId,
+      jamBuka: jamBuka ?? this.jamBuka,
+      jamTutup: jamTutup ?? this.jamTutup,
+      range: range ?? this.range,
+      namaGambar: namaGambar ?? this.namaGambar,
+      deletedAt: deletedAt ?? this.deletedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      tenantFoods: tenantFoods ?? this.tenantFoods,
+      isOnline: isOnline ?? this.isOnline,
+    );
+  }
 
   factory TenantModel.fromJson(Map<String, dynamic> json) => TenantModel(
         id: json["id"],

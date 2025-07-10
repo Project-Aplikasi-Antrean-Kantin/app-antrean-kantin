@@ -37,6 +37,14 @@
                 <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+               <!-- Intent filter for deep linking -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="foodlabpens.com" />
+                <data android:scheme="https" android:host="foodlabpens.com" />
+            </intent-filter>
         </activity>
 
         <meta-data

@@ -8,10 +8,13 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/views/pembeli/forgot_password.dart';
+import 'package:testgetdata/presentation/views/pembeli/open_email.dart';
 import 'package:testgetdata/presentation/views/pembeli/register_page.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -161,6 +164,20 @@ class _LoginPageState extends State<LoginPage> {
           success: false,
         );
       } else {
+        if (e.message.isNotEmpty && e.message.contains('verifikasi')) {
+          showCustomSnackbar(
+            "Email belum diverifikasi. Silakan periksa email anda.",
+            success: false,
+          );
+          Navigator.push(
+              context,
+              CustomPageBuilder(
+                  page: OpenEmail(
+                email: _emailController.text,
+                isResetPassword: false,
+              )));
+          return;
+        }
         showCustomSnackbar(
           e.message.isNotEmpty
               ? e.message
@@ -199,35 +216,32 @@ class _LoginPageState extends State<LoginPage> {
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 12,
                 children: [
-                  const SizedBox(height: 40),
                   Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          'Halo Bro!',
-                          style: GoogleFonts.poppins(
-                            color: AppColors.textColorBlack,
-                            fontSize: 32,
-                            fontWeight: semibold,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
-                          child: Text(
-                            'Pastikan kamu sudah memiliki akun ya bro...',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
-                              color: AppColors.textColorBlack,
-                              fontSize: 15,
-                              fontWeight: regular,
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: Image(
+                      height: 150,
+                      width: 150,
+                      image:
+                          const AssetImage("assets/images/logo-with-text.png"),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  Text(
+                    'Masuk',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.textColorBlack,
+                      fontSize: 32,
+                      fontWeight: semibold,
+                    ),
+                  ),
+                  Text(
+                    'Pastikan kamu sudah mendaftar yaa ☺️',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.textColorBlack,
+                      fontSize: 12,
+                      fontWeight: regular,
+                    ),
+                  ),
                   CustomTextFormField(
                     label: 'Email',
                     controller: _emailController,
@@ -252,6 +266,17 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       onPressed: () =>
                           setState(() => _showPassword = !_showPassword),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                        context, CustomPageBuilder(page: ForgotPassword())),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Lupa Password?',
+                        style: TextStyle(color: AppColors.selectedIconColor),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -327,18 +352,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text(
-                      "Jika mengalami kendala login, pastikan email & password sudah benar atau hubungi tim support kami.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        color: Colors.grey[600],
-                        fontSize: 13,
-                      ),
-                    ),
                   ),
                 ],
               ),

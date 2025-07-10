@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'package:testgetdata/data/model/user_model.dart';
@@ -20,6 +23,8 @@ class AuthRemoteDataSource {
       String message = json['message'].toString();
 
       if (response.statusCode == 200) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('last_send_email', DateTime.now().toString());
         return true;
       } else if (response.statusCode == 401) {
         throw ApiException(status: json['status'], message: message);
@@ -31,18 +36,139 @@ class AuthRemoteDataSource {
     }
   }
 
+  Future<bool> resendVerify(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${MasbroConstants.url}/send-email-verification"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({"email": email}),
+      );
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        if (response.body.isNotEmpty) {
+          final json = jsonDecode(response.body);
+          throw ApiException(status: json['status'], message: json['message']);
+        } else {
+          throw ApiException(
+            status: response.statusCode,
+            message: 'Unknown error',
+          );
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> sendEmailForgetPassword(String email) async {
+    print('email woi $email');
+    try {
+      final response = await http.post(
+        Uri.parse("${MasbroConstants.url}/forgot-password"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({"email": email}),
+      );
+
+      print(response.statusCode);
+      print("response body: '${response.body}'");
+
+      if (response.statusCode == 200) {
+        if (response.body.isNotEmpty) {
+          final json = jsonDecode(response.body);
+          String message = json['message'].toString();
+          print("message dari server: $message");
+        }
+        return true;
+      } else {
+        if (response.body.isNotEmpty) {
+          final json = jsonDecode(response.body);
+          throw ApiException(status: json['status'], message: json['message']);
+        } else {
+          throw ApiException(
+            status: response.statusCode,
+            message: 'Unknown error',
+          );
+        }
+      }
+    } catch (e) {
+      print("Error caught: $e");
+      return false;
+    }
+  }
+
+  Future<bool> resetPassword(
+    String email,
+    String password,
+    String confirmPassword,
+    String token,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${MasbroConstants.url}/reset-password"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+          "password_confirmation": confirmPassword,
+          "token": token,
+        }),
+      );
+
+      print(response.statusCode);
+      print("response body: '${response.body}'");
+
+      if (response.statusCode == 200) {
+        if (response.body.isNotEmpty) {
+          final json = jsonDecode(response.body);
+          String message = json['message'].toString();
+          print("message dari server: $message");
+        }
+        return true;
+      } else {
+        if (response.body.isNotEmpty) {
+          final json = jsonDecode(response.body);
+          print("Error caught: cek status code ${json['message']}");
+
+          throw ApiException(
+              status: 'error',
+              message: 'Waktu reset habis, silakan kirim ulang email.');
+        } else {
+          throw ApiException(
+            status: response.statusCode,
+            message: 'Unknown error',
+          );
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<UserModel> login(String email, String password, String token) async {
     try {
       final response = await http.post(
         Uri.parse("${MasbroConstants.url}/login"),
-        body: jsonEncode(
-            {"email": email, "password": password, "fcm_token": token}),
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+          "fcm_token": token,
+        }),
         headers: {"content-type": "application/json"},
       );
 
       final json = jsonDecode(response.body);
       String message = json['message'].toString();
-
+      print('message: ${response.statusCode}');
       if (response.statusCode == 200) {
         UserModel user = UserModel.fromJson(json['data']);
         if (user.isBlank!) {
@@ -51,9 +177,10 @@ class AuthRemoteDataSource {
         return user;
       } else if (response.statusCode == 401) {
         throw ApiException(status: json['status'], message: message);
+      } else if (response.statusCode == 403) {
+        throw ApiException(status: json['status'], message: message);
       }
-      print(json);
-      throw ApiException(status: json['status'], message: message);
+      throw ApiException(status: json['status'], message: 'Kesalahan Server');
     } catch (e) {
       rethrow;
     }
@@ -87,7 +214,9 @@ class AuthRemoteDataSource {
 
   // Update profile user with compress image banggg uhuyy
   Future<bool> updateProfileUser(
-      String token, Map<String, dynamic> data) async {
+    String token,
+    Map<String, dynamic> data,
+  ) async {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('${MasbroConstants.url}/update-user'),
