@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,6 +81,8 @@ class AuthRemoteDataSource {
       print("response body: '${response.body}'");
 
       if (response.statusCode == 200) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('last_send_email', DateTime.now().toString());
         if (response.body.isNotEmpty) {
           final json = jsonDecode(response.body);
           String message = json['message'].toString();
@@ -175,6 +178,8 @@ class AuthRemoteDataSource {
           print(user.menu.toString());
         }
         return user;
+      } else if (response.statusCode == 400) {
+        throw ApiException(status: json['status'], message: message);
       } else if (response.statusCode == 401) {
         throw ApiException(status: json['status'], message: message);
       } else if (response.statusCode == 403) {
@@ -217,6 +222,7 @@ class AuthRemoteDataSource {
     String token,
     Map<String, dynamic> data,
   ) async {
+    print('data cok ngentod luwes $data');
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('${MasbroConstants.url}/update-user'),
@@ -306,7 +312,29 @@ class AuthRemoteDataSource {
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body)['data'];
+      print('data iki cok $data');
+      UserModel user = UserModel.fromJson(data);
+      return user;
+    } else {
       log("SUKSES DI SERVIS");
+      throw jsonDecode(response.body)['message'];
+    }
+  }
+
+  Future<UserModel> authMe(String token) async {
+    var url = '${MasbroConstants.url}/user';
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final response = await http.get(Uri.parse(url), headers: headers);
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body)['data'];
+      print('data iki cok $data');
       UserModel user = UserModel.fromJson(data);
       return user;
     } else {
@@ -316,19 +344,22 @@ class AuthRemoteDataSource {
   }
 
   Future<bool> logout(String token) async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final prefs = await SharedPreferences.getInstance();
+    print("Token fcm: " + fcmToken.toString());
     try {
-      final response = await http.post(
-        Uri.parse("${MasbroConstants.url}/logout"),
-        headers: {
-          "content-type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-      );
+      final response =
+          await http.post(Uri.parse("${MasbroConstants.url}/logout"),
+              headers: {
+                "content-type": "application/json",
+                "Authorization": "Bearer $token",
+              },
+              body: jsonEncode({'fcm_token': fcmToken}));
       // print(response.body);
       final json = jsonDecode(response.body);
       String message = json['message'].toString();
-
       if (response.statusCode == 200) {
+        prefs.clear();
         return true;
       } else if (response.statusCode == 401) {
         throw ApiException(status: json['status'], message: message);

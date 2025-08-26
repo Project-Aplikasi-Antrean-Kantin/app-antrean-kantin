@@ -1,14 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'dart:developer' as developer;
 
+import 'package:testgetdata/data/model/ruangan_model.dart';
+import 'package:testgetdata/presentation/provider/cart_provider.dart';
+
 class PilihLokasiRuangan extends StatefulWidget {
   final int? selectedLocation;
   final Function(int?)? onLocationSelected;
-  final List<dynamic> listRuangan;
+  final Function(String) onChange;
+  final List<Ruangan> listRuangan;
   final String token;
 
   const PilihLokasiRuangan({
@@ -17,6 +24,7 @@ class PilihLokasiRuangan extends StatefulWidget {
     this.selectedLocation,
     this.onLocationSelected,
     Key? key,
+    required this.onChange,
   }) : super(key: key);
 
   @override
@@ -26,13 +34,15 @@ class PilihLokasiRuangan extends StatefulWidget {
 class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
   int? selectedValue;
   final TextEditingController textEditingController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    // Inisialisasi selectedValue dengan selectedLocation jika ada
-    selectedValue = widget.selectedLocation;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      selectedValue = cartProvider.roomId;
+
       developer.log(
           "PilihLokasiRuangan init: selectedLocation = ${widget.selectedLocation}, selectedValue = $selectedValue");
       // Panggil onLocationSelected untuk menyinkronkan state
@@ -43,8 +53,19 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
   }
 
   @override
+  void didUpdateWidget(PilihLokasiRuangan oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedLocation != widget.selectedLocation) {
+      setState(() {
+        selectedValue = widget.selectedLocation;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     textEditingController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -52,10 +73,9 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
   Widget build(BuildContext context) {
     developer.log(
         "PilihLokasiRuangan build: selectedLocation = ${widget.selectedLocation}, selectedValue = $selectedValue");
-    developer
-        .log("ListRuangan: ${widget.listRuangan.map((r) => r.id).toList()}");
 
     return Column(
+      spacing: 8,
       children: [
         Container(
           alignment: Alignment.centerLeft,
@@ -63,12 +83,11 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
             'Lokasi Pengantaran',
             style: GoogleFonts.poppins(
               fontSize: 14,
-              fontWeight: semibold,
-              color: AppColors.textColorBlack,
+              color: AppColors.blackColor,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        const SizedBox(height: 10),
         DropdownButtonHideUnderline(
           child: DropdownButton2<int>(
             iconStyleData: IconStyleData(
@@ -185,6 +204,56 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
             },
           ),
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Catatan Lokasi',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: AppColors.blackColor,
+                  fontWeight: FontWeight.w600,
+                )),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                  color: Color(0xFFCDCDCD),
+                  borderRadius: BorderRadius.circular(16)),
+              child: Text('Opsional',
+                  style: GoogleFonts.poppins(
+                      fontSize: 12, fontWeight: FontWeight.w600)),
+            )
+          ],
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.blackColor100, width: 2),
+          ),
+          height: 124,
+          child: TextField(
+            decoration: InputDecoration(
+              hintStyle: GoogleFonts.poppins(
+                color: AppColors.blackColor200,
+              ),
+              hintText:
+                  'Tambah detail catatan lokasi pengantaran (PS 19.45 Dekat Lift)',
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 3,
+                vertical: 8,
+              ),
+              border: InputBorder.none,
+            ),
+            onChanged: (value) {
+              if (_debounce?.isActive ?? false) _debounce!.cancel();
+              _debounce = Timer(const Duration(milliseconds: 500), () {
+                widget.onChange(value);
+              });
+            },
+            maxLines: 3,
+            maxLength: 200,
+          ),
+        )
       ],
     );
   }

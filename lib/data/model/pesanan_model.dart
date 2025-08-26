@@ -1,10 +1,16 @@
+import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
+import 'package:testgetdata/data/model/gedung_model.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
+import 'package:testgetdata/data/model/tenant_foods.dart';
+import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 
 class Pesanan {
   final int id;
   final int userId;
   final String status;
+  final String? namaDriver;
+  final String? fotoDriver;
   String? catatan;
   String? kodePemesanan;
   int? ruanganId;
@@ -22,9 +28,13 @@ class Pesanan {
   Ruangan? ruangan;
   String? namaPembeli;
   String? phone;
+  String? catatanPenolakan;
+  String? catatanLokasi;
   final DateTime createdAt;
 
   Pesanan({
+    this.namaDriver,
+    this.fotoDriver,
     required this.id,
     required this.userId,
     required this.status,
@@ -45,11 +55,96 @@ class Pesanan {
     this.ruangan,
     this.namaPembeli,
     this.phone,
+    this.catatanPenolakan,
+    this.catatanLokasi,
     required this.createdAt,
   });
+  @override
+  String toString() {
+    return 'PesananModel(kodePemesanan: $kodePemesanan)';
+  }
+
+  static Pesanan getDummyPesanan() {
+    final gedung = Gedung(
+      ongkir: 5000,
+      id: 5 + 1,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      deletedAt: null,
+      nama: 'Gedung ${5 + 1}',
+    );
+
+    final ruangan = Ruangan(
+      id: 5 + 1,
+      nama: 'Ruang ${5 + 1}',
+      gedungId: gedung.id,
+      namaRuangan: 'Ruangan ${5 + 1}',
+      gedung: gedung,
+    );
+
+    final tenant = TenantModel(
+      id: 5 + 1,
+      namaTenant: 'Tenant ${5 + 1}',
+      namaKavling: 'Kavling B${5 + 1}',
+      transaksiBerhasil: 100 + 5,
+      gambar: 'https://example.com/image.jpg',
+      userId: 10 + 5,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    final food = TenantFoods(
+      tenants: tenant,
+      kategoriId: 1,
+      isReady: 1,
+      id: 5 + 1,
+      nama: 'Makanan ${5 + 1}',
+      deskripsi: 'Deskripsi makanan ${5 + 1}',
+      harga: 10000 + (5 * 1000),
+      gambar: 'https://example.com/food.jpg',
+      tenantId: tenant.id,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    final detail = ListTransaksiDetail(
+      id: 5 + 1,
+      transaksiId: 5 + 1,
+      jumlah: 2 + 5,
+      harga: 15000 + (5 * 500),
+      status: 'selesai',
+      catatan: 'Catatan ${5 + 1}',
+      menusKelolaId: food.id,
+      namaMenu: food.nama,
+      createdAt: DateTime.now(),
+      kategoriMenu: 'Minuman',
+      menus: food,
+    );
+
+    return Pesanan(
+      userId: 10,
+      kodePemesanan: 'abc',
+      catatan: 'Catatan ${5 + 1}',
+      total: 10,
+      ongkosKirim: 10,
+      biayaLayanan: 10,
+      isAntar: 1,
+      metodePembayaran: 'Cash',
+      orderId: "1",
+      subTotal: 1,
+      createdAt: DateTime.now(),
+      id: 5 + 1,
+      ruanganId: ruangan.id,
+      ruangan: ruangan,
+      status: 'selesai',
+      listTransaksiDetail: [detail],
+    );
+  }
 
   factory Pesanan.fromJson(Map<String, dynamic> json) => Pesanan(
         id: json["id"],
+        catatanPenolakan: json["catatan_penolakan"],
+        catatanLokasi: json['catatan_lokasi_pengantaran'],
         userId: json["user_id"],
         status: json["status"],
         catatan: json["catatan"],
@@ -65,6 +160,8 @@ class Pesanan {
         subTotal: json["sub_total"],
         gedung: json["gedung"],
         namaRuangan: json["nama_ruangan"],
+        namaDriver: json["nama_driver"],
+        fotoDriver: json["foto_driver"],
         listTransaksiDetail: List<ListTransaksiDetail>.from(
           json["list_transaksi_detail"]
               .map((x) => ListTransaksiDetail.fromJson(x)),
@@ -74,4 +171,29 @@ class Pesanan {
         createdAt: DateTime.parse(json["created_at"]).toLocal(),
         // ruangan: Ruangan.fromJson(json["ruangan"]),
       );
+}
+
+extension PesananToCartExtension on Pesanan {
+  List<CartMenuModel> toCartMenuList() {
+    return listTransaksiDetail.map((detail) {
+      if (detail.menus != null) {
+        return CartMenuModel.fromTenantFoods(tenantFoods: detail.menus!)
+            .copyWith(
+          count: detail.jumlah,
+          catatan: detail.catatan,
+        );
+      } else {
+        return CartMenuModel(
+          menuId: detail.menusKelolaId ?? 0,
+          menuNama: detail.namaMenu,
+          menuPrice: detail.harga,
+          count: detail.jumlah,
+          isReady: 1,
+          kategoriId: 0,
+          menuGambar: '',
+          catatan: detail.catatan,
+        );
+      }
+    }).toList();
+  }
 }

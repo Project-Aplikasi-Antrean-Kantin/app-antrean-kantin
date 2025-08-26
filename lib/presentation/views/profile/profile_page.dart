@@ -14,7 +14,7 @@ class ProfilePage extends StatelessWidget {
     final user = authProvider.user;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.whiteColor,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -22,12 +22,14 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
         toolbarHeight: 0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            ProfileHeader(user: user),
-            ProfileMenuSection(user: user, authProvider: authProvider),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ProfileHeader(),
+              ProfileMenuSection(user: user, authProvider: authProvider),
+            ],
+          ),
         ),
       ),
     );

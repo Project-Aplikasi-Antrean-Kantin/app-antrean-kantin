@@ -9,6 +9,7 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/open_email.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -122,6 +123,47 @@ class _RegisterPageState extends State<RegisterPage> {
     ].every((e) => e == null);
   }
 
+  Future<void> _handleRegister(AuthProvider authProvider) async {
+    if (!validateInputs()) return;
+
+    setState(() => isLoading = true);
+    try {
+      final success = await authProvider.register(
+        nama.text,
+        email.text,
+        password.text,
+      );
+      if (success) {
+        showCustomSnackbar(
+          "Registrasi berhasil! Silakan login menggunakan akun kamu.",
+          success: true,
+        );
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Navigator.pushReplacement(
+              context,
+              CustomPageBuilder(
+                  page: OpenEmail(
+                email: email.text,
+                isResetPassword: false,
+              )));
+        });
+      }
+    } catch (e) {
+      if (e is ApiException) {
+        showCustomSnackbar(
+          e.message.isNotEmpty
+              ? e.message
+              : "Terjadi kesalahan, silakan coba lagi.",
+        );
+      } else {
+        showCustomSnackbar(
+          "Gagal mendaftar. Pastikan data sudah benar dan jaringan stabil.",
+        );
+      }
+    }
+    setState(() => isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
@@ -131,234 +173,184 @@ class _RegisterPageState extends State<RegisterPage> {
       },
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
-        body: Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            left: 32,
-            right: 32,
-          ),
-          child: SingleChildScrollView(
-            child: Container(
-              margin: const EdgeInsets.only(top: 40),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Column(
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32),
+            child: SingleChildScrollView(
+              child: Container(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        child: Center(
+                          child: Image(
+                            width: 150,
+                            image: const AssetImage(
+                                "assets/images/Logo Header.png"),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 48,
+                      ),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Daftar',
                             style: GoogleFonts.poppins(
-                              color: AppColors.textColorBlack,
+                              color: AppColors.primaryColor,
                               fontSize: 32,
-                              fontWeight: semibold,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                          Text(
+                            'Yuk daftar dan menjelajah kuliner bersama FoodLAB 🥘',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.blackColor,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      CustomTextFormField(
+                        labelColor: AppColors.primaryColor,
+                        label: 'Nama',
+                        controller: nama,
+                        hintText: 'Masukkan nama kamu',
+                        isRequired: true,
+                        errorText: namaError,
+                      ),
+                      CustomTextFormField(
+                        labelColor: AppColors.primaryColor,
+                        label: 'Email',
+                        controller: email,
+                        hintText: 'Masukkan email kamu',
+                        inputType: TextInputType.emailAddress,
+                        isRequired: true,
+                        errorText: emailError,
+                      ),
+                      // CustomTextFormField(
+                      //   label: 'Nomor Telepon',
+                      //   controller: telp,
+                      //   hintText: 'Nomor telepon aktif',
+                      //   inputType: TextInputType.phone,
+                      //   isRequired: true,
+                      //   errorText: telpError,
+                      // ),
+                      CustomTextFormField(
+                        labelColor: AppColors.primaryColor,
+                        label: 'Password',
+                        controller: password,
+                        hintText: 'Masukkan password',
+                        obscureText: showPassword,
+                        isRequired: true,
+                        errorText: passwordError,
+                        onChanged: (value) {
+                          setState(() {
+                            confirmPasswordError =
+                                confirmPassword.text.isNotEmpty &&
+                                        confirmPassword.text != value
+                                    ? "Konfirmasi password tidak cocok."
+                                    : null;
+                          });
+                        },
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showPassword
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            color: Colors.grey[500],
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              showPassword = !showPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      CustomTextFormField(
+                        labelColor: AppColors.primaryColor,
+                        label: 'Konfirmasi Password',
+                        controller: confirmPassword,
+                        onChanged: (value) {
+                          setState(() {
+                            confirmPasswordError = value != password.text
+                                ? "Konfirmasi password tidak cocok."
+                                : null;
+                          });
+                        },
+                        hintText: 'Ulangi password',
+                        obscureText: showPassword,
+                        isRequired: true,
+                        errorText: confirmPasswordError,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showPassword
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            color: Colors.grey[500],
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              showPassword = !showPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      PrimaryButton(
+                        onPressed: () =>
+                            isLoading ? null : _handleRegister(authProvider),
+                        width: double.infinity,
+                        borderRadius: 20,
+                        isLoading: isLoading,
+                        child: Center(
+                          child: Text(
+                            "Daftar Sekarang",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: medium,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Sudah punya akun? ',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.textColorBlack,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                routeToLoginPage(),
+                                (route) => false,
+                              );
+                            },
                             child: Text(
-                              textAlign: TextAlign.center,
-                              'Bergabunglah dan mulai jelajahi kuliner favoritmu!',
+                              'Masuk',
                               style: GoogleFonts.poppins(
-                                color: AppColors.textColorBlack,
-                                fontSize: 15,
-                                fontWeight: regular,
+                                color: AppColors.primaryColor,
+                                fontWeight: semibold,
                               ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 25),
-                    CustomTextFormField(
-                      label: 'Nama',
-                      controller: nama,
-                      hintText: 'Nama lengkap kamu',
-                      isRequired: true,
-                      errorText: namaError,
-                    ),
-                    CustomTextFormField(
-                      label: 'Email',
-                      controller: email,
-                      hintText: 'Alamat email kamu',
-                      inputType: TextInputType.emailAddress,
-                      isRequired: true,
-                      errorText: emailError,
-                    ),
-                    // CustomTextFormField(
-                    //   label: 'Nomor Telepon',
-                    //   controller: telp,
-                    //   hintText: 'Nomor telepon aktif',
-                    //   inputType: TextInputType.phone,
-                    //   isRequired: true,
-                    //   errorText: telpError,
-                    // ),
-                    CustomTextFormField(
-                      label: 'Password',
-                      controller: password,
-                      hintText: 'Buat password',
-                      obscureText: showPassword,
-                      isRequired: true,
-                      errorText: passwordError,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          showPassword
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          color: Colors.grey[500],
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showPassword = !showPassword;
-                          });
-                        },
-                      ),
-                    ),
-                    CustomTextFormField(
-                      label: 'Konfirmasi Password',
-                      controller: confirmPassword,
-                      hintText: 'Ulangi password',
-                      obscureText: showPassword,
-                      isRequired: true,
-                      errorText: confirmPasswordError,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          showPassword
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          color: Colors.grey[500],
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showPassword = !showPassword;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    GestureDetector(
-                      onTap: isLoading
-                          ? null
-                          : () async {
-                              if (!validateInputs()) return;
-
-                              setState(() => isLoading = true);
-                              try {
-                                final success = await authProvider.register(
-                                  nama.text,
-                                  email.text,
-                                  password.text,
-                                );
-                                if (success) {
-                                  showCustomSnackbar(
-                                    "Registrasi berhasil! Silakan login menggunakan akun kamu.",
-                                    success: true,
-                                  );
-                                  Future.delayed(
-                                      const Duration(milliseconds: 1200), () {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        CustomPageBuilder(
-                                            page: const OpenEmail(
-                                          isResetPassword: false,
-                                        )));
-                                  });
-                                }
-                              } catch (e) {
-                                if (e is ApiException) {
-                                  showCustomSnackbar(
-                                    e.message.isNotEmpty
-                                        ? e.message
-                                        : "Terjadi kesalahan, silakan coba lagi.",
-                                  );
-                                } else {
-                                  showCustomSnackbar(
-                                    "Gagal mendaftar. Pastikan data sudah benar dan jaringan stabil.",
-                                  );
-                                }
-                              }
-                              setState(() => isLoading = false);
-                            },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        width: double.infinity,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.07),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: isLoading
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 3,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(width: 12),
-                                    Text(
-                                      "Memproses...",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Text(
-                                  "Daftar Sekarang",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontWeight: medium,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Sudah punya akun? ',
-                          style: GoogleFonts.poppins(
-                            color: AppColors.textColorBlack,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              routeToLoginPage(),
-                              (route) => false,
-                            );
-                          },
-                          child: Text(
-                            'Masuk',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.primaryColor,
-                              fontWeight: semibold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      const SizedBox(height: 48),
+                    ],
+                  ),
                 ),
               ),
             ),

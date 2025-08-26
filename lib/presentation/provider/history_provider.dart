@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
@@ -9,12 +10,17 @@ class HistoryProvider with ChangeNotifier {
   final Map<String, bool> _isLoadingByRole = {};
   final Map<String, String?> _errorMessageByRole = {};
   final Map<String, DateTime?> _lastFetchTimeByRole = {};
+  String unreadMessages = '';
+  List<int> unreadMessagesList = [];
+  List<int> availableChatList = [];
 
   // Set untuk tracking request yang sedang berjalan
   final Set<String> _activeRequests = {};
 
   // Getter methods untuk setiap role
   List<Pesanan> getListPesanan(String role) => _listPesananByRole[role] ?? [];
+  Pesanan? selectedPesanan;
+
   bool getIsLoading(String role) => _isLoadingByRole[role] ?? false;
   String? getErrorMessage(String role) => _errorMessageByRole[role];
   DateTime? getLastFetchTime(String role) => _lastFetchTimeByRole[role];
@@ -29,12 +35,12 @@ class HistoryProvider with ChangeNotifier {
   }
 
   // Getter untuk backward compatibility (jika masih ada yang menggunakan)
-  List<Pesanan> get listPesanan => [];
   bool get isLoading => false;
   String? get errorMessage => null;
 
   Future<void> fetchHistory(BuildContext context, UserModel user, String role,
       {bool forceRefresh = false}) async {
+    print("ngefetch cak");
     // Skip jika sedang loading dan bukan force refresh
     if (_isLoadingByRole[role] == true && !forceRefresh) {
       return;
@@ -72,8 +78,52 @@ class HistoryProvider with ChangeNotifier {
     }
   }
 
+  Future<void> saveUnreadMessages(int transaksiId) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!unreadMessagesList.contains(transaksiId))
+      unreadMessagesList.add(transaksiId);
+    if (!availableChatList.contains(transaksiId))
+      availableChatList.add(transaksiId);
+    unreadMessages = unreadMessagesList.join(',');
+    await prefs.setString('available_chat', unreadMessages);
+    await prefs.setString('unread', unreadMessages);
+    notifyListeners();
+  }
+
+  Future<void> removeUnreadMessages(int transaksiId) async {
+    final prefs = await SharedPreferences.getInstance();
+    unreadMessagesList.remove(transaksiId);
+    unreadMessages = unreadMessagesList.join(',');
+    await prefs.setString('unread', unreadMessages);
+    notifyListeners();
+  }
+
+  Future<void> removeAvailableChat(int transaksiId) async {
+    final prefs = await SharedPreferences.getInstance();
+    availableChatList.remove(transaksiId);
+    final availableChat = availableChatList.join(',');
+    print('availableChat: $availableChat');
+    await prefs.setString('available_chat', availableChat);
+    notifyListeners();
+  }
+
+  Future<void> loadUnreadMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    final unread = prefs.getString('unread') ?? '';
+    final availableChat = prefs.getString('available_chat') ?? '';
+    availableChatList = availableChat.isEmpty
+        ? []
+        : availableChat.split(',').map(int.parse).toList();
+    unreadMessagesList =
+        unread.isEmpty ? [] : unread.split(',').map(int.parse).toList();
+    print('Saved unreadwkwk: ${prefs.getString('unread')}');
+    notifyListeners();
+  }
+
   Future<void> refreshHistory(
       BuildContext context, UserModel user, String role) async {
+    print("ngefetch cak");
     await Future.delayed(const Duration(seconds: 1)); // Simulasi delay
     await fetchHistory(context, user, role, forceRefresh: true);
   }
@@ -97,6 +147,20 @@ class HistoryProvider with ChangeNotifier {
     _lastFetchTimeByRole[role] = null;
     _activeRequests.remove(role);
     notifyListeners();
+  }
+
+  void updateSelectedPesanan(Pesanan updatedPesanan) {
+    selectedPesanan = updatedPesanan;
+    notifyListeners();
+  }
+
+  void updatedPesanan(Pesanan updatedPesanan, String role) {
+    final index = _listPesananByRole[role]!
+        .indexWhere((pesanan) => pesanan.id == updatedPesanan.id);
+    if (index != -1) {
+      _listPesananByRole[role]![index] = updatedPesanan;
+      notifyListeners();
+    }
   }
 
   // Method untuk clear semua data

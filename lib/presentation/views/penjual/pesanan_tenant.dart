@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -94,7 +95,7 @@ class _PesananTenantState extends State<PesananTenant> {
           title: Text(
             'Pesanan',
             style: GoogleFonts.poppins(
-              color: AppColors.textColorBlack,
+              color: AppColors.primaryColor,
               fontWeight: semibold,
               fontSize: 20,
             ),
@@ -111,7 +112,7 @@ class _PesananTenantState extends State<PesananTenant> {
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: AppColors.primaryColor,
             labelStyle: GoogleFonts.poppins(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: medium,
             ),
             tabs: OrderStatus.values
@@ -119,7 +120,6 @@ class _PesananTenantState extends State<PesananTenant> {
                       child: Text(
                         status.label,
                         style: GoogleFonts.poppins(
-                          color: AppColors.textColorBlack,
                           fontSize: 12,
                         ),
                       ),
@@ -138,9 +138,8 @@ class _PesananTenantState extends State<PesananTenant> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   itemCount: 2,
-                  itemBuilder: (context, index) => ShimmerCard(
-                    pageType: 'pesanan',
-                  ),
+                  itemBuilder: (context, index) =>
+                      ShimmerCard.buildPesananPageShimmer(status),
                 ),
               );
             }
@@ -148,8 +147,10 @@ class _PesananTenantState extends State<PesananTenant> {
               return RefreshIndicator(
                 backgroundColor: AppColors.backgroundColor,
                 color: AppColors.primaryColor,
-                onRefresh: () =>
-                    orderProvider.fetchOrders(context, user.token, status),
+                onRefresh: () {
+                  orderProvider.clearError();
+                  return orderProvider.fetchOrders(context, user.token, status);
+                },
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
@@ -158,14 +159,137 @@ class _PesananTenantState extends State<PesananTenant> {
                         kBottomNavigationBarHeight -
                         80,
                     child: Center(
-                      child: Text(
-                        'Pesanan ${status.label} kosong',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.textColorBlack,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
+                        child: orderProvider.errorMessage != null
+                            ? orderProvider.errorMessage!.contains('lookup') ||
+                                    orderProvider.errorMessage!
+                                        .contains('Connection')
+                                ? Column(
+                                    spacing: 8,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image(
+                                          image: const AssetImage(
+                                              'assets/images/No-connection.png')),
+                                      Text(
+                                        'Upss Koneksimu Hilang!',
+                                        style: GoogleFonts.poppins(
+                                          color: AppColors.whiteColor900,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Cek jaringan internet kamu dulu, ya.    Tenang, kami tetap nungguin kamu balik 😄',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                          color: const Color(0xFF585858),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          orderProvider.clearError();
+                                          try {
+                                            await orderProvider.fetchOrders(
+                                                context, user.token, status);
+                                          } catch (e) {
+                                            Fluttertoast.showToast(
+                                                msg: orderProvider
+                                                    .errorMessage!);
+                                          }
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.only(top: 16),
+                                          padding: EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryColor,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              48,
+                                          child: Center(
+                                              child: Text('Coba Lagi',
+                                                  style: GoogleFonts.poppins(
+                                                    color: AppColors.whiteColor,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                  ))),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                : Column(
+                                    spacing: 8,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image(
+                                          image: const AssetImage(
+                                              'assets/images/No-connection.png')),
+                                      Text(
+                                        'Gagal memuat pesanan!',
+                                        style: GoogleFonts.poppins(
+                                          color: AppColors.whiteColor900,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Memuat pesanan gagal, silahkan coba lagi',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                          color: const Color(0xFF585858),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          orderProvider.clearError();
+                                          try {
+                                            await orderProvider.fetchOrders(
+                                                context, user.token, status);
+                                          } catch (e) {
+                                            Fluttertoast.showToast(
+                                                msg: orderProvider
+                                                    .errorMessage!);
+                                          }
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.only(top: 16),
+                                          padding: EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryColor,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              48,
+                                          child: Center(
+                                              child: Text('Coba Lagi',
+                                                  style: GoogleFonts.poppins(
+                                                    color: AppColors.whiteColor,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                  ))),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                            : Center(
+                                child: Text(
+                                  'Pesanan ${status.label} kosong',
+                                  style: GoogleFonts.poppins(
+                                    color: AppColors.textColorBlack,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              )),
                   ),
                 ),
               );

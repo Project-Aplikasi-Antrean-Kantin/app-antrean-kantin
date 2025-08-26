@@ -86,28 +86,40 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         backgroundColor: AppColors.backgroundColor,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
                 child: Column(
-                  spacing: 12,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
                   children: [
-                    Center(
-                      child: Image(
-                        height: 150,
-                        width: 150,
-                        image: const AssetImage(
-                            "assets/images/logo-with-text.png"),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      child: Center(
+                        child: Image(
+                          width: 150,
+                          image:
+                              const AssetImage("assets/images/Logo Header.png"),
+                        ),
                       ),
                     ),
-                    Text('Atur Ulang Sandi',
-                        style: TextStyle(
+                    Text('Atur Ulang Password',
+                        style: GoogleFonts.poppins(
                           color: AppColors.primaryColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          height: 1.50,
                         )),
+                    Text(
+                      'Pastikan kamu tidak melupkan kata sandimu lagi yaa...',
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                     CustomTextFormField(
+                      labelColor: AppColors.primaryColor,
                       label: 'Email',
                       boldLabel: true,
                       controller: _emailController,
@@ -123,6 +135,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               _passwordConfirmController.text;
                         })
                       },
+                      labelColor: AppColors.primaryColor,
                       label: 'Password',
                       boldLabel: true,
                       controller: _passwordController,
@@ -151,8 +164,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               _passwordConfirmController.text;
                         })
                       },
+                      labelColor: AppColors.primaryColor,
                       label: 'Konfirmasi Password',
                       boldLabel: true,
+                      errorText: isPasswordEqual ? null : 'Password tidak sama',
                       controller: _passwordConfirmController,
                       hintText: 'Konfirmasi Password Baru',
                       inputType: TextInputType.emailAddress,
@@ -173,27 +188,26 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         },
                       ),
                     ),
-                    isPasswordEqual &&
-                            _passwordController.text.isNotEmpty &&
-                            _passwordConfirmController.text.isNotEmpty
-                        ? Container()
-                        : Text(
-                            'Password tidak sama',
+                    _passwordController.text.isNotEmpty &&
+                            _passwordConfirmController.text.isNotEmpty &&
+                            !isPasswordEqual
+                        ? Text(
+                            'Konfirmasi password kamu tidak sesuai',
                             style: GoogleFonts.poppins(
                               color: Colors.red,
                               fontSize: 12,
                             ),
-                          ),
+                          )
+                        : SizedBox.shrink(),
                     GestureDetector(
                       onTap: _isLoading
                           ? null
                           : () => _handleResetPassword(authProvider),
                       child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        height: 45,
+                        height: 50,
                         decoration: BoxDecoration(
                           color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.07),
@@ -226,7 +240,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                   ],
                                 )
                               : Text(
-                                  "Masuk",
+                                  "Kirim",
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
                                     fontWeight: medium,

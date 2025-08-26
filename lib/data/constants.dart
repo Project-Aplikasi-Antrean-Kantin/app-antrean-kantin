@@ -1,17 +1,10 @@
-/// A class containing constants used in the Masbro application.
+import 'package:flutter/foundation.dart';
+
 abstract class MasbroConstants {
-  /// production server
-  static const String baseUrl = 'https://foodlabpens.com';
+  static const String _prodUrl = 'http://128.199.133.57';
+  static const String _devUrl = 'http://128.199.133.57';
 
-  /// The base URL FoodLab API
-  // static const String baseUrl = 'http://68.183.176.53';
+  static String get baseUrl => kReleaseMode ? _prodUrl : _devUrl;
 
-  /// staging server
-  // static const String baseUrl = 'http://143.198.85.97';
-
-  /// PENS base URL
-  // static const String baseUrl = 'https://ubisma.pens.ac.id';
-
-  /// full API endpoint URLR
-  static const String url = '$baseUrl/api';
+  static String get url => '$baseUrl/api';
 }

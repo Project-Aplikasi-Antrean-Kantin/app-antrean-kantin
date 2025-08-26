@@ -15,6 +15,7 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -218,31 +219,35 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 12,
                 children: [
-                  Center(
-                    child: Image(
-                      height: 150,
-                      width: 150,
-                      image:
-                          const AssetImage("assets/images/logo-with-text.png"),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    child: Center(
+                      child: Image(
+                        width: 150,
+                        image:
+                            const AssetImage("assets/images/Logo Header.png"),
+                      ),
                     ),
                   ),
                   Text(
                     'Masuk',
                     style: GoogleFonts.poppins(
-                      color: AppColors.textColorBlack,
+                      color: AppColors.primaryColor,
                       fontSize: 32,
-                      fontWeight: semibold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
                     'Pastikan kamu sudah mendaftar yaa ☺️',
+                    textAlign: TextAlign.justify,
                     style: GoogleFonts.poppins(
-                      color: AppColors.textColorBlack,
-                      fontSize: 12,
+                      color: AppColors.blackColor,
+                      fontSize: 13,
                       fontWeight: regular,
                     ),
                   ),
                   CustomTextFormField(
+                    labelColor: AppColors.primaryColor,
                     label: 'Email',
                     controller: _emailController,
                     hintText: 'Alamat email kamu',
@@ -252,8 +257,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   CustomTextFormField(
                     label: 'Password',
+                    labelColor: AppColors.primaryColor,
                     controller: _passwordController,
-                    hintText: 'Kata sandi',
+                    hintText: 'Masukkan password kamu',
                     obscureText: _showPassword,
                     isRequired: true,
                     errorText: passwordError,
@@ -275,58 +281,25 @@ class _LoginPageState extends State<LoginPage> {
                       alignment: Alignment.centerRight,
                       child: Text(
                         'Lupa Password?',
-                        style: TextStyle(color: AppColors.selectedIconColor),
+                        style: GoogleFonts.poppins(
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 30),
-                  GestureDetector(
-                    onTap: _isLoading ? null : () => _handleLogin(authProvider),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      height: 45,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: _isLoading
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 3,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(width: 12),
-                                  Text(
-                                    "Memproses...",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                "Masuk",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontWeight: medium,
-                                  fontSize: 15,
-                                ),
-                              ),
+                  PrimaryButton(
+                    isLoading: _isLoading,
+                    borderRadius: 20,
+                    onPressed: () =>
+                        _isLoading ? null : _handleLogin(authProvider),
+                    child: Center(
+                      child: Text(
+                        "Masuk",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: medium,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),

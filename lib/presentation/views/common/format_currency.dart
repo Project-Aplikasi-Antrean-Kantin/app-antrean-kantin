@@ -4,7 +4,7 @@ class FormatCurrency {
   static String intToStringCurrency(int amount) {
     final formatCurrency = NumberFormat.currency(
       locale: 'id_ID',
-      symbol: 'Rp',
+      symbol: '',
       decimalDigits: 0,
     );
     return formatCurrency.format(amount);
@@ -31,7 +31,7 @@ class FormatCurrency {
   static String stringCurrency(String amount) {
     final formatCurrency = NumberFormat.currency(
       locale: 'id_ID',
-      symbol: 'Rp',
+      symbol: '',
       decimalDigits: 0,
     );
     // Convert String to int (or double if needed)

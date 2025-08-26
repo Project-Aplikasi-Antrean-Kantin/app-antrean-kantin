@@ -28,6 +28,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> removeUserPhoto() async {
+    user.gambar = null;
+    notifyListeners();
+  }
+
   // Future<bool> login(String email, String password, String token) async {
   //   try {
   //     UserModel? user =
@@ -147,7 +152,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> authWithToken({
+  Future<({bool success, UserModel? user})> authWithToken({
     void Function(dynamic)? errorCallback,
   }) async {
     try {
@@ -155,27 +160,48 @@ class AuthProvider extends ChangeNotifier {
       UserModel result = await AuthRemoteDataSource().loginWithToken(
         (await tokenManager.getToken())!,
       );
+      print('result iki cok $result');
 
       _user = result;
       tokenManager.putToken(result.token);
       notifyListeners();
-      return true;
+      return (success: true, user: result);
     } on SocketException {
       errorCallback?.call("TUKU PAKTEAN SEK COKKKK");
-      return false;
+      return (success: false, user: null);
     } catch (error) {
       errorCallback?.call(error);
-      return false;
+      return (success: false, user: null);
     }
   }
 
-  Future<void> updateTenantStatus(String token, bool status) async {
+  void setImage(String image) {
+    print("image: $image");
+    _user?.gambar = image;
+    notifyListeners();
+  }
+
+  Future<UserModel> authMe(String token) async {
     try {
-      await TenantRemoteDataSource().updateStatusTenant(token, status);
-      _user?.isOnline = status; // Ubah langsung
-      notifyListeners(); // Beritahu widget bahwa state berubah
+      return await AuthRemoteDataSource().authMe(token);
     } catch (e) {
-      print("Error updating tenant status: $e");
+      rethrow;
+    }
+  }
+
+  Future<({bool success, String? error})> updateTenantStatus(
+      String token, bool status) async {
+    try {
+      final success =
+          await TenantRemoteDataSource().updateTenantStatus(token, status);
+      if (success.success) {
+        _user?.isOnline = status;
+        notifyListeners();
+        return (success: true, error: null);
+      }
+      return (success: false, error: success.error);
+    } catch (e) {
+      return (success: false, error: e.toString());
     }
   }
 

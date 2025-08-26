@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -68,7 +69,7 @@ class _OpenEmailState extends State<OpenEmail> {
 
   Future<void> checkTimeDifference() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedTimeStr = prefs.getString('last_send_email');
+    final savedTimeStr = prefs.getString('last_send_verify_email');
 
     if (savedTimeStr == null) {
       setState(() {
@@ -80,12 +81,12 @@ class _OpenEmailState extends State<OpenEmail> {
         final now = DateTime.now();
         final minutesDiff = now.difference(savedTime).inMinutes;
         final secondsDiff = now.difference(savedTime).inSeconds;
-        if (minutesDiff >= 60) {
+        if (minutesDiff >= 10) {
           setState(() => showButton = true);
         } else {
           setState(() {
             showButton = false;
-            _secondsRemaining = 3600 - secondsDiff;
+            _secondsRemaining = 600 - secondsDiff;
           });
           startCountdown();
         }
@@ -100,205 +101,163 @@ class _OpenEmailState extends State<OpenEmail> {
     final authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: Padding(
-        padding: const EdgeInsets.all(32),
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 12,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Image(
-                height: 150,
-                width: 150,
-                image: AssetImage("assets/images/logo-with-text.png"),
-              ),
-              const Image(
-                height: 150,
-                width: 150,
-                image: AssetImage("assets/images/lupa-password.png"),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.isResetPassword
-                        ? 'Atur Ulang Sandi'
-                        : 'Verifikasi Email (Estimasi 5 Menit)',
-                    style: const TextStyle(
-                      color: Color(0xFF06144C),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      height: 1.33,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Kami telah mengirim email verifikasi. Silakan cek kotak masuk kamu untuk melanjutkan proses pendaftaran akun FoodLAB.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.primaryColor.withOpacity(0.5),
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () async {
-                  const intent = AndroidIntent(
-                    action: 'android.intent.action.MAIN',
-                    package: 'com.google.android.gm',
-                    componentName:
-                        'com.google.android.gm.ConversationListActivityGmail',
-                    flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
-                  );
-
-                  try {
-                    await intent.launch();
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("Gagal membuka aplikasi Gmail")),
-                    );
-                  }
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.07),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: SingleChildScrollView(
+            child: Column(
+              spacing: 12,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 14),
                   child: Center(
-                    child: Text(
-                      widget.isResetPassword
-                          ? "Buka Email"
-                          : "Verifikasi Email",
+                    child: Image(
+                      width: 150,
+                      image: const AssetImage("assets/images/Logo Header.png"),
+                    ),
+                  ),
+                ),
+                SvgPicture.asset('assets/images/verifikasi-email.svg'),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.isResetPassword ? 'Atur Password' : 'Buka Email',
                       style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: medium,
-                        fontSize: 15,
+                        color: AppColors.primaryColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        height: 1.33,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Kami telah mengirim email verifikasi. Silakan cek kotak masuk kamu untuk melanjutkan proses pendaftaran akun FoodLAB.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.blackColor,
+                      ),
+                    ),
+                  ],
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    const intent = AndroidIntent(
+                      action: 'android.intent.action.MAIN',
+                      package: 'com.google.android.gm',
+                      componentName:
+                          'com.google.android.gm.ConversationListActivityGmail',
+                      flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+                    );
+
+                    try {
+                      await intent.launch();
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("Gagal membuka aplikasi Gmail")),
+                      );
+                    }
+                  },
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.07),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Buka Email",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: medium,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              if (!widget.isResetPassword &&
-                  (widget.email != null && widget.email!.isNotEmpty))
-                Column(spacing: 12, children: [
-                  Text(
-                    'Belum menerima email verifikasi?',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.primaryColor.withOpacity(0.5),
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      if (isEmailSent) {
-                        return;
-                      }
-                      ;
-                      if (!showButton) {
-                        Fluttertoast.showToast(
-                            msg: 'Cek Emailmu dulu',
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white);
-                        return;
-                      }
-                      ;
-                      try {
-                        setState(() {
-                          isEmailSent = true;
-                        });
-                        final success =
-                            await authProvider.resendVerify(widget.email!);
-                        if (success) {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setString(
-                            'last_send_email',
-                            DateTime.now().toString(),
-                          );
-                          Fluttertoast.showToast(
-                              msg: 'Email berhasil dikirim',
-                              backgroundColor: Colors.green,
-                              textColor: Colors.white);
-                          checkTimeDifference();
-                        }
-                        setState(() {
-                          isEmailSent = false;
-                        });
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Gagal membuka aplikasi Gmail")),
-                        );
-                        setState(() {
-                          isEmailSent = false;
-                        });
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      height: 45,
-                      decoration: BoxDecoration(
-                        color: showButton
-                            ? AppColors.secondaryColor
-                            : AppColors.secondaryColor.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                if (!widget.isResetPassword)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Belum menerima email verifikasi?',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.primaryColor.withOpacity(0.5),
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          if (isEmailSent) return;
+                          if (!showButton) {
+                            Fluttertoast.showToast(
+                              msg: 'Cek Emailmu dulu',
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                            );
+                            return;
+                          }
+
+                          try {
+                            setState(() {
+                              isEmailSent = true;
+                            });
+                            final success =
+                                await authProvider.resendVerify(widget.email!);
+                            if (success) {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setString(
+                                'last_send_verify_email',
+                                DateTime.now().toString(),
+                              );
+                              Fluttertoast.showToast(
+                                msg: 'Email berhasil dikirim',
+                                backgroundColor: Colors.green,
+                                textColor: Colors.white,
+                              );
+                              checkTimeDifference();
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text("Gagal membuka aplikasi Gmail")),
+                            );
+                          } finally {
+                            setState(() {
+                              isEmailSent = false;
+                            });
+                          }
+                        },
+                        child: Text(
+                          showButton
+                              ? isEmailSent
+                                  ? 'Tunggu...'
+                                  : 'Kirim Ulang'
+                              : 'Tunggu ${formatDuration(_secondsRemaining)}',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.primaryColor,
+                            fontWeight: semibold,
+                            fontSize: 14,
                           ),
-                        ],
+                        ),
                       ),
-                      child: Center(
-                        child: isEmailSent
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 3,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(width: 12),
-                                  Text(
-                                    "Memproses...",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                showButton
-                                    ? 'Kirim Ulang'
-                                    : 'Kirim Ulang ${formatDuration(_secondsRemaining)}',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontWeight: medium,
-                                  fontSize: 15,
-                                ),
-                              ),
-                      ),
-                    ),
+                    ],
                   ),
-                ])
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,8 +1,12 @@
 import 'dart:async';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -12,8 +16,13 @@ import 'package:testgetdata/presentation/provider/coin_provider.dart';
 import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/kode_va_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/pembayaran_top_up.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/payment_topup_dialog.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
 class TopupPage extends StatefulWidget {
   final String email;
@@ -25,11 +34,15 @@ class TopupPage extends StatefulWidget {
 }
 
 class _TopupPageState extends State<TopupPage> {
-  final List<int> nominalList = [5000, 10000, 25000, 50000, 100000, 200000];
+  final List<int> nominalList = [10000, 15000, 20000, 30000, 50000, 100000];
   int? _selectedNominal;
   DateTime? _lastFetch;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  String? selectedValue;
+  bool isLoading = false;
 
+  List<String> _paymentMethods =  [
+  ];
   @override
   void initState() {
     super.initState();
@@ -39,12 +52,9 @@ class _TopupPageState extends State<TopupPage> {
 
   void _initializeProviders() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final coinProvider = Provider.of<CoinProvider>(context, listen: false);
     final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
     final user = authProvider.user;
 
-    coinProvider.getHistoryCoin(user.token);
-    coinProvider.getCoinAmount(user.token);
     topUpProvider.getDataTopUp(user.token);
   }
 
@@ -74,14 +84,14 @@ class _TopupPageState extends State<TopupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final coinProvider = Provider.of<CoinProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    final topUpProvider = Provider.of<TopupProvider>(context);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: _buildAppBar(),
-        body: _buildBody(coinProvider),
-        bottomNavigationBar: _buildBottomNavigationBar(),
+        body: _buildBody(authProvider, topUpProvider),
       ),
     );
   }
@@ -93,7 +103,7 @@ class _TopupPageState extends State<TopupPage> {
       backgroundColor: AppColors.backgroundColor,
       toolbarHeight: 50,
       title: Text(
-        'TopUp',
+        'Isi Saldo',
         style: GoogleFonts.poppins(
           color: AppColors.textColorBlack,
           fontSize: 18,
@@ -104,48 +114,278 @@ class _TopupPageState extends State<TopupPage> {
     );
   }
 
-  Widget _buildBody(CoinProvider coinProvider) {
+  Widget _buildBody(AuthProvider authProvider, TopupProvider topUpProvider) {
+    final manualTopUp = topUpProvider.manualTransfer == "1" ||
+        selectedValue == 'VA Mandiri' ||
+        selectedValue == 'QRIS';
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildCoinBalance(coinProvider),
-            const SizedBox(height: 10),
+            SvgPicture.asset('assets/images/koin-logo.svg', height: 50),
+            const SizedBox(height: 16),
+            Column(
+              spacing: 8,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'FoodLAB Koin',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.primaryColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    height: 1.50,
+                  ),
+                ),
+                Text(
+                  '${authProvider.user.nama}',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.primaryColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    height: 1.50,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             _buildNominalSelection(),
-            const SizedBox(height: 20),
-            _buildTransactionList(coinProvider),
+            const SizedBox(height: 16),
+            _buildDropdown(topUpProvider),
+            const SizedBox(height: 12),
+            if (selectedValue != null)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '*',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      (selectedValue != 'VA Mandiri' && selectedValue != 'QRIS')
+                          ? 'Pengisian saldo dengan metode ini hanya dilayani pada jam tertentu dengan durasi 30 menit (09.00, 12.00, 15.00, 18.00)'
+                          : 'Lakukan refresh halaman beranda setelah pembayaran dengan cara scroll ke atas pada halaman beranda!',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 28),
+            PrimaryButton(
+              isLoading: isLoading,
+              waitingText: topUpProvider.manualTransfer == "1"
+                  ? 'Pilih Nominal Terlebih Dahulu'
+                  : 'Metode ini tidak tersedia, coba lain waktu',
+              isEnabled: selectedValue != null &&
+                  _selectedNominal != null &&
+                  manualTopUp,
+              child: Text('Bayar',
+                  style: GoogleFonts.poppins(
+                    color: selectedValue != null && _selectedNominal != null
+                        ? AppColors.whiteColor
+                        : AppColors.blackColor300,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  )),
+              onPressed: () async {
+                final internetConnection = await hasInternetAccess();
+                if (!internetConnection) {
+                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  return;
+                }
+                if (selectedValue != null && _selectedNominal != null) {
+                  await topUpProvider.getDataTopUp(authProvider.user.token);
+                  print(
+                      "aktifVa: ${topUpProvider.aktifVa}, aktifQris: ${topUpProvider.aktifQris}");
+                  if (selectedValue == 'VA Mandiri' &&
+                      topUpProvider.aktifVa == '0') {
+                    setState(() {
+                      selectedValue = null;
+                      _selectedNominal = null;
+                    });
+                    Fluttertoast.showToast(
+                      msg: 'Metode VA Mandiri tidak tersedia',
+                      backgroundColor: AppColors.errorColor,
+                      textColor: Colors.white,
+                    );
+                    return;
+                  }
+
+                  if (selectedValue == 'QRIS' &&
+                      topUpProvider.aktifQris == '0') {
+                    setState(() {
+                      selectedValue = null;
+                      _selectedNominal = null;
+                    });
+                    Fluttertoast.showToast(
+                      msg: 'Metode QRIS tidak tersedia',
+                      backgroundColor: AppColors.errorColor,
+                      textColor: Colors.white,
+                    );
+                    return;
+                  }
+
+                  if (selectedValue == 'VA Mandiri' &&
+                      topUpProvider.aktifVa == '1') {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    try {
+                      final success = await topUpProvider.createVirtualAccount(
+                          authProvider.user.token, _selectedNominal.toString());
+                      if (success && topUpProvider.topUp != null) {
+                        Fluttertoast.showToast(
+                          msg: "Virtual Account berhasil dibuat",
+                          backgroundColor: AppColors.successColor,
+                          textColor: Colors.white,
+                        );
+                        Navigator.pushReplacement(
+                            context,
+                            CustomPageBuilder(
+                                page: KodeVaPage(
+                                    currentVa: topUpProvider.topUp!)));
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(e.toString()),
+                      ));
+                    } finally {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
+                  } else if (selectedValue == 'QRIS' &&
+                      topUpProvider.aktifQris == '1') {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    try {
+                      final success = await topUpProvider.createQRIS(
+                          authProvider.user.token, _selectedNominal.toString());
+                      if (success && topUpProvider.topUp != null) {
+                        Navigator.pushReplacement(
+                            context,
+                            CustomPageBuilder(
+                                page: KodeVaPage(
+                                    currentVa: topUpProvider.topUp!)));
+                        Fluttertoast.showToast(
+                          msg: "QRIS berhasil dibuat",
+                          backgroundColor: AppColors.successColor,
+                          textColor: Colors.white,
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(e.toString()),
+                      ));
+                    } finally {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
+                  } else if (selectedValue != 'QRIS' ||
+                      selectedValue != 'VA Mandiri') {
+                    if (topUpProvider.manualTransfer == "1") {
+                      Navigator.pushReplacement(
+                          context,
+                          CustomPageBuilder(
+                              page: PembayaranTopUp(
+                                  selectedMethod: selectedValue!,
+                                  selectedNominal: _selectedNominal!)));
+                    } else {
+                      Fluttertoast.showToast(
+                          msg:
+                              "Mohon maaf, manual transfer tidak tersedia saat ini",
+                          backgroundColor: AppColors.errorColor,
+                          textColor: Colors.white);
+                    }
+                  }
+                }
+              },
+              borderRadius: 20,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCoinBalance(CoinProvider coinProvider) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          "Saldo Koin: ",
+  Widget _buildDropdown(TopupProvider topUpProvider) {
+    if (topUpProvider.paymentMethods.isEmpty) return Container();
+    return DropdownButtonHideUnderline(
+      child: DropdownButton2<String>(
+        iconStyleData: IconStyleData(
+            icon: Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Icon(
+            Iconsax.arrow_down_1_copy,
+            color: selectedValue != null
+                ? AppColors.primaryColor
+                : AppColors.blackColor400,
+          ),
+        )),
+        isExpanded: true,
+        hint: Text(
+          'Pilih Metode Bayar',
           style: GoogleFonts.poppins(
-              fontSize: 14, color: AppColors.textColorBlack),
+            fontSize: 14,
+            color: AppColors.blackColor400,
+          ),
         ),
-        Row(
-          children: [
-            Icon(Icons.toll, size: 30, color: Colors.yellow[700]),
-            const SizedBox(width: 5),
-            Text(
-              FormatCurrency.intToStringCoin(coinProvider.saldoKoin),
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                color: AppColors.textColorBlack,
-                fontWeight: semibold,
-              ),
+        items: topUpProvider.paymentMethods
+            .map((ruangan) => DropdownMenuItem<String>(
+                  value: ruangan,
+                  child: Text(
+                    ruangan,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: AppColors.primaryColor,
+                      fontWeight: regular,
+                    ),
+                  ),
+                ))
+            .toList(),
+        value: selectedValue,
+        onChanged: (value) {
+          setState(() {
+            selectedValue = value;
+          });
+        },
+        buttonStyleData: ButtonStyleData(
+          height: 60,
+          decoration: BoxDecoration(
+            border: Border.all(
+              width: 1,
+              color: selectedValue != null
+                  ? AppColors.primaryColor300
+                  : AppColors.blackColor400,
             ),
-          ],
+            borderRadius: const BorderRadius.all(
+              Radius.circular(20),
+            ),
+          ),
         ),
-      ],
+        dropdownStyleData: const DropdownStyleData(
+          maxHeight: 200,
+          elevation: 4,
+          decoration: BoxDecoration(
+            color: AppColors.backgroundColor,
+            borderRadius: BorderRadius.all(
+              Radius.circular(10),
+            ),
+          ),
+        ),
+        menuItemStyleData: const MenuItemStyleData(
+          height: 40,
+        ),
+      ),
     );
   }
 
@@ -156,9 +396,9 @@ class _TopupPageState extends State<TopupPage> {
         Text(
           "Pilih Nominal",
           style: GoogleFonts.poppins(
-            fontSize: 20,
-            color: AppColors.textColorBlack,
-            fontWeight: FontWeight.w500,
+            fontSize: 16,
+            color: AppColors.blackColor,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 10),
@@ -182,11 +422,11 @@ class _TopupPageState extends State<TopupPage> {
                   color: isSelected
                       ? AppColors.primaryColor.withOpacity(0.1)
                       : null,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
                         ? AppColors.primaryColor
-                        : AppColors.containerColorGrey,
+                        : AppColors.blackColor400,
                     width: 1,
                   ),
                 ),
@@ -197,7 +437,7 @@ class _TopupPageState extends State<TopupPage> {
                       fontSize: 16,
                       color: isSelected
                           ? AppColors.primaryColor
-                          : AppColors.textColorBlack,
+                          : AppColors.blackColor400,
                       fontWeight: isSelected ? semibold : regular,
                     ),
                   ),
@@ -207,109 +447,6 @@ class _TopupPageState extends State<TopupPage> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildTransactionList(CoinProvider coinProvider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'List Transaksi',
-          style: GoogleFonts.poppins(fontSize: 14, fontWeight: semibold),
-        ),
-        const SizedBox(height: 10),
-        Consumer<CoinProvider>(
-          builder: (context, provider, child) {
-            if (provider.isLoading) {
-              return ShimmerCard(pageType: 'listTransaksiCoin');
-            }
-            if (provider.transactionCoin.isEmpty) {
-              return const Center(child: Text('Tidak ada transaksi.'));
-            }
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: provider.transactionCoin.length,
-              itemBuilder: (context, index) {
-                final transaction = provider.transactionCoin[index];
-                return _buildTransactionItem(transaction);
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTransactionItem(dynamic transaction) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      padding: const EdgeInsets.all(10),
-      child: Row(
-        children: [
-          Icon(Icons.toll, size: 30, color: Colors.yellow[700]),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  (transaction.deskripsi ?? '').replaceAllMapped(
-                    RegExp(r'#(\d+)'),
-                    (m) => '#ORDER-0${m.group(1)}',
-                  ),
-                  style: GoogleFonts.poppins(fontSize: 12, fontWeight: regular),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  FormatDate.formatDateTimeWithWIB(transaction.createdAt),
-                  style:
-                      GoogleFonts.poppins(fontSize: 12, fontWeight: semibold),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            FormatCurrency.intToStringCoin(transaction.jumlah ?? 0),
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: semibold,
-              color: transaction.jumlah < 0 ? Colors.red : Colors.green,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      height: 75,
-      decoration: BoxDecoration(
-        color: AppColors.backgroundColor,
-        border: Border.all(width: 0.2, color: AppColors.containerColorGrey),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      child: ElevatedButton(
-        onPressed: () =>
-            PaymentTopupDialog.show(context, widget.email, _selectedNominal),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryColor,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          minimumSize: const Size(double.infinity, 50),
-        ),
-        child: Text(
-          'Topup sekarang',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: semibold,
-            fontSize: 16,
-          ),
-        ),
-      ),
     );
   }
 }

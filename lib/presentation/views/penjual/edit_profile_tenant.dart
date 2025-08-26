@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -86,6 +87,73 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
     return sizeInBytes ~/ 1024; // Convert bytes to KB
   }
 
+  Future<void> _getImageFromCamera() async {
+    final pickedImage =
+        await _imagePicker.pickImage(source: ImageSource.camera);
+    if (pickedImage != null) {
+      debugPrint('Original image path (from camera): ${pickedImage.path}');
+      final tempDir = await getTemporaryDirectory();
+      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempPath = '${tempDir.path}/$tempFileName';
+      debugPrint('Target path for compressed image: $tempPath');
+
+      try {
+        final compressedImage = await FlutterImageCompress.compressAndGetFile(
+          pickedImage.path,
+          tempPath,
+          quality: 70,
+          minWidth: 1024,
+          minHeight: 1024,
+        );
+        if (compressedImage != null) {
+          debugPrint('Compressed image path: ${compressedImage.path}');
+          selectedImagePath = compressedImage.path;
+          int imageSizeKB = await _getImageSize(selectedImagePath!);
+          debugPrint('Compressed image size: $imageSizeKB KB');
+          if (imageSizeKB > 2048) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CustomAlertDialog(
+                  title: "Peringatan!",
+                  message:
+                      "Gambar yang kamu ambil lebih dari 2MB bahkan setelah kompresi.",
+                  showCancelButton: false,
+                );
+              },
+            );
+            selectedImagePath = null;
+          }
+          setState(() {});
+        } else {
+          debugPrint('Compression returned null');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CustomAlertDialog(
+                title: "Gagal!",
+                message: "Gagal mengompresi gambar. Silakan coba lagi.",
+                showCancelButton: false,
+              );
+            },
+          );
+        }
+      } catch (e) {
+        debugPrint('Compression error: $e');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CustomAlertDialog(
+              title: "Error!",
+              message: "Terjadi kesalahan saat mengompresi gambar: $e",
+              showCancelButton: false,
+            );
+          },
+        );
+      }
+    }
+  }
+
   Future<void> _getImageFromGallery() async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
@@ -161,10 +229,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
     final data = {
       'nama_tenant': namaTenantController.text,
       'nama_kavling': nomorKavlingController.text,
-      'no_rekening_toko': nomorRekeningTokoController.text,
-      'no_rekening_pribadi': nomorRekeningPribadiController.text,
-      'jam_buka': selectedOpenTime,
-      'jam_tutup': selectedCloseTime,
       'gambar': selectedImagePath,
     };
 
@@ -193,290 +257,325 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: AppColors.backgroundColor,
-        scrolledUnderElevation: 0,
-        toolbarHeight: 50,
-        title: Text(
-          'Edit Profil Tenant',
-          style: GoogleFonts.poppins(
-            fontSize: 18,
-            color: AppColors.textColorBlack,
-            fontWeight: semibold,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.keyboard_backspace,
-              color: Colors.black, size: 24),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
-            margin: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tampilan Pembeli',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: semibold,
-                    color: AppColors.primaryColor,
+      body: SafeArea(
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 56,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: HugeIcon(
+                                icon: HugeIcons.strokeRoundedArrowLeft02,
+                                color: AppColors.blackColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Text(
+                          'Edit Profil Tenant',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blackColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                _buildUserPreview(tenantProvider, authProvider),
-                Text(
-                  'Form Edit Tenant',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: semibold,
-                    color: AppColors.primaryColor,
+                  Row(
+                    children: [
+                      Text(
+                        'Foto Profil Tenant',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: semibold,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                      Text(' *',
+                          style: GoogleFonts.poppins(
+                              color: Colors.red,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 10),
-                _buildEditForm(tenantProvider),
-                const SizedBox(height: 20),
-              ],
+                  _buildUserPreview(tenantProvider, authProvider),
+                  _buildEditForm(tenantProvider),
+                ],
+              ),
             ),
           ),
         ),
       ),
-      bottomNavigationBar:
-          _buildBottomNavigationBar(tenantProvider, authProvider),
+      bottomNavigationBar: SafeArea(
+          child: _buildBottomNavigationBar(tenantProvider, authProvider)),
     );
   }
 
   Widget _buildUserPreview(
       TenantProvider tenantProvider, AuthProvider authProvider) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
-        color: authProvider.user.isOnline == true
-            ? AppColors.containerColorWhite
-            : Colors.grey.shade300,
       ),
-      child: Column(
+      child: Row(
+        spacing: 8,
         children: [
           Container(
-            height: 200,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(10),
-                topLeft: Radius.circular(10),
-              ),
-              child: ColorFiltered(
-                colorFilter: authProvider.user.isOnline == true
-                    ? const ColorFilter.mode(
-                        Colors.transparent, BlendMode.multiply)
-                    : const ColorFilter.matrix(<double>[
-                        0.2126,
-                        0.7152,
-                        0.0722,
-                        0,
-                        0,
-                        0.2126,
-                        0.7152,
-                        0.0722,
-                        0,
-                        0,
-                        0.2126,
-                        0.7152,
-                        0.0722,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        1,
-                        0,
-                      ]),
-                child: Stack(
-                  children: [
-                    const ShimmerLoadingWidget(
-                      shimmerContainerImage: true,
-                      padding: EdgeInsets.zero,
-                      heightContainerImage: 200,
-                      widhtContainerImage: double.infinity,
-                    ),
-                    if (tenantProvider.tenant?.gambar != null)
-                      ImageByUrl(
-                        url: tenantProvider.tenant!.gambar,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: 200,
-                      )
-                    else
-                      _buildDummyImage(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            tenantProvider.tenant?.namaTenant ?? '',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.textColorBlack,
-                              fontSize: 16,
-                              fontWeight: semibold,
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          if (authProvider.user.isOnline == false)
-                            Text(
-                              'Tutup',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.red,
-                                fontWeight: medium,
-                              ),
-                            ),
-                        ],
-                      ),
-                      Text(
-                        'Aneka makanan mulai dari ${FormatCurrency.intToStringCurrency(tenantProvider.tenant?.range ?? 0)}',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.textColorBlack,
-                          fontSize: 12,
-                          fontWeight: regular,
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              image: selectedImagePath != null
+                  ? DecorationImage(
+                      image: FileImage(File(selectedImagePath!)),
+                      fit: BoxFit.cover,
+                    )
+                  : tenantProvider.tenant?.gambar != null
+                      ? DecorationImage(
+                          image: NetworkImage(tenantProvider.tenant!.gambar),
+                          fit: BoxFit.cover,
+                        )
+                      : const DecorationImage(
+                          image: AssetImage('assets/images/dummy.jpeg'),
+                          fit: BoxFit.cover,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 5),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        width: 0.3, color: AppColors.containerColorGrey),
-                    borderRadius: const BorderRadius.all(Radius.circular(25)),
-                  ),
-                  height: 50,
-                  width: 50,
-                  child: Center(
-                    child: Text(
-                      tenantProvider.tenant?.namaKavling ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: AppColors.textColorBlack,
-                        fontWeight: bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
+          Expanded(
+              child: Column(
+            spacing: 8,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _buildBottomSheetProfile(context, authProvider);
+                },
+                child: Text('Edit Foto',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: semibold,
+                      color: AppColors.primaryColor,
+                    )),
+              ),
+              Text(
+                'Ukuran foto 1:1, pastikan ukuran sesuai dan tidak lebih dari 1 MB',
+                style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: regular,
+                    color: AppColors.blackColor),
+              )
+            ],
+          ))
         ],
       ),
     );
   }
 
-  Widget _buildDummyImage() {
-    return Image.asset(
-      'assets/images/dummy.jpeg',
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: 200,
-    );
+  Future<void> _buildBottomSheetProfile(
+      BuildContext context, AuthProvider authProvider) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                decoration: BoxDecoration(
+                    color: AppColors.whiteColor400,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 5,
+                  child: Column(
+                    spacing: 16,
+                    children: [
+                      Text(
+                        'Foto Profil',
+                        style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _getImageFromCamera();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedCamera02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Kamera',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _getImageFromGallery();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedImage02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Galeri',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (selectedImagePath != null &&
+                                  authProvider.user.gambar != null) {
+                                selectedImagePath = null;
+                                authProvider.user.gambar = null;
+                                setState(() {});
+                                print('Gambar berhasil dihapus');
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedDelete02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Hapus',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                )),
+          );
+        });
   }
 
   Widget _buildEditForm(TenantProvider tenantProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Container(
-              width: 250,
-              height: 150,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                image: selectedImagePath != null
-                    ? DecorationImage(
-                        image: FileImage(File(selectedImagePath!)),
-                        fit: BoxFit.cover,
-                      )
-                    : tenantProvider.tenant?.gambar != null
-                        ? DecorationImage(
-                            image: NetworkImage(tenantProvider.tenant!.gambar!),
-                            fit: BoxFit.cover,
-                          )
-                        : const DecorationImage(
-                            image: AssetImage('assets/images/dummy.jpeg'),
-                            fit: BoxFit.cover,
-                          ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            IconButton(
-              onPressed: _getImageFromGallery,
-              icon: const Icon(Icons.edit_square),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
         CustomTextFormField(
           label: 'Nama Tenant',
+          labelColor: AppColors.primaryColor,
           hintText: 'Tuliskan nama tenant',
           isRequired: true,
           controller: namaTenantController,
         ),
-        TimePicker(
-          label: "Jam Buka",
-          selectedTime: selectedOpenTime,
-          onTimeChanged: (newTime) => handleTimeChanged("open", newTime),
-        ),
-        TimePicker(
-          label: "Jam Tutup",
-          selectedTime: selectedCloseTime,
-          onTimeChanged: (newTime) => handleTimeChanged("close", newTime),
-        ),
+        // TimePicker(
+        //   label: "Jam Buka",
+        //   selectedTime: selectedOpenTime,
+        //   onTimeChanged: (newTime) => handleTimeChanged("open", newTime),
+        // ),
+        // TimePicker(
+        //   label: "Jam Tutup",
+        //   selectedTime: selectedCloseTime,
+        //   onTimeChanged: (newTime) => handleTimeChanged("close", newTime),
+        // ),
         CustomTextFormField(
+          labelColor: AppColors.primaryColor,
           label: 'Nomor Kavling Tenant',
           hintText: 'Tuliskan nomor kavling tenant (e.g. M12)',
           isRequired: true,
           controller: nomorKavlingController,
         ),
-        CustomTextFormField(
-          label: 'No Rekening Toko',
-          hintText: '8xxx-9xxx-4xxx',
-          inputType: TextInputType.number,
-          controller: nomorRekeningTokoController,
-        ),
-        CustomTextFormField(
-          label: 'No Rekening Pribadi',
-          hintText: '8xxx-9xxx-4xxx',
-          inputType: TextInputType.number,
-          controller: nomorRekeningPribadiController,
-        ),
+        // CustomTextFormField(
+        //   label: 'No Rekening Toko',
+        //   hintText: '8xxx-9xxx-4xxx',
+        //   inputType: TextInputType.number,
+        //   controller: nomorRekeningTokoController,
+        // ),
+        // CustomTextFormField(
+        //   label: 'No Rekening Pribadi',
+        //   hintText: '8xxx-9xxx-4xxx',
+        //   inputType: TextInputType.number,
+        //   controller: nomorRekeningPribadiController,
+        // ),
       ],
     );
   }
@@ -491,42 +590,81 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
       child: Row(
         children: [
           Expanded(
-            child: OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color.fromARGB(255, 68, 68, 68)),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white, // harus ada agar shadow muncul
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: const Text(
-                'Batal',
-                style: TextStyle(color: Color.fromARGB(255, 68, 68, 68)),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent, // tidak ada shadow
+                  surfaceTintColor: Colors.transparent, // hilangkan efek tint
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  'Batal',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 68, 68, 68),
+                  ),
+                ),
               ),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: ElevatedButton(
-              onPressed: () => _saveProfile(tenantProvider, authProvider),
-              style: ElevatedButton.styleFrom(
-                side: BorderSide(color: AppColors.primaryColor),
-                backgroundColor: AppColors.primaryColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+            child: Container(
+              margin: const EdgeInsets.only(left: 5),
+              decoration: BoxDecoration(
+                color: AppColors.primaryColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        strokeWidth: 2,
+              child: ElevatedButton(
+                onPressed: () => _saveProfile(tenantProvider, authProvider),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent, // tidak ada shadow
+                  surfaceTintColor: Colors.transparent, // hilangkan efek tint
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Simpan',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
-                    )
-                  : const Text(
-                      'Simpan',
-                      style: TextStyle(color: Colors.white),
-                    ),
+              ),
             ),
           ),
         ],

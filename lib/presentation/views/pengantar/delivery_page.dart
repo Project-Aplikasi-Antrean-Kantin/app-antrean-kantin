@@ -4,10 +4,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
+import 'package:testgetdata/presentation/views/pengantar/delivery_card.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_list.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -82,7 +85,7 @@ class _PerluPengantaranState extends State<PerluPengantaran>
           title: Text(
             'Pengantaran',
             style: GoogleFonts.poppins(
-              color: AppColors.textColorBlack,
+              color: AppColors.primaryColor,
               fontWeight: semibold,
               fontSize: 20,
             ),
@@ -108,7 +111,6 @@ class _PerluPengantaranState extends State<PerluPengantaran>
                       child: Text(
                         status.label,
                         style: GoogleFonts.poppins(
-                          color: AppColors.textColorBlack,
                           fontSize: 14,
                         ),
                       ),
@@ -117,17 +119,101 @@ class _PerluPengantaranState extends State<PerluPengantaran>
           ),
         ),
         body: TabBarView(
-          controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
+          controller: _tabController,
           children: DeliveryStatus.values.map((status) {
             final pesanan = deliveryProvider.getPesananByStatus(status);
             if (deliveryProvider.isLoading) {
-              return ListView.builder(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                itemCount: 2,
-                itemBuilder: (context, index) => ShimmerCard(
-                  pageType: 'pesanan',
+              return Skeletonizer(
+                  child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 8),
+                      itemCount: 3,
+                      itemBuilder: (context, index) => DeliveryCard(
+                          onSuccess: () {},
+                          pesanan: Pesanan.getDummyPesanan(),
+                          status: DeliveryStatus.siapDiantar,
+                          userToken: "userToken")));
+            }
+            if (deliveryProvider.errorMessage != null) {
+              return RefreshIndicator(
+                onRefresh: () => deliveryProvider.fetchOrders(
+                  user.token,
+                  status,
+                ),
+                child: Center(
+                  child: deliveryProvider.errorMessage!
+                              .contains('Failed host lookup') ||
+                          deliveryProvider.errorMessage!.contains('Connection')
+                      ? Column(
+                          spacing: 8,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image(
+                                image: const AssetImage(
+                                    'assets/images/No-connection.png')),
+                            Text(
+                              'Upss Koneksimu Hilang!',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.whiteColor900,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            Text(
+                              'Cek jaringan internet kamu dulu, ya.    Tenang, kami tetap nungguin kamu balik 😄',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFF585858),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                deliveryProvider.fetchOrders(
+                                    user.token, status);
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(top: 16),
+                                padding: EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                width: MediaQuery.of(context).size.width - 48,
+                                child: Center(
+                                    child: Text('Coba Lagi',
+                                        style: GoogleFonts.poppins(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ))),
+                              ),
+                            )
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              deliveryProvider.errorMessage ?? '',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: regular,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                deliveryProvider.fetchOrders(
+                                    user.token, status);
+                              },
+                              child: const Text("Coba Lagi"),
+                            ),
+                          ],
+                        ),
                 ),
               );
             }
@@ -135,8 +221,8 @@ class _PerluPengantaranState extends State<PerluPengantaran>
               return RefreshIndicator(
                 backgroundColor: AppColors.backgroundColor,
                 color: AppColors.primaryColor,
-                onRefresh: () =>
-                    deliveryProvider.fetchOrders(user.token, status),
+                onRefresh: () async =>
+                    await deliveryProvider.fetchOrders(user.token, status),
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
@@ -157,6 +243,7 @@ class _PerluPengantaranState extends State<PerluPengantaran>
                 ),
               );
             }
+
             return DeliveryList(
               tabController: _tabController,
               status: status,

@@ -169,35 +169,50 @@ class TenantRemoteDataSource {
     }
   }
 
-  Future<bool> updateStatusTenant(String token, bool isOnline) async {
+  Future<({bool success, String? error})> updateTenantStatus(
+    String token,
+    bool status,
+  ) async {
     try {
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse("${MasbroConstants.url}/update-user"),
         headers: {
           'Authorization': 'Bearer $token',
-          'Accept': 'application/json', // Tambahkan ini
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'isOnline': isOnline,
-        }),
+        body: jsonEncode({'isOnline': status}),
+      )
+          .timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw TimeoutException("Request timeout setelah 5 detik");
+        },
       );
-      log("Nilai isOnline yang dikirim: $isOnline");
-      print("Nilai isOnline yang dikirim: $isOnline");
-      print("Nilai isOnline yang dikirim: ${response.statusCode}");
+
+      log("Nilai isOnline yang dikirim: $status");
+      log("Status code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
-        log("success cokkkkk");
-        log("status code update status tenant: ${response.statusCode}");
-        log("body success: ${response.body}");
-        return true;
+        return (success: true, error: null);
       } else {
-        log("Failed with status code: ${response.statusCode}, body: ${response.body}");
-        return false;
+        // Coba ambil error message dari response.body
+        String? message;
+        try {
+          final body = jsonDecode(response.body);
+          message = body['message'] ?? 'Gagal update status';
+        } catch (e) {
+          message = 'Gagal update status (tidak bisa parsing respons)';
+        }
+        log("Gagal update: $message");
+        return (success: false, error: message);
       }
+    } on TimeoutException catch (e) {
+      return (success: false, error: e.message ?? 'Request timeout');
     } catch (e) {
-      log("An error occurred: $e");
-      throw Exception('Failed to update status buka tutup tenant');
+      log("Terjadi kesalahan: $e");
+      return (success: false, error: 'Terjadi kesalahan: $e');
     }
   }
 

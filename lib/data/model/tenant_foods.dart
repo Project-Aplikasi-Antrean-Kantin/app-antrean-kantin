@@ -8,7 +8,7 @@ class TenantFoods {
   int isReady;
   final dynamic deskripsi;
   final int harga;
-  final dynamic deletedAt;
+  final DateTime? deletedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   int? tenantId;
@@ -23,9 +23,9 @@ class TenantFoods {
     required this.isReady,
     required this.deskripsi,
     required this.harga,
-    required this.deletedAt,
-    required this.createdAt,
-    required this.updatedAt,
+    this.deletedAt,
+    this.createdAt,
+    this.updatedAt,
     this.tenantId,
     this.tenants,
     // this.detailMenu,
@@ -54,4 +54,8 @@ class TenantFoods {
             ? null
             : TenantModel.fromJson(json["tenants"]),
       );
+  @override
+  String toString() {
+    return 'TenantFoods: $isReady';
+  }
 }

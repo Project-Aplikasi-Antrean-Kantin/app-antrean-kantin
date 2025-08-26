@@ -27,6 +27,12 @@ class KatalogMenuProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> updateStatusReady(int menuId) async {
+    final newData = data.firstWhere((food) => food.id == menuId);
+    newData.isReady = newData.isReady == 1 ? 0 : 1;
+    notifyListeners();
+  }
+
   Future<bool> deleteFood(String token, int menuId) async {
     try {
       final result =

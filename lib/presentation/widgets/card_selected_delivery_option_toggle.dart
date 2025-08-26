@@ -25,15 +25,12 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Text(
-                'Tipe Pemesanan',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: semibold,
-                  color: AppColors.textColorBlack,
-                ),
+            Text(
+              'Tipe Pembelian',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: semibold,
+                color: AppColors.textColorBlack,
               ),
             ),
             const SizedBox(height: 15),
@@ -53,35 +50,51 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
                               fontSize: 16.0,
                             );
                           },
-                    style: ElevatedButton.styleFrom(
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.primaryColor),
+                      padding: EdgeInsets.all(16),
                       backgroundColor: cartProvider.selectedDeliveryOption == 1
                           ? AppColors.primaryColor
                           : Colors.transparent,
                       foregroundColor: cartProvider.selectedDeliveryOption == 1
                           ? Colors.white
-                          : Colors.black,
+                          : AppColors.primaryColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          bottomLeft: Radius.circular(16),
+                        ),
                       ),
                     ),
-                    child: const Text("Pesan Antar"),
+                    child: Text(
+                      "Pesan Antar",
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => cartProvider.setDeliveryOption(0),
-                    style: ElevatedButton.styleFrom(
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.primaryColor),
+                      padding: EdgeInsets.all(16),
                       backgroundColor: cartProvider.selectedDeliveryOption == 0
                           ? AppColors.primaryColor
                           : Colors.transparent,
                       foregroundColor: cartProvider.selectedDeliveryOption == 0
                           ? Colors.white
-                          : Colors.black,
+                          : AppColors.primaryColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
                       ),
                     ),
-                    child: const Text("Ambil Sendiri"),
+                    child: Text(
+                      "Ambil Sendiri",
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
               ],

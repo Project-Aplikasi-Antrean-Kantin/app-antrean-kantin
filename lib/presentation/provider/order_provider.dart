@@ -10,6 +10,9 @@ class OrderProvider with ChangeNotifier {
     OrderStatus.pesananSiapDiambil: [],
   };
 
+  String? errorMessage;
+  String? errorUpdate;
+
   bool _isLoading = false;
 
   List<Pesanan> getPesananByStatus(OrderStatus status) => _pesanan[status]!;
@@ -18,6 +21,7 @@ class OrderProvider with ChangeNotifier {
   Future<void> fetchOrders(
       BuildContext context, String token, OrderStatus status) async {
     _isLoading = true;
+    errorMessage = null;
     notifyListeners();
 
     try {
@@ -28,12 +32,18 @@ class OrderProvider with ChangeNotifier {
         allOrders.addAll(orders);
       }
       _pesanan[status] = allOrders;
+      print('pesanan masuk: ${_pesanan[status]}');
     } catch (e) {
-      debugPrint('Error fetching orders: $e');
+      errorMessage = 'Gagal memuat pesanan: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void clearError() {
+    errorMessage = null;
+    notifyListeners();
   }
 
   Future<bool> updateOrder(
@@ -44,39 +54,25 @@ class OrderProvider with ChangeNotifier {
     try {
       final success = await OrderTenantRemoteDataSource()
           .updateOrderCustomer(status, auth, id);
-      if (success) {
+      if (success.success) {
         if (status == 'pesanan_diproses') {
-          _pesanan[OrderStatus.pesananMasuk]!
-              .removeWhere((element) => element.id == id);
+          _pesanan[OrderStatus.pesananMasuk]!.remove(pesanan);
           _pesanan[OrderStatus.pesananDiproses]!.add(pesanan);
         } else if (status == 'pesanan_ditolak') {
-          _pesanan[OrderStatus.pesananMasuk]!
-              .removeWhere((element) => element.id == id);
+          _pesanan[OrderStatus.pesananMasuk]!.remove(pesanan);
+        } else if (status == 'siap_diantar' || status == 'siap_diambil') {
+          _pesanan[OrderStatus.pesananDiproses]!.remove(pesanan);
+          _pesanan[OrderStatus.pesananSiapDiambil]!.add(pesanan);
+        } else if (status == 'selesai') {
+          print('pesanan selesai ${_pesanan[OrderStatus.pesananSiapDiambil]}');
+          _pesanan[OrderStatus.pesananSiapDiambil]!.remove(pesanan);
         }
-
-        // else if (status == 'siap_diantar') {
-        //   _pesanan[OrderStatus.pesananMasuk]!
-        //       .removeWhere((element) => element.id == id);
-        // }
-        // else if (status == 'siap_diambil') {
-        //   _pesanan[OrderStatus.pesananMasuk]!
-        //       .removeWhere((element) => element.id == id);
-        // } else if (status == 'selesai') {
-        //   _pesanan[OrderStatus.pesananMasuk]!
-        //       .removeWhere((element) => element.id == id);
-        // }
-
-        /// seng siap diantar dan diantar maka dia masih stay dihalaman pengambilan
-        /// seng siap diambil dia stay di halaman pengambilan dan hilang ketika diambil
-        /// pada pesanan diproses maka diberi timeout sekitar 10 menit
-
-        else if (status == 'siap_diantar' || status == 'selesai') {
-          _pesanan[OrderStatus.pesananDiproses]!
-              .removeWhere((element) => element.id == id);
-        }
+      } else {
+        errorUpdate = success.error;
       }
-      return success;
+      return success.success;
     } catch (e) {
+      errorUpdate = e.toString();
       debugPrint('Error updating order: $e');
       notifyListeners();
       return false;
@@ -86,14 +82,29 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> cancelOrder(String auth, int id) async {
-    final success =
-        await OrderTenantRemoteDataSource().cancelOrderCustomer(auth, id);
-    if (success) {
-      _pesanan[OrderStatus.pesananMasuk]!
-          .removeWhere((element) => element.id == id);
+  Future<bool> cancelOrder(
+      String auth, int id, Pesanan pesanan, String catatanPenolakan) async {
+    if (_isLoading) return false; // Prevent concurrent updates
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final success = await OrderTenantRemoteDataSource()
+          .cancelOrderCustomer(auth, id, catatanPenolakan);
+      if (success.success) {
+        _pesanan[OrderStatus.pesananMasuk]!.remove(pesanan);
+        notifyListeners();
+      } else {
+        errorUpdate = success.error;
+      }
+      return success.success;
+    } catch (e) {
+      errorUpdate = e.toString();
+      debugPrint('Error updating order: $e');
+      notifyListeners();
+      return false;
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
-    return success;
   }
 }

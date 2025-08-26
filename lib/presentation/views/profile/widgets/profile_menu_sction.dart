@@ -1,19 +1,30 @@
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/cart_provider.dart';
+import 'package:testgetdata/presentation/provider/delivery_provider.dart';
+import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
+import 'package:testgetdata/presentation/views/penjual/edit_rekening.dart';
+import 'package:testgetdata/presentation/views/penjual/form_operational.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/profile_menu_item.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
-class ProfileMenuSection extends StatelessWidget {
+class ProfileMenuSection extends StatefulWidget {
   final UserModel user;
   final AuthProvider authProvider;
 
@@ -22,6 +33,18 @@ class ProfileMenuSection extends StatelessWidget {
     required this.user,
     required this.authProvider,
   }) : super(key: key);
+
+  @override
+  State<ProfileMenuSection> createState() => _ProfileMenuSectionState();
+}
+
+class _ProfileMenuSectionState extends State<ProfileMenuSection> {
+  bool isOnline = false;
+  @override
+  void initState() {
+    super.initState();
+    isOnline = widget.user.isOnline ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,46 +87,109 @@ class ProfileMenuSection extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(20),
       child: Column(
+        spacing: 13,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // profil penjual
-          if (user.permission.contains('read katalog')) ...[
+          if (widget.user.permission.contains('read katalog')) ...[
+            ProfileMenuItem(
+              showIconArrow: false,
+              status: isOnline,
+              icon: HugeIcons.strokeRoundedShopSign,
+              iconColor: isOnline ? Colors.green : Colors.red,
+              onChangeToggle: (selectedStatus) async {
+                final success = await widget.authProvider.updateTenantStatus(
+                  widget.user.token,
+                  selectedStatus,
+                );
+                if (success.success) {
+                  isOnline
+                      ? Fluttertoast.showToast(msg: 'Tenant Tutup')
+                      : Fluttertoast.showToast(msg: 'Tenant Buka');
+                  setState(() {
+                    isOnline = selectedStatus;
+                  });
+                } else {
+                  Fluttertoast.showToast(
+                      msg: "${success.error}",
+                      backgroundColor: AppColors.errorColor,
+                      textColor: Colors.white);
+                }
+              },
+              title: 'Tenant Buka',
+              onTap: () {},
+            ),
             Text(
-              'Penjual',
+              'Informasi Tenant',
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: semibold,
-                color: AppColors.primaryColor,
-              ),
-            ),
-            const SizedBox(height: 10),
-            ProfileMenuItem(
-              icon: Icons.storefront_outlined,
-              title: 'Edit Profil Tenant',
-              titleColor: AppColors.textColorBlack,
-              onTap: () => Navigator.of(context).push(
-                CustomPageBuilder(page: EditProfileTenant()),
+                color: AppColors.blackColor,
               ),
             ),
             ProfileMenuItem(
-              icon: Icons.library_books_outlined,
+              icon: Iconsax.shop_copy,
+              title: 'Profil Tenant',
+              titleColor: AppColors.blackColor,
+              onTap: () async {
+                final internetConnection = await hasInternetAccess();
+                if (!internetConnection) {
+                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  return;
+                }
+                Navigator.of(context).push(
+                  CustomPageBuilder(page: EditProfileTenant()),
+                );
+              },
+            ),
+            ProfileMenuItem(
+              icon: Iconsax.menu_board_copy,
               title: 'Katalog Menu',
-              titleColor: AppColors.textColorBlack,
-              onTap: () => Navigator.of(context).push(
-                CustomPageBuilder(page: KatalogMenu()),
-              ),
+              titleColor: AppColors.blackColor,
+              onTap: () async {
+                final internetConnection = await hasInternetAccess();
+                if (!internetConnection) {
+                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  return;
+                }
+                Navigator.of(context).push(
+                  CustomPageBuilder(page: KatalogMenu()),
+                );
+              },
             ),
             ProfileMenuItem(
-              status: user.isOnline,
-              icon: Icons.access_time_outlined,
-              iconColor: user.isOnline! ? Colors.green : Colors.red,
-              title: 'Status Tenant',
-              onTap: () => _showStatusBottomSheet(context, true),
+              icon: Iconsax.clock_copy,
+              title: 'Jam Operasional',
+              titleColor: AppColors.blackColor,
+              onTap: () async {
+                final internetConnection = await hasInternetAccess();
+                if (!internetConnection) {
+                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  return;
+                }
+                Navigator.of(context).push(
+                  CustomPageBuilder(page: FormOperational()),
+                );
+              },
             ),
-            const SizedBox(height: 20),
+            ProfileMenuItem(
+              icon: Iconsax.cards_copy,
+              title: 'Rekening Pencairan',
+              titleColor: AppColors.blackColor,
+              onTap: () async {
+                final internetConnection = await hasInternetAccess();
+                if (!internetConnection) {
+                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  return;
+                }
+                Navigator.of(context).push(
+                  CustomPageBuilder(page: EditRekening()),
+                );
+              },
+            ),
           ],
           //profil driver
-          if (user.permission.contains('read driver status')) ...[
+          if (widget.user.permission.contains('read driver status')) ...[
             Text(
               'Driver',
               style: GoogleFonts.poppins(
@@ -112,46 +198,52 @@ class ProfileMenuSection extends StatelessWidget {
                 color: AppColors.primaryColor,
               ),
             ),
-            const SizedBox(height: 10),
             ProfileMenuItem(
-              status: user.isOnline,
-              icon: Icons.access_time_outlined,
-              iconColor: user.isOnline! ? Colors.green : Colors.red,
+              showIconArrow: false,
+              status: isOnline,
+              icon: HugeIcons.strokeRoundedMotorbike02,
+              onChangeToggle: (selectedStatus) async {
+                final success = await widget.authProvider.updateTenantStatus(
+                  widget.user.token,
+                  selectedStatus,
+                );
+                if (success.success) {
+                  isOnline
+                      ? Fluttertoast.showToast(msg: 'Nonaktif')
+                      : Fluttertoast.showToast(msg: 'Aktif');
+                  setState(() {
+                    isOnline = selectedStatus;
+                  });
+                } else {
+                  Fluttertoast.showToast(
+                      msg: "${success.error}",
+                      backgroundColor: AppColors.errorColor,
+                      textColor: Colors.white);
+                }
+              },
               title: 'Status Driver',
-              onTap: () => _showStatusBottomSheet(context, false),
+              onTap: () {},
             ),
             const SizedBox(height: 20),
           ],
 
           // profil semua user
           Text(
-            'Pengaturan',
+            'Lainnya',
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: semibold,
               color: AppColors.primaryColor,
             ),
           ),
-          const SizedBox(height: 10),
-          ProfileMenuItem(
-            icon: Icons.account_circle_outlined,
-            title: 'Edit Profil',
-            onTap: () async {
-              final result = await Navigator.of(context).push(
-                CustomPageBuilder(page: const EditProfil()),
-              );
-              if (result == true && context.mounted) {
-                await authProvider.fetchUserData(user.token);
-              }
-            },
-          ),
+
           // ProfileMenuItem(
           //   icon: Icons.app_settings_alt_outlined,
           //   title: 'Atur Izin Latar Belakang',
           //   onTap: () => showBatteryOptimizationDialog(context),
           // ),
           ProfileMenuItem(
-            icon: Icons.logout,
+            icon: Iconsax.logout_1_copy,
             title: 'Keluar',
             showIconArrow: false,
             onTap: () => _showLogoutDialog(context),
@@ -162,6 +254,7 @@ class ProfileMenuSection extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (context) => CustomAlertDialog(
@@ -169,7 +262,13 @@ class ProfileMenuSection extends StatelessWidget {
         message: 'Apakah Anda yakin ingin keluar?',
         showCancelButton: true,
         onOkPressed: () async {
-          await authProvider.logout(user.token);
+          final internetConnection = await hasInternetAccess();
+          if (!internetConnection) {
+            Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+            return;
+          }
+          cartProvider.clearCart(false);
+          await widget.authProvider.logout(widget.user.token);
           if (context.mounted) {
             Navigator.of(context).pushAndRemoveUntil(
               CustomPageBuilder(
@@ -185,7 +284,7 @@ class ProfileMenuSection extends StatelessWidget {
   }
 
   void _showStatusBottomSheet(BuildContext context, bool isTenant) {
-    bool? selectedStatus = user.isOnline;
+    bool? selectedStatus = widget.user.isOnline;
 
     showModalBottomSheet(
       backgroundColor: AppColors.backgroundColor,
@@ -194,57 +293,59 @@ class ProfileMenuSection extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
       ),
       isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildStatusHeader(isTenant: isTenant),
-              const SizedBox(height: 15),
-              _buildStatusOption(
-                isTenant: isTenant,
-                isOnline: true,
-                selectedStatus: selectedStatus,
-                onTap: () => setModalState(() => selectedStatus = true),
-              ),
-              const SizedBox(height: 10),
-              _buildStatusOption(
-                isTenant: isTenant,
-                isOnline: false,
-                selectedStatus: selectedStatus,
-                onTap: () => setModalState(() => selectedStatus = false),
-              ),
-              const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: selectedStatus != null
-                      ? () async {
-                          await authProvider.updateTenantStatus(
-                              user.token, selectedStatus!);
-                          if (context.mounted) Navigator.pop(context);
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: selectedStatus != null
-                        ? AppColors.primaryColor
-                        : Colors.grey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+      builder: (context) => SafeArea(
+        child: StatefulBuilder(
+          builder: (context, setModalState) => Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildStatusHeader(isTenant: isTenant),
+                const SizedBox(height: 15),
+                _buildStatusOption(
+                  isTenant: isTenant,
+                  isOnline: true,
+                  selectedStatus: selectedStatus,
+                  onTap: () => setModalState(() => selectedStatus = true),
+                ),
+                const SizedBox(height: 10),
+                _buildStatusOption(
+                  isTenant: isTenant,
+                  isOnline: false,
+                  selectedStatus: selectedStatus,
+                  onTap: () => setModalState(() => selectedStatus = false),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: selectedStatus != null
+                        ? () async {
+                            await widget.authProvider.updateTenantStatus(
+                                widget.user.token, selectedStatus!);
+                            if (context.mounted) Navigator.pop(context);
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: selectedStatus != null
+                          ? AppColors.primaryColor
+                          : Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Simpan',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                    child: Text(
+                      'Simpan',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -270,11 +371,11 @@ class ProfileMenuSection extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             border: Border.all(
               width: 0.5,
-              color: user.isOnline! ? Colors.green : Colors.red,
+              color: widget.user.isOnline! ? Colors.green : Colors.red,
             ),
           ),
           child: Text(
-            user.isOnline!
+            widget.user.isOnline!
                 ? isTenant
                     ? 'Buka'
                     : 'Online'
@@ -284,7 +385,7 @@ class ProfileMenuSection extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: regular,
-              color: user.isOnline! ? Colors.green : Colors.red,
+              color: widget.user.isOnline! ? Colors.green : Colors.red,
             ),
           ),
         ),

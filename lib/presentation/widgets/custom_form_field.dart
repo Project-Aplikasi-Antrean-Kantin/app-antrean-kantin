@@ -13,6 +13,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextEditingController? controller;
   final List<TextInputFormatter>? inputFormatters;
   final String? errorText;
+  final Color? labelColor;
   final bool obscureText;
   final Widget? suffixIcon;
   final void Function(String)? onChanged;
@@ -41,6 +42,7 @@ class CustomTextFormField extends StatelessWidget {
     this.textInputAction,
     this.onFieldSubmitted,
     this.boldLabel = false,
+    this.labelColor,
   }) : super(key: key);
 
   @override
@@ -56,7 +58,7 @@ class CustomTextFormField extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontWeight: boldLabel ? FontWeight.bold : FontWeight.w600,
                 fontSize: 15,
-                color: Colors.grey[800],
+                color: labelColor ?? Colors.grey[800],
               ),
             ),
             if (isRequired)
@@ -97,39 +99,39 @@ class CustomTextFormField extends StatelessWidget {
             filled: true,
             fillColor: isEnabled ? Colors.white : Colors.grey[100],
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 15,
+              horizontal: 16,
+              vertical: 16,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(
-                color: hasError ? Colors.red : Colors.grey.shade300,
+                color: hasError ? Colors.red : AppColors.primaryColor300,
                 width: 1.2,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(
-                color: hasError ? Colors.red : Colors.grey.shade300,
+                color: hasError ? Colors.red : AppColors.primaryColor300,
                 width: 1.2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(
                 color: hasError ? Colors.red : AppColors.primaryColor,
                 width: 1.5,
               ),
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
+                color: AppColors.primaryColor300,
+                width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               borderSide: const BorderSide(
                 color: Colors.red,
                 width: 1.5,

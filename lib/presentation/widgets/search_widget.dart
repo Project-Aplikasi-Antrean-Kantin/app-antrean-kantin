@@ -177,6 +177,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 
 // ignore: must_be_immutable
@@ -238,7 +239,6 @@ class _SearchWidgetState extends State<SearchWidget> {
         vertical: widget.paddingVertical,
       ),
       child: Container(
-        height: widget.formHeight,
         decoration: BoxDecoration(
           border: Border.all(
             width: 0.3,
@@ -258,19 +258,19 @@ class _SearchWidgetState extends State<SearchWidget> {
           focusNode: _focusNode,
           controller: widget.controller,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             prefixIcon: ValueListenableBuilder<Color>(
               valueListenable: _iconColorNotifier,
               builder: (context, color, child) {
-                return Icon(
-                  Icons.search,
-                  color: color,
-                );
+                return HugeIcon(
+                    icon: HugeIcons.strokeRoundedSearch01,
+                    color: AppColors.lineColorBlack);
               },
             ),
             hintText: widget.tittle,
             hintStyle: GoogleFonts.poppins(
-              color: Colors.grey,
+              color: Colors.grey.withOpacity(0.7),
               fontSize: 14,
             ),
             filled: true,

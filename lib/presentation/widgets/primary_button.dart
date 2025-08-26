@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -17,6 +18,7 @@ class PrimaryButton extends StatelessWidget {
   final bool? reverseLoading;
   final double? borderRadius;
   final Color? forgroundColor;
+  final String? waitingText;
   const PrimaryButton({
     super.key,
     required this.child,
@@ -31,6 +33,7 @@ class PrimaryButton extends StatelessWidget {
     this.borderColor,
     this.borderRadius,
     this.forgroundColor,
+    this.waitingText,
   });
 
   @override
@@ -40,10 +43,12 @@ class PrimaryButton extends StatelessWidget {
           ? !isLoading!
               ? onPressed
               : () {}
-          : () {},
+          : () {
+              Fluttertoast.showToast(msg: waitingText ?? 'Tunggu sebentar');
+            },
       style: ElevatedButton.styleFrom(
         elevation: elevation ?? 1,
-        // padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         shape: RoundedRectangleBorder(
           // borderRadius: BorderRadius.all(
           //   Radius.circular(6.0),
@@ -66,7 +71,7 @@ class PrimaryButton extends StatelessWidget {
                 : reverseLoading!
                     ? Colors.white
                     : AppColors.containerColorGrey
-            : AppColors.containerColorWhite,
+            : AppColors.blackColor100,
         foregroundColor:
             forgroundColor ?? AppColors.primaryColor.withOpacity(0.5),
         shadowColor: elevation != 0 ? null : Colors.transparent,

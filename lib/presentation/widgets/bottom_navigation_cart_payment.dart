@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -12,6 +13,7 @@ import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/bottom_navigation_button.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/pilih_tipe_pembayaran.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
 class BottomNavigationCartPayment extends StatelessWidget {
   final CartProvider cartProvider;
@@ -54,7 +56,12 @@ class BottomNavigationCartPayment extends StatelessWidget {
       (cartProvider.roomId == null || cartProvider.roomId! <= 0);
 
   /// Navigates to the top-up page.
-  void _navigateToTopup(BuildContext context) {
+  void _navigateToTopup(BuildContext context) async {
+    final internetConnection = await hasInternetAccess();
+    if (!internetConnection) {
+      Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+      return;
+    }
     Navigator.push(
       context,
       CustomPageBuilder(page: TopupPage(email: user.email)),
@@ -92,6 +99,7 @@ class BottomNavigationCartPayment extends StatelessWidget {
                 ),
                 const SizedBox(height: _spacing),
                 BottomNavigationButton(
+                  isThere10Item: cartProvider.totalItemCount > 10,
                   isEnabled: !isCoinInsufficient,
                   color: AppColors.primaryColor,
                   onTap: cartProvider.isLoading
@@ -139,7 +147,7 @@ class _LowCoinWarning extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'Saldo Koin-mu tidak mencukupi',
+              'FoodLAB Koin-mu tidak mencukupi',
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: medium,

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -66,6 +67,12 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
         selection: TextSelection.collapsed(offset: newText.length),
       );
     });
+  }
+
+  Future<int> _getImageSize(String imagePath) async {
+    final imageFile = File(imagePath);
+    final sizeInBytes = await imageFile.length();
+    return sizeInBytes ~/ 1024; // Convert bytes to KB
   }
 
   Future<void> _getImageFromGallery() async {
@@ -197,6 +204,73 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     }
   }
 
+  Future<void> _getImageFromCamera() async {
+    final pickedImage =
+        await _imagePicker.pickImage(source: ImageSource.camera);
+    if (pickedImage != null) {
+      debugPrint('Original image path (from camera): ${pickedImage.path}');
+      final tempDir = await getTemporaryDirectory();
+      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempPath = '${tempDir.path}/$tempFileName';
+      debugPrint('Target path for compressed image: $tempPath');
+
+      try {
+        final compressedImage = await FlutterImageCompress.compressAndGetFile(
+          pickedImage.path,
+          tempPath,
+          quality: 70,
+          minWidth: 1024,
+          minHeight: 1024,
+        );
+        if (compressedImage != null) {
+          debugPrint('Compressed image path: ${compressedImage.path}');
+          selectedImagePath = compressedImage.path;
+          int imageSizeKB = await _getImageSize(selectedImagePath!);
+          debugPrint('Compressed image size: $imageSizeKB KB');
+          if (imageSizeKB > 2048) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CustomAlertDialog(
+                  title: "Peringatan!",
+                  message:
+                      "Gambar yang kamu ambil lebih dari 2MB bahkan setelah kompresi.",
+                  showCancelButton: false,
+                );
+              },
+            );
+            selectedImagePath = null;
+          }
+          setState(() {});
+        } else {
+          debugPrint('Compression returned null');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CustomAlertDialog(
+                title: "Gagal!",
+                message: "Gagal mengompresi gambar. Silakan coba lagi.",
+                showCancelButton: false,
+              );
+            },
+          );
+        }
+      } catch (e) {
+        debugPrint('Compression error: $e');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CustomAlertDialog(
+              title: "Error!",
+              message: "Terjadi kesalahan saat mengompresi gambar: $e",
+              showCancelButton: false,
+            );
+          },
+        );
+      }
+    }
+  }
+
   Future<void> _deleteMenu(UserModel user) async {
     showDialog(
       context: context,
@@ -246,209 +320,447 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: AppColors.backgroundColor,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 50,
-        title: Text(
-          isEditMode ? 'Edit Menu' : 'Tambah Menu',
-          style: GoogleFonts.poppins(
-            color: AppColors.textColorBlack,
-            fontSize: 18,
-            fontWeight: semibold,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.keyboard_backspace,
-              color: Colors.black, size: 24),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: isEditMode
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red, size: 24),
-                  onPressed: () => _deleteMenu(user),
-                ),
-              ]
-            : null,
-      ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
-            margin: const EdgeInsets.all(15),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 250,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: selectedImagePath != null
-                            ? DecorationImage(
-                                image: FileImage(File(selectedImagePath!)),
-                                fit: BoxFit.cover,
-                              )
-                            : isEditMode &&
-                                    widget.initialData!.gambar != null &&
-                                    widget.initialData!.gambar.isNotEmpty
-                                ? DecorationImage(
-                                    image: NetworkImage(
-                                      '${MasbroConstants.baseUrl}${widget.initialData!.gambar}',
-                                    ),
-                                    fit: BoxFit.cover,
-                                  )
-                                : const DecorationImage(
-                                    image:
-                                        AssetImage('assets/images/dummy.jpeg'),
-                                    fit: BoxFit.cover,
+      body: SafeArea(
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              margin: const EdgeInsets.all(15),
+              child: Column(
+                spacing: 8,
+                children: [
+                  SizedBox(
+                    height: 56,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
                                   ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: _getImageFromGallery,
-                      icon: const Icon(Icons.edit_square),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                CustomTextFormField(
-                  label: 'Nama Menu',
-                  hintText: 'Tuliskan nama menu',
-                  isRequired: true,
-                  controller: namaMenuController,
-                ),
-                CustomTextFormField(
-                  label: 'Deskripsi Menu',
-                  hintText: 'Masukan deskripsi',
-                  controller: deskripsiMenuController,
-                  maxLine: 3,
-                ),
-                CustomTextFormField(
-                  label: 'Harga Menu',
-                  hintText: 'Rp',
-                  isRequired: true,
-                  inputType: TextInputType.number,
-                  controller: hargaMenuController,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    noDotFormatter(),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'Kategori Menu',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const Text(
-                      ' *',
-                      style: TextStyle(color: Colors.red, fontSize: 14),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: DropdownButton<int>(
-                    value: selectedCategory,
-                    items: kategoriMenu.map((value) {
-                      return DropdownMenuItem<int>(
-                        value: value.id,
-                        child: Text(
-                          value.nama,
-                          style: GoogleFonts.poppins(
-                            fontWeight: regular,
-                            fontSize: 14,
+                                ],
+                              ),
+                              child: HugeIcon(
+                                icon: HugeIcons.strokeRoundedArrowLeft02,
+                                color: AppColors.blackColor,
+                              ),
+                            ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedCategory = newValue;
-                      });
-                    },
-                    hint: Text(
-                      'Pilih kategori menu',
-                      style:
-                          GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                        Text(
+                          isEditMode
+                              ? 'Edit Menu Tenant'
+                              : 'Tambah Menu Tenant',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blackColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    isExpanded: true,
-                    dropdownColor: const Color.fromARGB(255, 236, 236, 236),
-                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                ),
-              ],
+                  Row(
+                    children: [
+                      Text(
+                        'Foto Menu',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                      const Text(
+                        ' *',
+                        style: TextStyle(color: Colors.red, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 10,
+                    children: [
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: selectedImagePath != null
+                              ? DecorationImage(
+                                  image: FileImage(File(selectedImagePath!)),
+                                  fit: BoxFit.cover,
+                                )
+                              : isEditMode &&
+                                      widget.initialData!.gambar != null &&
+                                      widget.initialData!.gambar.isNotEmpty
+                                  ? DecorationImage(
+                                      image: NetworkImage(
+                                        '${MasbroConstants.baseUrl}${widget.initialData!.gambar}',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/dummy.jpeg'),
+                                      fit: BoxFit.cover,
+                                    ),
+                        ),
+                      ),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () => _buildBottomSheetProfile(
+                                  context, authProvider),
+                              child:
+                                  Text(isEditMode ? 'Ubah Foto' : 'Pilih Foto',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.primaryColor,
+                                      )),
+                            ),
+                            Text(
+                                'Ukuran foto 1:1, pastikan ukuran sesuai dan tidak lebih dari 1 MB',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: AppColors.blackColor200)),
+                          ],
+                        ),
+                      ),
+                      // IconButton(
+                      //   onPressed: _getImageFromGallery,
+                      //   icon: const Icon(Icons.edit_square),
+                      // ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  CustomTextFormField(
+                    label: 'Nama Menu',
+                    labelColor: AppColors.primaryColor,
+                    hintText: 'Tuliskan nama menu',
+                    isRequired: true,
+                    controller: namaMenuController,
+                  ),
+                  CustomTextFormField(
+                    label: 'Deskripsi Menu',
+                    labelColor: AppColors.primaryColor,
+                    hintText: 'Masukan deskripsi',
+                    controller: deskripsiMenuController,
+                    maxLine: 3,
+                  ),
+                  CustomTextFormField(
+                    label: 'Harga Menu',
+                    labelColor: AppColors.primaryColor,
+                    hintText: 'Tuliskan harga menu',
+                    isRequired: true,
+                    inputType: TextInputType.number,
+                    controller: hargaMenuController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      noDotFormatter(),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Kategori Menu',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                      const Text(
+                        ' *',
+                        style: TextStyle(color: Colors.red, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey, width: 1.0),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: DropdownButton<int>(
+                      value: selectedCategory,
+                      items: kategoriMenu.map((value) {
+                        return DropdownMenuItem<int>(
+                          value: value.id,
+                          child: Text(
+                            value.nama,
+                            style: GoogleFonts.poppins(
+                              fontWeight: regular,
+                              fontSize: 14,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedCategory = newValue;
+                        });
+                      },
+                      hint: Text(
+                        'Pilih kategori menu',
+                        style: GoogleFonts.poppins(
+                            color: Colors.grey, fontSize: 14),
+                      ),
+                      isExpanded: true,
+                      dropdownColor: const Color.fromARGB(255, 236, 236, 236),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(right: 5),
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF444444)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // harus ada agar shadow muncul
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent, // tidak ada shadow
+                      surfaceTintColor:
+                          Colors.transparent, // hilangkan efek tint
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Text(
+                      'Batal',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 68, 68, 68),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Batal',
-                    style: TextStyle(color: Color(0xFF444444)),
-                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: isLoading ? null : () => _saveForm(user),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(
-                        isEditMode ? 'Edit' : 'Simpan',
-                        style: const TextStyle(color: Colors.white),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.only(left: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
+                    ],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : () => _saveForm(user),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent, // tidak ada shadow
+                      surfaceTintColor:
+                          Colors.transparent, // hilangkan efek tint
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            isEditMode ? 'Edit' : 'Simpan',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _buildBottomSheetProfile(
+      BuildContext context, AuthProvider authProvider) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                decoration: BoxDecoration(
+                    color: AppColors.whiteColor400,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 5,
+                  child: Column(
+                    spacing: 16,
+                    children: [
+                      Text(
+                        'Foto Menu',
+                        style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _getImageFromCamera();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedCamera02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Kamera',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _getImageFromGallery();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedImage02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Galeri',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (selectedImagePath != null &&
+                                  authProvider.user.gambar != null) {
+                                selectedImagePath = null;
+                                authProvider.user.gambar = null;
+                                setState(() {});
+                                print('Gambar berhasil dihapus');
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedDelete02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Hapus',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                )),
+          );
+        });
   }
 }

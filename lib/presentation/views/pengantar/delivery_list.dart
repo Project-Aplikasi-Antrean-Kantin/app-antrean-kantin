@@ -29,7 +29,7 @@ class DeliveryList extends StatelessWidget {
       color: AppColors.primaryColor,
       onRefresh: onRefresh,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         itemCount: pesanan.length,
         itemBuilder: (context, index) {
           final pesananItem = pesanan[index];

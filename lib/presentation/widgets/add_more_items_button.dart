@@ -18,30 +18,29 @@ class AddMoreItemsButton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Pesanan masih kurang?",
+                "Mau tambah",
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: AppColors.textColorBlack,
-                  fontWeight: semibold,
-                  height: 1.5,
+                  color: AppColors.blackColor,
                 ),
               ),
               Text(
-                "Tambah menu lainnya disini",
+                "Pesanan?",
                 style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: AppColors.textColorBlack,
+                  fontSize: 14,
+                  color: AppColors.blackColor,
                   fontWeight: regular,
-                  height: 1.5,
                 ),
               ),
             ],
           ),
           PrimaryButton(
+            borderRadius: 16,
             elevation: 0,
             color: AppColors.primaryColor,
             borderColor: AppColors.primaryColor,
-            width: 25,
+            width: 128,
+            height: 50,
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Tambah',

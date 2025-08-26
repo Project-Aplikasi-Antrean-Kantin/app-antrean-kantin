@@ -1,21 +1,42 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
+import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
 class RiwayatPage extends StatefulWidget {
   final String role;
+  final String tabLabel;
 
-  const RiwayatPage({super.key, required this.role});
+  const RiwayatPage({super.key, required this.role, required this.tabLabel});
 
   @override
   State<RiwayatPage> createState() => _RiwayatPageState();
@@ -28,11 +49,38 @@ class _RiwayatPageState extends State<RiwayatPage>
 
   bool _hasInitialized = false;
   DateTime? _lastFetchTime;
+  int selectedIndex = 0;
+  StreamSubscription<RemoteMessage>? _onMessageSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final historyProvider =
+          Provider.of<HistoryProvider>(context, listen: false);
+      if (_onMessageSubscription == null) {
+        _onMessageSubscription =
+            FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          final title = message.data['title']?.toString().toLowerCase();
+          final body = message.data['body']?.toString().toLowerCase();
+          final transaksiId = body?.split(' ')[1].trim();
+          if (title != null &&
+              title.contains('pesanan') &&
+              transaksiId != null) {
+            TransactionRemoteDataSource()
+                .getOrderById(authProvider.user.token, transaksiId)
+                .then((pesanan) {
+              historyProvider.updateSelectedPesanan(pesanan);
+              historyProvider.updatedPesanan(pesanan, widget.role);
+            });
+          }
+        });
+      }
+    });
+
+    // Pastikan ini jalan sebelum UI render list
     _fetchDataIfNeeded();
   }
 
@@ -46,13 +94,61 @@ class _RiwayatPageState extends State<RiwayatPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     // Refresh data ketika app kembali dari background
+    final historyProvider =
+        Provider.of<HistoryProvider>(context, listen: false);
     if (state == AppLifecycleState.resumed) {
-      _fetchDataIfNeeded(forceRefresh: true);
+      historyProvider.loadUnreadMessages().then((_) {
+        _fetchDataIfNeeded(forceRefresh: true);
+      });
     }
   }
 
+  List<String> getFilteredStatuses(int index) {
+    switch (index) {
+      // Misal: "Masuk"
+      case 1:
+        return ['pesanan_masuk'];
+
+      case 2:
+        return ['pesanan_diproses']; // "Diproses"
+// "Ditolak"
+      case 3:
+        return ['siap_diambil']; // "Refund Selesai"
+      case 4:
+        return ['siap_diantar']; // "Selesai"
+      case 5:
+        return ['diantar']; // "Diantar"
+      case 6:
+        return ['selesai']; // "Siap Diambil"
+      case 7:
+        return ['refund_selesai'];
+      case 0:
+      default:
+        return []; // Semua
+    }
+  }
+
+  Map<String, List<Pesanan>> groupPesananByDate(List<Pesanan> listPesanan) {
+    Map<String, List<Pesanan>> grouped = {};
+
+    for (var pesanan in listPesanan) {
+      final dateStr = FormatDate.dateTimeToStringDate(pesanan.createdAt);
+
+      if (!grouped.containsKey(dateStr)) {
+        grouped[dateStr] = [];
+      }
+      grouped[dateStr]!.add(pesanan);
+    }
+
+    return Map.fromEntries(
+      grouped.entries.toList()
+        ..sort((a, b) => b.value.first.createdAt
+            .compareTo(a.value.first.createdAt)), // dari terbaru ke terlama
+    );
+  }
+
   // Method untuk mengecek apakah perlu fetch data
-  void _fetchDataIfNeeded({bool forceRefresh = false}) {
+  Future<void> _fetchDataIfNeeded({bool forceRefresh = false}) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
@@ -62,8 +158,7 @@ class _RiwayatPageState extends State<RiwayatPage>
         !_hasInitialized ||
         historyProvider.getListPesanan(widget.role).isEmpty ||
         (_lastFetchTime != null &&
-            now.difference(_lastFetchTime!).inMinutes >
-                5); // Refresh setiap 5 menit
+            now.difference(_lastFetchTime!).inMinutes > 5);
 
     if (shouldRefresh && !historyProvider.getIsLoading(widget.role)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -105,7 +200,16 @@ class _RiwayatPageState extends State<RiwayatPage>
           builder: (context, historyProvider, _) {
             final isLoading = historyProvider.getIsLoading(widget.role);
             final errorMessage = historyProvider.getErrorMessage(widget.role);
-            final listPesanan = historyProvider.getListPesanan(widget.role);
+            final allPesanan = historyProvider.getListPesanan(widget.role);
+
+            final filteredStatuses = getFilteredStatuses(selectedIndex);
+            final listPesanan = filteredStatuses.isEmpty
+                ? allPesanan
+                : allPesanan
+                    .where(
+                        (pesanan) => filteredStatuses.contains(pesanan.status))
+                    .toList();
+            final groupedPesanan = groupPesananByDate(listPesanan);
 
             return Container(
               color: AppColors.backgroundColor,
@@ -115,42 +219,106 @@ class _RiwayatPageState extends State<RiwayatPage>
                       physics: const BouncingScrollPhysics(
                         parent: AlwaysScrollableScrollPhysics(),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
-                        children: List.generate(
-                          4,
-                          (index) => ShimmerCard(
-                            pageType: 'riwayat',
-                          ),
-                        ),
+                        spacing: 8,
+                        children: [
+                          const SizedBox(height: 8),
+                          _buildListFilter(isLoading),
+                          const SizedBox(height: 8),
+                          Skeletonizer(
+                              child: ListView.separated(
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(
+                              height: 8,
+                            ),
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: 5,
+                            itemBuilder: (context, index) => _buildPesananItem(
+                                Pesanan.getDummyPesanan(), context),
+                          )),
+                        ],
                       ),
                     )
                   : errorMessage != null
                       ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                errorMessage,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: regular,
+                          child: errorMessage.contains('Failed host lookup') ||
+                                  errorMessage.contains('Connection')
+                              ? Column(
+                                  spacing: 8,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image(
+                                        image: const AssetImage(
+                                            'assets/images/No-connection.png')),
+                                    Text(
+                                      'Upss Koneksimu Hilang!',
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.whiteColor900,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Cek jaringan internet kamu dulu, ya.    Tenang, kami tetap nungguin kamu balik 😄',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.poppins(
+                                        color: const Color(0xFF585858),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        _fetchDataIfNeeded(forceRefresh: true);
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 16),
+                                        padding: EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        width:
+                                            MediaQuery.of(context).size.width -
+                                                48,
+                                        child: Center(
+                                            child: Text('Coba Lagi',
+                                                style: GoogleFonts.poppins(
+                                                  color: AppColors.whiteColor,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ))),
+                                      ),
+                                    )
+                                  ],
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      errorMessage,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: regular,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        historyProvider.fetchHistory(
+                                            context, user, widget.role);
+                                        _lastFetchTime = DateTime.now();
+                                      },
+                                      child: const Text("Coba Lagi"),
+                                    ),
+                                  ],
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 10),
-                              ElevatedButton(
-                                onPressed: () {
-                                  historyProvider.fetchHistory(
-                                      context, user, widget.role);
-                                  _lastFetchTime = DateTime.now();
-                                },
-                                child: const Text("Coba Lagi"),
-                              ),
-                            ],
-                          ),
                         )
-                      : listPesanan.isEmpty
+                      : allPesanan.isEmpty
                           ? Center(
                               child: Text(
                                 "Belum ada riwayat",
@@ -161,17 +329,70 @@ class _RiwayatPageState extends State<RiwayatPage>
                                 ),
                               ),
                             )
-                          : SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(
-                                parent: AlwaysScrollableScrollPhysics(),
-                              ),
+                          : Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
+                                  const EdgeInsets.symmetric(horizontal: 24),
                               child: Column(
-                                children: listPesanan
-                                    .map((pesanan) =>
-                                        _buildPesananItem(pesanan, context))
-                                    .toList(),
+                                spacing: 8,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  _buildListFilter(isLoading),
+                                  const SizedBox(height: 8),
+                                  groupedPesanan.isNotEmpty
+                                      ? Expanded(
+                                          child: ListView(
+                                            padding: EdgeInsets.zero,
+                                            children: groupedPesanan.entries
+                                                .expand((entry) {
+                                              final tanggal = entry.key;
+                                              final daftarPesanan = entry.value;
+
+                                              return [
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 12),
+                                                  child: Text(
+                                                    tanggal,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight: semibold,
+                                                      color: AppColors
+                                                          .blackColor300,
+                                                    ),
+                                                  ),
+                                                ),
+                                                ...daftarPesanan.map(
+                                                    (pesanan) =>
+                                                        _buildPesananItem(
+                                                            pesanan, context))
+                                              ];
+                                            }).toList(),
+                                          ),
+                                        )
+                                      : Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 24),
+                                          child: Center(
+                                            child: Column(
+                                              children: [
+                                                Image(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2,
+                                                  image: const AssetImage(
+                                                      "assets/images/404-Not-Found.png"),
+                                                ),
+                                                Text('Belum ada riwayat',
+                                                    textAlign: TextAlign.center,
+                                                    style: GoogleFonts.poppins(
+                                                        color: AppColors
+                                                            .blackColor400))
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                ],
                               ),
                             ),
             );
@@ -181,26 +402,101 @@ class _RiwayatPageState extends State<RiwayatPage>
     );
   }
 
+  Widget _buildFilterButton(String label, int index) {
+    final isSelected = selectedIndex == index;
+    return OutlinedButton(
+      onPressed: () {
+        setState(() {
+          selectedIndex = index;
+        });
+      },
+      style: OutlinedButton.styleFrom(
+        backgroundColor:
+            isSelected ? AppColors.primaryColor : Colors.transparent,
+        side: BorderSide(color: AppColors.primaryColor),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16, vertical: 8), // ⬅️ padding ditambahkan di sini
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 14,
+          color: isSelected ? Colors.white : AppColors.primaryColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListFilter(bool isLoading) {
+    return Skeletonizer(
+      enabled: isLoading,
+      child: SingleChildScrollView(
+        scrollDirection:
+            widget.tabLabel == "Antar" ? Axis.vertical : Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          spacing: 8,
+          children: [
+            _buildFilterButton("Semua", 0),
+            if (widget.tabLabel != "Antar")
+              _buildFilterButton("Pesanan Masuk", 1),
+            if (widget.tabLabel != "Antar") _buildFilterButton("Diproses", 2),
+            if (widget.tabLabel != "Antar")
+              _buildFilterButton("Siap Diambil", 3),
+            if (widget.tabLabel != "Antar")
+              _buildFilterButton("Siap Diantar", 4),
+            _buildFilterButton("Diantar", 5),
+            _buildFilterButton("Selesai", 6),
+            if (widget.tabLabel != "Antar") _buildFilterButton("Refund", 7),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPesananItem(Pesanan pesanan, BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final chatType = getChatType(pesanan.status);
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
     final user = authProvider.user;
+    final isThereNewChat =
+        historyProvider.unreadMessagesList.contains(pesanan.id);
 
     final totalItemMenu = pesanan.listTransaksiDetail
         .map((item) => item.jumlah)
         .fold(0, (prev, jumlah) => prev + jumlah);
+    final List<CartMenuModel> cartMenu = pesanan.toCartMenuList();
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        final internetConnection = await hasInternetAccess();
+        // final prefs = await SharedPreferences.getInstance();
+        if (!internetConnection) {
+          Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+          return;
+        }
+        // prefs.remove("unread").then((_) {
+        //   Fluttertoast.showToast(msg: "Berhasil membaca riwayat");
+        // });
+        // print("Saved unread: ${prefs.getString('unread')}");
+        historyProvider.updateSelectedPesanan(pesanan);
         Navigator.of(context).push(
           CustomPageBuilder(
             page: DetailRiwayat(
-              token: user.token.toString(),
               pesanan: pesanan,
+              label: widget.tabLabel,
+              token: user.token.toString(),
               refreshData: () {
-                historyProvider.fetchHistory(
-                    context, authProvider.user, widget.role);
+                TransactionRemoteDataSource()
+                    .getOrderById(
+                        authProvider.user.token, pesanan.id.toString())
+                    .then((pesanan) {
+                  historyProvider.updateSelectedPesanan(pesanan);
+                  historyProvider.updatedPesanan(pesanan, widget.role);
+                });
                 _lastFetchTime = DateTime.now();
               },
             ),
@@ -208,103 +504,279 @@ class _RiwayatPageState extends State<RiwayatPage>
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(top: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.backgroundColor,
-          border: Border.all(color: Colors.grey, width: 0.2),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
+            color: AppColors.whiteColor100,
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ]),
         child: Column(
+          spacing: 8,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              spacing: 8,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(11),
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        pesanan.listTransaksiDetail.isNotEmpty
-                            ? pesanan.listTransaksiDetail[0].menus?.tenants
-                                    ?.gambar ??
-                                ''
-                            : '',
-                      ),
-                      fit: BoxFit.cover,
-                      onError: (exception, stackTrace) =>
-                          const AssetImage('assets/placeholder.png'),
-                    ),
-                  ),
-                  height: 80,
-                  width: 80,
-                  margin: const EdgeInsets.only(right: 15),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: ImageByUrl(
+                      url: pesanan.listTransaksiDetail.isNotEmpty
+                          ? pesanan.listTransaksiDetail[0].menus?.tenants
+                                  ?.gambar ??
+                              ''
+                          : '',
+                      height: 104,
+                      width: 104,
+                      fit: BoxFit.cover),
                 ),
+                Flexible(
+                  child: Column(
+                    spacing: 4,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              pesanan.listTransaksiDetail.isNotEmpty
+                                  ? pesanan.listTransaksiDetail[0].menus
+                                          ?.tenants?.namaTenant ??
+                                      '-'
+                                  : '-',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.blackColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          HugeIcon(
+                              icon: getIconByStatus(pesanan.status),
+                              color: getStatusColor(pesanan.status)),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            FormatDate.dateTimeToStringDate(pesanan.createdAt),
+                            style: GoogleFonts.poppins(
+                              color: AppColors.blackColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              getStatus(pesanan.status),
+                              textAlign: TextAlign.end,
+                              style: GoogleFonts.poppins(
+                                color: getStatusColor(pesanan.status),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              softWrap: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Wrap(
+                        spacing: 8, // Jarak antar item horizontal
+                        runSpacing: 4, // Jarak antar baris
+                        children: pesanan.listTransaksiDetail
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
+                          final isLast =
+                              index == pesanan.listTransaksiDetail.length - 1;
+
+                          return Text(
+                            "${item.menus?.nama}${isLast ? '' : ', '}",
+                            style: GoogleFonts.poppins(
+                              color: AppColors.blackColor,
+                              fontSize: 12,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            DashedDivider(height: 1, color: AppColors.blackColor100),
+            Row(
+              children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
                   children: [
                     Text(
-                      pesanan.listTransaksiDetail.isNotEmpty
-                          ? pesanan.listTransaksiDetail[0].menus?.tenants
-                                  ?.namaTenant ??
-                              '-'
-                          : '-',
+                      FormatCurrency.intToStringCurrency(pesanan.total),
                       style: GoogleFonts.poppins(
-                        color: AppColors.textColorBlack,
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 10),
                     Text(
-                      FormatDate.formatDateTimeWithWIB(pesanan.createdAt),
+                      '${pesanan.listTransaksiDetail.length} Menu',
                       style: GoogleFonts.poppins(
-                        color: AppColors.textColorBlack,
+                        color: AppColors.blackColor,
                         fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      "$totalItemMenu Item Menu",
-                      style: GoogleFonts.poppins(
-                        color: AppColors.textColorBlack,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Divider(color: AppColors.lineDividerColor, height: 1),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  FormatCurrency.intToStringCurrency(pesanan.total),
-                  style: GoogleFonts.poppins(
-                    color: AppColors.textColorBlack,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                const Spacer(),
+                if (pesanan.status != 'refund_selesai' &&
+                    pesanan.status != 'selesai')
+                  GestureDetector(
+                    onTap: () async {
+                      final connectivityResult = await hasInternetAccess();
+                      // final prefs = await SharedPreferences.getInstance();
+                      final canChatTenant = historyProvider.availableChatList
+                              .contains(pesanan.id) &&
+                          chatType == 'tenant';
+                      if (!connectivityResult) {
+                        Fluttertoast.showToast(
+                          msg: 'Tidak ada koneksi internet',
+                        );
+                        showNoConnectionBottomSheet(
+                          context: context,
+                          onRetry: () {},
+                        );
+                        return;
+                      }
+                      // prefs.remove('available_chat');
+                      if (!canChatTenant) {
+                        Fluttertoast.showToast(
+                            msg:
+                                "Harus tenant yang melakukan chat terlebih dahulu");
+                        return;
+                      }
+                      await historyProvider.removeUnreadMessages(pesanan.id);
+                      Navigator.push(
+                        context,
+                        CustomPageBuilder(
+                          page: ChatPage(
+                            pesanan: pesanan,
+                            chatType: chatType,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      clipBehavior: Clip
+                          .none, // supaya bulatan bisa keluar dari container
+                      children: [
+                        Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.primaryColor,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            textAlign: TextAlign.center,
+                            'Chat ${chatType == 'driver' ? widget.tabLabel == 'Antar' ? 'Pembeli' : 'Driver' : widget.tabLabel == 'Jual' ? 'Pembeli' : 'Penjual'}',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.primaryColor,
+                              fontSize: 14,
+                              fontWeight: semibold,
+                            ),
+                          ),
+                        ),
+                        if (isThereNewChat)
+                          Positioned(
+                            right: 4,
+                            top: -2,
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                Text(
-                  pesanan.status == 'refund_selesai'
-                      ? 'PESANAN DITOLAK'
-                      : pesanan.status.replaceAll('_', ' ').toUpperCase(),
-                  style: GoogleFonts.poppins(
-                    color: pesanan.status == 'refund_selesai'
-                        ? Colors.red
-                        : getStatusColor(pesanan.status),
-                    fontWeight: bold,
-                    fontSize: 12,
-                  ),
-                )
+                widget.tabLabel == 'Beli'
+                    ? (pesanan.status == 'selesai' ||
+                            pesanan.status == 'pesanan_ditolak' ||
+                            pesanan.status == 'refund_selesai')
+                        ? GestureDetector(
+                            onTap: () async {
+                              final connectivityResult =
+                                  await hasInternetAccess();
+                              if (!connectivityResult) {
+                                Fluttertoast.showToast(
+                                  msg: 'Tidak ada koneksi internet',
+                                );
+                                showNoConnectionBottomSheet(
+                                    context: context, onRetry: () {});
+                                return;
+                              }
+                              if (pesanan
+                                      .listTransaksiDetail[0].menus?.tenants ==
+                                  null) return;
+                              cartProvider.setCurrentTenant(
+                                  pesanan
+                                      .listTransaksiDetail[0].menus!.tenants!,
+                                  cartMenu);
+
+                              Future.delayed(const Duration(milliseconds: 300),
+                                  () {
+                                Navigator.push(
+                                  context,
+                                  CustomPageBuilder(
+                                    page: MenuTenant(
+                                        url:
+                                            '${MasbroConstants.url}/tenants/${pesanan.listTransaksiDetail[0].menus!.tenants!.id.toString()}',
+                                        cart: cartMenu),
+                                  ),
+                                );
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColors.primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'Pesan Lagi',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 14,
+                                  fontWeight: semibold,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container()
+                    : Container(),
               ],
             ),
             const SizedBox(height: 5),
@@ -312,5 +784,71 @@ class _RiwayatPageState extends State<RiwayatPage>
         ),
       ),
     );
+  }
+
+  String getChatType(String status) {
+    switch (status) {
+      case 'pesanan_masuk':
+        return 'tenant';
+      case 'pesanan_diproses':
+        return 'tenant';
+      case 'siap_diambil':
+        return 'tenant';
+      case 'siap_diantar':
+        return 'tenant';
+      case 'diantar':
+        return 'driver';
+      default:
+        return 'proses';
+    }
+  }
+
+  String getStatus(String status) {
+    switch (status) {
+      case 'refund_selesai':
+        return 'Refund';
+      case 'selesai':
+        return 'Selesai';
+      case 'pesanan_ditolak':
+        return 'Ditolak';
+      case 'pesanan_diproses':
+        return 'Diproses';
+      case 'pesanan_masuk':
+        return 'Pesanan Masuk';
+      case 'diantar':
+        return 'Diantar';
+      case 'siap_diambil':
+        return 'Siap Diambil';
+      case 'siap_diantar':
+        return 'Siap Diantar';
+      default:
+        return '';
+    }
+  }
+
+  IconData getIconByStatus(String status) {
+    switch (status) {
+      case 'selesai':
+        return HugeIcons.strokeRoundedCheckmarkBadge02;
+      case 'pesanan_ditolak' || 'refund_selesai':
+        return HugeIcons.strokeRoundedAlertDiamond;
+      case 'pesanan_diproses':
+        return HugeIcons.strokeRoundedArrowReloadVertical;
+      default:
+        return HugeIcons.strokeRoundedArrowReloadVertical;
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'selesai':
+        return AppColors.successColor;
+      case 'pesanan_ditolak' || 'refund_selesai':
+        return AppColors.errorColor;
+      case 'pesanan_diproses':
+        return AppColors.warningColor;
+      default:
+        return AppColors.primaryColor;
+    }
   }
 }

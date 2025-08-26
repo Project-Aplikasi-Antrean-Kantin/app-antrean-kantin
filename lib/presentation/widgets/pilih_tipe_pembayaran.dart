@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -27,10 +28,10 @@ class PilihTipePembayaran extends StatelessWidget {
   static const _fontSizeTitle = 12.0;
   static const _fontSizeAmount = 13.0;
 
-  static const _paymentOptions = {
+  static final _paymentOptions = {
     PaymentMethod.koin: {
-      'label': 'FoodLab Coin',
-      'icon': Icons.toll,
+      'label': 'FoodLab Koin',
+      'icon': SvgPicture.asset('assets/icons/koin.svg'),
     },
     PaymentMethod.cod: {
       'label': 'Bayar Tunai',
@@ -80,11 +81,7 @@ class PilihTipePembayaran extends StatelessWidget {
           child: Row(
             children: [
               if (selectedPaymentMethod != null)
-                Icon(
-                  _paymentOptions[selectedPaymentMethod]!['icon'] as IconData,
-                  color: AppColors.primaryColor,
-                  size: _iconSize,
-                ),
+                SvgPicture.asset('assets/images/koin-logo.svg', height: 30),
               Expanded(
                 child: Container(
                   padding: _padding,

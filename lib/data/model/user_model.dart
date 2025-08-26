@@ -30,7 +30,7 @@ class UserModel {
         token: json["token"],
         phone: json["phone"],
         gambar: json["gambar"] != null
-            ? '${MasbroConstants.baseUrl}/${json["gambar"]}'
+            ? '${MasbroConstants.baseUrl}${json["gambar"]}'
             : null,
         menu: json['menu']
             .map<FiturModel>((menu) => FiturModel.fromJson(menu))

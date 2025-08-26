@@ -23,22 +23,22 @@ class TransactionRemoteDataSource {
         body: data,
       );
 
-      log(response.statusCode.toString());
+      final jsonBody = jsonDecode(response.body);
+      // print('Response status code: ${jsonBody['message'][0]}');
+      // print('Response body: ${jsonBody['data']['transaksi']}');
+
       if (response.statusCode == 201) {
-        return OrderModel.fromJson(
-          jsonDecode(
-            response.body,
-          ),
-        );
-      } else {
+        return OrderModel.fromJson(jsonBody);
+      } else if (response.statusCode == 400)
+        throw jsonBody['message'][0];
+      else {
         print('Request failed with status: ${response.statusCode}');
         print('Error response body: ${response.body}');
-        throw Exception();
+        throw '${jsonBody['message'][0]}';
       }
     } catch (e) {
       print('An error occurred: $e');
-      // throw Exception(e);
-      rethrow;
+      throw Exception(e.toString()); // cukup pakai e
     }
   }
 
@@ -99,6 +99,20 @@ class TransactionRemoteDataSource {
     } else {
       debugPrint("Error: ${response.statusCode}");
       throw Exception('Data can\'t be loaded');
+    }
+  }
+
+  Future<Pesanan> getOrderById(String auth, String id) async {
+    print("id kontol: $id");
+    final response = await http.get(
+      Uri.parse('${MasbroConstants.url}/order/user/$id'),
+      headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      print("Response body: ${response.body}");
+      return Pesanan.fromJson(jsonDecode(response.body)["data"]["transaksi"]);
+    } else {
+      throw Exception('Data cant be load');
     }
   }
 }

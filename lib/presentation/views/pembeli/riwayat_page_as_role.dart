@@ -22,41 +22,41 @@ class _RiwayatPageAsRoleState extends State<RiwayatPageAsRole>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeTabs();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _initializeTabs();
+    // });
   }
 
-  void _initializeTabs() {
-    final AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-    final UserModel user = authProvider.user;
+  // void _initializeTabs() {
+  //   final AuthProvider authProvider =
+  //       Provider.of<AuthProvider>(context, listen: false);
+  //   final UserModel user = authProvider.user;
 
-    // Build tabs and tab views dynamically based on permissions
-    List<Widget> tabViews = [];
-    List<Tab> tabHeaders = [];
+  //   // Build tabs and tab views dynamically based on permissions
+  //   List<Widget> tabViews = [];
+  //   List<Tab> tabHeaders = [];
 
-    if (user.permission.contains('read order user')) {
-      tabViews.add(const RiwayatPage(role: 'user'));
-      tabHeaders.add(const Tab(text: 'Beli'));
-    }
-    if (user.permission.contains('read order tenant')) {
-      tabViews.add(const RiwayatPage(role: 'tenant'));
-      tabHeaders.add(const Tab(text: 'Jual'));
-    }
-    if (user.permission.contains('read order masbro')) {
-      tabViews.add(const RiwayatPage(role: 'masbro'));
-      tabHeaders.add(const Tab(text: 'Antar'));
-    }
+  //   if (user.permission.contains('read order user')) {
+  //     tabViews.add(const RiwayatPage( role: 'user'));
+  //     tabHeaders.add(const Tab(text: 'Beli'));
+  //   }
+  //   if (user.permission.contains('read order tenant')) {
+  //     tabViews.add(const RiwayatPage(role: 'tenant'));
+  //     tabHeaders.add(const Tab(text: 'Jual'));
+  //   }
+  //   if (user.permission.contains('read order masbro')) {
+  //     tabViews.add(const RiwayatPage(role: 'masbro'));
+  //     tabHeaders.add(const Tab(text: 'Antar'));
+  //   }
 
-    if (tabHeaders.isNotEmpty) {
-      _tabController = TabController(
-        length: tabHeaders.length,
-        vsync: this,
-      );
-      setState(() {});
-    }
-  }
+  //   if (tabHeaders.isNotEmpty) {
+  //     _tabController = TabController(
+  //       length: tabHeaders.length,
+  //       vsync: this,
+  //     );
+  //     setState(() {});
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -75,15 +75,15 @@ class _RiwayatPageAsRoleState extends State<RiwayatPageAsRole>
     List<Tab> tabHeaders = [];
 
     if (user.permission.contains('read order user')) {
-      tabViews.add(const RiwayatPage(role: 'user'));
+      tabViews.add(const RiwayatPage(tabLabel: 'Beli', role: 'user'));
       tabHeaders.add(const Tab(text: 'Beli'));
     }
     if (user.permission.contains('read order tenant')) {
-      tabViews.add(const RiwayatPage(role: 'tenant'));
+      tabViews.add(const RiwayatPage(tabLabel: 'Jual', role: 'tenant'));
       tabHeaders.add(const Tab(text: 'Jual'));
     }
     if (user.permission.contains('read order masbro')) {
-      tabViews.add(const RiwayatPage(role: 'masbro'));
+      tabViews.add(const RiwayatPage(tabLabel: 'Antar', role: 'masbro'));
       tabHeaders.add(const Tab(text: 'Antar'));
     }
 
@@ -96,11 +96,11 @@ class _RiwayatPageAsRoleState extends State<RiwayatPageAsRole>
           automaticallyImplyLeading: false,
           toolbarHeight: 50,
           title: Text(
-            'Riwayat',
+            'Aktivitas',
             style: GoogleFonts.poppins(
-              color: AppColors.textColorBlack,
+              color: AppColors.primaryColor,
               fontSize: 18,
-              fontWeight: semibold,
+              fontWeight: bold,
             ),
           ),
           centerTitle: true,

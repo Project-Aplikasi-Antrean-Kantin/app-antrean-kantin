@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/presentation/widgets/custom_toggle.dart';
 
 // ignore: must_be_immutable
 class ProfileMenuItem extends StatelessWidget {
@@ -12,6 +14,7 @@ class ProfileMenuItem extends StatelessWidget {
   Color? iconColor;
   Color? titleColor;
   bool? status;
+  final Future<void> Function(bool value)? onChangeToggle;
 
   ProfileMenuItem({
     Key? key,
@@ -22,6 +25,7 @@ class ProfileMenuItem extends StatelessWidget {
     this.iconColor,
     this.titleColor,
     this.status,
+    this.onChangeToggle,
   }) : super(key: key);
 
   @override
@@ -29,30 +33,23 @@ class ProfileMenuItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: 15,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         width: double.infinity,
         decoration: BoxDecoration(
-          border: Border(
-            // top: BorderSide(
-            //   width: 0.2,
-            //   color: Colors.grey[900]!,
-            // ),
-            bottom: BorderSide(
-              width: 0.2,
-              color: Colors.grey,
-            ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            width: 1,
+            color: AppColors.blackColor100,
           ),
         ),
         child: Row(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(
-                icon,
-                size: 20,
-                color: iconColor,
+              child: HugeIcon(
+                icon: icon,
+                size: 24,
+                color: AppColors.primaryColor,
               ),
             ),
             const SizedBox(
@@ -61,43 +58,23 @@ class ProfileMenuItem extends StatelessWidget {
             Text(
               title,
               style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: medium,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
                 color: titleColor,
               ),
             ),
             const Spacer(
               flex: 1,
             ),
-            if (title == 'Status Tenant' ||
-                title == 'Status Driver') // Hanya untuk Status Tenant
-              Container(
-                margin: const EdgeInsets.only(right: 10),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  border: Border.all(
-                    width: 0.5,
-                    color: iconColor ??
-                        AppColors.textColorBlack, // Fallback ke warna default
-                  ),
-                ),
-                child: Text(
-                  status!
-                      ? title == "Status Tenant"
-                          ? "Buka"
-                          : "Online"
-                      : title == "Status Tenant"
-                          ? "Tutup"
-                          : "Offline",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: regular,
-                    color: iconColor ?? AppColors.textColorBlack, // Fallback
-                  ),
-                ),
-              ),
+            if (title == 'Tenant Buka' ||
+                title == 'Status Driver' &&
+                    status != null &&
+                    onChangeToggle != null) // Hanya untuk Status Tenant
+              CustomToggle(
+                  value: status ?? false,
+                  onChanged: (status) {
+                    onChangeToggle!(status);
+                  }),
             if (showIconArrow)
               const Icon(
                 Icons.keyboard_arrow_right_outlined,

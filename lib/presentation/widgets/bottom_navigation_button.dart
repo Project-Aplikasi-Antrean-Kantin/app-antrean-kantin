@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 
@@ -6,12 +7,14 @@ class BottomNavigationButton extends StatelessWidget {
   final bool isEnabled;
   final VoidCallback? onTap;
   final Color color;
+  final bool isThere10Item;
 
   const BottomNavigationButton({
     Key? key,
     required this.isEnabled,
     required this.onTap,
     required this.color,
+    this.isThere10Item = false,
   }) : super(key: key);
 
   static const _height = 48.0;
@@ -30,7 +33,9 @@ class BottomNavigationButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(_borderRadius),
       ),
       child: InkWell(
-        onTap: !isEnabled ? null : onTap,
+        onTap: !isEnabled
+            ? () => Fluttertoast.showToast(msg: 'Tunggu sebentar')
+            : onTap,
         child: Center(
           child: Text(
             'Pesan sekarang',

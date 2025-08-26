@@ -93,11 +93,7 @@ class _MenuKasirState extends State<MenuKasir> {
                 final index = entry.key;
                 final item = entry.value;
                 return [
-                  MenuTile(
-                    food: item,
-                    isTenantMenu: false,
-                    enableNotes: false,
-                  ),
+                  Container(),
                   if (index < searchResult.length - 1)
                     Divider(
                       color: Colors.grey,

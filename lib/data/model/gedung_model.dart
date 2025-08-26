@@ -3,9 +3,11 @@ class Gedung {
   final String nama;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int ongkir;
   final dynamic deletedAt;
 
   Gedung({
+    required this.ongkir,
     required this.id,
     required this.nama,
     required this.createdAt,
@@ -16,6 +18,7 @@ class Gedung {
   factory Gedung.fromJson(Map<String, dynamic> json) => Gedung(
         id: json["id"],
         nama: json["nama"],
+        ongkir: json["ongkir"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
         deletedAt: json["deleted_at"],

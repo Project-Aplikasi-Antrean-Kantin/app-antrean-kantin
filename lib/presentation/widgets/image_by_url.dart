@@ -39,10 +39,15 @@ class _ImageByUrlState extends State<ImageByUrl> {
   Future<void> _loadImage() async {
     try {
       String cleanedUrl = widget.url;
+
       if (cleanedUrl.startsWith(MasbroConstants.baseUrl)) {
         cleanedUrl = cleanedUrl.replaceFirst(MasbroConstants.baseUrl, '');
       }
+      if (cleanedUrl == '/assets/images/default-image.jpg') {
+        throw Exception('Invalid image file');
+      }
       final file = await ImageCacheManager().getOrDownloadImage(cleanedUrl);
+
       if (mounted) {
         setState(() {
           imageFile = file;
@@ -67,8 +72,8 @@ class _ImageByUrlState extends State<ImageByUrl> {
           Image.asset(
             'assets/images/dummy.jpeg',
             fit: BoxFit.cover,
-            height: widget.width,
-            width: double.infinity,
+            height: widget.height,
+            width: widget.width,
           );
     }
 
@@ -77,8 +82,8 @@ class _ImageByUrlState extends State<ImageByUrl> {
           Image.asset(
             'assets/images/dummy.jpeg',
             fit: BoxFit.cover,
-            height: widget.width,
-            width: double.infinity,
+            height: widget.height,
+            width: widget.width,
           );
     }
 

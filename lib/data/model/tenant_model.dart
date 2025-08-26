@@ -4,14 +4,18 @@ class TenantModel {
   final int id;
   final String namaTenant;
   final String namaKavling;
+  final int transaksiBerhasil;
   String? nomorRekeningToko;
   String? nomorRekeningPribadi;
+  String? emailPemilik;
   final String gambar;
   final int userId;
   final String? jamBuka;
   final String? jamTutup;
   int? range;
   final String? namaGambar;
+  final DateTime? isBusy;
+  final DateTime? busyUntil;
   final dynamic deletedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -19,6 +23,10 @@ class TenantModel {
   final bool? isOnline;
 
   TenantModel({
+    this.busyUntil,
+    this.isBusy,
+    this.emailPemilik,
+    required this.transaksiBerhasil,
     required this.id,
     required this.namaTenant,
     required this.namaKavling,
@@ -53,8 +61,10 @@ class TenantModel {
     DateTime? updatedAt,
     List<TenantFoods>? tenantFoods,
     bool? isOnline,
+    int? transaksiBerhasil,
   }) {
     return TenantModel(
+      transaksiBerhasil: transaksiBerhasil ?? this.transaksiBerhasil,
       id: id ?? this.id,
       namaTenant: namaTenant ?? this.namaTenant,
       namaKavling: namaKavling ?? this.namaKavling,
@@ -71,11 +81,18 @@ class TenantModel {
       updatedAt: updatedAt ?? this.updatedAt,
       tenantFoods: tenantFoods ?? this.tenantFoods,
       isOnline: isOnline ?? this.isOnline,
+      isBusy: isBusy ?? this.isBusy,
+      busyUntil: busyUntil ?? this.busyUntil,
     );
   }
 
   factory TenantModel.fromJson(Map<String, dynamic> json) => TenantModel(
         id: json["id"],
+        isBusy:
+            json["is_busy"] != null ? DateTime.parse(json["is_busy"]) : null,
+        busyUntil: json["busy_until"] != null
+            ? DateTime.parse(json["busy_until"])
+            : null,
         namaTenant: json["nama_tenant"],
         namaKavling: json["nama_kavling"],
         nomorRekeningToko: json["no_rekening_toko"],
@@ -85,11 +102,10 @@ class TenantModel {
         jamBuka: json["jam_buka"],
         jamTutup: json["jam_tutup"],
         range: json["range"],
+        transaksiBerhasil: json["transaksi_berhasil"] ?? 0,
         tenantFoods: json["list_menu"] != null
             ? List<TenantFoods>.from(
-                json["list_menu"].map(
-                  (x) => TenantFoods.fromJson(x),
-                ),
+                json["list_menu"].map((x) => TenantFoods.fromJson(x)),
               )
             : [],
         namaGambar: json["nama_gambar"],
@@ -98,8 +114,15 @@ class TenantModel {
                 ? true
                 : false
             : null,
+        emailPemilik: json["pemilik"] != null ? json["pemilik"]["email"] : null,
         deletedAt: json["deleted_at"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
       );
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'id: $id namaTenant: $namaTenant namaKavling: $namaKavling gambar: $gambar busyUntil: $busyUntil isBusy: $isBusy';
+  }
 }

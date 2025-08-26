@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   http: ^0.13.5
   provider: ^6.0.4
+  flutter_local_notifications: ^18.0.1
   google_fonts: any
   scrollable_positioned_list: any
   intl: ^0.20.0
@@ -59,6 +60,15 @@ dependencies:
   awesome_notifications: ^0.10.1
   app_settings: ^6.1.1
   app_links: ^6.4.0
+  hugeicons: ^0.0.11
+  iconsax_flutter: ^1.0.1
+  connectivity_plus: ^6.1.4
+  flutter_exif_rotation: ^0.5.2
+  image: ^4.5.4
+  internet_connection_checker: ^1.0.0+1
+  skeletonizer: ^2.1.0+1
+  permission_handler: ^12.0.1
+  saver_gallery: ^4.0.1
 
 dev_dependencies:
   flutter_test:

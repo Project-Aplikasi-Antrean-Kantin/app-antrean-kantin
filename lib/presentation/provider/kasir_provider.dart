@@ -102,6 +102,8 @@ class KasirProvider extends ChangeNotifier {
   void addItemToCart(
       int menuId, String name, int price, String gambar, String deskripsi) {
     _cartItems.add(CartMenuModel(
+      kategoriId: 0,
+      isReady: 0,
       menuId: menuId,
       count: 1,
       menuGambar: gambar,

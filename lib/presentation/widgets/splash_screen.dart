@@ -9,13 +9,16 @@ import 'package:testgetdata/presentation/views/common/token_manager.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
+import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 
 // import 'package:testgetdata/views/tenant.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  final bool? isFromNotification;
+  const SplashScreen({Key? key, this.isFromNotification}) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -30,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    startSplashScreen();
+    internetChecking();
   }
 
   @override
@@ -47,6 +50,21 @@ class _SplashScreenState extends State<SplashScreen>
       // Jalankan ulang pengecekan
       authCheck();
     }
+  }
+
+  Future<void> internetChecking() async {
+    final internetCheck = await hasInternetAccess();
+    if (!internetCheck) {
+      showNoConnectionBottomSheet(
+        context: context,
+        onRetry: () {
+          Navigator.pop(context);
+          internetChecking();
+        },
+      );
+      return;
+    }
+    startSplashScreen();
   }
 
   Future<void> startSplashScreen() async {
@@ -66,28 +84,53 @@ class _SplashScreenState extends State<SplashScreen>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final version = await authProvider.getCurrentVersion();
 
-    if (version != '1.0.7') {
+    if (version != '1.1.0') {
       _showExitConfirmationDialog(context);
       return;
     }
 
     if (token != null) {
       debugPrint("TOKEN TERSEDIA");
-      final success = await authProvider.authWithToken(errorCallback: (error) {
-        CustomSnackBar(
-          message: error.toString(),
-          status: error.toString(),
-        );
-      });
-
+      final result = await authProvider.authWithToken(
+        errorCallback: (error) {
+          CustomSnackBar(message: error.toString(), status: error.toString());
+        },
+      );
+      print("result: $result");
       if (!mounted) return;
 
-      if (success) {
+      if (result.success) {
         log("Sukses Masuk, Token Tersedia");
+        if (widget.isFromNotification == true) {
+          if (result.user!.role.length == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => NavbarHome(
+                      pageIndex: result.user!.menu
+                          .indexWhere((element) => element.url == '/riwayat'))),
+            );
+          } else if (result.user!.role.contains('masbro')) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => NavbarHome(
+                        pageIndex: result.user!.menu.indexWhere(
+                            (element) => element.url == '/pengantaran'))));
+          } else if (result.user!.role.contains('tenant')) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => NavbarHome(
+                        pageIndex: result.user!.menu.indexWhere(
+                            (element) => element.url == '/pesanan'))));
+          }
+          return;
+        }
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const NavbarHome(pageIndex: 0),
+            builder: (context) => NavbarHome(pageIndex: 0),
           ),
         );
       } else {
@@ -178,13 +221,16 @@ class _SplashScreenState extends State<SplashScreen>
                       const url =
                           'https://play.google.com/store/apps/details?id=com.foodlab.pens';
                       if (await canLaunchUrl(Uri.parse(url))) {
-                        await launchUrl(Uri.parse(url),
-                            mode: LaunchMode.externalApplication);
+                        await launchUrl(
+                          Uri.parse(url),
+                          mode: LaunchMode.externalApplication,
+                        );
                       } else {
                         // Jika gagal membuka Play Store
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Gagal membuka Play Store')),
+                            content: Text('Gagal membuka Play Store'),
+                          ),
                         );
                       }
                     },
@@ -194,8 +240,9 @@ class _SplashScreenState extends State<SplashScreen>
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                       ),
-                      backgroundColor:
-                          WidgetStateProperty.all(AppColors.primaryColor),
+                      backgroundColor: WidgetStateProperty.all(
+                        AppColors.primaryColor,
+                      ),
                       minimumSize: WidgetStateProperty.all(const Size(100, 30)),
                     ),
                     child: const Text(
@@ -211,6 +258,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+
   // Widget build(BuildContext context) {
   //   return Scaffold(
   //     backgroundColor: AppColors.backgroundColor,

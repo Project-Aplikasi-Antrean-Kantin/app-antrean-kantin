@@ -36,7 +36,8 @@ class OrderTenantRemoteDataSource {
     }
   }
 
-  Future<bool> updateOrderCustomer(String status, String auth, int id) async {
+  Future<({bool success, String? error})> updateOrderCustomer(
+      String status, String auth, int id) async {
     try {
       final response = await http.put(
         Uri.parse('${MasbroConstants.url}/tenant/order/$id'),
@@ -50,17 +51,17 @@ class OrderTenantRemoteDataSource {
       final json = jsonDecode(response.body);
       print('iki responsenya ${response.body}');
       if (response.statusCode == 200) {
-        return true;
+        return (success: true, error: null);
       } else {
-        throw ApiException(
-            status: 'failed', message: json['message'].toString());
+        return (success: false, error: json['message'].toString());
       }
     } catch (e) {
-      throw Exception('Failed to update order');
+      return (success: false, error: e.toString());
     }
   }
 
-  Future<bool> cancelOrderCustomer(String auth, int id) async {
+  Future<({bool success, String? error})> cancelOrderCustomer(
+      String auth, int id, String catatanPenolakan) async {
     try {
       final response = await http.post(
         Uri.parse('${MasbroConstants.url}/order/cancel/$id'),
@@ -68,17 +69,17 @@ class OrderTenantRemoteDataSource {
           'Authorization': "Bearer $auth",
           'Accept': 'application/json',
         },
+        body: {'catatan_penolakan': catatanPenolakan},
       ).timeout(const Duration(seconds: 10));
 
       final json = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        return true;
+        return (success: true, error: null);
       } else {
-        throw ApiException(
-            status: 'failed', message: json['message'].toString());
+        return (success: false, error: json['message'].toString());
       }
     } catch (e) {
-      throw Exception('Failed to update order');
+      return (success: false, error: e.toString());
     }
   }
 }

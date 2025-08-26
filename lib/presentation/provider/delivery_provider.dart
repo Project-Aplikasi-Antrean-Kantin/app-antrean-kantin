@@ -4,7 +4,7 @@ import 'package:testgetdata/data/remote/driver_remote_data_source.dart';
 import 'package:testgetdata/presentation/views/common/http_exception.dart';
 
 enum DeliveryStatus {
-  siapDiantar('siap_diantar', 'Menunggu'),
+  siapDiantar('siap_diantar', 'Siap Diambil'),
   diantar('diantar', 'Diantar');
 
   final String value;
@@ -29,12 +29,20 @@ class DeliveryProvider with ChangeNotifier {
     try {
       _isLoading = true;
       _errorMessage = null;
-
+      notifyListeners();
       final pesanan =
           await DriverDataSource().getOrderDelivery(token, status.value);
-      _pesanan[status] = pesanan;
+      _pesanan[status] = pesanan.pesanan ?? [];
+      print('Fetched orders: ${_pesanan[status]}');
+      print('Result error: ${pesanan.error}');
+
+      if (pesanan.error != null) {
+        _errorMessage = pesanan.error;
+      }
     } catch (e) {
-      _errorMessage = 'Gagal memuat pesanan: $e';
+      print('Error fetching orders: $e');
+
+      _errorMessage = e.toString();
       rethrow; // Let the widget handle the error
     } finally {
       _isLoading = false;
@@ -42,11 +50,16 @@ class DeliveryProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> updateOrder(
-      String newStatus, String token, int id, Pesanan pesanan) async {
-    if (_isLoading) return false; // Prevent concurrent updates
+  Future<({bool success, String? error})> updateOrder(
+    String newStatus,
+    String token,
+    int id,
+    Pesanan pesanan,
+  ) async {
+    if (_isLoading) return (success: false, error: 'Masih memuat...');
     _isLoading = true;
     notifyListeners();
+
     try {
       final success =
           await DriverDataSource().updateOrderDelivery(newStatus, token, id);
@@ -60,18 +73,16 @@ class DeliveryProvider with ChangeNotifier {
               .removeWhere((element) => element.id == id);
         }
       }
-      return success;
+      return (success: success, error: null);
     } catch (e) {
+      String error = 'Terjadi kesalahan';
       if (e is CustomHttpException && e.statusCode == 403) {
-        _errorMessage = e.message;
-        print('403 Error: _errorMessage set to $_errorMessage');
+        error = e.message;
         await fetchOrders(token, DeliveryStatus.siapDiantar);
       } else {
-        _errorMessage = 'Error: $e';
-        print('Other Error: _errorMessage set to $_errorMessage');
+        error = 'Error: $e';
       }
-      notifyListeners();
-      return false;
+      return (success: false, error: error);
     } finally {
       _isLoading = false;
       notifyListeners();

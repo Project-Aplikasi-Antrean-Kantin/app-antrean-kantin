@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -12,6 +13,7 @@ import 'package:testgetdata/presentation/views/penjual/katalog_menu_form.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
 class MenuListPage extends StatefulWidget {
   final bool isAvailable;
@@ -90,40 +92,52 @@ class _MenuListPageState extends State<MenuListPage> {
                       // ),
                       if (filteredData.isEmpty)
                         Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            'Tidak ada menu ditemukan',
-                            style: GoogleFonts.poppins(fontSize: 14),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image(
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  image: const AssetImage(
+                                      "assets/images/404-Not-Found.png"),
+                                ),
+                                Text('Belum ada riwayat',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.poppins(
+                                        color: AppColors.blackColor400))
+                              ],
+                            ),
                           ),
                         )
-                      else
-                        ...filteredData.map((item) => KatalogMenuTile(
-                              item: item,
-                              onChanged: (value) async {
-                                try {
-                                  final result = await TenantRemoteDataSource()
-                                      .updateMenuisReady(
-                                          value, user.token, item.id);
-                                  if (result) {
-                                    await provider.fetchData(user.token);
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content:
-                                            Text('Gagal memperbarui status'),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  debugPrint('Error updating status: $e');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Terjadi kesalahan'),
-                                    ),
-                                  );
-                                }
-                              },
-                            )),
+                      // else
+                      //   ...filteredData.map((item) => KatalogMenuTile(
+
+                      //         item: item,
+                      //         onChanged: (value) async {
+                      //           try {
+                      //             final result = await TenantRemoteDataSource()
+                      //                 .updateMenuisReady(
+                      //                     value, user.token, item.id);
+                      //             if (result) {
+                      //               await provider.fetchData(user.token);
+                      //             } else {
+                      //               ScaffoldMessenger.of(context).showSnackBar(
+                      //                 const SnackBar(
+                      //                   content:
+                      //                       Text('Gagal memperbarui status'),
+                      //                 ),
+                      //               );
+                      //             }
+                      //           } catch (e) {
+                      //             debugPrint('Error updating status: $e');
+                      //             ScaffoldMessenger.of(context).showSnackBar(
+                      //               const SnackBar(
+                      //                 content: Text('Terjadi kesalahan'),
+                      //               ),
+                      //             );
+                      //           }
+                      //         },
+                      //       )),
                     ],
                   ),
                   const SizedBox(height: 80),
@@ -136,7 +150,13 @@ class _MenuListPageState extends State<MenuListPage> {
                   width: MediaQuery.of(context).size.width * 0.45,
                   child: FloatingActionButton(
                     backgroundColor: AppColors.primaryColor,
-                    onPressed: () {
+                    onPressed: () async {
+                      final internetConnection = await hasInternetAccess();
+                      if (!internetConnection) {
+                        Fluttertoast.showToast(
+                            msg: "Tidak ada koneksi internet");
+                        return;
+                      }
                       Navigator.push(
                         context,
                         CustomPageBuilder(

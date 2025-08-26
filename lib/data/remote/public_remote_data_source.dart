@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/settings_model.dart';
+import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 
 class PublicRemoteDataSource {
@@ -17,6 +18,7 @@ class PublicRemoteDataSource {
 
     final json = jsonDecode(response.body);
     String message = json['message'].toString();
+    print('message dari server: $json');
 
     if (response.statusCode == 200) {
       final jsonData = json['data']['tenants'] as List<dynamic>;
@@ -74,6 +76,25 @@ class PublicRemoteDataSource {
       }
     } catch (e) {
       print("An error occurred while fetching tenant foods: $e");
+      throw Exception('Failed to fetch tenant foods');
+    }
+  }
+
+  Future<TenantFoods> getTenantFoodsById(String menuId, String token) async {
+    try {
+      debugPrint('Fetching tenant foods for menu ID: $menuId');
+      final response = await http.get(
+        Uri.parse('${MasbroConstants.url}/menus/$menuId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      final json = jsonDecode(response.body);
+      debugPrint('API Response: $json');
+      return TenantFoods.fromJson(json['data']['menu']);
+    } catch (e) {
+      debugPrint('$e');
       throw Exception('Failed to fetch tenant foods');
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/data/constants.dart';
@@ -8,22 +9,27 @@ import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_catatan.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
 class ListCart extends StatelessWidget {
   final CartMenuModel cart;
   final bool isKasir;
+  final String? tenantId;
 
   const ListCart({
     super.key,
     required this.cart,
     required this.isKasir,
+    this.tenantId,
   });
 
   @override
   Widget build(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final cartProvider = Provider.of<CartProvider>(context, listen: true);
     final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
 
     return Card(
@@ -100,8 +106,10 @@ class ListCart extends StatelessWidget {
                         margin: EdgeInsets.only(top: 10),
                         child: Consumer<CartProvider>(
                           builder: (context, data, _) {
-                            final index = data.cart.indexWhere(
-                                (element) => element.menuId == cart.menuId);
+                            final index = data.cart.indexWhere((element) =>
+                                element.menuId == cart.menuId &&
+                                element.catatan == cart.catatan);
+
                             if (index == -1) {
                               return Container(
                                 child: Row(
@@ -171,14 +179,22 @@ class ListCart extends StatelessWidget {
                                 children: [
                                   GestureDetector(
                                     onTap: () async {
-                                      final catatan = await bottomSheetCatatan(
-                                        context,
-                                        cart.catatan ?? '',
-                                        'Tambah catatan untuk pesanan',
-                                      );
-                                      if (catatan != null) {
-                                        data.addNote(cart.menuId, catatan);
+                                      final internetConnection =
+                                          await hasInternetAccess();
+                                      if (!internetConnection) {
+                                        Fluttertoast.showToast(
+                                            msg: "Tidak ada koneksi internet");
+                                        return;
                                       }
+                                      Navigator.push(
+                                          context,
+                                          CustomPageBuilder(
+                                              page: DetailFoodPage(
+                                                  cartItem: cart,
+                                                  addNewItem: true,
+                                                  catatan: cart.catatan,
+                                                  tenant: cartProvider
+                                                      .currentTenant!)));
                                     },
                                     child: Container(
                                       width: 90,
@@ -219,8 +235,11 @@ class ListCart extends StatelessWidget {
                                         children: [
                                           InkWell(
                                             onTap: () {
-                                              cartProvider.removeItemFromCart(
-                                                  cart.menuId);
+                                              cartProvider
+                                                  .removeItemFromTenantCart(
+                                                      catatan: cart.catatan,
+                                                      tenantId ?? '',
+                                                      cart.menuId);
                                             },
                                             splashColor: Colors.transparent,
                                             child: Icon(
@@ -246,6 +265,8 @@ class ListCart extends StatelessWidget {
                                           InkWell(
                                             onTap: () {
                                               cartProvider.addItemToCart(
+                                                  catatan: cart.catatan,
+                                                  tenantId: tenantId ?? '',
                                                   cart: cart);
                                             },
                                             splashColor: Colors.transparent,

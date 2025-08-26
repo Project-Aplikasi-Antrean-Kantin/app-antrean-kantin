@@ -39,78 +39,128 @@ class RingkasanPembayaranCart extends StatelessWidget {
         const SizedBox(
           height: 10,
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.backgroundColor,
-            borderRadius: BorderRadius.all(
-              Radius.circular(10),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                isKasir
+                    ? Text(
+                        "Total pesanan (${kasirProvider.totalItems} menu)",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: AppColors.textColorBlack,
+                        ),
+                      )
+                    : Text(
+                        "Total pesanan (${cartProvider.totalItemCount} menu)",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: AppColors.textColorBlack,
+                        ),
+                      ),
+                Column(
+                  children: [
+                    Text(
+                      FormatCurrency.intToStringCurrency(
+                        isKasir
+                            ? kasirProvider.cartCost
+                            : cartProvider.deliveryCost,
+                      ),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: medium,
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
-            border: Border.all(
-              width: 0.2,
-              color: Colors.grey,
+            const SizedBox(
+              height: 7,
             ),
-          ),
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+            if (!isKasir && cartProvider.selectedDeliveryOption != 0)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  isKasir
-                      ? Text(
-                          "Total pesanan (${kasirProvider.totalItems} menu)",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: AppColors.textColorBlack,
-                          ),
+                  Text(
+                    "Biaya pengantaran",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: AppColors.textColorBlack,
+                    ),
+                  ),
+                  cartProvider.ongkir == 0
+                      ? Flexible(
+                          child: Text('Pilih Ruangan Terlebih dahulu',
+                              textAlign: TextAlign.end,
+                              softWrap: true,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.red,
+                              )),
                         )
-                      : Text(
-                          "Total pesanan (${cartProvider.totalItemCount} menu)",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: AppColors.textColorBlack,
-                          ),
+                      : Row(
+                          children: [
+                            Text(
+                              FormatCurrency.stringCurrency(
+                                  "${cartProvider.ongkir}"),
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: AppColors.textColorBlack,
+                                fontWeight: FontWeight.w500, // medium
+                              ),
+                            ),
+                          ],
                         ),
-                  Column(
-                    children: [
-                      Text(
-                        FormatCurrency.intToStringCurrency(
-                          isKasir
-                              ? kasirProvider.cartCost
-                              : cartProvider.deliveryCost,
-                        ),
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: medium,
-                        ),
-                      ),
-                    ],
-                  )
                 ],
               ),
-              const SizedBox(
-                height: 7,
-              ),
-              if (!isKasir && cartProvider.selectedDeliveryOption != 0)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Biaya pengantaran",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: AppColors.textColorBlack,
-                      ),
-                    ),
-                    cartProvider.ongkir == 0
+            const SizedBox(
+              height: 7,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Biaya layanan",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                  ),
+                ),
+                cartProvider.biayaLayanan == 0
+                    ? Row(
+                        children: [
+                          Text(
+                            FormatCurrency.intToStringCurrency(3000),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.red,
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: Colors.red,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Gratis",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: AppColors.textColorBlack,
+                              fontWeight: FontWeight.w600, // semibold
+                            ),
+                          ),
+                        ],
+                      )
+                    : cartProvider.biayaLayanan < 3000 &&
+                            cartProvider.biayaLayanan > 0
                         ? Row(
                             children: [
                               Text(
-                                FormatCurrency.stringCurrency("5000"),
+                                FormatCurrency.intToStringCurrency(3000),
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color: Colors.red,
@@ -120,156 +170,61 @@ class RingkasanPembayaranCart extends StatelessWidget {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                "Gratis",
+                                FormatCurrency.intToStringCurrency(
+                                    cartProvider.biayaLayanan),
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color: AppColors.textColorBlack,
-                                  fontWeight: FontWeight.w600, // semibold
+                                  fontWeight: medium,
                                 ),
                               ),
                             ],
                           )
-                        : cartProvider.ongkir < 5000 && cartProvider.ongkir > 0
-                            ? Row(
-                                children: [
-                                  Text(
-                                    FormatCurrency.stringCurrency("5000"),
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.red,
-                                      decoration: TextDecoration.lineThrough,
-                                      decorationColor: Colors.red,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    FormatCurrency.stringCurrency(
-                                        "${cartProvider.ongkir}"),
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: AppColors.textColorBlack,
-                                      fontWeight: FontWeight.w500, // medium
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                FormatCurrency.stringCurrency(
-                                    "${cartProvider.ongkir}"),
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500, // medium
-                                ),
-                              ),
-                  ],
+                        : Text(
+                            FormatCurrency.intToStringCurrency(
+                                cartProvider.biayaLayanan),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: semibold,
+                            ),
+                          ),
+              ],
+            ),
+            const SizedBox(
+              height: 7,
+            ),
+            const Divider(
+              color: Colors.grey,
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Total",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: AppColors.primaryColor,
+                  ),
                 ),
-              const SizedBox(
-                height: 7,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Biaya layanan",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                    ),
+                Text(
+                  FormatCurrency.intToStringCurrency(
+                    isKasir
+                        ? kasirProvider.getTotal()
+                        : cartProvider.getTotal(),
                   ),
-                  cartProvider.biayaLayanan == 0
-                      ? Row(
-                          children: [
-                            Text(
-                              FormatCurrency.intToStringCurrency(3000),
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.red,
-                                decoration: TextDecoration.lineThrough,
-                                decorationColor: Colors.red,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "Gratis",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: AppColors.textColorBlack,
-                                fontWeight: FontWeight.w600, // semibold
-                              ),
-                            ),
-                          ],
-                        )
-                      : cartProvider.biayaLayanan < 3000 &&
-                              cartProvider.biayaLayanan > 0
-                          ? Row(
-                              children: [
-                                Text(
-                                  FormatCurrency.intToStringCurrency(3000),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: Colors.red,
-                                    decoration: TextDecoration.lineThrough,
-                                    decorationColor: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  FormatCurrency.intToStringCurrency(
-                                      cartProvider.biayaLayanan),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: AppColors.textColorBlack,
-                                    fontWeight: medium,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              FormatCurrency.intToStringCurrency(
-                                  cartProvider.biayaLayanan),
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: semibold,
-                              ),
-                            ),
-                ],
-              ),
-              const SizedBox(
-                height: 7,
-              ),
-              const Divider(
-                color: Colors.grey,
-                thickness: 1,
-                indent: 0,
-                endIndent: 0,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Total",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                  Text(
-                    FormatCurrency.intToStringCurrency(
-                      isKasir
-                          ? kasirProvider.getTotal()
-                          : cartProvider.getTotal(),
-                    ),
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: AppColors.primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );

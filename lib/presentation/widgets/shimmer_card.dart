@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/model/pesanan_model.dart';
+import 'package:testgetdata/data/model/tenant_foods.dart';
+import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/presentation/views/penjual/order_status.dart';
+import 'package:testgetdata/presentation/views/penjual/pesanan_card.dart';
+import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/menu_tile.dart';
 
 class ShimmerCard extends StatelessWidget {
   final String
@@ -16,92 +26,124 @@ class ShimmerCard extends StatelessWidget {
     return Container(
         child: pageType == 'riwayat'
             ? _buildRiwayatPageShimmer()
-            : pageType == 'pesanan'
-                ? _buildPesananPageShimmer()
-                : pageType == 'tenant'
-                    ? _buildTenantPageShimmer()
-                    : pageType == 'menuTenant'
-                        ? _buildMenuTenantPageShimmer(context)
-                        : pageType == 'katalogMenuList'
-                            ? _buildMenuListPageShimmer()
-                            : pageType == 'cartPage'
-                                ? _buildCartPageShimmer()
-                                : _buildCoinTransactionShimmer(context));
+            : pageType == 'tenant'
+                ? _buildTenantPageShimmer()
+                : pageType == 'menuTenant'
+                    ? _buildMenuTenantPageShimmer(context)
+                    : pageType == 'katalogMenuList'
+                        ? _buildMenuListPageShimmer()
+                        : pageType == 'cartPage'
+                            ? _buildCartPageShimmer()
+                            : _buildCoinTransactionShimmer(context));
   }
 
-  Widget _buildPesananPageShimmer() {
+  static Widget buildPesananPageShimmer(OrderStatus status) {
     return Container(
       margin: const EdgeInsets.only(bottom: 5),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey, width: 0.2),
-        borderRadius: BorderRadius.circular(10.0),
+      child: Skeletonizer(
+        child: ListView.separated(
+          separatorBuilder: (context, index) => const SizedBox(
+            height: 8,
+          ),
+          itemBuilder: (context, index) => PesananCard(
+            pesanan: Pesanan.getDummyPesanan(),
+            status: status,
+            token: "sad",
+            listPesanan: [],
+          ),
+          itemCount: 5,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+        ),
       ),
-      child: Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  Widget _buildTenantInfo(TenantModel tenant) {
+    return Column(
+      spacing: 3,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Container(
-                width: 150,
-                height: 16,
-                color: Colors.white,
+            HugeIcon(
+              icon: HugeIcons.strokeRoundedTimeSetting03,
+              color: tenant.isOnline == true
+                  ? Color(0xFF12B76A)
+                  : Color(0xFFF04438),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              tenant.isOnline == true ? 'Buka' : 'Tutup',
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                color: tenant.isOnline == true
+                    ? Color(0xFF12B76A)
+                    : Color(0xFFF04438),
               ),
             ),
-            const SizedBox(height: 20),
-            const Divider(color: Colors.grey, height: 1),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(width: 100, height: 14, color: Colors.white),
-                  Container(width: 80, height: 14, color: Colors.white),
-                ],
+            const SizedBox(width: 4),
+            Text(
+              '|',
+              style: TextStyle(
+                color: tenant.isOnline == true
+                    ? Color(0xFF12B76A)
+                    : Color(0xFFF04438),
               ),
             ),
-            const Divider(color: Colors.grey, height: 1),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-              child: Container(width: 120, height: 14, color: Colors.white),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              height: 50,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 20),
-            const Divider(color: Colors.grey, height: 1),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(width: 100, height: 14, color: Colors.white),
-                      Container(width: 80, height: 14, color: Colors.white),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(width: 80, height: 16, color: Colors.white),
-                      Container(width: 80, height: 16, color: Colors.white),
-                    ],
-                  ),
-                ],
+            const SizedBox(width: 4),
+            Text(
+              '${tenant.jamBuka?.substring(0, 5) ?? '09:30'} - ${tenant.jamTutup?.substring(0, 5) ?? '17:00'}',
+              style: TextStyle(
+                color: tenant.isOnline == true
+                    ? Color(0xFF12B76A)
+                    : Color(0xFFF04438),
               ),
             ),
           ],
         ),
-      ),
+        Text(
+          tenant.namaTenant,
+          softWrap: true,
+          overflow: TextOverflow.visible,
+          maxLines: 4, // boleh lebih dari 1 baris
+          style: GoogleFonts.poppins(
+            color: Colors.black87,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Row(
+          children: [
+            HugeIcon(
+                icon: HugeIcons.strokeRoundedShoppingBasket01,
+                color: AppColors.secondaryColor),
+            const SizedBox(width: 4),
+            Text(
+              tenant.transaksiBerhasil.toString(),
+              style: GoogleFonts.poppins(
+                color: AppColors.primaryColor,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'pesanan berhasil',
+              style: TextStyle(color: AppColors.primaryColor, fontSize: 14),
+            )
+          ],
+        ),
+        Text(
+          'Harga mulai dari ${tenant.range}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
@@ -435,11 +477,59 @@ class ShimmerCard extends StatelessWidget {
           automaticallyImplyLeading: false,
           pinned: true,
           expandedHeight: MediaQuery.of(context).size.height / 4.5,
-          flexibleSpace: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              color: Colors.white,
+          flexibleSpace: Skeletonizer(
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  color: Colors.white,
+                ),
+                Positioned(
+                  bottom: -40, // menimpa keluar banner
+                  left: 16,
+                  right: 16,
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      spacing: 8,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: ImageByUrl(
+                            url: "",
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildTenantInfo(TenantModel(
+                              transaksiBerhasil: 1,
+                              id: 1,
+                              namaTenant: "namaTenant",
+                              namaKavling: "namaKavling",
+                              gambar: "gambar",
+                              userId: 1,
+                              createdAt: DateTime.now(),
+                              updatedAt: DateTime.now())),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
         ),
@@ -447,115 +537,49 @@ class ShimmerCard extends StatelessWidget {
         SliverToBoxAdapter(
           child: Container(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(
-                width: 150,
-                height: 20,
-                color: Colors.white,
-              ),
+            child: Container(
+              width: 150,
+              height: 50,
             ),
           ),
         ),
         // Shimmer untuk daftar MenuTile
-        SliverList(
+        SliverGrid(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              return Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Placeholder untuk gambar makanan
-                        Container(
-                          height: 100,
-                          width: 100,
-                          margin: const EdgeInsets.only(right: 12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Placeholder untuk detail makanan
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 5),
-                              // Placeholder untuk nama makanan
-                              Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: 150,
-                                  height: 16,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              // Placeholder untuk harga
-                              Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: 100,
-                                  height: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              // Placeholder untuk tombol aksi
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Shimmer.fromColors(
-                                    baseColor: Colors.grey[300]!,
-                                    highlightColor: Colors.grey[100]!,
-                                    child: Container(
-                                      width: 90,
-                                      height: 35,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (index < 2) // Divider untuk 2 item pertama
-                    Divider(
-                      color: Colors.grey,
-                      thickness: 0.2,
-                      height: 1,
-                      indent: 15,
-                      endIndent: 15,
-                    ),
-                ],
+              return Skeletonizer(
+                child: MenuTile(
+                  tenant: TenantModel(
+                      transaksiBerhasil: 1,
+                      id: 2,
+                      namaTenant: "namaTenant",
+                      namaKavling: "namaKavling",
+                      gambar: "gambar",
+                      userId: 3,
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now()),
+                  food: TenantFoods(
+                      id: 1,
+                      nama: "nama",
+                      kategoriId: 2,
+                      gambar: "gambar",
+                      isReady: 0,
+                      deskripsi: "",
+                      harga: 2),
+                  tenantName: "f",
+                  isTenantMenu: true,
+                  enableNotes: true,
+                ),
               );
             },
-            childCount: 3, // Tampilkan 3 MenuTile shimmer
+            childCount: 4,
+          ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+            childAspectRatio: 0.8,
           ),
         ),
+
         // Ruang untuk FloatingActionButton
         SliverToBoxAdapter(
           child: SizedBox(height: 100),

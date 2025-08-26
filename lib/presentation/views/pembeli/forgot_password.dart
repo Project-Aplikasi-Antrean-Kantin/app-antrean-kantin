@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
@@ -9,6 +13,7 @@ import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/open_email.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -20,6 +25,65 @@ class ForgotPassword extends StatefulWidget {
 class _ForgotPasswordState extends State<ForgotPassword> {
   final TextEditingController _emailController = TextEditingController();
   String? emailError;
+  String difference = '';
+  int _secondsRemaining = 0;
+  Timer? _timer;
+
+  String formatDuration(int seconds) {
+    final duration = Duration(seconds: seconds);
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final secs = twoDigits(duration.inSeconds.remainder(60));
+    return "$minutes:$secs";
+  }
+
+  void startCountdown() {
+    _timer?.cancel(); // stop timer sebelumnya kalau ada
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining <= 0) {
+        timer.cancel();
+      } else {
+        setState(() {
+          _secondsRemaining--;
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkTimeDifference();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> checkTimeDifference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedTimeStr = prefs.getString('last_send_reset_password');
+
+    if (savedTimeStr == null) {
+    } else {
+      final savedTime = DateTime.tryParse(savedTimeStr);
+      if (savedTime != null) {
+        final now = DateTime.now();
+        final minutesDiff = now.difference(savedTime).inMinutes;
+        final secondsDiff = now.difference(savedTime).inSeconds;
+        if (minutesDiff >= 3) {
+        } else {
+          setState(() {
+            _secondsRemaining = 180 - secondsDiff;
+          });
+          startCountdown();
+        }
+      }
+    }
+  }
+
   bool validateInputs() {
     setState(() {
       emailError = _emailController.text.isEmpty
@@ -86,72 +150,73 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
           backgroundColor: AppColors.backgroundColor,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: SingleChildScrollView(
-              child: Column(
-                spacing: 16,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image(
-                    height: 150,
-                    width: 150,
-                    image: const AssetImage("assets/images/logo-with-text.png"),
-                  ),
-                  Image(
-                    height: 150,
-                    width: 150,
-                    image:
-                        const AssetImage("assets/images/lupa-password-2.png"),
-                  ),
-                  Column(
-                    spacing: 8,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Lupa Kata Sandi',
-                        style: TextStyle(
-                          color: const Color(0xFF06144C),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          height: 1.33,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: SingleChildScrollView(
+                child: Column(
+                  spacing: 16,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      child: Center(
+                        child: Image(
+                          width: 150,
+                          image:
+                              const AssetImage("assets/images/Logo Header.png"),
                         ),
                       ),
-                      Text(
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.primaryColor.withOpacity(0.5),
-                              fontWeight: FontWeight.w300),
-                          ('Gunakan email akun kamu untuk mengatur ulang kata sandi. Pastikan email sesuai, kami akan mengirim tautan ke email kamu.')),
-                    ],
-                  ),
-                  CustomTextFormField(
-                    label: 'Email',
-                    boldLabel: true,
-                    controller: _emailController,
-                    hintText: 'Alamat email kamu',
-                    inputType: TextInputType.emailAddress,
-                    isRequired: true,
-                    errorText: emailError,
-                  ),
-                  GestureDetector(
-                    onTap: _isLoading
-                        ? null
-                        : () => _handleSendEmail(authProvider, context),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      height: 45,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                    ),
+                    SvgPicture.asset('assets/images/lupa-password.svg'),
+                    Column(
+                      spacing: 8,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Lupa Password',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.primaryColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
                           ),
-                        ],
-                      ),
+                        ),
+                        Text(
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.blackColor,
+                            ),
+                            ('Gunakan email akun kamu untuk mengatur ulang kata sandi. Pastikan email sesuai, kami akan mengirim tautan ke email kamu.')),
+                      ],
+                    ),
+                    CustomTextFormField(
+                      labelColor: AppColors.primaryColor,
+                      label: 'Email',
+                      boldLabel: true,
+                      controller: _emailController,
+                      hintText: 'Alamat email kamu',
+                      inputType: TextInputType.emailAddress,
+                      isRequired: true,
+                      errorText: emailError,
+                    ),
+                    PrimaryButton(
+                      borderRadius: 20,
+                      waitingText:
+                          'Coba dalam ${formatDuration(_secondsRemaining)}',
+                      isEnabled: _secondsRemaining <= 0,
+                      isLoading: _isLoading,
+                      onPressed: () {
+                        if (_secondsRemaining <= 0) {
+                          _handleSendEmail(authProvider, context);
+                        } else {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Coba lagi dalam ${formatDuration(_secondsRemaining)}",
+                              backgroundColor: AppColors.errorColor,
+                              textColor: AppColors.whiteColor);
+                        }
+                      },
+                      width: double.infinity,
                       child: Center(
                         child: _isLoading
                             ? Row(
@@ -170,23 +235,27 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     "Memproses...",
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 15,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ],
                               )
                             : Text(
-                                "Kirim",
+                                _secondsRemaining <= 0
+                                    ? "Kirim"
+                                    : "Kirim lagi dalam ${formatDuration(_secondsRemaining)} ",
                                 style: GoogleFonts.poppins(
-                                  color: Colors.white,
+                                  color: _isLoading
+                                      ? AppColors.blackColor300
+                                      : AppColors.whiteColor,
                                   fontWeight: medium,
-                                  fontSize: 15,
+                                  fontSize: 16,
                                 ),
                               ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -1,25 +1,45 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:app_settings/app_settings.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/data/model/top_up_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
+import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/kode_va_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/koin_info_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_cart.dart';
+import 'package:testgetdata/presentation/widgets/card_tenant.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/list_tenant.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -28,7 +48,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   late Future<List<TenantModel>> futureTenant;
   final String url = "${MasbroConstants.url}/tenants";
   List<TenantModel> foundTenant = [];
@@ -37,6 +57,10 @@ class _HomePageState extends State<HomePage> {
   DateTime? _lastFetch;
   Timer? _debounce;
   bool isSearching = false;
+  final ScrollController _scrollController = ScrollController();
+  bool isScrolledEnough = false;
+  late double expandedHeight;
+  bool showBottomSheet = false;
 
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   StreamSubscription<RemoteMessage>? _onMessageTopupSuccessSubscription;
@@ -57,6 +81,14 @@ class _HomePageState extends State<HomePage> {
         isSearching = false;
       });
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Aplikasi kembali ke foreground
+      RetryFetch();
+    }
   }
 
   void filterTenants(String value) {
@@ -107,16 +139,72 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
+  Future<void> RetryFetch() async {
+    final internetConnection = await hasInternetAccess();
+
+    if (!internetConnection) {
+      return;
+    }
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final coinProvider = Provider.of<CoinProvider>(context, listen: false);
-    final user = authProvider.user;
-    authProvider.fetchUserData(authProvider.user.token);
-    futureTenant = PublicRemoteDataSource().getTenant(context, url, user.token);
-    coinProvider.getCoinAmount(authProvider.user.token);
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
 
+    final user = authProvider.user;
+    authProvider.fetchUserData(user.token);
+    cartProvider.getAllCarts();
+
+    setState(() {
+      futureTenant =
+          PublicRemoteDataSource().getTenant(context, url, user.token);
+      isFirstLoad = true; // optional, biar fullTenant di-refresh juga
+    });
+
+    await topUpProvider.setTopUp();
+    if (topUpProvider.topUp != null) {
+      final kodeBayar = topUpProvider.topUp!.kodeBayar;
+      if (kodeBayar.contains('https:')) {
+        print('midtransId ${topUpProvider.topUp?.midtransId}');
+        await topUpProvider.getTopUpQris(
+            user.token, topUpProvider.topUp!.midtransId!);
+      } else {
+        await topUpProvider.getVirtualAccount(user.token, kodeBayar);
+      }
+    }
+    coinProvider.getCoinAmount(user.token);
+  }
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final coinProvider = Provider.of<CoinProvider>(context, listen: false);
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
+
+    final user = authProvider.user;
+    _scrollController.addListener(_scrollListener);
+
+    authProvider.fetchUserData(user.token);
+    cartProvider.getAllCarts();
+
+    futureTenant = PublicRemoteDataSource().getTenant(context, url, user.token);
+
+    /// Langkah penting:
+    /// 1. setTopUp() dari SharedPreferences
+    /// 2. Kalau berhasil dan ada kodeBayar, panggil getVirtualAccount()
+    topUpProvider.setTopUp().then((_) async {
+      if (topUpProvider.topUp != null) {
+        final kodeBayar = topUpProvider.topUp!.kodeBayar;
+        await topUpProvider.getVirtualAccount(user.token, kodeBayar);
+      }
+      coinProvider.getCoinAmount(user.token);
+    });
+
+    /// Handle notifikasi
     _onMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final title = message.data['title']?.toString().toLowerCase();
@@ -134,6 +222,15 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _scrollListener() {
+    final scrollOffset = _scrollController.offset;
+    if (scrollOffset > expandedHeight - 30 && !isScrolledEnough) {
+      setState(() => isScrolledEnough = true);
+    } else if (scrollOffset <= expandedHeight - 30 && isScrolledEnough) {
+      setState(() => isScrolledEnough = false);
+    }
+  }
+
   void _handleCoinByNotification(CoinProvider coinProvider, UserModel user) {
     // Debounce to prevent frequent fetches (e.g., within 5 seconds)
     if (_lastFetch == null ||
@@ -147,13 +244,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    // Cancel Firebase listeners to prevent accessing context after unmount
+    WidgetsBinding.instance.removeObserver(this);
+    _scrollController.dispose();
     _onMessageTopupSuccessSubscription?.cancel();
     _onMessageSubscription?.cancel();
+
     super.dispose();
   }
 
   void _handleNavigation(Widget page) {
+    print('cek');
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -183,249 +283,361 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final coinProvider = Provider.of<CoinProvider>(context);
-    final double expandedHeight = MediaQuery.of(context).size.height / 4;
+    expandedHeight = MediaQuery.of(context).size.height / 3.5;
     final user = Provider.of<AuthProvider>(context, listen: false).user;
     if (!user.permission.contains('read beranda')) {
       return const Center(child: Text('TIDAK ADA AKSES WOY'));
     }
 
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ));
-
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        body: CustomScrollView(
-          // controller: _scrollController, // Tambahkan controller
-          slivers: [
-            SliverAppBar(
-              toolbarHeight: 60,
-              backgroundColor: AppColors.backgroundColor,
-              scrolledUnderElevation: 0,
-              automaticallyImplyLeading: false,
-              pinned: true,
-              floating: false,
-              expandedHeight: expandedHeight,
-              flexibleSpace: Stack(
-                children: [
-                  Positioned.fill(
-                    child: FlexibleSpaceBar(
-                      background: Image.asset(
-                        'assets/images/beranda_banner3.png',
-                        fit: BoxFit
-                            .cover, // atau BoxFit.fill, tergantung kebutuhan
-                      ),
+    return RefreshIndicator(
+      onRefresh: () => RetryFetch(),
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          floatingActionButton: Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              return InkWell(
+                onTap: () {
+                  if (fullTenant.isNotEmpty) {
+                    showBottomSheetCart(
+                        context, fullTenant, cartProvider.tenantCarts);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Data tenant belum dimuat')),
+                    );
+                  }
+                },
+                child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 5,
-                    left: 15,
-                    right: 15,
-                    child: SearchWidget(
-                      paddingHorizontal: 0,
-                      paddingVertical: 0,
-                      formHeight: 43,
-                      tittle: "Cari menu kesukaanmu . . .",
-                      onChanged: filterTenantsDebounced,
-                    ),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 5,
-                    right: 20,
-                    child: InkWell(
-                      onTap: () {
-                        print('halo');
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Icon(
-                          Icons.shopping_bag_outlined,
-                          size: 30,
-                          color: Colors.yellow[700],
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                height: 60,
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundColor,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1), // shadow tipis
-                      blurRadius: 2,
-                      offset: const Offset(0, 1), // arah dan jarak bayangan
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(
-                        Icons.toll,
-                        size: 20,
-                        color: Colors.yellow[700],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: HugeIcon(
+                      icon: HugeIcons.strokeRoundedShoppingBasket03,
+                      color: Colors.white,
+                      size: 28,
+                    )),
+              );
+            },
+          ),
+          backgroundColor: AppColors.backgroundColor,
+          body: Stack(children: [
+            CustomScrollView(
+              controller: _scrollController, // Tambahkan controller
+              slivers: [
+                SliverAppBar(
+                  clipBehavior: Clip.none,
+                  stretch: true,
+                  expandedHeight: expandedHeight,
+                  pinned: false,
+                  flexibleSpace: Stack(
+                      fit: StackFit.expand,
+                      clipBehavior: Clip.none,
                       children: [
-                        Text(
-                          'Saldo kamu',
-                          style: GoogleFonts.poppins(
-                            fontSize: 10,
-                            fontWeight: regular,
-                            color: AppColors.textColorBlack,
-                          ),
-                        ),
-                        Text(
-                          // '$saldoCoin',
-                          FormatCurrency.intToStringCoin(
-                            coinProvider.saldoKoin,
-                          ),
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: semibold,
-                            color: AppColors.textColorBlack,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    InkWell(
-                      onTap: () {
-                        _handleNavigation(
-                          TopupPage(
-                            email: user.email,
-                          ),
-                        );
-                        // NotificationHelper.openNotificationSettings();
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        width: 100,
-                        height: 35,
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundColor,
-                          border: Border.all(
-                            color: AppColors.primaryColor,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 0,
-                              offset: const Offset(0, 0),
+                        Positioned.fill(
+                          child: FlexibleSpaceBar(
+                            background: Image.asset(
+                              'assets/images/beranda_banner6.png',
+                              fit: BoxFit.cover,
+                              height: expandedHeight,
                             ),
-                          ],
+                          ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.add_box,
-                              size: 20,
-                              color: AppColors.primaryColor,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              'Top Up',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: AppColors.primaryColor,
-                                fontWeight: bold,
+                        Positioned(
+                          bottom:
+                              -30, // Geser sedikit ke bawah dari batas bottom gambar
+                          left: 16,
+                          right: 16,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // 👉 Saldo dan tombol isi saldo kamu tadi
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    final internetConnection =
+                                        await hasInternetAccess();
+                                    if (!internetConnection) {
+                                      Fluttertoast.showToast(
+                                          msg: "Tidak ada koneksi internet");
+                                      return;
+                                    }
+                                    Navigator.push(
+                                        context,
+                                        CustomPageBuilder(
+                                            page: const KoinInfoPage()));
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          blurRadius: 6,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      spacing: 8,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(
+                                            'assets/images/koin-logo.svg',
+                                            height: 28),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'FoodLAB Koin',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.textColorBlack,
+                                              ),
+                                            ),
+                                            Text(
+                                              FormatCurrency
+                                                  .intToStringCurrency(
+                                                coinProvider.saldoKoin,
+                                              ),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.primaryColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            FutureBuilder<List<TenantModel>>(
-              future: futureTenant,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting ||
-                    isSearching) {
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => ShimmerCard(
-                        pageType: 'tenant',
-                      ),
-                      childCount: 2,
-                    ),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return const SliverToBoxAdapter(child: SizedBox());
-                }
-                fullTenant = snapshot.data ?? [];
-                if (isFirstLoad) {
-                  foundTenant = fullTenant;
-                  // Sort foundTenant: isOnline true comes first, false/null comes last
-                  foundTenant.sort((a, b) {
-                    // Treat null as false for sorting
-                    bool aOnline = a.isOnline ?? false;
-                    bool bOnline = b.isOnline ?? false;
-                    return aOnline
-                        ? -1
-                        : bOnline
-                            ? 1
-                            : 0;
-                  });
-                  isFirstLoad = false;
-                }
-                return foundTenant.isEmpty
-                    ? const SliverToBoxAdapter(
-                        child: ShimmerLoadingWidget(
-                          itemHeight: 200,
-                          itemCount: 4,
-                          showContainerTitle: false,
-                          showContainer: false,
-                        ),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) => ListTenant(
-                            url: url,
-                            fullTenant: fullTenant,
-                            foundTenant: foundTenant,
-                            onNavigate: _handleNavigation,
+                              const SizedBox(width: 16),
+                              GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: () async {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  final jsonCurrentVa =
+                                      prefs.getString('current_va');
+                                  TopUpModel? currentVa;
+                                  print('jsonCurrentVa $jsonCurrentVa');
+
+                                  if (jsonCurrentVa != null) {
+                                    final decoded = jsonDecode(
+                                        jsonCurrentVa); // ini Map<String, dynamic>
+                                    final kodeBayar =
+                                        decoded['kode_bayar'] as String;
+                                    if (kodeBayar.contains('https:')) {
+                                      currentVa =
+                                          TopUpModel.fromJsonQris(decoded);
+                                    } else {
+                                      currentVa = TopUpModel.fromJson(
+                                          decoded); // ini TopUpModel
+                                    }
+
+                                    print('Kode Bayar: ${currentVa.kodeBayar}');
+                                    print('Nominal: ${currentVa.nominal}');
+                                    print('current_va ${currentVa}');
+                                    print(
+                                        'Akhir Bayar: ${currentVa.akhirBayar}');
+                                  } else {
+                                    print(
+                                        'current_va belum tersedia di SharedPreferences.');
+                                  }
+
+                                  if (jsonCurrentVa != null &&
+                                      jsonCurrentVa.isNotEmpty &&
+                                      currentVa != null) {
+                                    _handleNavigation(KodeVaPage(
+                                      currentVa: currentVa,
+                                    ));
+                                  } else {
+                                    _handleNavigation(
+                                        TopupPage(email: user.email));
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 6,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/images/koin-logo-add.svg',
+                                        height: 24,
+                                      ),
+                                      Text(
+                                        'Isi Koin',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
-                          childCount: 1,
+                        ),
+                      ]),
+                ),
+                SliverToBoxAdapter(child: SizedBox(height: 80)),
+                FutureBuilder<List<TenantModel>>(
+                  future: futureTenant,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        isSearching) {
+                      return SliverSkeletonizer(
+                        child: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              return CardTenant(
+                                tenant: TenantModel(
+                                  id: 1,
+                                  namaTenant: 'Bakso Pak Budi',
+                                  namaKavling: 'Kavling A1',
+                                  transaksiBerhasil: 120,
+                                  gambar:
+                                      'https://example.com/images/bakso.jpg',
+                                  userId: 10,
+                                  createdAt: DateTime.now(),
+                                  updatedAt: DateTime.now(),
+                                ),
+                                email: 'ezra',
+                              );
+                            },
+                            childCount: 7,
+                          ),
                         ),
                       );
-              },
+                    }
+                    if (snapshot.hasError) {
+                      return SliverToBoxAdapter(
+                          child: Center(
+                              child: Column(
+                        spacing: 8,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(
+                              height: 216,
+                              image: const AssetImage(
+                                  'assets/images/No-connection.png')),
+                          Text(
+                            'Upss Koneksimu Hilang!',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.whiteColor900,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          Text(
+                            'Cek jaringan internet kamu dulu, ya.    Tenang, kami tetap nungguin kamu balik 😄',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFF585858),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      )));
+                    }
+                    if (isFirstLoad) {
+                      fullTenant = snapshot.data ?? [];
+
+                      print('Sebelum Sort:');
+                      fullTenant.forEach((e) =>
+                          print('${e.namaTenant}: ${e.transaksiBerhasil}'));
+
+                      fullTenant.sort((a, b) {
+                        return (b.transaksiBerhasil ?? 0)
+                            .compareTo(a.transaksiBerhasil ?? 0);
+                      });
+
+                      print('Setelah Sort:');
+                      fullTenant.forEach((e) =>
+                          print('${e.namaTenant}: ${e.transaksiBerhasil}'));
+
+                      foundTenant = fullTenant;
+                      isFirstLoad = false;
+                    }
+
+                    return SliverToBoxAdapter(
+                      child: foundTenant.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 16),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Image(
+                                      width:
+                                          MediaQuery.of(context).size.width / 2,
+                                      image: const AssetImage(
+                                          "assets/images/404-Not-Found.png"),
+                                    ),
+                                    Text(
+                                        'Yah menu yang kamu cari masih belum tersedia nih :(',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                            color: AppColors.blackColor400))
+                                  ],
+                                ),
+                              ),
+                            )
+                          : ListTenant(
+                              url: url,
+                              fullTenant: fullTenant,
+                              foundTenant: foundTenant,
+                              onNavigate: _handleNavigation,
+                            ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
+            Positioned(
+              child: AnimatedContainer(
+                duration:
+                    const Duration(milliseconds: 250), // <- durasi animasi
+                curve: Curves.easeInOut, // <- smooth curve mirip Tailwind
+                padding: const EdgeInsets.only(
+                    top: 40, left: 24, right: 24, bottom: 16),
+                color: isScrolledEnough
+                    ? Colors.white.withOpacity(1)
+                    : Colors.white.withOpacity(0.0),
+
+                child: SearchWidget(
+                  paddingHorizontal: 0,
+                  paddingVertical: 0,
+                  tittle: "Lagi pengen makan apa?",
+                  onChanged: filterTenantsDebounced,
+                ),
+              ),
+            ),
+          ]),
         ),
       ),
     );

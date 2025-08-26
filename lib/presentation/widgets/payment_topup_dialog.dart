@@ -64,7 +64,7 @@ class PaymentTopupDialog {
                         ),
                       ),
                       TextSpan(
-                        text: 'Rp ${FormatCurrency.formatNumber(nominal)}',
+                        text: '${FormatCurrency.formatNumber(nominal)}',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: semibold,
