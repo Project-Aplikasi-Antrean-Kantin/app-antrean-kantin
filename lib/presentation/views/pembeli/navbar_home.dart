@@ -5,12 +5,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/fitur_model.dart';
+import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
@@ -35,6 +37,7 @@ class NavbarHome extends StatefulWidget {
 class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
   int _currentIndex = 0;
   bool showBottomSheet = false;
+  bool showPopUpBusy = false;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
 
   @override
@@ -45,8 +48,37 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final historyProvider =
           Provider.of<HistoryProvider>(context, listen: false);
-      historyProvider.loadUnreadMessages();
       final user = Provider.of<AuthProvider>(context, listen: false).user;
+      final prefs = SharedPreferences.getInstance().then((prefs) {
+        final tenantSibuk = prefs.getString("tenant_sibuk");
+        if (tenantSibuk != null) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return CustomAlertDialog(
+                title: 'Tenantmu sedang Sibuk',
+                message:
+                    'Tekan tombol Oke agar status tenantmu menjadi Buka dalam 3 menit kedepan',
+                textButtonOk: 'Oke',
+                showCancelButton: false,
+                onOkPressed: () async {
+                  prefs.remove("tenant_sibuk");
+                  final statusTenant =
+                      await TenantRemoteDataSource().updateBusy(user.token);
+                  if (statusTenant) {
+                    Fluttertoast.showToast(
+                        msg: "Dalam 3 menit status tenantmu akan menjadi Buka",
+                        backgroundColor: AppColors.successColor,
+                        textColor: Colors.white);
+                  }
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          );
+        }
+      });
+      historyProvider.loadUnreadMessages();
 
       if (widget.initialRouteAfterOpen != null) {
         Future.delayed(const Duration(milliseconds: 300), () {
@@ -108,12 +140,48 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
             historyProvider.loadUnreadMessages();
           });
         }
+        if (title != null && title.contains('tenant sibuk')) {
+          final prefs = SharedPreferences.getInstance().then((prefs) {
+            prefs.setString('tenant_sibuk', 'true');
+
+            setState(() {
+              showPopUpBusy = true;
+            });
+
+            // ⬇️ langsung munculkan dialog
+            showDialog(
+              context: context,
+              builder: (context) {
+                return CustomAlertDialog(
+                  title: 'Tenantmu sedang Sibuk',
+                  message:
+                      'Tekan tombol Oke agar status tenantmu menjadi Buka dalam 3 menit kedepan',
+                  textButtonOk: 'Oke',
+                  showCancelButton: false,
+                  onOkPressed: () async {
+                    prefs.remove("tenant_sibuk");
+                    final statusTenant =
+                        await TenantRemoteDataSource().updateBusy(user.token);
+                    if (statusTenant) {
+                      Fluttertoast.showToast(
+                          msg:
+                              "Dalam 3 menit status tenantmu akan menjadi Buka",
+                          backgroundColor: AppColors.successColor,
+                          textColor: Colors.white);
+                    }
+                    Navigator.of(context).pop();
+                  },
+                );
+              },
+            );
+          });
+        }
       });
     });
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (!mounted) return; // ⬅️ Tambah ini
 
@@ -121,6 +189,39 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
       final historyProvider =
           Provider.of<HistoryProvider>(context, listen: false);
       historyProvider.loadUnreadMessages();
+      final user = Provider.of<AuthProvider>(context, listen: false).user;
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.reload(); // ⬅️ wajib ditunggu
+
+      final tenantSibuk = prefs.getString("tenant_sibuk");
+      if (tenantSibuk != null) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (context) {
+            return CustomAlertDialog(
+              title: 'Tenantmu sedang Sibuk',
+              message:
+                  'Tekan tombol Oke agar status tenantmu menjadi Buka dalam 3 menit kedepan',
+              textButtonOk: 'Oke',
+              showCancelButton: false,
+              onOkPressed: () async {
+                prefs.remove("tenant_sibuk");
+                final statusTenant =
+                    await TenantRemoteDataSource().updateBusy(user.token);
+                if (statusTenant) {
+                  Fluttertoast.showToast(
+                      msg: "Dalam 3 menit status tenantmu akan menjadi Buka",
+                      backgroundColor: AppColors.successColor,
+                      textColor: Colors.white);
+                }
+                Navigator.of(context).pop();
+              },
+            );
+          },
+        );
+      }
     }
   }
 

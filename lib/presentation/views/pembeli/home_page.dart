@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -33,12 +34,14 @@ import 'package:testgetdata/presentation/views/pembeli/koin_info_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/widgets/card_tenant.dart';
+import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/list_tenant.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
+import 'package:testgetdata/presentation/widgets/tenant_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,6 +56,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final String url = "${MasbroConstants.url}/tenants";
   List<TenantModel> foundTenant = [];
   List<TenantModel> fullTenant = [];
+  TenantModel? yourTenant;
   bool isFirstLoad = true;
   DateTime? _lastFetch;
   Timer? _debounce;
@@ -84,10 +88,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       // Aplikasi kembali ke foreground
-      RetryFetch();
+      await RetryFetch(false);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+      final tenantSibuk = prefs.getString("tenant_sibuk");
+      if (tenantSibuk != null) {
+        RetryFetch(true);
+      }
     }
   }
 
@@ -139,7 +149,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> RetryFetch() async {
+  Future<void> RetryFetch(bool fetchTenant) async {
     final internetConnection = await hasInternetAccess();
 
     if (!internetConnection) {
@@ -154,12 +164,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final user = authProvider.user;
     authProvider.fetchUserData(user.token);
     cartProvider.getAllCarts();
-
-    setState(() {
-      futureTenant =
-          PublicRemoteDataSource().getTenant(context, url, user.token);
-      isFirstLoad = true; // optional, biar fullTenant di-refresh juga
-    });
+    if (fetchTenant)
+      setState(() {
+        futureTenant =
+            PublicRemoteDataSource().getTenant(context, url, user.token);
+        isFirstLoad = true; // optional, biar fullTenant di-refresh juga
+      });
 
     await topUpProvider.setTopUp();
     if (topUpProvider.topUp != null) {
@@ -218,6 +228,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       final title = message.data['title']?.toString().toLowerCase();
       if (title == 'top-up berhasil') {
         _handleCoinByNotification(coinProvider, user);
+      }
+      if (title == 'tenant sibuk') {
+        RetryFetch(true);
       }
     });
   }
@@ -290,7 +303,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
 
     return RefreshIndicator(
-      onRefresh: () => RetryFetch(),
+      onRefresh: () => RetryFetch(true),
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
@@ -566,6 +579,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     }
                     if (isFirstLoad) {
                       fullTenant = snapshot.data ?? [];
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          setState(() {
+                            yourTenant = fullTenant.firstWhereOrNull(
+                              (tenant) => tenant.emailPemilik == user.email,
+                            );
+                          });
+                        }
+                      });
 
                       print('Sebelum Sort:');
                       fullTenant.forEach((e) =>
@@ -576,9 +598,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             .compareTo(a.transaksiBerhasil ?? 0);
                       });
 
-                      print('Setelah Sort:');
-                      fullTenant.forEach((e) =>
-                          print('${e.namaTenant}: ${e.transaksiBerhasil}'));
+                      // print('Setelah Sort:');
+                      // fullTenant.forEach((e) =>
+                      //     print('${e.namaTenant}: ${e.transaksiBerhasil}'));
 
                       foundTenant = fullTenant;
                       isFirstLoad = false;
@@ -618,25 +640,38 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ),
               ],
             ),
-            Positioned(
-              child: AnimatedContainer(
-                duration:
-                    const Duration(milliseconds: 250), // <- durasi animasi
-                curve: Curves.easeInOut, // <- smooth curve mirip Tailwind
-                padding: const EdgeInsets.only(
-                    top: 40, left: 24, right: 24, bottom: 16),
-                color: isScrolledEnough
-                    ? Colors.white.withOpacity(1)
-                    : Colors.white.withOpacity(0.0),
-
-                child: SearchWidget(
-                  paddingHorizontal: 0,
-                  paddingVertical: 0,
-                  tittle: "Lagi pengen makan apa?",
-                  onChanged: filterTenantsDebounced,
+            if (yourTenant != null || !user.role.contains('tenant'))
+              Positioned(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  padding: const EdgeInsets.only(
+                      top: 40, left: 24, right: 24, bottom: 16),
+                  color: isScrolledEnough
+                      ? Colors.white.withOpacity(1)
+                      : Colors.white.withOpacity(0.0),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: SearchWidget(
+                          paddingHorizontal: 0,
+                          paddingVertical: 0,
+                          tittle: "Lagi pengen makan apa?",
+                          onChanged: (value) {
+                            print(value);
+                          },
+                        ),
+                      ),
+                      if (user.role.contains('tenant') && yourTenant != null)
+                        TenantButton(
+                            yourTenant: yourTenant,
+                            isScrolledEnough: isScrolledEnough,
+                            user: user),
+                    ],
+                  ),
                 ),
               ),
-            ),
           ]),
         ),
       ),

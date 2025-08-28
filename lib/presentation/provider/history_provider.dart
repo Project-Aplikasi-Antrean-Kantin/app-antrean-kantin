@@ -92,6 +92,7 @@ class HistoryProvider with ChangeNotifier {
 
   Future<void> removeUnreadMessages(int transaksiId) async {
     final prefs = await SharedPreferences.getInstance();
+    prefs.reload();
     unreadMessagesList.remove(transaksiId);
     unreadMessages = unreadMessagesList.join(',');
     await prefs.setString('unread', unreadMessages);

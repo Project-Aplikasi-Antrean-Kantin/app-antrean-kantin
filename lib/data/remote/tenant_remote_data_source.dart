@@ -94,6 +94,27 @@ class TenantRemoteDataSource {
     }
   }
 
+  Future<bool> updateBusy(String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${MasbroConstants.url}/tenant/interupt'),
+        headers: {
+          'Authorization': "Bearer $token",
+          'Accept': 'application/json'
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        debugPrint('Gagal menghapus menu: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> deleteMenuTenant(String token, int menuId) async {
     final response = await http.delete(
       Uri.parse('${MasbroConstants.url}/tenant/menu/$menuId'),

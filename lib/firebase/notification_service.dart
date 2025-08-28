@@ -103,6 +103,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     }
   }
 
+  if (message.notification?.title?.contains('Sibuk') ?? false) {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.reload();
+    print("tenant sibuk");
+    sharedPreferences.setString("tenant_sibuk", "true");
+  }
+
   print('[BG Handler] Notification processed');
 }
 

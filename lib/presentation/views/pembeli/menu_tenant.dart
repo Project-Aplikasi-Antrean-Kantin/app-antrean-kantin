@@ -60,10 +60,7 @@ class _MenuTenantState extends State<MenuTenant> {
         .getTenantFoods(context, widget.url, user.token)
         .then((tenantData) {
       if (tenantData.busyUntil != null) {
-        isTenantBusy = tenantData.busyUntil!.isAfter(now);
-        if (isTenantBusy) {
-          showBusyBottomSheet(context: context, onRetry: () {});
-        }
+        showBusyBottomSheet(context: context, onRetry: () {});
       }
 
       print("tenantData cak iki slur ${tenantData}");

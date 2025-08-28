@@ -68,6 +68,7 @@ class _RiwayatPageState extends State<RiwayatPage>
           final transaksiId = body?.split(' ')[1].trim();
           if (title != null &&
               title.contains('pesanan') &&
+              !title.contains('pesanan masuk') &&
               transaksiId != null) {
             TransactionRemoteDataSource()
                 .getOrderById(authProvider.user.token, transaksiId)
@@ -646,7 +647,9 @@ class _RiwayatPageState extends State<RiwayatPage>
                     pesanan.status != 'selesai')
                   GestureDetector(
                     onTap: () async {
+                      print("cek");
                       final connectivityResult = await hasInternetAccess();
+                      print("yahaha");
                       // final prefs = await SharedPreferences.getInstance();
                       final canChatTenant = historyProvider.availableChatList
                               .contains(pesanan.id) &&
@@ -661,12 +664,13 @@ class _RiwayatPageState extends State<RiwayatPage>
                         );
                         return;
                       }
-                      // prefs.remove('available_chat');
-                      if (!canChatTenant) {
-                        Fluttertoast.showToast(
-                            msg:
-                                "Harus tenant yang melakukan chat terlebih dahulu");
-                        return;
+                      if (chatType == 'tenant' && widget.tabLabel == 'Beli') {
+                        if (!canChatTenant) {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Harus tenant yang melakukan chat terlebih dahulu");
+                          return;
+                        }
                       }
                       await historyProvider.removeUnreadMessages(pesanan.id);
                       Navigator.push(

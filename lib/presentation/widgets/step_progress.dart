@@ -7,9 +7,11 @@ import 'package:testgetdata/data/model/step_model.dart';
 class StepProgress extends StatefulWidget {
   final int currentStep; // step aktif
   final List<StepModel> steps; // daftar step
+  final bool isRefund;
 
   const StepProgress({
     super.key,
+    this.isRefund = false,
     required this.currentStep,
     required this.steps,
   });
@@ -43,6 +45,9 @@ class _StepProgressState extends State<StepProgress>
 
   Color getStepColor(int index) {
     if (index < widget.currentStep) {
+      if (index == 1 && widget.isRefund) {
+        return AppColors.errorColor;
+      }
       return AppColors.infoColor; // step yang sudah selesai
     }
     return Colors.grey; // step yang belum dicapai
@@ -114,7 +119,6 @@ class _StepProgressState extends State<StepProgress>
                   child: AnimatedBuilder(
                     animation: _animation,
                     builder: (context, child) {
-                      double progress = isActive ? _animation.value : 1.0;
                       return Stack(
                         children: [
                           Container(
@@ -123,8 +127,14 @@ class _StepProgressState extends State<StepProgress>
                           ),
                           FractionallySizedBox(
                             alignment: Alignment.centerLeft,
-                            widthFactor:
-                                isCompleted ? 1.0 : (isActive ? progress : 0),
+                            widthFactor: isCompleted
+                                ? 1.0
+                                : (isActive
+                                    ? (widget.isRefund
+                                        ? 0
+                                        : _animation
+                                            .value) // ⬅️ kalau refund, progress berhenti
+                                    : 0),
                             child: Container(
                               height: 4,
                               color: AppColors.infoColor,

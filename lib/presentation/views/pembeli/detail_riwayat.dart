@@ -79,60 +79,6 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   Widget build(BuildContext context) {
     final List<ListTransaksiDetail> pesananPembeli =
         widget.pesanan.listTransaksiDetail;
-    final List<StepModel> steps = widget.pesanan.isAntar == 1
-        ? [
-            StepModel(
-              padding: EdgeInsets.only(left: 0),
-              textAlign: TextAlign.start,
-              title: 'Masuk',
-              icon: HugeIcons.strokeRoundedNoteDone,
-            ),
-            StepModel(
-              textAlign: TextAlign.start,
-              title: 'Diproses',
-              icon: HugeIcons.strokeRoundedPan03,
-            ),
-            StepModel(
-              textAlign: TextAlign.center,
-              title: 'Siap Diantar',
-              icon: HugeIcons.strokeRoundedMilkCarton,
-            ),
-            StepModel(
-              padding: EdgeInsets.only(left: 12),
-              textAlign: TextAlign.center,
-              title: 'Diantar',
-              icon: HugeIcons.strokeRoundedUserRoadside,
-            ),
-            StepModel(
-              textAlign: TextAlign.end,
-              title: 'Selesai',
-              icon: HugeIcons.strokeRoundedCheckmarkBadge02,
-            ),
-          ]
-        : [
-            StepModel(
-              textAlign: TextAlign.start,
-              title: 'Masuk',
-              icon: HugeIcons.strokeRoundedNoteDone,
-            ),
-            StepModel(
-              padding: EdgeInsets.only(left: 12),
-              textAlign: TextAlign.start,
-              title: 'Diproses',
-              icon: HugeIcons.strokeRoundedPan03,
-            ),
-            StepModel(
-              padding: EdgeInsets.only(left: 8),
-              textAlign: TextAlign.center,
-              title: 'Siap Diambil',
-              icon: HugeIcons.strokeRoundedMilkCarton,
-            ),
-            StepModel(
-              textAlign: TextAlign.end,
-              title: 'Selesai',
-              icon: HugeIcons.strokeRoundedCheckmarkBadge02,
-            ),
-          ];
 
     int totalItem = 0;
 
@@ -142,325 +88,497 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
     }
 
     return Consumer<HistoryProvider>(
-      builder: (context, historyProvider, child) => Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        floatingActionButton: Consumer<CartProvider>(
-          builder: (context, cartProvider, child) {
-            final screenWidth = MediaQuery.of(context).size.width;
-            final chatType =
-                getChatType(historyProvider.selectedPesanan!.status);
-            final isValidStatus = historyProvider.selectedPesanan!.status ==
-                    'selesai' ||
-                historyProvider.selectedPesanan!.status == 'pesanan_ditolak' ||
-                historyProvider.selectedPesanan!.status == 'refund_selesai';
-            print(historyProvider.unreadMessagesList
-                .contains(historyProvider.selectedPesanan!.id));
-            final canChatTenant = historyProvider.availableChatList
-                    .contains(historyProvider.selectedPesanan!.id) &&
-                chatType == 'tenant';
+      builder: (context, historyProvider, child) {
+        final List<StepModel> steps =
+            historyProvider.selectedPesanan!.isAntar == 1
+                ? historyProvider.selectedPesanan!.status == 'refund_selesai'
+                    ? [
+                        StepModel(
+                          padding: EdgeInsets.only(left: 0),
+                          textAlign: TextAlign.start,
+                          title: 'Masuk',
+                          icon: HugeIcons.strokeRoundedNoteDone,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.start,
+                          title: 'Ditolak',
+                          icon: HugeIcons.strokeRoundedCancel02,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.center,
+                          title: 'Siap Diantar',
+                          icon: HugeIcons.strokeRoundedMilkCarton,
+                        ),
+                        StepModel(
+                          padding: EdgeInsets.only(left: 12),
+                          textAlign: TextAlign.center,
+                          title: 'Diantar',
+                          icon: HugeIcons.strokeRoundedUserRoadside,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.end,
+                          title: 'Selesai',
+                          icon: HugeIcons.strokeRoundedCheckmarkBadge02,
+                        ),
+                      ]
+                    : [
+                        StepModel(
+                          padding: EdgeInsets.only(left: 0),
+                          textAlign: TextAlign.start,
+                          title: 'Masuk',
+                          icon: HugeIcons.strokeRoundedNoteDone,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.start,
+                          title: 'Diproses',
+                          icon: HugeIcons.strokeRoundedPan03,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.center,
+                          title: 'Siap Diantar',
+                          icon: HugeIcons.strokeRoundedMilkCarton,
+                        ),
+                        StepModel(
+                          padding: EdgeInsets.only(left: 12),
+                          textAlign: TextAlign.center,
+                          title: 'Diantar',
+                          icon: HugeIcons.strokeRoundedUserRoadside,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.end,
+                          title: 'Selesai',
+                          icon: HugeIcons.strokeRoundedCheckmarkBadge02,
+                        ),
+                      ]
+                : historyProvider.selectedPesanan!.status == 'refund_selesai'
+                    ? [
+                        StepModel(
+                          textAlign: TextAlign.start,
+                          title: 'Masuk',
+                          icon: HugeIcons.strokeRoundedNoteDone,
+                        ),
+                        StepModel(
+                          padding: EdgeInsets.only(left: 12),
+                          textAlign: TextAlign.start,
+                          title: 'Ditolak',
+                          icon: HugeIcons.strokeRoundedCancel02,
+                        ),
+                        StepModel(
+                          padding: EdgeInsets.only(left: 8),
+                          textAlign: TextAlign.center,
+                          title: 'Siap Diambil',
+                          icon: HugeIcons.strokeRoundedMilkCarton,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.end,
+                          title: 'Selesai',
+                          icon: HugeIcons.strokeRoundedCheckmarkBadge02,
+                        ),
+                      ]
+                    : [
+                        StepModel(
+                          textAlign: TextAlign.start,
+                          title: 'Masuk',
+                          icon: HugeIcons.strokeRoundedNoteDone,
+                        ),
+                        StepModel(
+                          padding: EdgeInsets.only(left: 12),
+                          textAlign: TextAlign.start,
+                          title: 'Diproses',
+                          icon: HugeIcons.strokeRoundedPan03,
+                        ),
+                        StepModel(
+                          padding: EdgeInsets.only(left: 8),
+                          textAlign: TextAlign.center,
+                          title: 'Siap Diambil',
+                          icon: HugeIcons.strokeRoundedMilkCarton,
+                        ),
+                        StepModel(
+                          textAlign: TextAlign.end,
+                          title: 'Selesai',
+                          icon: HugeIcons.strokeRoundedCheckmarkBadge02,
+                        ),
+                      ];
+        return Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          floatingActionButton: Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              final screenWidth = MediaQuery.of(context).size.width;
+              final chatType =
+                  getChatType(historyProvider.selectedPesanan!.status);
+              final isValidStatus = historyProvider.selectedPesanan!.status !=
+                      'selesai' &&
+                  historyProvider.selectedPesanan!.status !=
+                      'pesanan_ditolak' &&
+                  historyProvider.selectedPesanan!.status != 'refund_selesai';
+              print(historyProvider.unreadMessagesList
+                  .contains(historyProvider.selectedPesanan!.id));
+              final canChatTenant = historyProvider.availableChatList
+                      .contains(historyProvider.selectedPesanan!.id) &&
+                  chatType == 'tenant';
 
-            if (widget.label != 'Beli' || !isValidStatus)
-              return SizedBox(
-                width: screenWidth - 48, // ini dia kuncinya!
-                child: FloatingActionButton.extended(
-                  onPressed: () async {
-                    final connectivityResult = await hasInternetAccess();
-                    if (!connectivityResult) {
-                      Fluttertoast.showToast(
-                          msg: "Tidak ada koneksi internet",
-                          backgroundColor: AppColors.errorColor,
-                          textColor: Colors.white);
-                      return;
-                    }
-                    if (!canChatTenant) {
-                      Fluttertoast.showToast(
-                          msg:
-                              "Harus tenant yang melakukan chat terlebih dahulu");
-                      return;
-                    }
-                    await historyProvider.removeUnreadMessages(
-                        historyProvider.selectedPesanan!.id);
-                    Navigator.push(
-                        context,
-                        CustomPageBuilder(
-                            page: ChatPage(
-                          pesanan: historyProvider.selectedPesanan!,
-                          chatType: chatType,
-                        )));
-                  },
-                  backgroundColor: chatType == 'tenant'
-                      ? canChatTenant
-                          ? AppColors.primaryColor
-                          : Colors.grey
-                      : AppColors.primaryColor,
-                  label: Center(
-                    child: Text(
-                      'Chat ${chatType == 'driver' ? 'Driver' : widget.label == 'Beli' ? 'Penjual' : 'Pembeli'}',
-                      style: GoogleFonts.poppins(
-                        color: AppColors.whiteColor,
-                        fontSize: 14,
-                        fontWeight: semibold,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-
-            return SizedBox(
-              width: screenWidth - 48, // ini dia kuncinya!
-              child: FloatingActionButton.extended(
-                onPressed: () async {
-                  final connectivityResult = await hasInternetAccess();
-                  if (!connectivityResult) {
-                    Fluttertoast.showToast(
-                        msg: "Tidak ada koneksi internet",
-                        backgroundColor: AppColors.errorColor,
-                        textColor: Colors.white);
-                    return;
-                  }
-                  if (historyProvider.selectedPesanan!.listTransaksiDetail[0]
-                          .menus?.tenants ==
-                      null) return;
-                  final cartMenu =
-                      historyProvider.selectedPesanan!.toCartMenuList();
-
-                  cartProvider.setCurrentTenant(
-                    historyProvider.selectedPesanan!.listTransaksiDetail[0]
-                        .menus!.tenants!,
-                    cartMenu,
-                  );
-
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    Navigator.push(
-                      context,
-                      CustomPageBuilder(
-                        page: MenuTenant(
-                          url:
-                              '${MasbroConstants.url}/tenants/${historyProvider.selectedPesanan!.listTransaksiDetail[0].menus!.tenants!.id}',
-                          cart: cartMenu,
+              if (widget.label == 'Beli') if (isValidStatus) {
+                return SizedBox(
+                  width: screenWidth - 48, // ini dia kuncinya!
+                  child: FloatingActionButton.extended(
+                    onPressed: () async {
+                      print("cek");
+                      final connectivityResult = await hasInternetAccess();
+                      print("yahaha");
+                      if (!connectivityResult) {
+                        Fluttertoast.showToast(
+                            msg: "Tidak ada koneksi internet",
+                            backgroundColor: AppColors.errorColor,
+                            textColor: Colors.white);
+                        return;
+                      }
+                      if (chatType == 'tenant' && widget.label == 'Beli') {
+                        if (!canChatTenant) {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Harus tenant yang melakukan chat terlebih dahulu");
+                          return;
+                        }
+                      }
+                      await historyProvider.removeUnreadMessages(
+                          historyProvider.selectedPesanan!.id);
+                      Navigator.push(
+                          context,
+                          CustomPageBuilder(
+                              page: ChatPage(
+                            pesanan: historyProvider.selectedPesanan!,
+                            chatType: chatType,
+                          )));
+                    },
+                    backgroundColor: chatType == 'tenant'
+                        ? canChatTenant
+                            ? AppColors.primaryColor
+                            : Colors.grey
+                        : AppColors.primaryColor,
+                    label: Center(
+                      child: Text(
+                        'Chat ${chatType == 'driver' ? 'Driver' : widget.label == 'Beli' ? 'Penjual' : 'Pembeli'}',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.whiteColor,
+                          fontSize: 14,
+                          fontWeight: semibold,
                         ),
                       ),
-                    );
-                  });
-                },
-                backgroundColor: AppColors.primaryColor,
-                label: Center(
-                  child: Text(
-                    'Pesan Lagi',
-                    style: GoogleFonts.poppins(
-                      color: AppColors.whiteColor,
-                      fontSize: 14,
-                      fontWeight: semibold,
                     ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        body: SafeArea(
-          child: RefreshIndicator(
-            backgroundColor: AppColors.backgroundColor,
-            color: AppColors.primaryColor,
-            onRefresh: _refreshData,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 16,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12, right: 12),
-                    child: SizedBox(
-                      height: 56,
-                      child: Stack(
-                        alignment: Alignment.center,
+                );
+              } else {
+                return SizedBox(
+                  width: screenWidth - 48, // ini dia kuncinya!
+                  child: FloatingActionButton.extended(
+                    onPressed: () async {
+                      final connectivityResult = await hasInternetAccess();
+                      if (!connectivityResult) {
+                        Fluttertoast.showToast(
+                            msg: "Tidak ada koneksi internet",
+                            backgroundColor: AppColors.errorColor,
+                            textColor: Colors.white);
+                        return;
+                      }
+                      if (historyProvider.selectedPesanan!
+                              .listTransaksiDetail[0].menus?.tenants ==
+                          null) return;
+                      final cartMenu =
+                          historyProvider.selectedPesanan!.toCartMenuList();
+
+                      cartProvider.setCurrentTenant(
+                        historyProvider.selectedPesanan!.listTransaksiDetail[0]
+                            .menus!.tenants!,
+                        cartMenu,
+                      );
+
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        Navigator.push(
+                          context,
+                          CustomPageBuilder(
+                            page: MenuTenant(
+                              url:
+                                  '${MasbroConstants.url}/tenants/${historyProvider.selectedPesanan!.listTransaksiDetail[0].menus!.tenants!.id}',
+                              cart: cartMenu,
+                            ),
+                          ),
+                        );
+                      });
+                    },
+                    backgroundColor: AppColors.primaryColor,
+                    label: Center(
+                      child: Text(
+                        'Pesan Lagi',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.whiteColor,
+                          fontSize: 14,
+                          fontWeight: semibold,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+              else {
+                if (isValidStatus) {
+                  return SizedBox(
+                    width: screenWidth - 48, // ini dia kuncinya!
+                    child: FloatingActionButton.extended(
+                      onPressed: () async {
+                        print("cek");
+                        final connectivityResult = await hasInternetAccess();
+                        print("yahaha");
+                        if (!connectivityResult) {
+                          Fluttertoast.showToast(
+                              msg: "Tidak ada koneksi internet",
+                              backgroundColor: AppColors.errorColor,
+                              textColor: Colors.white);
+                          return;
+                        }
+
+                        await historyProvider.removeUnreadMessages(
+                            historyProvider.selectedPesanan!.id);
+                        Navigator.push(
+                            context,
+                            CustomPageBuilder(
+                                page: ChatPage(
+                              pesanan: historyProvider.selectedPesanan!,
+                              chatType: chatType,
+                            )));
+                      },
+                      backgroundColor: chatType == 'tenant'
+                          ? canChatTenant
+                              ? AppColors.primaryColor
+                              : Colors.grey
+                          : AppColors.primaryColor,
+                      label: Center(
+                        child: Text(
+                          'Chat ${chatType == 'driver' ? 'Driver' : widget.label == 'Beli' ? 'Penjual' : 'Pembeli'}',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: semibold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  return Container();
+                }
+              }
+            },
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          body: SafeArea(
+            child: RefreshIndicator(
+              backgroundColor: AppColors.backgroundColor,
+              color: AppColors.primaryColor,
+              onRefresh: _refreshData,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 16,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12, right: 12),
+                      child: SizedBox(
+                        height: 56,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: HugeIcon(
+                                    icon: HugeIcons.strokeRoundedArrowLeft02,
+                                    color: AppColors.blackColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              'Rincian Pesanan',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.blackColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _buildStatus(
+                        historyProvider.selectedPesanan?.status ?? 'selesai'),
+                    DashedDivider(
+                      height: 2,
+                      color: AppColors.blackColor100,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _buildAlamatPengantaran(
+                          historyProvider.selectedPesanan!),
+                    ),
+                    DashedDivider(
+                      height: 2,
+                      color: AppColors.blackColor100,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _buildHeaderPesanan(
+                          historyProvider.selectedPesanan!, context, steps),
+                    ),
+                    DashedDivider(
+                      height: 2,
+                      color: AppColors.blackColor100,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        spacing: 16,
                         children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 5),
+                          StepProgress(
+                              isRefund:
+                                  historyProvider.selectedPesanan!.status ==
+                                      'refund_selesai',
+                              currentStep: getCurrentStep(
+                                  historyProvider.selectedPesanan!.status,
+                                  historyProvider.selectedPesanan!.isAntar),
+                              steps: steps),
+                          if (historyProvider.selectedPesanan!.isAntar == 1 &&
+                              (historyProvider.selectedPesanan!.status ==
+                                      'diantar' ||
+                                  historyProvider.selectedPesanan!.status ==
+                                      'selesai'))
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  spacing: 8,
+                                  children: [
+                                    ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(999),
+                                        child: ImageByUrl(
+                                            url: historyProvider
+                                                .selectedPesanan!.fotoDriver!,
+                                            height: 48,
+                                            width: 48)),
+                                    Text(
+                                      historyProvider
+                                          .selectedPesanan!.namaDriver!,
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.blackColor,
+                                        fontSize: 14,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                child: HugeIcon(
-                                  icon: HugeIcons.strokeRoundedArrowLeft02,
-                                  color: AppColors.blackColor,
+                                Text(
+                                  "Driver",
+                                  style: GoogleFonts.poppins(
+                                    color: AppColors.primaryColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Rincian Pesanan',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.blackColor,
-                            ),
-                          ),
+                              ],
+                            )
                         ],
                       ),
                     ),
-                  ),
-                  _buildStatus(
-                      historyProvider.selectedPesanan?.status ?? 'selesai'),
-                  DashedDivider(
-                    height: 2,
-                    color: AppColors.blackColor100,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildAlamatPengantaran(
-                        historyProvider.selectedPesanan!),
-                  ),
-                  DashedDivider(
-                    height: 2,
-                    color: AppColors.blackColor100,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildHeaderPesanan(
-                        historyProvider.selectedPesanan!, context, steps),
-                  ),
-                  DashedDivider(
-                    height: 2,
-                    color: AppColors.blackColor100,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      spacing: 16,
-                      children: [
-                        StepProgress(
-                            currentStep: getCurrentStep(
-                                historyProvider.selectedPesanan!.status,
-                                historyProvider.selectedPesanan!.isAntar),
-                            steps: steps),
-                        if (historyProvider.selectedPesanan!.isAntar == 1 &&
-                            (historyProvider.selectedPesanan!.status ==
-                                    'diantar' ||
-                                historyProvider.selectedPesanan!.status ==
-                                    'selesai'))
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                spacing: 8,
-                                children: [
-                                  ClipRRect(
-                                      borderRadius: BorderRadius.circular(999),
-                                      child: ImageByUrl(
-                                          url: historyProvider
-                                              .selectedPesanan!.fotoDriver!,
-                                          height: 48,
-                                          width: 48)),
-                                  Text(
-                                    historyProvider
-                                        .selectedPesanan!.namaDriver!,
-                                    style: GoogleFonts.poppins(
-                                      color: AppColors.blackColor,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                "Driver",
-                                style: GoogleFonts.poppins(
-                                  color: AppColors.primaryColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          )
-                      ],
-                    ),
-                  ),
-                  DashedDivider(height: 2, color: AppColors.blackColor100),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      '${historyProvider.selectedPesanan!.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
-                      style: GoogleFonts.poppins(
-                        color: AppColors.textColorBlack,
-                        fontSize: 14,
-                        fontWeight: semibold,
-                      ),
-                    ),
-                  ),
-                  ...pesananPembeli.map((item) => PesananItemWidget(
-                        pesanan: item,
-                        tolakPesanan: () {},
-                        terimaPesanan: () {},
-                      )),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildSubtotalSection(
-                        historyProvider.selectedPesanan!, totalItem),
-                  ),
-                  DashedDivider(
-                    height: 2,
-                    color: AppColors.blackColor100,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildBiayaLainSection(
-                        historyProvider.selectedPesanan!),
-                  ),
-                  if (historyProvider.selectedPesanan!.catatanPenolakan != null)
+                    DashedDivider(height: 2, color: AppColors.blackColor100),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        spacing: 8,
-                        children: [
-                          Text(
-                            'Catatan Penolakan',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.errorColor,
-                              fontSize: 14,
-                              fontWeight: semibold,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => showBottomSheetPenolakan(
-                                context, historyProvider.selectedPesanan!),
-                            child: Text('Detail',
-                                style: GoogleFonts.poppins(
-                                  color: AppColors.primaryColor,
-                                  fontSize: 14,
-                                )),
-                          )
-                        ],
+                      child: Text(
+                        '${historyProvider.selectedPesanan!.listTransaksiDetail[0].menus?.tenants?.namaTenant}',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.textColorBlack,
+                          fontSize: 14,
+                          fontWeight: semibold,
+                        ),
                       ),
                     ),
+                    ...pesananPembeli.map((item) => PesananItemWidget(
+                          pesanan: item,
+                          tolakPesanan: () {},
+                          terimaPesanan: () {},
+                        )),
 
-                  SizedBox(
-                    height: 96,
-                  )
-                  // _buildDivider(),
-                  // _buildRincianPesanan(pesanan),
-                  // _buildButton(pesanan.status, context),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _buildSubtotalSection(
+                          historyProvider.selectedPesanan!, totalItem),
+                    ),
+                    DashedDivider(
+                      height: 2,
+                      color: AppColors.blackColor100,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _buildBiayaLainSection(
+                          historyProvider.selectedPesanan!),
+                    ),
+                    if (historyProvider.selectedPesanan!.catatanPenolakan !=
+                        null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 8,
+                          children: [
+                            Text(
+                              'Catatan Penolakan',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.errorColor,
+                                fontSize: 14,
+                                fontWeight: semibold,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => showBottomSheetPenolakan(
+                                  context, historyProvider.selectedPesanan!),
+                              child: Text('Detail',
+                                  style: GoogleFonts.poppins(
+                                    color: AppColors.primaryColor,
+                                    fontSize: 14,
+                                  )),
+                            )
+                          ],
+                        ),
+                      ),
+
+                    SizedBox(
+                      height: 96,
+                    )
+                    // _buildDivider(),
+                    // _buildRincianPesanan(pesanan),
+                    // _buildButton(pesanan.status, context),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -591,9 +709,9 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
         case 'selesai':
           return 5;
         case 'refund_selesai':
-          return 5;
+          return 2;
         case 'pesanan_ditolak':
-          return 5;
+          return 2;
         default:
           return 1;
       }
@@ -605,8 +723,10 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
           return 2;
         case 'siap_diambil':
           return 3;
-        case 'selesai' || 'refund_selesai' || 'pesanan_ditolak':
+        case 'selesai':
           return 4;
+        case 'refund_selesai' || 'pesanan_ditolak':
+          return 2;
         default:
           return 1;
       }
