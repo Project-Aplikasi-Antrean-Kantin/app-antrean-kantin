@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,25 +55,77 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
         if (tenantSibuk != null) {
           showDialog(
             context: context,
+            barrierDismissible: true,
+            barrierColor: AppColors.primaryColor100.withOpacity(0.5),
             builder: (context) {
-              return CustomAlertDialog(
-                title: 'Tenantmu sedang Sibuk',
-                message:
-                    'Tekan tombol Oke agar status tenantmu menjadi Buka dalam 3 menit kedepan',
-                textButtonOk: 'Oke',
-                showCancelButton: false,
-                onOkPressed: () async {
-                  prefs.remove("tenant_sibuk");
-                  final statusTenant =
-                      await TenantRemoteDataSource().updateBusy(user.token);
-                  if (statusTenant) {
-                    Fluttertoast.showToast(
-                        msg: "Dalam 3 menit status tenantmu akan menjadi Buka",
-                        backgroundColor: AppColors.successColor,
-                        textColor: Colors.white);
-                  }
-                  Navigator.of(context).pop();
-                },
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                backgroundColor: Colors.transparent,
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                      color: AppColors.whiteColor,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Column(
+                    spacing: 8,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Tenant Sibuk',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.warningColor,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: HugeIcon(
+                                  size: 24,
+                                  icon: HugeIcons.strokeRoundedCancelCircle,
+                                  color:
+                                      AppColors.warningColor.withOpacity(0.5)),
+                            )
+                          ]),
+                      Text(
+                        'Tenant sedang sibuk, tekan siap untuk mengubah statu menjadi buka kembali dalam 3 menit.',
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: PrimaryButton(
+                            height: 32,
+                            borderRadius: 16,
+                            color: AppColors.warningColor,
+                            child: Text("Siap",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                )),
+                            width: 96,
+                            onPressed: () async {
+                              prefs.remove("tenant_sibuk");
+                              final statusTenant =
+                                  await TenantRemoteDataSource()
+                                      .updateBusy(user.token);
+                              if (statusTenant) {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "Dalam 3 menit status tenantmu akan menjadi Buka",
+                                    backgroundColor: AppColors.successColor,
+                                    textColor: Colors.white);
+                              }
+                              Navigator.of(context).pop();
+                            }),
+                      )
+                    ],
+                  ),
+                ),
               );
             },
           );
@@ -140,6 +193,12 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
             historyProvider.loadUnreadMessages();
           });
         }
+        if (title != null && title.contains('tidak sibuk')) {
+          final prefs = SharedPreferences.getInstance().then((prefs) {
+            if (prefs.getString('tenant_sibuk') != null)
+              prefs.remove('tenant_sibuk');
+          });
+        }
         if (title != null && title.contains('tenant sibuk')) {
           final prefs = SharedPreferences.getInstance().then((prefs) {
             prefs.setString('tenant_sibuk', 'true');
@@ -151,26 +210,77 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
             // ⬇️ langsung munculkan dialog
             showDialog(
               context: context,
+              barrierDismissible: true,
+              barrierColor: AppColors.primaryColor100.withOpacity(0.5),
               builder: (context) {
-                return CustomAlertDialog(
-                  title: 'Tenantmu sedang Sibuk',
-                  message:
-                      'Tekan tombol Oke agar status tenantmu menjadi Buka dalam 3 menit kedepan',
-                  textButtonOk: 'Oke',
-                  showCancelButton: false,
-                  onOkPressed: () async {
-                    prefs.remove("tenant_sibuk");
-                    final statusTenant =
-                        await TenantRemoteDataSource().updateBusy(user.token);
-                    if (statusTenant) {
-                      Fluttertoast.showToast(
-                          msg:
-                              "Dalam 3 menit status tenantmu akan menjadi Buka",
-                          backgroundColor: AppColors.successColor,
-                          textColor: Colors.white);
-                    }
-                    Navigator.of(context).pop();
-                  },
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  backgroundColor: Colors.transparent,
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                        color: AppColors.whiteColor,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Column(
+                      spacing: 8,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Tenant Sibuk',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.warningColor,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: HugeIcon(
+                                    size: 24,
+                                    icon: HugeIcons.strokeRoundedCancelCircle,
+                                    color: AppColors.warningColor
+                                        .withOpacity(0.5)),
+                              )
+                            ]),
+                        Text(
+                          'Tenant sedang sibuk, tekan siap untuk mengubah statu menjadi buka kembali dalam 3 menit.',
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: PrimaryButton(
+                              height: 32,
+                              borderRadius: 16,
+                              color: AppColors.warningColor,
+                              child: Text("Siap",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  )),
+                              width: 96,
+                              onPressed: () async {
+                                prefs.remove("tenant_sibuk");
+                                final statusTenant =
+                                    await TenantRemoteDataSource()
+                                        .updateBusy(user.token);
+                                if (statusTenant) {
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          "Dalam 3 menit status tenantmu akan menjadi Buka",
+                                      backgroundColor: AppColors.successColor,
+                                      textColor: Colors.white);
+                                }
+                                Navigator.of(context).pop();
+                              }),
+                        )
+                      ],
+                    ),
+                  ),
                 );
               },
             );
@@ -199,25 +309,75 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
         if (!mounted) return;
         showDialog(
           context: context,
+          barrierDismissible: true,
+          barrierColor: AppColors.primaryColor100.withOpacity(0.5),
           builder: (context) {
-            return CustomAlertDialog(
-              title: 'Tenantmu sedang Sibuk',
-              message:
-                  'Tekan tombol Oke agar status tenantmu menjadi Buka dalam 3 menit kedepan',
-              textButtonOk: 'Oke',
-              showCancelButton: false,
-              onOkPressed: () async {
-                prefs.remove("tenant_sibuk");
-                final statusTenant =
-                    await TenantRemoteDataSource().updateBusy(user.token);
-                if (statusTenant) {
-                  Fluttertoast.showToast(
-                      msg: "Dalam 3 menit status tenantmu akan menjadi Buka",
-                      backgroundColor: AppColors.successColor,
-                      textColor: Colors.white);
-                }
-                Navigator.of(context).pop();
-              },
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              backgroundColor: Colors.transparent,
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: BorderRadius.circular(20)),
+                child: Column(
+                  spacing: 8,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tenant Sibuk',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.warningColor,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: HugeIcon(
+                                size: 24,
+                                icon: HugeIcons.strokeRoundedCancelCircle,
+                                color: AppColors.warningColor.withOpacity(0.5)),
+                          )
+                        ]),
+                    Text(
+                      'Tenant sedang sibuk, tekan siap untuk mengubah statu menjadi buka kembali dalam 3 menit.',
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: PrimaryButton(
+                          height: 32,
+                          borderRadius: 16,
+                          color: AppColors.warningColor,
+                          child: Text("Siap",
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              )),
+                          width: 96,
+                          onPressed: () async {
+                            prefs.remove("tenant_sibuk");
+                            final statusTenant = await TenantRemoteDataSource()
+                                .updateBusy(user.token);
+                            if (statusTenant) {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      "Dalam 3 menit status tenantmu akan menjadi Buka",
+                                  backgroundColor: AppColors.successColor,
+                                  textColor: Colors.white);
+                            }
+                            Navigator.of(context).pop();
+                          }),
+                    )
+                  ],
+                ),
+              ),
             );
           },
         );
@@ -342,19 +502,18 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
     return WillPopScope(
       onWillPop: () async {
         final shouldExit = await showDialog<bool>(
-          context: context,
-          builder: (context) => CustomAlertDialog(
-            title: 'Konfirmasi Keluar',
-            message: 'Apakah Anda yakin ingin keluar aplikasi?',
-            showCancelButton: true,
-            onOkPressed: () {
-              Navigator.of(context).pop(true); // User memilih keluar
-            },
-            onCancelPressed: () {
-              Navigator.of(context).pop(false); // User batal
-            },
-          ),
-        );
+            context: context,
+            builder: (context) => CustomAlertDialog(
+                  title: 'Konfirmasi Keluar',
+                  message: 'Apakah Anda yakin ingin keluar aplikasi?',
+                  showCancelButton: true,
+                  onOkPressed: () {
+                    Navigator.of(context).pop(true); // User memilih keluar
+                  },
+                  onCancelPressed: () {
+                    Navigator.of(context).pop(false); // User batal
+                  },
+                ));
 
         return shouldExit ?? false;
       },

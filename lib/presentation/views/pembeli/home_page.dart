@@ -57,6 +57,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<TenantModel> foundTenant = [];
   List<TenantModel> fullTenant = [];
   TenantModel? yourTenant;
+  bool isBusyNotInterruptYet = false;
   bool isFirstLoad = true;
   DateTime? _lastFetch;
   Timer? _debounce;
@@ -164,6 +165,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final user = authProvider.user;
     authProvider.fetchUserData(user.token);
     cartProvider.getAllCarts();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.reload();
+    if (prefs.getString('tenant_sibuk') != null) {
+      setState(() {
+        isBusyNotInterruptYet = true;
+      });
+    }
     if (fetchTenant)
       setState(() {
         futureTenant =
@@ -202,6 +210,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     cartProvider.getAllCarts();
 
     futureTenant = PublicRemoteDataSource().getTenant(context, url, user.token);
+    final prefs = SharedPreferences.getInstance().then((prefs) {
+      prefs.reload();
+      if (prefs.getString('tenant_sibuk') != null) {
+        setState(() {
+          isBusyNotInterruptYet = true;
+        });
+      }
+    });
 
     /// Langkah penting:
     /// 1. setTopUp() dari SharedPreferences
@@ -230,6 +246,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _handleCoinByNotification(coinProvider, user);
       }
       if (title == 'tenant sibuk') {
+        RetryFetch(true);
+      }
+      if (title!.contains('tidak')) {
         RetryFetch(true);
       }
     });
@@ -665,6 +684,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ),
                       if (user.role.contains('tenant') && yourTenant != null)
                         TenantButton(
+                            isBusyNotInterruptYet: isBusyNotInterruptYet,
+                            onRefresh: () => RetryFetch(true),
                             yourTenant: yourTenant,
                             isScrolledEnough: isScrolledEnough,
                             user: user),

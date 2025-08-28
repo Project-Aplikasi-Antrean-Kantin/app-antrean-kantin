@@ -23,6 +23,7 @@ import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/profile_menu_item.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileMenuSection extends StatefulWidget {
   final UserModel user;
@@ -242,6 +243,43 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection> {
           //   title: 'Atur Izin Latar Belakang',
           //   onTap: () => showBatteryOptimizationDialog(context),
           // ),
+          ProfileMenuItem(
+            icon: Iconsax.call_copy,
+            title: 'Lapor Admin',
+            showIconArrow: false,
+            onTap: () async {
+              final noKonfirmasi = widget.authProvider.settings
+                  .firstWhere((setting) => setting.nama == 'nomor_konfirmasi')
+                  .nilai;
+              final whatsappUrl = Uri.parse('https://wa.me/${noKonfirmasi}');
+              final playStoreUrl = Uri.parse(
+                  'https://play.google.com/store/apps/details?id=com.whatsapp');
+
+              if (await canLaunchUrl(whatsappUrl)) {
+                await launchUrl(whatsappUrl,
+                    mode: LaunchMode.externalApplication);
+              } else if (!await launchUrl(playStoreUrl,
+                  mode: LaunchMode.externalApplication)) {
+                throw 'Could not launch $playStoreUrl';
+              }
+            },
+          ),
+          ProfileMenuItem(
+            icon: Iconsax.like_1_copy,
+            title: 'Review Aplikasi',
+            showIconArrow: false,
+            onTap: () async {
+              final link = widget.authProvider.settings
+                  .firstWhere((setting) => setting.nama == 'link_user_review')
+                  .nilai;
+              final userReviewUrl = Uri.parse(link);
+
+              if (await canLaunchUrl(userReviewUrl)) {
+                await launchUrl(userReviewUrl,
+                    mode: LaunchMode.externalApplication);
+              }
+            },
+          ),
           ProfileMenuItem(
             icon: Iconsax.logout_1_copy,
             title: 'Keluar',
