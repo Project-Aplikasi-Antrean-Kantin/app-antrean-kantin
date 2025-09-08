@@ -34,8 +34,15 @@ class CoinProvider extends ChangeNotifier {
   }
 
   Future<void> getHistoryCoin(String token, bool isInitialFetch) async {
-    if (maxPage != 1) return;
+    if (maxPage != 1) {
+      if (isInitialFetch) {
+        maxPage = 1;
+      }
+      return;
+    }
     if (isInitialFetch) {
+      transactionCoin = [];
+      currentPage = 1;
       _isLoading = true;
     } else {
       _isLoadMore = true;

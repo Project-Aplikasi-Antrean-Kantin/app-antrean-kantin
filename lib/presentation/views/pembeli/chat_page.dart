@@ -33,6 +33,7 @@ class _ChatPageState extends State<ChatPage> {
   List<Chat> listChat = [];
   late StreamSubscription<RemoteMessage> _onMessageSubscription;
   bool isLoading = true;
+  bool isSending = false;
   bool isThereText = false;
 
   @override
@@ -188,13 +189,17 @@ class _ChatPageState extends State<ChatPage> {
                               : AppColors.primaryColor),
                       onPressed: () async {
                         print("token: $token, message: ${controller.text}");
+                        if (isSending) return;
+                        setState(() {
+                          isSending = true;
+                        });
                         final prefs = await SharedPreferences.getInstance();
                         print('unread message: ${prefs.getString('unread')}');
                         if (controller.text.trim().isEmpty) {
                           Fluttertoast.showToast(msg: "Tidak boleh kosong");
                           return;
                         }
-                        ;
+
                         try {
                           await ChatRemoteDataSource()
                               .sendMessage(token, controller.text,
@@ -217,6 +222,10 @@ class _ChatPageState extends State<ChatPage> {
                         } catch (e) {
                           Fluttertoast.showToast(msg: e.toString());
                           print(e);
+                        } finally {
+                          setState(() {
+                            isSending = false;
+                          });
                         }
                       },
                     ),

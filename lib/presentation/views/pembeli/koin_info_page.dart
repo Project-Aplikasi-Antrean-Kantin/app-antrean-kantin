@@ -23,6 +23,7 @@ class KoinInfoPage extends StatefulWidget {
 
 class _KoinInfoPageState extends State<KoinInfoPage> {
   ScrollController _scrollController = ScrollController();
+  bool _isInit = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -39,6 +40,17 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
     });
 
     _initializeProviders();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isInit) {
+        _isInit = true;
+        _initializeProviders();
+      }
+    });
   }
 
   void _initializeProviders() {

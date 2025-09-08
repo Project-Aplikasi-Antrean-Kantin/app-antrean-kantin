@@ -67,6 +67,7 @@ class HistoryProvider with ChangeNotifier {
 
     _errorMessageByRole[role] = null;
     notifyListeners();
+    print('role: $role, currentPage: $_currentPageByRole[role]');
     final currentPage = isInitialFetch ? 1 : _currentPageByRole[role] ?? 1;
 
     try {
@@ -79,7 +80,9 @@ class HistoryProvider with ChangeNotifier {
         final newData = pesananList.listPesanan ?? [];
         if (newData.isEmpty) _alreadyAllFetchedByRole[role] = true;
 
-        _currentPageByRole[role] = pesananList.currentPage + 1;
+        _currentPageByRole[role] = _currentPageByRole[role] != null
+            ? _currentPageByRole[role]! + 1
+            : 2;
 
 // Gabungkan dengan prioritas data baru
         final mergedMap = {
