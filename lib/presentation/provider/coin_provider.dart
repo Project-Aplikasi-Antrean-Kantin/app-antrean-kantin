@@ -6,10 +6,14 @@ import 'package:testgetdata/data/remote/coin_remote_data_source.dart';
 
 class CoinProvider extends ChangeNotifier {
   bool _isLoading = false;
+  bool _isLoadMore = false;
   int saldoKoin = 0;
   int totalPrice = 0;
   List<CoinTransactionModel> transactionCoin = [];
+  int currentPage = 1;
+  int maxPage = 1;
   bool get isLoading => _isLoading;
+  bool get isLoadMore => _isLoadMore;
 
   Future<void> getCoinAmount(String token) async {
     _isLoading = true;
@@ -29,19 +33,32 @@ class CoinProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> getHistoryCoin(String token) async {
-    _isLoading = true;
+  Future<void> getHistoryCoin(String token, bool isInitialFetch) async {
+    if (maxPage != 1) return;
+    if (isInitialFetch) {
+      _isLoading = true;
+    } else {
+      _isLoadMore = true;
+    }
 
     try {
-      final fetchedData =
-          await CoinRemoteDataSource().getHistoryTransactionCoin(token);
-      transactionCoin = fetchedData;
+      final fetchedData = await CoinRemoteDataSource()
+          .getHistoryTransactionCoin(token, currentPage);
+      transactionCoin = transactionCoin.isEmpty
+          ? fetchedData
+          : [...transactionCoin, ...fetchedData];
+      if (fetchedData.isNotEmpty) {
+        currentPage = currentPage + 1;
+      } else {
+        maxPage = currentPage;
+      }
       log(transactionCoin.toString());
     } catch (error) {
       debugPrint('Error fetching transaction: $error');
       transactionCoin = [];
     } finally {
       _isLoading = false;
+      _isLoadMore = false;
       notifyListeners();
     }
   }

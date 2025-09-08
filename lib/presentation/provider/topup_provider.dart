@@ -33,6 +33,8 @@ class TopupProvider extends ChangeNotifier {
       settings = await PublicRemoteDataSource().getSettings();
       final settingTopUp =
           settings.firstWhere((setting) => setting.nama == 'bool_topup');
+      final settingManualTransfer =
+          settings.firstWhere((setting) => setting.nama == 'manual_transfer');
       print('settingTopUp: ${settingTopUp.nilai}');
       namaPenerima = "";
       noMandiri = "";
@@ -55,7 +57,7 @@ class TopupProvider extends ChangeNotifier {
             }
           }
         }
-        if (settingTopUp.nilai == '1') {
+        if (settingTopUp.nilai == '1' && settingManualTransfer.nilai == '1') {
           if (setting.nama == 'nomor_konfirmasi') {
             namaKonfirmasi = setting.nama;
             noKonfirmasi = "6282188671510";
@@ -75,7 +77,8 @@ class TopupProvider extends ChangeNotifier {
           if (setting.nama == 'nama_penerima') {
             namaPenerima = "Dukhaan Kamimpangan";
           }
-        } else {
+        } else if (settingTopUp.nilai == '0' &&
+            settingManualTransfer.nilai == '1') {
           if (setting.nama == 'nomor_konfirmasi') {
             namaKonfirmasi = setting.nama;
             noKonfirmasi = "6281218230764";

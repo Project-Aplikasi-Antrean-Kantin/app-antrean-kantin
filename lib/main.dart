@@ -60,7 +60,7 @@ void checkInitialMessage() async {
       initialMessage?.data['title']?.toLowerCase() ??
       "";
 
-  if (title.contains('chat baru')) {
+  if (title.contains('chat baru') || title.contains('driver menghubungi')) {
     navKey.currentState?.pushReplacement(
       MaterialPageRoute(
         builder: (_) => SplashScreen(

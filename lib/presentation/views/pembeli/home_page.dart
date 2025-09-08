@@ -677,9 +677,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           paddingHorizontal: 0,
                           paddingVertical: 0,
                           tittle: "Lagi pengen makan apa?",
-                          onChanged: (value) {
-                            print(value);
-                          },
+                          onChanged: filterTenantsDebounced,
                         ),
                       ),
                       if (user.role.contains('tenant') && yourTenant != null)

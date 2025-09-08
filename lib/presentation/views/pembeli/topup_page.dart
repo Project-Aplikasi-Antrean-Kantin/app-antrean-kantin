@@ -34,7 +34,16 @@ class TopupPage extends StatefulWidget {
 }
 
 class _TopupPageState extends State<TopupPage> {
-  final List<int> nominalList = [10000, 15000, 20000, 30000, 50000, 100000];
+  final List<int> nominalList = [
+    10000,
+    15000,
+    20000,
+    30000,
+    50000,
+    100000,
+    300000,
+    500000
+  ];
   int? _selectedNominal;
   DateTime? _lastFetch;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
@@ -72,7 +81,7 @@ class _TopupPageState extends State<TopupPage> {
   void _handleCoinTopUpByNotification(
       CoinProvider coinProvider, UserModel user) {
     coinProvider.getCoinAmount(user.token);
-    coinProvider.getHistoryCoin(user.token);
+    coinProvider.getHistoryCoin(user.token, true);
     _lastFetch = DateTime.now();
   }
 

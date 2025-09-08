@@ -3,4 +3,7 @@ class ApiException implements Exception {
   final message;
 
   const ApiException({required this.status, required this.message});
+
+  @override
+  String toString() => message;
 }

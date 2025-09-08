@@ -75,10 +75,11 @@ class TransactionRemoteDataSource {
     }
   }
 
-  Future<List<Pesanan>> getHistory(
-      BuildContext context, String auth, String role) async {
+  Future<({int currentPage, List<Pesanan>? listPesanan})> getHistory(
+      BuildContext context, String auth, String role, int page) async {
+    print("${MasbroConstants.url}/order/$role?page=$page&per_page=5");
     final response = await http.get(
-      Uri.parse('${MasbroConstants.url}/order/$role'),
+      Uri.parse('${MasbroConstants.url}/order/$role?page=$page&per_page=5'),
       headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
     );
 
@@ -86,16 +87,20 @@ class TransactionRemoteDataSource {
 
     if (response.statusCode == 200) {
       final jsonData =
-          jsonDecode(response.body)['data']['transaksi'] as List<dynamic>;
+          jsonDecode(response.body)['data']['data'] as List<dynamic>;
       debugPrint("iki respon e bro: $jsonData");
-      return jsonData.map((e) => Pesanan.fromJson(e)).toList();
+      return (
+        currentPage: jsonDecode(response.body)['data']['current_page'] as int,
+        listPesanan: jsonData.map((e) => Pesanan.fromJson(e)).toList()
+      );
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       // Redirect ke login
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context)
             .pushNamedAndRemoveUntil('/login', (route) => false);
       });
-      return []; // atau bisa return Future.error("Unauthorized");
+      return Future.error(
+          "Unauthorized"); // atau bisa return Future.error("Unauthorized");
     } else {
       debugPrint("Error: ${response.statusCode}");
       throw Exception('Data can\'t be loaded');

@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -32,6 +33,7 @@ class _ChatPageState extends State<ChatPage> {
   List<Chat> listChat = [];
   late StreamSubscription<RemoteMessage> _onMessageSubscription;
   bool isLoading = true;
+  bool isThereText = false;
 
   @override
   @override
@@ -101,105 +103,128 @@ class _ChatPageState extends State<ChatPage> {
                 fontSize: 18,
                 fontWeight: FontWeight.w600)),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            isLoading
-                ? Expanded(
-                    child: ListView.builder(
-                      itemBuilder: (context, index) => Skeletonizer(
-                          child: messageBubble(
-                              Chat(
-                                  transaksiId: 1,
-                                  message: "Hanya Dummy Saja",
-                                  senderId: 1,
-                                  chatType: "tenant",
-                                  senderName:
-                                      index % 2 == 0 ? "Tenant" : user.nama,
-                                  createdAt: DateTime.now()),
-                              user,
-                              true)),
-                      itemCount: 5,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Column(
+            children: [
+              isLoading
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemBuilder: (context, index) => Skeletonizer(
+                            child: messageBubble(
+                                Chat(
+                                    transaksiId: 1,
+                                    message: "Hanya Dummy Saja",
+                                    senderId: 1,
+                                    chatType: "tenant",
+                                    senderName:
+                                        index % 2 == 0 ? "Tenant" : user.nama,
+                                    createdAt: DateTime.now()),
+                                user,
+                                true)),
+                        itemCount: 5,
+                      ),
+                    )
+                  : Expanded(
+                      child: ListView.separated(
+                          controller: scrollController, // <- pakai controller
+                          itemCount: listChat.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 12),
+                          padding: const EdgeInsets.all(16),
+                          itemBuilder: (context, index) {
+                            if (index == 0)
+                              return messageBubble(
+                                  listChat[index], user, false);
+                            ;
+                            return messageBubble(
+                                listChat[index],
+                                user,
+                                listChat[index - 1].senderName ==
+                                    listChat[index].senderName);
+                          }),
                     ),
-                  )
-                : Expanded(
-                    child: ListView.separated(
-                        controller: scrollController, // <- pakai controller
-                        itemCount: listChat.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 12),
-                        padding: const EdgeInsets.all(16),
-                        itemBuilder: (context, index) {
-                          if (index == 0)
-                            return messageBubble(listChat[index], user, false);
-                          ;
-                          return messageBubble(
-                              listChat[index],
-                              user,
-                              listChat[index - 1].senderName ==
-                                  listChat[index].senderName);
-                        }),
-                  ),
 
-            // input bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              color: AppColors.whiteColor100,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: controller,
-                      decoration: InputDecoration(
-                        hintText: "Ketik pesan...",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
+              // input bar
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                color: AppColors.whiteColor100,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        onChanged: (value) {
+                          if (value.isNotEmpty)
+                            setState(() => isThereText = true);
+                        },
+                        controller: controller,
+                        decoration: InputDecoration(
+                          hintText: "Ketik pesan...",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide(
+                              color: AppColors.primaryColor,
+                              width: 1,
+                            ),
+                          ),
+                          fillColor: AppColors.whiteColor,
+                          filled: true,
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 15),
                         ),
-                        fillColor: AppColors.whiteColor,
-                        filled: true,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 15),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () async {
-                      print("token: $token, message: ${controller.text}");
-                      final prefs = await SharedPreferences.getInstance();
-                      print('unread message: ${prefs.getString('unread')}');
-                      if (controller.text.trim().isEmpty) return;
-                      try {
-                        await ChatRemoteDataSource()
-                            .sendMessage(token, controller.text,
-                                widget.chatType, widget.pesanan.id.toString())
-                            .then((value) {
-                          setState(() {
-                            listChat.add(value);
+                    const SizedBox(width: 10),
+                    IconButton(
+                      icon: Icon(Iconsax.send_1_copy,
+                          size: 32,
+                          color: controller.text.isEmpty
+                              ? Colors.grey
+                              : AppColors.primaryColor),
+                      onPressed: () async {
+                        print("token: $token, message: ${controller.text}");
+                        final prefs = await SharedPreferences.getInstance();
+                        print('unread message: ${prefs.getString('unread')}');
+                        if (controller.text.trim().isEmpty) {
+                          Fluttertoast.showToast(msg: "Tidak boleh kosong");
+                          return;
+                        }
+                        ;
+                        try {
+                          await ChatRemoteDataSource()
+                              .sendMessage(token, controller.text,
+                                  widget.chatType, widget.pesanan.id.toString())
+                              .then((value) {
+                            setState(() {
+                              listChat.add(value);
+                            });
+                            controller.clear();
                           });
-                          controller.clear();
-                        });
 
-                        // Scroll ke bawah setelah frame dirender
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          scrollController.animateTo(
-                            scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                          );
-                        });
-                      } catch (e) {
-                        Fluttertoast.showToast(msg: e.toString());
-                        print(e);
-                      }
-                    },
-                  ),
-                ],
+                          // Scroll ke bawah setelah frame dirender
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            scrollController.animateTo(
+                              scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            );
+                          });
+                        } catch (e) {
+                          Fluttertoast.showToast(msg: e.toString());
+                          print(e);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

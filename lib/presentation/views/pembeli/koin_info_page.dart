@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
@@ -21,10 +22,22 @@ class KoinInfoPage extends StatefulWidget {
 }
 
 class _KoinInfoPageState extends State<KoinInfoPage> {
+  ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final coinProvider = Provider.of<CoinProvider>(context, listen: false);
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          coinProvider.getHistoryCoin(authProvider.user.token, false);
+        }
+      });
+    });
+
     _initializeProviders();
   }
 
@@ -33,7 +46,7 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
     final coinProvider = Provider.of<CoinProvider>(context, listen: false);
     final user = authProvider.user;
 
-    coinProvider.getHistoryCoin(user.token);
+    coinProvider.getHistoryCoin(user.token, true);
     coinProvider.getCoinAmount(user.token);
   }
 
@@ -157,7 +170,7 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
-                child: _buildTransactionList(),
+                child: _buildTransactionList(_scrollController),
               ),
             )
           ],
@@ -205,7 +218,7 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
     );
   }
 
-  Widget _buildTransactionList() {
+  Widget _buildTransactionList(ScrollController scrollController) {
     return Consumer<CoinProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) {
@@ -219,29 +232,46 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
         }
 
         return ListView(
-          children: grouped.entries.map((entry) {
-            final date = entry.key;
-            final transactions = entry.value;
+          controller: scrollController,
+          children: [
+            ...grouped.entries.map((entry) {
+              final date = entry.key;
+              final transactions = entry.value;
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12.0, horizontal: 10),
-                  child: Text(
-                    date,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.blackColor100,
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 10),
+                    child: Text(
+                      date,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.blackColor100,
+                      ),
                     ),
                   ),
-                ),
-                ...transactions.map((t) => _buildTransactionItem(t)).toList(),
-              ],
-            );
-          }).toList(),
+                  ...transactions.map((t) => _buildTransactionItem(t)).toList(),
+                ],
+              );
+            }).toList(),
+
+            // ✅ Tambahin skeleton item di paling bawah kalau lagi load more
+            if (provider.isLoadMore)
+              Skeletonizer(
+                  child: _buildTransactionItem({
+                "id": 1234,
+                "user_id": 374,
+                "jumlah": -5000,
+                "tipe": "keluar",
+                "deskripsi": "Pembayaran pesanan #1123",
+                "created_at": "2025-09-01 14:21:26",
+                "updated_at": "2025-09-01 14:21:26",
+                "deleted_at": null
+              })),
+          ],
         );
       },
     );

@@ -94,7 +94,7 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
                             )
                           ]),
                       Text(
-                        'Tenant sedang sibuk, tekan siap untuk mengubah statu menjadi buka kembali dalam 3 menit.',
+                        'Tenant sedang sibuk, tekan siap untuk mengubah status menjadi buka kembali dalam 3 menit.',
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -109,11 +109,12 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
                                 )),
                             width: 96,
                             onPressed: () async {
-                              prefs.remove("tenant_sibuk");
                               final statusTenant =
                                   await TenantRemoteDataSource()
                                       .updateBusy(user.token);
                               if (statusTenant) {
+                                prefs.remove("tenant_sibuk");
+
                                 Fluttertoast.showToast(
                                     msg:
                                         "Dalam 3 menit status tenantmu akan menjadi Buka",
@@ -264,11 +265,12 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
                                   )),
                               width: 96,
                               onPressed: () async {
-                                prefs.remove("tenant_sibuk");
                                 final statusTenant =
                                     await TenantRemoteDataSource()
                                         .updateBusy(user.token);
                                 if (statusTenant) {
+                                  prefs.remove("tenant_sibuk");
+
                                   Fluttertoast.showToast(
                                       msg:
                                           "Dalam 3 menit status tenantmu akan menjadi Buka",
@@ -362,10 +364,11 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
                               )),
                           width: 96,
                           onPressed: () async {
-                            prefs.remove("tenant_sibuk");
                             final statusTenant = await TenantRemoteDataSource()
                                 .updateBusy(user.token);
                             if (statusTenant) {
+                              prefs.remove("tenant_sibuk");
+
                               Fluttertoast.showToast(
                                   msg:
                                       "Dalam 3 menit status tenantmu akan menjadi Buka",

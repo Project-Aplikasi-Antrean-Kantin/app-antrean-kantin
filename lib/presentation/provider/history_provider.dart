@@ -8,7 +8,10 @@ class HistoryProvider with ChangeNotifier {
   // State terpisah untuk setiap role
   final Map<String, List<Pesanan>> _listPesananByRole = {};
   final Map<String, bool> _isLoadingByRole = {};
+  final Map<String, bool> _loadMoreDataByRole = {};
+  final Map<String, bool> _alreadyAllFetchedByRole = {};
   final Map<String, String?> _errorMessageByRole = {};
+  final Map<String, int> _currentPageByRole = {};
   final Map<String, DateTime?> _lastFetchTimeByRole = {};
   String unreadMessages = '';
   List<int> unreadMessagesList = [];
@@ -22,6 +25,7 @@ class HistoryProvider with ChangeNotifier {
   Pesanan? selectedPesanan;
 
   bool getIsLoading(String role) => _isLoadingByRole[role] ?? false;
+  bool getLoadMoreData(String role) => _loadMoreDataByRole[role] ?? false;
   String? getErrorMessage(String role) => _errorMessageByRole[role];
   DateTime? getLastFetchTime(String role) => _lastFetchTimeByRole[role];
 
@@ -38,7 +42,8 @@ class HistoryProvider with ChangeNotifier {
   bool get isLoading => false;
   String? get errorMessage => null;
 
-  Future<void> fetchHistory(BuildContext context, UserModel user, String role,
+  Future<void> fetchHistory(
+      BuildContext context, UserModel user, String role, bool isInitialFetch,
       {bool forceRefresh = false}) async {
     print("ngefetch cak");
     // Skip jika sedang loading dan bukan force refresh
@@ -51,20 +56,38 @@ class HistoryProvider with ChangeNotifier {
       return;
     }
 
+    if (_alreadyAllFetchedByRole[role] == true) return;
+
     _activeRequests.add(role);
-    _isLoadingByRole[role] = true;
+    if (isInitialFetch) {
+      _isLoadingByRole[role] = true;
+    } else {
+      _loadMoreDataByRole[role] = true;
+    }
+
     _errorMessageByRole[role] = null;
     notifyListeners();
+    final currentPage = isInitialFetch ? 1 : _currentPageByRole[role] ?? 1;
 
     try {
       final pesananList = await TransactionRemoteDataSource()
-          .getHistory(context, user.token, role);
+          .getHistory(context, user.token, role, currentPage);
 
       // Cek apakah request masih aktif (tidak di-cancel)
       if (_activeRequests.contains(role)) {
-        _listPesananByRole[role] = pesananList;
-        _errorMessageByRole[role] = null;
-        _lastFetchTimeByRole[role] = DateTime.now();
+        final existing = _listPesananByRole[role] ?? [];
+        final newData = pesananList.listPesanan ?? [];
+        if (newData.isEmpty) _alreadyAllFetchedByRole[role] = true;
+
+        _currentPageByRole[role] = pesananList.currentPage + 1;
+
+// Gabungkan dengan prioritas data baru
+        final mergedMap = {
+          for (var p in [...existing, ...newData]) p.id: p,
+        };
+
+// Ambil values-nya (urutan: existing dulu, lalu newData override)
+        _listPesananByRole[role] = mergedMap.values.toList();
       }
     } catch (e) {
       if (_activeRequests.contains(role)) {
@@ -74,6 +97,7 @@ class HistoryProvider with ChangeNotifier {
     } finally {
       _activeRequests.remove(role);
       _isLoadingByRole[role] = false;
+      _loadMoreDataByRole[role] = false;
       notifyListeners();
     }
   }
@@ -94,8 +118,13 @@ class HistoryProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.reload();
     unreadMessagesList.remove(transaksiId);
-    unreadMessages = unreadMessagesList.join(',');
-    await prefs.setString('unread', unreadMessages);
+    if (unreadMessagesList.isEmpty) {
+      prefs.remove('unread');
+      unreadMessages = '';
+    } else {
+      unreadMessages = unreadMessagesList.join(',');
+      await prefs.setString('unread', unreadMessages);
+    }
     notifyListeners();
   }
 
@@ -126,7 +155,7 @@ class HistoryProvider with ChangeNotifier {
       BuildContext context, UserModel user, String role) async {
     print("ngefetch cak");
     await Future.delayed(const Duration(seconds: 1)); // Simulasi delay
-    await fetchHistory(context, user, role, forceRefresh: true);
+    await fetchHistory(context, user, role, true, forceRefresh: true);
   }
 
   // Method untuk fetch data jika diperlukan
@@ -136,7 +165,7 @@ class HistoryProvider with ChangeNotifier {
         shouldRefreshData(role) || getListPesanan(role).isEmpty;
 
     if (shouldRefresh) {
-      await fetchHistory(context, user, role);
+      await fetchHistory(context, user, role, true);
     }
   }
 

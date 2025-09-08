@@ -1,12 +1,16 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
+import 'package:testgetdata/data/remote/driver_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
@@ -17,6 +21,7 @@ import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
+import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class DeliveryCard extends StatefulWidget {
@@ -39,6 +44,53 @@ class DeliveryCard extends StatefulWidget {
 
 class _DeliveryCardState extends State<DeliveryCard> {
   bool _isLoading = false; // Local loading state for this card's button
+  bool _isCooldown = false; // state untuk cooldown
+  int _cooldownSeconds = 30; // lama cooldown (detik)
+  Timer? _timer;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startCooldown() {
+    setState(() {
+      _isCooldown = true;
+    });
+
+    _timer = Timer(Duration(seconds: _cooldownSeconds), () {
+      if (mounted) {
+        setState(() {
+          _isCooldown = false;
+        });
+      }
+    });
+  }
+
+  Future<void> _handlePress() async {
+    final connectivityResult = await hasInternetAccess();
+    if (!connectivityResult) {
+      Fluttertoast.showToast(msg: 'Tidak ada koneksi internet');
+      showNoConnectionBottomSheet(context: context, onRetry: () {});
+      return;
+    }
+    try {
+      final success = await DriverDataSource()
+          .pingCustomer(widget.userToken, widget.pesanan.id.toString());
+
+      if (success.success) {
+        Fluttertoast.showToast(msg: 'Ping terkirim');
+        Navigator.pop(context);
+        _startCooldown(); // mulai cooldown kalau sukses
+      } else {
+        Fluttertoast.showToast(
+            msg: '${success.error ?? 'Ping gagal terkirim'}');
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -250,70 +302,92 @@ class _DeliveryCardState extends State<DeliveryCard> {
                 children: [
                   if (widget.status == DeliveryStatus.diantar)
                     Expanded(
-                        child: Stack(
-                      clipBehavior: Clip.none,
+                        child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: Size(double.infinity, 50),
-                            side: BorderSide(
-                                color: AppColors.primaryColor), // border warna
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                          ),
-                          onPressed: () async {
-                            final connectivityResult =
-                                await hasInternetAccess();
-                            if (!connectivityResult) {
-                              Fluttertoast.showToast(
-                                msg: 'Tidak ada koneksi internet',
-                              );
-                              showNoConnectionBottomSheet(
-                                  context: context, onRetry: () {});
-                              return;
-                            }
-                            historyProvider
-                                .removeUnreadMessages(widget.pesanan.id);
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                shape:
+                                    const CircleBorder(), // ✅ ini yang bikin benar-benar bundar
+                                side: BorderSide(
+                                    color: AppColors.primaryColor300, width: 2),
+                                padding: const EdgeInsets.all(
+                                    12), // jarak icon dengan border
+                              ),
+                              onPressed: () async {
+                                final connectivityResult =
+                                    await hasInternetAccess();
+                                if (!connectivityResult) {
+                                  Fluttertoast.showToast(
+                                      msg: 'Tidak ada koneksi internet');
+                                  showNoConnectionBottomSheet(
+                                      context: context, onRetry: () {});
+                                  return;
+                                }
+                                historyProvider
+                                    .removeUnreadMessages(widget.pesanan.id);
 
-                            Navigator.push(
-                              context,
-                              CustomPageBuilder(
-                                page: ChatPage(
-                                  pesanan: widget.pesanan,
-                                  chatType: "driver",
+                                Navigator.push(
+                                  context,
+                                  CustomPageBuilder(
+                                    page: ChatPage(
+                                      pesanan: widget.pesanan,
+                                      chatType: "driver",
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: const Icon(
+                                Iconsax.message_text_copy,
+                                size: 24,
+                                color: AppColors.primaryColor300,
+                              ),
+                            ),
+
+                            // bulatan indikator
+                            if (isThereNewChat)
+                              Positioned(
+                                right: 8,
+                                top: 4,
+                                child: Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryColor,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            );
-                          },
-                          child: Text(
-                            'Chat Pembeli',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.primaryColor,
-                              fontSize: 14,
-                              fontWeight: semibold,
-                            ),
-                          ),
+                          ],
                         ),
-
-                        // bulatan indikator
-                        if (isThereNewChat)
-                          Positioned(
-                            right: 4,
-                            top: -2,
-                            child: Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
-                                shape: BoxShape.circle,
-                              ),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            side: BorderSide(
+                              color: _isCooldown
+                                  ? Colors.grey // abu kalau cooldown
+                                  : AppColors.primaryColor300,
+                              width: 2,
                             ),
+                            padding: const EdgeInsets.all(12),
                           ),
+                          onPressed: _isCooldown
+                              ? null
+                              : () => showBottomSheetPing(
+                                  context: context,
+                                  onFinish: _handlePress,
+                                  canSend:
+                                      !_isCooldown), // disable pas cooldown
+                          child: HugeIcon(
+                            icon: HugeIcons.strokeRoundedMegaphone02,
+                            color: _isCooldown
+                                ? Colors.grey
+                                : AppColors.primaryColor300,
+                          ),
+                        )
                       ],
                     )),
                   if (widget.status == DeliveryStatus.siapDiantar)
@@ -370,58 +444,57 @@ class _DeliveryCardState extends State<DeliveryCard> {
                       },
                     ),
                   if (widget.status == DeliveryStatus.diantar)
-                    Expanded(
-                      child: PrimaryButton(
-                        isLoading: _isLoading, // Use local loading state
-                        elevation: 0,
-                        height: screenSize.height * 0.065,
-                        borderRadius: 20,
-                        child: Text(
-                          widget.status == DeliveryStatus.siapDiantar
-                              ? 'Antar Pesanan'
-                              : 'Selesai Diantar',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    PrimaryButton(
+                      isLoading: _isLoading, // Use local loading state
+                      elevation: 0,
+                      width: screenSize.width * 0.4,
+                      height: screenSize.height * 0.065,
+                      borderRadius: 20,
+                      child: Text(
+                        widget.status == DeliveryStatus.siapDiantar
+                            ? 'Antar Pesanan'
+                            : 'Selesai Diantar',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
                         ),
-                        onPressed: () async {
-                          setState(() {
-                            _isLoading = true; // Set local loading state
-                          });
-                          final result = await deliveryProvider.updateOrder(
-                            widget.status == DeliveryStatus.siapDiantar
-                                ? 'diantar'
-                                : 'selesai',
-                            widget.userToken,
-                            widget.pesanan.id,
-                            widget.pesanan,
-                          );
-
-                          Fluttertoast.showToast(
-                            msg: result.success
-                                ? widget.status == DeliveryStatus.siapDiantar
-                                    ? 'Segera antar pesanan!'
-                                    : 'Pesanan selesai 🎉'
-                                : result.error ??
-                                    'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            backgroundColor:
-                                result.success ? Colors.grey : Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
-                          );
-
-                          if (mounted) {
-                            // Check if the widget is still mounted
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          }
-                          if (result.success) widget.onSuccess();
-                        },
                       ),
+                      onPressed: () async {
+                        setState(() {
+                          _isLoading = true; // Set local loading state
+                        });
+                        final result = await deliveryProvider.updateOrder(
+                          widget.status == DeliveryStatus.siapDiantar
+                              ? 'diantar'
+                              : 'selesai',
+                          widget.userToken,
+                          widget.pesanan.id,
+                          widget.pesanan,
+                        );
+
+                        Fluttertoast.showToast(
+                          msg: result.success
+                              ? widget.status == DeliveryStatus.siapDiantar
+                                  ? 'Segera antar pesanan!'
+                                  : 'Pesanan selesai 🎉'
+                              : result.error ??
+                                  'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor:
+                              result.success ? Colors.grey : Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+
+                        if (mounted) {
+                          // Check if the widget is still mounted
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                        if (result.success) widget.onSuccess();
+                      },
                     ),
                 ],
               ),

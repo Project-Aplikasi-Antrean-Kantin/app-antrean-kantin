@@ -45,7 +45,7 @@ class OrderSuccess extends StatelessWidget {
           token: user.token.toString(),
           pesanan: pesanan,
           refreshData: () {
-            historyProvider.fetchHistory(context, user, "user");
+            historyProvider.fetchHistory(context, user, "user", true);
           },
         ),
       ),

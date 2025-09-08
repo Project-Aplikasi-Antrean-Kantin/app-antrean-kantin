@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
@@ -13,6 +14,8 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/step_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/remote/driver_remote_data_source.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
@@ -23,9 +26,11 @@ import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
+import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
 import 'package:testgetdata/presentation/widgets/step_progress.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -49,15 +54,21 @@ class DetailRiwayat extends StatefulWidget {
 
 class _DetailRiwayatState extends State<DetailRiwayat> {
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  bool _isCooldown = false; // state untuk cooldown
+  int _cooldownSeconds = 30; // lama cooldown (detik)
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     if (_onMessageSubscription == null) {
-      _onMessageSubscription =
-          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      _onMessageSubscription = FirebaseMessaging.onMessage.listen((
+        RemoteMessage message,
+      ) {
         final title = message.data['title']?.toString().toLowerCase();
-        if (title != null && title.contains('pesanan')) {
+        if (title != null &&
+            title.contains('pesanan') &&
+            !title.contains('diantar')) {
           _refreshData();
         }
       });
@@ -66,8 +77,51 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     _onMessageSubscription?.cancel();
+
     super.dispose();
+  }
+
+  void _startCooldown() {
+    setState(() {
+      _isCooldown = true;
+    });
+
+    _timer = Timer(Duration(seconds: _cooldownSeconds), () {
+      if (mounted) {
+        setState(() {
+          _isCooldown = false;
+        });
+      }
+    });
+  }
+
+  Future<void> _handlePress() async {
+    final connectivityResult = await hasInternetAccess();
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+    if (!connectivityResult) {
+      Fluttertoast.showToast(msg: 'Tidak ada koneksi internet');
+      showNoConnectionBottomSheet(context: context, onRetry: () {});
+      return;
+    }
+    try {
+      final success = await DriverDataSource().pingCustomer(
+        user.token,
+        widget.pesanan.id.toString(),
+      );
+
+      if (success.success) {
+        Fluttertoast.showToast(msg: 'Ping terkirim');
+        _startCooldown(); // mulai cooldown kalau sukses
+        Navigator.pop(context);
+      } else {
+        Fluttertoast.showToast(
+            msg: '${success.error ?? 'Ping gagal terkirim'}');
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
   }
 
   Future<void> _refreshData() async {
@@ -89,6 +143,9 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
 
     return Consumer<HistoryProvider>(
       builder: (context, historyProvider, child) {
+        final isThereNewChat = historyProvider.unreadMessagesList.contains(
+          widget.pesanan.id,
+        );
         final List<StepModel> steps =
             historyProvider.selectedPesanan!.isAntar == 1
                 ? historyProvider.selectedPesanan!.status == 'refund_selesai'
@@ -204,18 +261,26 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
           floatingActionButton: Consumer<CartProvider>(
             builder: (context, cartProvider, child) {
               final screenWidth = MediaQuery.of(context).size.width;
-              final chatType =
-                  getChatType(historyProvider.selectedPesanan!.status);
+              final chatType = getChatType(
+                historyProvider.selectedPesanan!.status,
+              );
               final isValidStatus = historyProvider.selectedPesanan!.status !=
                       'selesai' &&
                   historyProvider.selectedPesanan!.status !=
                       'pesanan_ditolak' &&
                   historyProvider.selectedPesanan!.status != 'refund_selesai';
-              print(historyProvider.unreadMessagesList
-                  .contains(historyProvider.selectedPesanan!.id));
-              final canChatTenant = historyProvider.availableChatList
-                      .contains(historyProvider.selectedPesanan!.id) &&
+              print(
+                historyProvider.unreadMessagesList.contains(
+                  historyProvider.selectedPesanan!.id,
+                ),
+              );
+              final canChatTenant = historyProvider.availableChatList.contains(
+                    historyProvider.selectedPesanan!.id,
+                  ) &&
                   chatType == 'tenant';
+              if (widget.label == 'Antar') return Container();
+              if (historyProvider.selectedPesanan!.status == 'diantar' &&
+                  widget.label == 'Jual') return Container();
 
               if (widget.label == 'Beli') if (isValidStatus) {
                 return SizedBox(
@@ -227,28 +292,33 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                       print("yahaha");
                       if (!connectivityResult) {
                         Fluttertoast.showToast(
-                            msg: "Tidak ada koneksi internet",
-                            backgroundColor: AppColors.errorColor,
-                            textColor: Colors.white);
+                          msg: "Tidak ada koneksi internet",
+                          backgroundColor: AppColors.errorColor,
+                          textColor: Colors.white,
+                        );
                         return;
                       }
                       if (chatType == 'tenant' && widget.label == 'Beli') {
                         if (!canChatTenant) {
                           Fluttertoast.showToast(
-                              msg:
-                                  "Harus tenant yang melakukan chat terlebih dahulu");
+                            msg:
+                                "Harus tenant yang melakukan chat terlebih dahulu",
+                          );
                           return;
                         }
                       }
                       await historyProvider.removeUnreadMessages(
-                          historyProvider.selectedPesanan!.id);
+                        historyProvider.selectedPesanan!.id,
+                      );
                       Navigator.push(
-                          context,
-                          CustomPageBuilder(
-                              page: ChatPage(
+                        context,
+                        CustomPageBuilder(
+                          page: ChatPage(
                             pesanan: historyProvider.selectedPesanan!,
                             chatType: chatType,
-                          )));
+                          ),
+                        ),
+                      );
                     },
                     backgroundColor: chatType == 'tenant'
                         ? canChatTenant
@@ -257,7 +327,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                         : AppColors.primaryColor,
                     label: Center(
                       child: Text(
-                        'Chat ${chatType == 'driver' ? 'Driver' : widget.label == 'Beli' ? 'Penjual' : 'Pembeli'}',
+                        'Chat ${chatType == 'driver' ? widget.label == 'Antar' ? 'Pembeli' : 'Driver' : widget.label == 'Beli' ? 'Penjual' : 'Pembeli'}',
                         style: GoogleFonts.poppins(
                           color: AppColors.whiteColor,
                           fontSize: 14,
@@ -275,9 +345,10 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                       final connectivityResult = await hasInternetAccess();
                       if (!connectivityResult) {
                         Fluttertoast.showToast(
-                            msg: "Tidak ada koneksi internet",
-                            backgroundColor: AppColors.errorColor,
-                            textColor: Colors.white);
+                          msg: "Tidak ada koneksi internet",
+                          backgroundColor: AppColors.errorColor,
+                          textColor: Colors.white,
+                        );
                         return;
                       }
                       if (historyProvider.selectedPesanan!
@@ -330,21 +401,25 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                         print("yahaha");
                         if (!connectivityResult) {
                           Fluttertoast.showToast(
-                              msg: "Tidak ada koneksi internet",
-                              backgroundColor: AppColors.errorColor,
-                              textColor: Colors.white);
+                            msg: "Tidak ada koneksi internet",
+                            backgroundColor: AppColors.errorColor,
+                            textColor: Colors.white,
+                          );
                           return;
                         }
 
                         await historyProvider.removeUnreadMessages(
-                            historyProvider.selectedPesanan!.id);
+                          historyProvider.selectedPesanan!.id,
+                        );
                         Navigator.push(
-                            context,
-                            CustomPageBuilder(
-                                page: ChatPage(
+                          context,
+                          CustomPageBuilder(
+                            page: ChatPage(
                               pesanan: historyProvider.selectedPesanan!,
                               chatType: chatType,
-                            )));
+                            ),
+                          ),
+                        );
                       },
                       backgroundColor: chatType == 'tenant'
                           ? canChatTenant
@@ -353,7 +428,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                           : AppColors.primaryColor,
                       label: Center(
                         child: Text(
-                          'Chat ${chatType == 'driver' ? 'Driver' : widget.label == 'Beli' ? 'Penjual' : 'Pembeli'}',
+                          'Chat ${chatType == 'driver' ? widget.label == 'Antar' ? 'Pembeli' : 'Driver' : widget.label == 'Beli' ? 'Penjual' : 'Pembeli'}',
                           style: GoogleFonts.poppins(
                             color: AppColors.whiteColor,
                             fontSize: 14,
@@ -378,7 +453,8 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
               onRefresh: _refreshData,
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics()),
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 16,
@@ -427,42 +503,39 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                       ),
                     ),
                     _buildStatus(
-                        historyProvider.selectedPesanan?.status ?? 'selesai'),
-                    DashedDivider(
-                      height: 2,
-                      color: AppColors.blackColor100,
+                      historyProvider.selectedPesanan?.status ?? 'selesai',
                     ),
+                    DashedDivider(height: 2, color: AppColors.blackColor100),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: _buildAlamatPengantaran(
-                          historyProvider.selectedPesanan!),
+                        historyProvider.selectedPesanan!,
+                      ),
                     ),
-                    DashedDivider(
-                      height: 2,
-                      color: AppColors.blackColor100,
-                    ),
+                    DashedDivider(height: 2, color: AppColors.blackColor100),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: _buildHeaderPesanan(
-                          historyProvider.selectedPesanan!, context, steps),
+                        historyProvider.selectedPesanan!,
+                        context,
+                        steps,
+                      ),
                     ),
-                    DashedDivider(
-                      height: 2,
-                      color: AppColors.blackColor100,
-                    ),
+                    DashedDivider(height: 2, color: AppColors.blackColor100),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         spacing: 16,
                         children: [
                           StepProgress(
-                              isRefund:
-                                  historyProvider.selectedPesanan!.status ==
-                                      'refund_selesai',
-                              currentStep: getCurrentStep(
-                                  historyProvider.selectedPesanan!.status,
-                                  historyProvider.selectedPesanan!.isAntar),
-                              steps: steps),
+                            isRefund: historyProvider.selectedPesanan!.status ==
+                                'refund_selesai',
+                            currentStep: getCurrentStep(
+                              historyProvider.selectedPesanan!.status,
+                              historyProvider.selectedPesanan!.isAntar,
+                            ),
+                            steps: steps,
+                          ),
                           if (historyProvider.selectedPesanan!.isAntar == 1 &&
                               (historyProvider.selectedPesanan!.status ==
                                       'diantar' ||
@@ -475,13 +548,26 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                                   spacing: 8,
                                   children: [
                                     ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(999),
-                                        child: ImageByUrl(
-                                            url: historyProvider
-                                                .selectedPesanan!.fotoDriver!,
-                                            height: 48,
-                                            width: 48)),
+                                      borderRadius: BorderRadius.circular(999),
+                                      child: historyProvider.selectedPesanan!
+                                                  .fotoDriver !=
+                                              null
+                                          ? ImageByUrl(
+                                              url: historyProvider
+                                                      .selectedPesanan!
+                                                      .fotoDriver ??
+                                                  '',
+                                              height: 48,
+                                              width: 48,
+                                            )
+                                          : Center(
+                                              child: Icon(
+                                                Icons.person,
+                                                size: 48,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                    ),
                                     Text(
                                       historyProvider
                                           .selectedPesanan!.namaDriver!,
@@ -501,7 +587,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                                   ),
                                 ),
                               ],
-                            )
+                            ),
                         ],
                       ),
                     ),
@@ -517,25 +603,26 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                         ),
                       ),
                     ),
-                    ...pesananPembeli.map((item) => PesananItemWidget(
-                          pesanan: item,
-                          tolakPesanan: () {},
-                          terimaPesanan: () {},
-                        )),
-
+                    ...pesananPembeli.map(
+                      (item) => PesananItemWidget(
+                        pesanan: item,
+                        tolakPesanan: () {},
+                        terimaPesanan: () {},
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: _buildSubtotalSection(
-                          historyProvider.selectedPesanan!, totalItem),
+                        historyProvider.selectedPesanan!,
+                        totalItem,
+                      ),
                     ),
-                    DashedDivider(
-                      height: 2,
-                      color: AppColors.blackColor100,
-                    ),
+                    DashedDivider(height: 2, color: AppColors.blackColor100),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: _buildBiayaLainSection(
-                          historyProvider.selectedPesanan!),
+                        historyProvider.selectedPesanan!,
+                      ),
                     ),
                     if (historyProvider.selectedPesanan!.catatanPenolakan !=
                         null)
@@ -555,23 +642,153 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                             ),
                             GestureDetector(
                               onTap: () => showBottomSheetPenolakan(
-                                  context, historyProvider.selectedPesanan!),
-                              child: Text('Detail',
-                                  style: GoogleFonts.poppins(
-                                    color: AppColors.primaryColor,
-                                    fontSize: 14,
-                                  )),
-                            )
+                                context,
+                                historyProvider.selectedPesanan!,
+                              ),
+                              child: Text(
+                                'Detail',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
+                    if (widget.label == 'Antar' &&
+                        widget.pesanan.status == 'diantar')
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Hubungi Pembeli',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.blackColor,
+                                fontSize: 16,
+                                fontWeight: semibold,
+                              ),
+                            ),
+                            Row(
+                              spacing: 8,
+                              mainAxisAlignment:
+                                  widget.pesanan.status == 'diantar'
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.center,
+                              children: [
+                                if (widget.pesanan.status == 'diantar')
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          OutlinedButton(
+                                            style: OutlinedButton.styleFrom(
+                                              shape:
+                                                  const CircleBorder(), // ✅ ini yang bikin benar-benar bundar
+                                              side: BorderSide(
+                                                color:
+                                                    AppColors.primaryColor300,
+                                                width: 2,
+                                              ),
+                                              padding: const EdgeInsets.all(
+                                                12,
+                                              ), // jarak icon dengan border
+                                            ),
+                                            onPressed: () async {
+                                              final connectivityResult =
+                                                  await hasInternetAccess();
+                                              if (!connectivityResult) {
+                                                Fluttertoast.showToast(
+                                                  msg:
+                                                      'Tidak ada koneksi internet',
+                                                );
+                                                showNoConnectionBottomSheet(
+                                                  context: context,
+                                                  onRetry: () {},
+                                                );
+                                                return;
+                                              }
+                                              historyProvider
+                                                  .removeUnreadMessages(
+                                                widget.pesanan.id,
+                                              );
 
-                    SizedBox(
-                      height: 96,
-                    )
-                    // _buildDivider(),
-                    // _buildRincianPesanan(pesanan),
-                    // _buildButton(pesanan.status, context),
+                                              Navigator.push(
+                                                context,
+                                                CustomPageBuilder(
+                                                  page: ChatPage(
+                                                    pesanan: widget.pesanan,
+                                                    chatType: "driver",
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Iconsax.message_text_copy,
+                                              size: 24,
+                                              color: AppColors.primaryColor300,
+                                            ),
+                                          ),
+
+                                          // bulatan indikator
+                                          if (isThereNewChat)
+                                            Positioned(
+                                              right: 8,
+                                              top: 4,
+                                              child: Container(
+                                                width: 12,
+                                                height: 12,
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.primaryColor,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          shape: const CircleBorder(),
+                                          side: BorderSide(
+                                            color: _isCooldown
+                                                ? Colors
+                                                    .grey // abu kalau cooldown
+                                                : AppColors.primaryColor300,
+                                            width: 2,
+                                          ),
+                                          padding: const EdgeInsets.all(12),
+                                        ),
+                                        onPressed: _isCooldown
+                                            ? null
+                                            : () => showBottomSheetPing(
+                                                  context: context,
+                                                  onFinish: _handlePress,
+                                                  canSend: !_isCooldown,
+                                                ), // disable pas cooldown
+                                        child: HugeIcon(
+                                          icon: HugeIcons
+                                              .strokeRoundedMegaphone02,
+                                          color: _isCooldown
+                                              ? Colors.grey
+                                              : AppColors.primaryColor300,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                // _buildDivider(),
+                                // _buildRincianPesanan(pesanan),
+                                // _buildButton(pesanan.status, context),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    SizedBox(height: 96),
                   ],
                 ),
               ),
@@ -605,26 +822,30 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Center(
-                    child: Text('Catatan Penolakan',
-                        style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryColor)),
+                    child: Text(
+                      'Catatan Penolakan',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
                   ),
-                  SizedBox(
-                    height: 16,
-                  ),
+                  SizedBox(height: 16),
                   Container(
                     padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border:
-                          Border.all(color: AppColors.blackColor100, width: 2),
+                      border: Border.all(
+                        color: AppColors.blackColor100,
+                        width: 2,
+                      ),
                     ),
                     height: 124,
                     child: TextField(
-                      controller:
-                          TextEditingController(text: pesanan.catatanPenolakan),
+                      controller: TextEditingController(
+                        text: pesanan.catatanPenolakan,
+                      ),
                       readOnly: true,
                       decoration: const InputDecoration(
                         hintText: 'Masukkan catatan...',
@@ -639,23 +860,23 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                       minLines: null,
                     ),
                   ),
-                  SizedBox(
-                    height: 40,
-                  ),
+                  SizedBox(height: 40),
                   PrimaryButton(
-                      borderRadius: 16,
-                      height: 48,
-                      color: AppColors.primaryColor,
-                      child: Text(
-                        'Tutup',
-                        style: GoogleFonts.poppins(
-                            color: AppColors.whiteColor100,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16),
+                    borderRadius: 16,
+                    height: 48,
+                    color: AppColors.primaryColor,
+                    child: Text(
+                      'Tutup',
+                      style: GoogleFonts.poppins(
+                        color: AppColors.whiteColor100,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      })
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
                 ],
               ),
             ),
@@ -774,7 +995,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   fontSize: 14,
                   fontWeight: semibold,
                 ),
-              )
+              ),
             ],
           ),
           Row(
@@ -785,7 +1006,8 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   pesanan.isAntar == 1
                       ? '${pesanan.namaRuangan}${pesanan.catatanLokasi != null && pesanan.catatanLokasi!.trim().isNotEmpty ? ' (${pesanan.catatanLokasi})' : ''}'
                       : capitalizeFirstLetter(
-                          'Tidak Diantar, Ambil Pesanan ke ${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant ?? "-"}'),
+                          'Tidak Diantar, Ambil Pesanan ke ${pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant ?? "-"}',
+                        ),
                   style: GoogleFonts.poppins(
                     color: AppColors.blackColor,
                     fontSize: 12,
@@ -808,29 +1030,37 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   }
 
   Widget _buildHeaderPesanan(
-      Pesanan pesanan, BuildContext context, List<StepModel> steps) {
+    Pesanan pesanan,
+    BuildContext context,
+    List<StepModel> steps,
+  ) {
     return Column(
       spacing: 4,
       children: [
         Row(
           children: [
             Container(
-                width: MediaQuery.of(context).size.width / 2,
-                child: Text('Kode Pemesanan',
-                    style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: semibold,
-                        color: AppColors.blackColor))),
-            Expanded(
-                child: Text(
-              '${pesanan.kodePemesanan}',
-              textAlign: TextAlign.end,
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: semibold,
-                color: AppColors.primaryColor,
+              width: MediaQuery.of(context).size.width / 2,
+              child: Text(
+                'Kode Pemesanan',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: semibold,
+                  color: AppColors.blackColor,
+                ),
               ),
-            ))
+            ),
+            Expanded(
+              child: Text(
+                '${pesanan.kodePemesanan}',
+                textAlign: TextAlign.end,
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: semibold,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+            ),
           ],
         ),
         Row(
@@ -855,12 +1085,14 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${pesanan.namaPembeli}',
-                style: GoogleFonts.poppins(
-                  color: AppColors.primaryColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                )),
+            Text(
+              '${pesanan.namaPembeli}',
+              style: GoogleFonts.poppins(
+                color: AppColors.primaryColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             Container(
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: BoxDecoration(
@@ -899,7 +1131,8 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
             ),
             Text(
               FormatCurrency.intToStringCurrency(
-                  pesanan.total - pesanan.ongkosKirim),
+                pesanan.total - pesanan.ongkosKirim,
+              ),
               style: GoogleFonts.poppins(
                 color: AppColors.textColorBlack,
                 fontSize: 14,

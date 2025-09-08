@@ -65,6 +65,7 @@ class CartProvider extends ChangeNotifier {
   int get selectedDeliveryOption => _selectedDeliveryOption;
 
   List<SettingsModel> settings = [];
+  int biayaExtra = 0;
   int ongkir = 0;
   int biayaLayanan = 0;
   String catatanLokasi = '';
@@ -81,6 +82,9 @@ class CartProvider extends ChangeNotifier {
     try {
       // Ambil data dari PublicRemoteDataSource
       settings = await PublicRemoteDataSource().getSettings();
+      biayaExtra = int.parse(settings
+          .firstWhere((setting) => setting.nama == 'biaya_extra')
+          .nilai);
       print('settings ${settings.map((e) => e.toJson())}');
       for (var setting in settings) {
         if (setting.nama == 'biaya_layanan') {
@@ -88,7 +92,7 @@ class CartProvider extends ChangeNotifier {
         }
       }
       if (totalItemCount > 10) {
-        ongkir = ongkosKirim + (totalItemCount - 10) * 500;
+        ongkir = ongkosKirim + (totalItemCount - 10) * biayaExtra;
       } else {
         ongkir = ongkosKirim;
       }
@@ -320,9 +324,11 @@ class CartProvider extends ChangeNotifier {
               tenantName: existingCartPerTenant?.tenantName ?? '',
               tenantGambar: existingCartPerTenant?.tenantGambar ?? '',
             );
-    if (ongkir != 0) {
-      ongkir = ongkir - (totalItemCount - 10) * 500;
+    if (ongkir != 0 && totalItemCount > 10) {
+      ongkir =
+          ongkir - (totalItemCount - 10) * (biayaExtra == 0 ? 500 : biayaExtra);
     }
+
     _cartMenu = listMenu;
     if (selectedCartTenant?.tenantId == currentTenantId) {
       selectedCartTenant = _tenantCarts[currentTenantId];
@@ -330,7 +336,7 @@ class CartProvider extends ChangeNotifier {
     final totalItem =
         _cartMenu.fold<int>(0, (total, item) => total + item.count);
     if (totalItem > 10 && ongkir != 0) {
-      ongkir = (totalItem - 10) * 500 + ongkir;
+      ongkir = (totalItem - 10) * (biayaExtra == 0 ? 500 : biayaExtra) + ongkir;
     }
 
     await CartLocalDataSource()

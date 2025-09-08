@@ -71,7 +71,7 @@ void showNoConnectionBottomSheet({
                       children: [
                         Expanded(
                           child: PrimaryButton(
-                            borderColor: AppColors.primaryColor300,
+                            borderColor: AppColors.warningColor300,
                             borderRadius: 100,
                             height: screenSize.height * 0.06,
                             elevation: 0,
@@ -81,7 +81,7 @@ void showNoConnectionBottomSheet({
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w600,
                                 fontSize: isSmallScreen ? 12 : 14,
-                                color: AppColors.primaryColor300,
+                                color: AppColors.warningColor300,
                               ),
                             ),
                             onPressed: () async {
@@ -101,6 +101,7 @@ void showNoConnectionBottomSheet({
                         Expanded(
                           child: PrimaryButton(
                             elevation: 0,
+                            color: AppColors.warningColor,
                             height: screenSize.height * 0.06,
                             borderRadius: 100,
                             child: Text(

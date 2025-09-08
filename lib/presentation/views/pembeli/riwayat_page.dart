@@ -51,10 +51,12 @@ class _RiwayatPageState extends State<RiwayatPage>
   DateTime? _lastFetchTime;
   int selectedIndex = 0;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -66,7 +68,9 @@ class _RiwayatPageState extends State<RiwayatPage>
           final title = message.data['title']?.toString().toLowerCase();
           final body = message.data['body']?.toString().toLowerCase();
           final transaksiId = body?.split(' ')[1].trim();
+          print('transaksiId: $transaksiId');
           if (title != null &&
+              transaksiId != 'pesanan' &&
               title.contains('pesanan') &&
               !title.contains('pesanan masuk') &&
               transaksiId != null) {
@@ -79,6 +83,13 @@ class _RiwayatPageState extends State<RiwayatPage>
           }
         });
       }
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          historyProvider.fetchHistory(
+              context, authProvider.user, widget.role, false);
+        }
+      });
     });
 
     // Pastikan ini jalan sebelum UI render list
@@ -163,7 +174,8 @@ class _RiwayatPageState extends State<RiwayatPage>
 
     if (shouldRefresh && !historyProvider.getIsLoading(widget.role)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        historyProvider.fetchHistory(context, authProvider.user, widget.role);
+        historyProvider.fetchHistory(
+            context, authProvider.user, widget.role, true);
         _lastFetchTime = now;
         _hasInitialized = true;
       });
@@ -311,7 +323,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                                     ElevatedButton(
                                       onPressed: () {
                                         historyProvider.fetchHistory(
-                                            context, user, widget.role);
+                                            context, user, widget.role, true);
                                         _lastFetchTime = DateTime.now();
                                       },
                                       child: const Text("Coba Lagi"),
@@ -342,32 +354,50 @@ class _RiwayatPageState extends State<RiwayatPage>
                                   groupedPesanan.isNotEmpty
                                       ? Expanded(
                                           child: ListView(
+                                            controller: _scrollController,
                                             padding: EdgeInsets.zero,
-                                            children: groupedPesanan.entries
-                                                .expand((entry) {
-                                              final tanggal = entry.key;
-                                              final daftarPesanan = entry.value;
+                                            children: [
+                                              ...groupedPesanan.entries
+                                                  .expand((entry) {
+                                                final tanggal = entry.key;
+                                                final daftarPesanan =
+                                                    entry.value;
 
-                                              return [
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(vertical: 12),
-                                                  child: Text(
-                                                    tanggal,
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 14,
-                                                      fontWeight: semibold,
-                                                      color: AppColors
-                                                          .blackColor300,
+                                                return [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 12),
+                                                    child: Text(
+                                                      tanggal,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 14,
+                                                        fontWeight: semibold,
+                                                        color: AppColors
+                                                            .blackColor300,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                ...daftarPesanan.map(
+                                                  ...daftarPesanan.map(
                                                     (pesanan) =>
                                                         _buildPesananItem(
-                                                            pesanan, context))
-                                              ];
-                                            }).toList(),
+                                                            pesanan, context),
+                                                  ),
+                                                ];
+                                              }).toList(),
+
+                                              // Tambahin skeleton di paling bawah kalau lagi loading
+                                              if (historyProvider
+                                                      .getLoadMoreData(
+                                                          widget.role) ==
+                                                  true)
+                                                Skeletonizer(
+                                                    child: _buildPesananItem(
+                                                        Pesanan
+                                                            .getDummyPesanan(),
+                                                        context)),
+                                            ],
                                           ),
                                         )
                                       : Padding(
@@ -644,7 +674,8 @@ class _RiwayatPageState extends State<RiwayatPage>
                 ),
                 const Spacer(),
                 if (pesanan.status != 'refund_selesai' &&
-                    pesanan.status != 'selesai')
+                    pesanan.status != 'selesai' &&
+                    !(widget.tabLabel == 'Jual' && pesanan.status == 'diantar'))
                   GestureDetector(
                     onTap: () async {
                       print("cek");

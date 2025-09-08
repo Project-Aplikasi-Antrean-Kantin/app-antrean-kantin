@@ -41,10 +41,11 @@ class CoinRemoteDataSource {
   }
 
   Future<List<CoinTransactionModel>> getHistoryTransactionCoin(
-      String token) async {
+      String token, int page) async {
     try {
       final response = await http.get(
-        Uri.parse('${MasbroConstants.url}/saldo/riwayat'),
+        Uri.parse(
+            '${MasbroConstants.url}/saldo/riwayat?page=$page&per_page=10'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -57,7 +58,7 @@ class CoinRemoteDataSource {
         //     jsonDecode(response.body)['transaksi'] as List<dynamic>;
         final List<Map<String, dynamic>> jsonData =
             List<Map<String, dynamic>>.from(
-          jsonDecode(response.body)['transaksi'],
+          jsonDecode(response.body)['transaksi']['data'],
         );
 
         return jsonData.map((e) => CoinTransactionModel.fromJson(e)).toList();

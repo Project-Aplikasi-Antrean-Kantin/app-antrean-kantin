@@ -54,7 +54,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     print("Saved unread: ${sharedPreferences.getString('unread')}");
   }
 
-  if (message.notification?.body?.contains('Pesan Selesai') ?? false) {
+  if (message.notification?.title?.contains('Pesanan Selesai') ?? false) {
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.reload();
 
@@ -103,11 +103,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     }
   }
 
-  if (message.notification?.title?.contains('Sibuk') ?? false) {
+  if (message.notification?.title?.contains('Tenant Sibuk') ?? false) {
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.reload();
     print("tenant sibuk");
     sharedPreferences.setString("tenant_sibuk", "true");
+  }
+
+  if (message.notification?.title?.contains('Tenant sudah tidak sibuk') ??
+      false) {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.reload();
+    sharedPreferences.remove("tenant_sibuk");
   }
 
   print('[BG Handler] Notification processed');

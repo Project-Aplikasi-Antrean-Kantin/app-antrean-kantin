@@ -79,28 +79,31 @@ class _TenantButtonState extends State<TenantButton> {
           ),
 
           // DUPLIKASI TOMBOL DI POSISI ASLINYA
-          Positioned(
-            left: rect.left,
-            top: rect.top,
-            width: rect.width,
-            height: rect.height,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: HugeIcon(
-                  icon: widget.yourTenant?.busyUntil != null
-                      ? HugeIcons.strokeRoundedAlertDiamond
-                      : HugeIcons.strokeRoundedTimeSetting03,
-                  color: widget.yourTenant?.isOnline == true
-                      ? widget.yourTenant?.busyUntil != null
-                          ? AppColors.warningColor
-                          : AppColors.successColor
-                      : AppColors.errorColor,
+          CompositedTransformFollower(
+            link: _layerLink,
+            showWhenUnlinked: false,
+            targetAnchor: Alignment.center,
+            followerAnchor: Alignment.center,
+            child: GestureDetector(
+              onTap: () => _hidePopover(),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: HugeIcon(
+                    icon: widget.yourTenant?.busyUntil != null
+                        ? HugeIcons.strokeRoundedAlertDiamond
+                        : HugeIcons.strokeRoundedTimeSetting03,
+                    color: widget.yourTenant?.isOnline == true
+                        ? widget.yourTenant?.busyUntil != null
+                            ? AppColors.warningColor
+                            : AppColors.successColor
+                        : AppColors.errorColor,
+                  ),
                 ),
               ),
             ),
@@ -191,11 +194,12 @@ class _TenantButtonState extends State<TenantButton> {
                             onPressed: () async {
                               final prefs =
                                   await SharedPreferences.getInstance();
-                              prefs.remove("tenant_sibuk");
                               final statusTenant =
                                   await TenantRemoteDataSource()
                                       .updateBusy(widget.user.token);
                               if (statusTenant) {
+                                prefs.remove("tenant_sibuk");
+
                                 setState(() {});
                                 Fluttertoast.showToast(
                                     msg:

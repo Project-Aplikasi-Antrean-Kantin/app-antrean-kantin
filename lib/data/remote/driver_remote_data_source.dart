@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'dart:async';
@@ -61,6 +62,37 @@ class DriverDataSource {
       throw CustomHttpException(message, 403);
     } else {
       return false;
+    }
+  }
+
+  Future<({bool success, String? error})> pingCustomer(
+      String auth, String id) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${MasbroConstants.url}/masbro/ping-to-buyer/$id'),
+        headers: {
+          'Authorization': "Bearer $auth",
+          'Accept': 'application/json'
+        },
+      );
+      final json = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return (
+          success: true,
+          error: null,
+        );
+      } else {
+        return (
+          success: false,
+          error: json['message'].toString(),
+        );
+      }
+    } catch (e) {
+      return (
+        success: false,
+        error: e.toString(),
+      );
     }
   }
 }

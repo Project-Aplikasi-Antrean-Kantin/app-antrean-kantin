@@ -210,10 +210,13 @@ class _KodeVaPageState extends State<KodeVaPage> {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: Image.asset(
-                    'assets/images/watermark-foodlab.png',
-                    fit: BoxFit
-                        .cover, // atau BoxFit.contain tergantung kebutuhan
+                  child: ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(20),
+                    child: Image.asset(
+                      'assets/images/watermark-foodlab.png',
+                      fit: BoxFit
+                          .cover, // atau BoxFit.contain tergantung kebutuhan
+                    ),
                   ),
                 ),
                 Column(
