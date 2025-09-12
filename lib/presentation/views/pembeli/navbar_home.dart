@@ -194,6 +194,12 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
             historyProvider.loadUnreadMessages();
           });
         }
+        if (title != null && title.contains('top-up berhasil')) {
+          final prefs = SharedPreferences.getInstance().then((prefs) {
+            if (prefs.getString('current_va') != null)
+              prefs.remove('current_va');
+          });
+        }
         if (title != null && title.contains('tidak sibuk')) {
           final prefs = SharedPreferences.getInstance().then((prefs) {
             if (prefs.getString('tenant_sibuk') != null)

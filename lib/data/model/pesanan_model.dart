@@ -11,6 +11,7 @@ class Pesanan {
   final String status;
   final String? namaDriver;
   final String? fotoDriver;
+  final String? buktiPengantaran;
   String? catatan;
   String? kodePemesanan;
   int? ruanganId;
@@ -24,18 +25,22 @@ class Pesanan {
   final int subTotal;
   String? gedung;
   String? namaRuangan;
+  int? biayaAdmin;
   final List<ListTransaksiDetail> listTransaksiDetail;
   Ruangan? ruangan;
   String? namaPembeli;
   String? phone;
   String? catatanPenolakan;
   String? catatanLokasi;
+  String? urlQris;
+  DateTime? expiredQris;
   final DateTime createdAt;
 
   Pesanan({
     this.namaDriver,
     this.fotoDriver,
     required this.id,
+    this.buktiPengantaran,
     required this.userId,
     required this.status,
     required this.catatan,
@@ -57,6 +62,9 @@ class Pesanan {
     this.phone,
     this.catatanPenolakan,
     this.catatanLokasi,
+    this.biayaAdmin,
+    this.urlQris,
+    this.expiredQris,
     required this.createdAt,
   });
   @override
@@ -145,6 +153,7 @@ class Pesanan {
         id: json["id"],
         catatanPenolakan: json["catatan_penolakan"],
         catatanLokasi: json['catatan_lokasi_pengantaran'],
+        buktiPengantaran: json["bukti_pengantaran"],
         userId: json["user_id"],
         status: json["status"],
         catatan: json["catatan"],
@@ -159,6 +168,10 @@ class Pesanan {
         orderId: json["order_id"],
         subTotal: json["sub_total"],
         gedung: json["gedung"],
+        urlQris: json["qr_url"],
+        expiredQris:
+            json["expiry"] != null ? DateTime.parse(json["expiry"]) : null,
+        biayaAdmin: json["biaya_admin"],
         namaRuangan: json["nama_ruangan"],
         namaDriver: json["nama_driver"],
         fotoDriver: json["foto_driver"],

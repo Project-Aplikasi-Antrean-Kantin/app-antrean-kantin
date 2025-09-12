@@ -38,8 +38,13 @@ class CoinProvider extends ChangeNotifier {
       if (isInitialFetch) {
         maxPage = 1;
       }
+      // kasih notify biar UI update
+      _isLoading = false;
+      _isLoadMore = false;
+      notifyListeners();
       return;
     }
+
     if (isInitialFetch) {
       transactionCoin = [];
       currentPage = 1;
@@ -47,18 +52,22 @@ class CoinProvider extends ChangeNotifier {
     } else {
       _isLoadMore = true;
     }
+    notifyListeners();
 
     try {
       final fetchedData = await CoinRemoteDataSource()
           .getHistoryTransactionCoin(token, currentPage);
+
       transactionCoin = transactionCoin.isEmpty
           ? fetchedData
           : [...transactionCoin, ...fetchedData];
+
       if (fetchedData.isNotEmpty) {
-        currentPage = currentPage + 1;
+        currentPage++;
       } else {
         maxPage = currentPage;
       }
+
       log(transactionCoin.toString());
     } catch (error) {
       debugPrint('Error fetching transaction: $error');

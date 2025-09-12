@@ -117,6 +117,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     sharedPreferences.remove("tenant_sibuk");
   }
 
+  if (message.notification?.title?.contains('Top-up Berhasil') ?? false) {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.reload();
+    sharedPreferences.remove("current_va");
+  }
+
   print('[BG Handler] Notification processed');
 }
 

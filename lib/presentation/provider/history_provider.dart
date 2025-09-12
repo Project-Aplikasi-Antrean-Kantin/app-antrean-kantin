@@ -45,9 +45,13 @@ class HistoryProvider with ChangeNotifier {
   Future<void> fetchHistory(
       BuildContext context, UserModel user, String role, bool isInitialFetch,
       {bool forceRefresh = false}) async {
-    print("ngefetch cak");
+    print(
+        "ngefetch cak _alreadyAllFetchedByRole[role] ${_alreadyAllFetchedByRole[role]}");
     // Skip jika sedang loading dan bukan force refresh
-    if (_isLoadingByRole[role] == true && !forceRefresh) {
+    if (_isLoadingByRole[role] == true &&
+        !forceRefresh &&
+        _loadMoreDataByRole[role] == true) {
+      print("skip");
       return;
     }
 
@@ -56,10 +60,17 @@ class HistoryProvider with ChangeNotifier {
       return;
     }
 
-    if (_alreadyAllFetchedByRole[role] == true) return;
+    if (_alreadyAllFetchedByRole[role] == true && isInitialFetch == false)
+      return;
 
     _activeRequests.add(role);
+    if (forceRefresh) {
+      _currentPageByRole[role] = 1;
+    }
     if (isInitialFetch) {
+      _currentPageByRole[role] = 1;
+      _alreadyAllFetchedByRole[role] = false;
+      _listPesananByRole[role] = [];
       _isLoadingByRole[role] = true;
     } else {
       _loadMoreDataByRole[role] = true;
@@ -68,7 +79,7 @@ class HistoryProvider with ChangeNotifier {
     _errorMessageByRole[role] = null;
     notifyListeners();
     print('role: $role, currentPage: $_currentPageByRole[role]');
-    final currentPage = isInitialFetch ? 1 : _currentPageByRole[role] ?? 1;
+    final currentPage = _currentPageByRole[role] ?? 1;
 
     try {
       final pesananList = await TransactionRemoteDataSource()

@@ -36,7 +36,7 @@ import 'package:testgetdata/presentation/widgets/sukses_order.dart';
 import 'package:testgetdata/presentation/widgets/pilihan_lokasi_ruangan.dart';
 import 'package:testgetdata/presentation/widgets/ringkasan_pembayaran_cart.dart';
 
-enum PaymentMethod { koin, cod }
+enum PaymentMethod { koin, qris }
 
 class CartPage extends StatefulWidget {
   final String? tenantId;
@@ -283,7 +283,8 @@ class _CartPageState extends State<CartPage> {
       kasirProvider.clearCart();
       // _navigateToSuccessPage(context, cartProvider,);
     } else {
-      final result = await cartProvider.createTransaction(context, user.token);
+      final result = await cartProvider.createTransaction(
+          context, user.token, paymentMethod.name);
       if (result?.status == 'success') {
         print('Transaction successful ${result?.pesanan}');
         historyProvider.updateSelectedPesanan(result!.pesanan);
@@ -324,6 +325,7 @@ class _CartPageState extends State<CartPage> {
       CustomPageBuilder(
         page: NavbarHome(
           initialRouteAfterOpen: DetailRiwayat(
+            fromCartPage: true,
             label: "Beli",
             token: user.token.toString(),
             pesanan: pesanan,
@@ -387,8 +389,8 @@ class _CartPageState extends State<CartPage> {
       }
     });
 
-    _selectedPaymentMethod =
-        kasirProvider.isKasir ? PaymentMethod.cod : PaymentMethod.koin;
+    // _selectedPaymentMethod =
+    //     kasirProvider.isKasir ? PaymentMethod.cod : PaymentMethod.koin;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       log("CartPage initState: roomId = ${cartProvider.roomId}");

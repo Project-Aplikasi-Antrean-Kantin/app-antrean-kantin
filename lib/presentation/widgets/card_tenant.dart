@@ -236,7 +236,7 @@ class CardTenant extends StatelessWidget {
                 children: [
                   if (food.gambar != null && food.gambar!.isNotEmpty)
                     tenant.isOnline == true
-                        ? _buildImageWidget(56, 56, food.gambar!)
+                        ? _buildImageWidget(72, 72, food.gambar!)
                         : ColorFiltered(
                             colorFilter: const ColorFilter.matrix([
                               0.2126,
@@ -266,8 +266,8 @@ class CardTenant extends StatelessWidget {
                     Image.asset(
                       'assets/images/dummy.jpeg',
                       fit: BoxFit.cover,
-                      height: 96,
-                      width: 96,
+                      height: 144,
+                      width: 144,
                     ),
                   const SizedBox(height: 5),
                   Text(

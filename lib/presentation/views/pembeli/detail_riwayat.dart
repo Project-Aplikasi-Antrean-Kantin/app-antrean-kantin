@@ -22,6 +22,7 @@ import 'package:testgetdata/presentation/provider/order_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
@@ -37,10 +38,12 @@ import 'package:testgetdata/utils/has_internet_access.dart';
 class DetailRiwayat extends StatefulWidget {
   final Pesanan pesanan;
   final VoidCallback refreshData;
+  final bool? fromCartPage;
   final String token;
   final String label;
 
   const DetailRiwayat({
+    this.fromCartPage,
     super.key,
     required this.refreshData,
     required this.token,
@@ -61,6 +64,12 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.pesanan.status == 'pending' && widget.fromCartPage == true) {
+        Navigator.push(context,
+            CustomPageBuilder(page: CheckoutQris(pesanan: widget.pesanan)));
+      }
+    });
     if (_onMessageSubscription == null) {
       _onMessageSubscription = FirebaseMessaging.onMessage.listen((
         RemoteMessage message,
@@ -268,7 +277,8 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                       'selesai' &&
                   historyProvider.selectedPesanan!.status !=
                       'pesanan_ditolak' &&
-                  historyProvider.selectedPesanan!.status != 'refund_selesai';
+                  historyProvider.selectedPesanan!.status != 'refund_selesai' &&
+                  historyProvider.selectedPesanan!.status != 'gagal_bayar';
               print(
                 historyProvider.unreadMessagesList.contains(
                   historyProvider.selectedPesanan!.id,
@@ -278,6 +288,36 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                     historyProvider.selectedPesanan!.id,
                   ) &&
                   chatType == 'tenant';
+
+              if (historyProvider.selectedPesanan!.status == 'pending' &&
+                  widget.label == 'Beli')
+                return SizedBox(
+                  width: screenWidth - 48, // ini dia kuncinya!
+                  child: FloatingActionButton.extended(
+                    onPressed: () async {
+                      Navigator.push(
+                        context,
+                        CustomPageBuilder(
+                          page: CheckoutQris(
+                            pesanan: historyProvider.selectedPesanan!,
+                          ),
+                        ),
+                      );
+                    },
+                    backgroundColor: AppColors.primaryColor,
+                    label: Center(
+                      child: Text(
+                        'Bayar',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.whiteColor,
+                          fontSize: 14,
+                          fontWeight: semibold,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+
               if (widget.label == 'Antar') return Container();
               if (historyProvider.selectedPesanan!.status == 'diantar' &&
                   widget.label == 'Jual') return Container();
@@ -521,76 +561,85 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                         steps,
                       ),
                     ),
-                    DashedDivider(height: 2, color: AppColors.blackColor100),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        spacing: 16,
-                        children: [
-                          StepProgress(
-                            isRefund: historyProvider.selectedPesanan!.status ==
-                                'refund_selesai',
-                            currentStep: getCurrentStep(
-                              historyProvider.selectedPesanan!.status,
-                              historyProvider.selectedPesanan!.isAntar,
-                            ),
-                            steps: steps,
-                          ),
-                          if (historyProvider.selectedPesanan!.isAntar == 1 &&
-                              (historyProvider.selectedPesanan!.status ==
-                                      'diantar' ||
+                    if (historyProvider.selectedPesanan!.status != 'pending' &&
+                        historyProvider.selectedPesanan!.status !=
+                            'gagal_bayar')
+                      DashedDivider(height: 2, color: AppColors.blackColor100),
+                    if (historyProvider.selectedPesanan!.status != 'pending' &&
+                        historyProvider.selectedPesanan!.status !=
+                            'gagal_bayar')
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          spacing: 16,
+                          children: [
+                            StepProgress(
+                              isRefund:
                                   historyProvider.selectedPesanan!.status ==
-                                      'selesai'))
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  spacing: 8,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(999),
-                                      child: historyProvider.selectedPesanan!
-                                                  .fotoDriver !=
-                                              null
-                                          ? ImageByUrl(
-                                              url: historyProvider
-                                                      .selectedPesanan!
-                                                      .fotoDriver ??
-                                                  '',
-                                              height: 48,
-                                              width: 48,
-                                            )
-                                          : Center(
-                                              child: Icon(
-                                                Icons.person,
-                                                size: 48,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                    ),
-                                    Text(
-                                      historyProvider
-                                          .selectedPesanan!.namaDriver!,
-                                      style: GoogleFonts.poppins(
-                                        color: AppColors.blackColor,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  "Driver",
-                                  style: GoogleFonts.poppins(
-                                    color: AppColors.primaryColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                                      'refund_selesai',
+                              currentStep: getCurrentStep(
+                                historyProvider.selectedPesanan!.status,
+                                historyProvider.selectedPesanan!.isAntar,
+                              ),
+                              steps: steps,
                             ),
-                        ],
+                            if (historyProvider.selectedPesanan!.isAntar == 1 &&
+                                (historyProvider.selectedPesanan!.status ==
+                                        'diantar' ||
+                                    historyProvider.selectedPesanan!.status ==
+                                        'selesai'))
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    spacing: 8,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(999),
+                                        child: historyProvider.selectedPesanan!
+                                                    .fotoDriver !=
+                                                null
+                                            ? ImageByUrl(
+                                                url: historyProvider
+                                                        .selectedPesanan!
+                                                        .fotoDriver ??
+                                                    '',
+                                                height: 48,
+                                                width: 48,
+                                              )
+                                            : Center(
+                                                child: Icon(
+                                                  Icons.person,
+                                                  size: 48,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                      ),
+                                      Text(
+                                        historyProvider
+                                            .selectedPesanan!.namaDriver!,
+                                        style: GoogleFonts.poppins(
+                                          color: AppColors.blackColor,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    "Driver",
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.primaryColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
                     DashedDivider(height: 2, color: AppColors.blackColor100),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -647,6 +696,59 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                               ),
                               child: Text(
                                 'Detail',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (historyProvider.selectedPesanan!.buktiPengantaran !=
+                        null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 8,
+                          children: [
+                            Text(
+                              'Bukti Pengantaran',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.primaryColor,
+                                fontSize: 14,
+                                fontWeight: semibold,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: ImageByUrl(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                2,
+                                        width:
+                                            MediaQuery.of(context).size.width -
+                                                48,
+                                        url:
+                                            '/storage/${historyProvider.selectedPesanan!.buktiPengantaran!}', // ganti dengan path/URL gambarnya
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                'Lihat Foto',
                                 style: GoogleFonts.poppins(
                                   color: AppColors.primaryColor,
                                   fontSize: 14,

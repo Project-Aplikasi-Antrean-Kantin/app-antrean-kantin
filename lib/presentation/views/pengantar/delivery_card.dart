@@ -18,6 +18,7 @@ import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
+import 'package:testgetdata/presentation/widgets/delivery_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
@@ -47,6 +48,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
   bool _isCooldown = false; // state untuk cooldown
   int _cooldownSeconds = 30; // lama cooldown (detik)
   Timer? _timer;
+  String? deliveryImagePath;
 
   @override
   void dispose() {
@@ -460,40 +462,80 @@ class _DeliveryCardState extends State<DeliveryCard> {
                         ),
                       ),
                       onPressed: () async {
-                        setState(() {
-                          _isLoading = true; // Set local loading state
-                        });
-                        final result = await deliveryProvider.updateOrder(
-                          widget.status == DeliveryStatus.siapDiantar
-                              ? 'diantar'
-                              : 'selesai',
-                          widget.userToken,
-                          widget.pesanan.id,
-                          widget.pesanan,
-                        );
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setModalState) {
+                                return DeliveryBottomSheet(
+                                  onLoading: _isLoading,
+                                  onImageSelected: (path) {
+                                    if (path != null) {
+                                      setState(() {
+                                        deliveryImagePath = path;
+                                      });
+                                    }
+                                  },
+                                  canSend: true,
+                                  onFinish: () async {
+                                    if (deliveryImagePath == null) {
+                                      Fluttertoast.showToast(
+                                          msg: 'Foto tidak boleh kosong');
+                                      return;
+                                    }
 
-                        Fluttertoast.showToast(
-                          msg: result.success
-                              ? widget.status == DeliveryStatus.siapDiantar
-                                  ? 'Segera antar pesanan!'
-                                  : 'Pesanan selesai 🎉'
-                              : result.error ??
-                                  'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          backgroundColor:
-                              result.success ? Colors.grey : Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
+                                    setModalState(() {
+                                      _isLoading = true;
+                                    });
+                                    try {
+                                      final result =
+                                          await deliveryProvider.updateOrder(
+                                        'selesai',
+                                        widget.userToken,
+                                        widget.pesanan.id,
+                                        widget.pesanan,
+                                        buktiPath: deliveryImagePath,
+                                      );
 
-                        if (mounted) {
-                          // Check if the widget is still mounted
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
-                        if (result.success) widget.onSuccess();
+                                      if (result.success) {
+                                        Fluttertoast.showToast(
+                                          msg: 'Pesanan selesai 🎉',
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          backgroundColor:
+                                              AppColors.successColor,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0,
+                                        );
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg: result.error ??
+                                              'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0,
+                                        );
+                                      }
+                                      Navigator.pop(
+                                          context); // tutup sheet dulu
+                                      if (mounted) {
+                                        setState(() {
+                                          deliveryImagePath = null;
+                                          _isLoading = false;
+                                        });
+                                      }
+                                    } catch (e) {
+                                      Fluttertoast.showToast(msg: e.toString());
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        );
                       },
                     ),
                 ],

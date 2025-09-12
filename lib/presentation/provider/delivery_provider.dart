@@ -54,15 +54,32 @@ class DeliveryProvider with ChangeNotifier {
     String newStatus,
     String token,
     int id,
-    Pesanan pesanan,
-  ) async {
+    Pesanan pesanan, {
+    String? buktiPath, // ⬅️ path gambar opsional
+  }) async {
     if (_isLoading) return (success: false, error: 'Masih memuat...');
     _isLoading = true;
     notifyListeners();
 
     try {
-      final success =
-          await DriverDataSource().updateOrderDelivery(newStatus, token, id);
+      bool success;
+
+      // Kalau ada bukti foto -> panggil API khusus multipart upload
+      if (buktiPath != null) {
+        success = await DriverDataSource().updateOrderWithProof(
+          newStatus,
+          token,
+          id,
+          buktiPath,
+        );
+      } else {
+        success = await DriverDataSource().updateOrderDelivery(
+          newStatus,
+          token,
+          id,
+        );
+      }
+
       if (success) {
         if (newStatus == 'diantar') {
           _pesanan[DeliveryStatus.siapDiantar]!
@@ -73,12 +90,13 @@ class DeliveryProvider with ChangeNotifier {
               .removeWhere((element) => element.id == id);
         }
       }
+
       return (success: success, error: null);
     } catch (e) {
       String error = 'Terjadi kesalahan';
       if (e is CustomHttpException && e.statusCode == 403) {
+        print('Error message: ${e.message}');
         error = e.message;
-        await fetchOrders(token, DeliveryStatus.siapDiantar);
       } else {
         error = 'Error: $e';
       }

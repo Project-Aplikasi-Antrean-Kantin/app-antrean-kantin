@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/data/model/coin_transaction_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
 import 'package:testgetdata/presentation/provider/topup_provider.dart';
@@ -62,31 +63,18 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
     coinProvider.getCoinAmount(user.token);
   }
 
-  Map<String, List<dynamic>> _groupTransactions(List<dynamic> transactions) {
-    List<dynamic> filtered = [];
+  Map<String, List<CoinTransactionModel>> _groupTransactions(
+      List<CoinTransactionModel> transactions) {
+    final Map<String, List<CoinTransactionModel>> grouped = {};
 
-    // Terapkan filter
-    switch (selectedIndex) {
-      case 1:
-        filtered = transactions.where((t) => t.jumlah > 0).toList(); // Masuk
-        break;
-      case 2:
-        filtered = transactions.where((t) => t.jumlah < 0).toList(); // Keluar
-        break;
-      default:
-        filtered = transactions; // Semua
-    }
-
-    // Group by tanggal
-    Map<String, List<dynamic>> grouped = {};
-    for (var transaction in filtered) {
-      final date = FormatDate.dateTimeToStringDate(
-          transaction.createdAt); // ex: 28 Juli 2025
-      if (grouped[date] == null) {
-        grouped[date] = [];
+    for (var t in transactions) {
+      final dateKey = FormatDate.dateTimeToStringDate(t.createdAt);
+      if (grouped[dateKey] == null) {
+        grouped[dateKey] = [];
       }
-      grouped[date]!.add(transaction);
+      grouped[dateKey]!.add(t);
     }
+
     return grouped;
   }
 
@@ -273,23 +261,22 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
             // ✅ Tambahin skeleton item di paling bawah kalau lagi load more
             if (provider.isLoadMore)
               Skeletonizer(
-                  child: _buildTransactionItem({
-                "id": 1234,
-                "user_id": 374,
-                "jumlah": -5000,
-                "tipe": "keluar",
-                "deskripsi": "Pembayaran pesanan #1123",
-                "created_at": "2025-09-01 14:21:26",
-                "updated_at": "2025-09-01 14:21:26",
-                "deleted_at": null
-              })),
+                  child: _buildTransactionItem(CoinTransactionModel(
+                      id: 123,
+                      userId: 456,
+                      jumlah: 5000,
+                      tipe: 'tipe',
+                      deskripsi: "deskripsi",
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                      deletedAt: null))),
           ],
         );
       },
     );
   }
 
-  Widget _buildTransactionItem(dynamic transaction) {
+  Widget _buildTransactionItem(CoinTransactionModel transaction) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       padding: const EdgeInsets.all(10),
@@ -308,7 +295,7 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  (transaction.deskripsi ?? '').replaceAllMapped(
+                  (transaction.deskripsi).replaceAllMapped(
                     RegExp(r'#(\d+)'),
                     (m) => '#ORDER-0${m.group(1)}',
                   ),
@@ -326,7 +313,7 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
           ),
           Text(
             '${transaction.jumlah < 0 ? '' : '+'}' +
-                FormatCurrency.intToStringCoin(transaction.jumlah ?? 0),
+                FormatCurrency.intToStringCoin(transaction.jumlah),
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: semibold,

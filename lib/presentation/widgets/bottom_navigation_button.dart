@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 
 class BottomNavigationButton extends StatelessWidget {
   final bool isEnabled;
   final VoidCallback? onTap;
   final Color color;
   final bool isThere10Item;
+  final PaymentMethod? paymentMethod;
 
   const BottomNavigationButton({
+    this.paymentMethod,
     Key? key,
     required this.isEnabled,
     required this.onTap,
@@ -34,7 +37,14 @@ class BottomNavigationButton extends StatelessWidget {
       ),
       child: InkWell(
         onTap: !isEnabled
-            ? () => Fluttertoast.showToast(msg: 'Tunggu sebentar')
+            ? () {
+                if (paymentMethod == null) {
+                  Fluttertoast.showToast(
+                      msg: 'Pilih metode pembayaran terlebih dahulu');
+                } else {
+                  Fluttertoast.showToast(msg: 'Tunggu Sebentar');
+                }
+              }
             : onTap,
         child: Center(
           child: Text(

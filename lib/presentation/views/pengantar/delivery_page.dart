@@ -119,7 +119,7 @@ class _PerluPengantaranState extends State<PerluPengantaran>
           ),
         ),
         body: TabBarView(
-          physics: const NeverScrollableScrollPhysics(),
+          // physics: const NeverScrollableScrollPhysics(),
           controller: _tabController,
           children: DeliveryStatus.values.map((status) {
             final pesanan = deliveryProvider.getPesananByStatus(status);

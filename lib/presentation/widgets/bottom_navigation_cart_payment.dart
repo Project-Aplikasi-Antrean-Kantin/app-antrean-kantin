@@ -15,7 +15,7 @@ import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/pilih_tipe_pembayaran.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
-class BottomNavigationCartPayment extends StatelessWidget {
+class BottomNavigationCartPayment extends StatefulWidget {
   final CartProvider cartProvider;
   final KasirProvider kasirProvider;
   final CoinProvider coinProvider;
@@ -45,15 +45,23 @@ class BottomNavigationCartPayment extends StatelessWidget {
   static const _borderWidth = 0.2;
   static const _spacing = 10.0;
 
+  @override
+  State<BottomNavigationCartPayment> createState() =>
+      _BottomNavigationCartPaymentState();
+}
+
+class _BottomNavigationCartPaymentState
+    extends State<BottomNavigationCartPayment> {
   /// Checks if the coin balance is insufficient for the transaction.
   bool _isCoinInsufficient(int totalHarga) =>
-      selectedPaymentMethod == PaymentMethod.koin && saldoCoin < totalHarga;
+      widget.selectedPaymentMethod == PaymentMethod.koin &&
+      widget.saldoCoin < totalHarga;
 
   /// Checks if delivery location data is incomplete.
   bool _isDataIncomplete() =>
-      !kasirProvider.cart.isNotEmpty &&
-      cartProvider.selectedDeliveryOption == 1 &&
-      (cartProvider.roomId == null || cartProvider.roomId! <= 0);
+      !widget.kasirProvider.cart.isNotEmpty &&
+      widget.cartProvider.selectedDeliveryOption == 1 &&
+      (widget.cartProvider.roomId == null || widget.cartProvider.roomId! <= 0);
 
   /// Navigates to the top-up page.
   void _navigateToTopup(BuildContext context) async {
@@ -64,15 +72,16 @@ class BottomNavigationCartPayment extends StatelessWidget {
     }
     Navigator.push(
       context,
-      CustomPageBuilder(page: TopupPage(email: user.email)),
+      CustomPageBuilder(page: TopupPage(email: widget.user.email)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isKasirActive = kasirProvider.cart.isNotEmpty;
-    final totalHarga =
-        isKasirActive ? kasirProvider.getTotal() : cartProvider.getTotal();
+    final isKasirActive = widget.kasirProvider.cart.isNotEmpty;
+    final totalHarga = isKasirActive
+        ? widget.kasirProvider.getTotal()
+        : widget.cartProvider.getTotal();
     final isCoinInsufficient = _isCoinInsufficient(totalHarga);
 
     return Semantics(
@@ -84,38 +93,42 @@ class BottomNavigationCartPayment extends StatelessWidget {
           if (isCoinInsufficient)
             _LowCoinWarning(onTopup: () => _navigateToTopup(context)),
           Container(
-            padding: _padding,
+            padding: BottomNavigationCartPayment._padding,
             decoration: const BoxDecoration(
               border: Border(
-                  top: BorderSide(width: _borderWidth, color: _borderColor)),
+                  top: BorderSide(
+                      width: BottomNavigationCartPayment._borderWidth,
+                      color: BottomNavigationCartPayment._borderColor)),
             ),
             child: Column(
               children: [
                 PilihTipePembayaran(
-                  isCartActive: cartProvider.cart.isNotEmpty,
+                  isCartActive: widget.cartProvider.cart.isNotEmpty,
                   isKasirActive: isKasirActive,
-                  selectedPaymentMethod: selectedPaymentMethod,
-                  onPaymentMethodSelected: onPaymentMethodSelected,
+                  selectedPaymentMethod: widget.selectedPaymentMethod,
+                  onPaymentMethodSelected: widget.onPaymentMethodSelected,
                 ),
-                const SizedBox(height: _spacing),
+                const SizedBox(height: BottomNavigationCartPayment._spacing),
                 BottomNavigationButton(
-                  isThere10Item: cartProvider.totalItemCount > 10,
-                  isEnabled: !isCoinInsufficient,
+                  isThere10Item: widget.cartProvider.totalItemCount > 10,
+                  isEnabled: !isCoinInsufficient &&
+                      widget.selectedPaymentMethod != null,
                   color: AppColors.primaryColor,
-                  onTap: cartProvider.isLoading
+                  onTap: widget.cartProvider.isLoading
                       ? null
                       : () {
-                          log("room id: ${cartProvider.roomId}");
+                          log("room id: ${widget.cartProvider.roomId}");
                           if (_isDataIncomplete()) {
-                            onIncompleteData();
+                            widget.onIncompleteData();
                             return;
                           }
                           if (!isKasirActive &&
-                              !cartProvider.isCartValid(cartProvider.roomId)) {
-                            onIncompleteData();
+                              !widget.cartProvider
+                                  .isCartValid(widget.cartProvider.roomId)) {
+                            widget.onIncompleteData();
                             return;
                           }
-                          onConfirmOrder();
+                          widget.onConfirmOrder();
                         },
                 ),
               ],

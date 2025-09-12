@@ -46,6 +46,7 @@ class CartProvider extends ChangeNotifier {
   bool orderSuccessful = false;
   Map<String, CartPerTenant> _tenantCarts = {};
   Map<String, CartPerTenant> get tenantCarts => _tenantCarts;
+
   TenantModel? _currentTenant;
   TenantModel? get currentTenant => _currentTenant;
   CartPerTenant? selectedCartTenant;
@@ -614,14 +615,15 @@ class CartProvider extends ChangeNotifier {
 
   // Creates a transaction and sends it to the server
   Future<OrderModel?> createTransaction(
-      BuildContext context, String token) async {
+      BuildContext context, String token, String paymentMethod) async {
     int total = getTotalItemCount();
     print('total $total');
+    print('paymentMethod $paymentMethod');
 
     final hasCartChanged = await syncCartWithServer(token);
     print('totalItemCount $totalItemCount');
     final result = TransactionRemoteDataSource()
-        .createTransaction(token, toJson(_cartMenu));
+        .createTransaction(token, toJson(_cartMenu, paymentMethod));
 
     if (hasCartChanged || total != totalItemCount) {
       if (cart.isEmpty) {
@@ -633,14 +635,14 @@ class CartProvider extends ChangeNotifier {
     }
 
     print('isAntar : $_selectedDeliveryOption');
-    print('sebelum add transaksi ' + toJson(_cartMenu));
+    print('sebelum add transaksi ' + toJson(_cartMenu, paymentMethod));
     orderSuccessful = true;
     notifyListeners();
     return result;
   }
 
   // Converts the current state to JSON format
-  String toJson(List<CartMenuModel> cart) {
+  String toJson(List<CartMenuModel> cart, String paymentMethod) {
     final data = {
       "isAntar": _selectedDeliveryOption,
       "total": totalPrice,

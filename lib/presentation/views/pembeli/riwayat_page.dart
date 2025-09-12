@@ -22,6 +22,7 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
@@ -108,9 +109,12 @@ class _RiwayatPageState extends State<RiwayatPage>
     // Refresh data ketika app kembali dari background
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (state == AppLifecycleState.resumed) {
       historyProvider.loadUnreadMessages().then((_) {
-        _fetchDataIfNeeded(forceRefresh: true);
+        historyProvider.fetchHistory(
+            context, authProvider.user, widget.role, false,
+            forceRefresh: true);
       });
     }
   }
@@ -675,6 +679,8 @@ class _RiwayatPageState extends State<RiwayatPage>
                 const Spacer(),
                 if (pesanan.status != 'refund_selesai' &&
                     pesanan.status != 'selesai' &&
+                    pesanan.status != 'pending' &&
+                    pesanan.status != 'gagal_bayar' &&
                     !(widget.tabLabel == 'Jual' && pesanan.status == 'diantar'))
                   GestureDetector(
                     onTap: () async {
@@ -754,10 +760,50 @@ class _RiwayatPageState extends State<RiwayatPage>
                       ],
                     ),
                   ),
+                if (pesanan.status == 'pending')
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        CustomPageBuilder(
+                          page: CheckoutQris(
+                            pesanan: pesanan,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      clipBehavior: Clip
+                          .none, // supaya bulatan bisa keluar dari container
+                      children: [
+                        Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.primaryColor,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            textAlign: TextAlign.center,
+                            'Bayar',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.primaryColor,
+                              fontSize: 14,
+                              fontWeight: semibold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 widget.tabLabel == 'Beli'
                     ? (pesanan.status == 'selesai' ||
                             pesanan.status == 'pesanan_ditolak' ||
-                            pesanan.status == 'refund_selesai')
+                            pesanan.status == 'refund_selesai' ||
+                            pesanan.status == 'gagal_bayar')
                         ? GestureDetector(
                             onTap: () async {
                               final connectivityResult =
@@ -842,6 +888,10 @@ class _RiwayatPageState extends State<RiwayatPage>
     switch (status) {
       case 'refund_selesai':
         return 'Refund';
+      case 'gagal_bayar':
+        return 'Gagal Bayar';
+      case 'pending':
+        return 'Pending';
       case 'selesai':
         return 'Selesai';
       case 'pesanan_ditolak':
@@ -865,10 +915,12 @@ class _RiwayatPageState extends State<RiwayatPage>
     switch (status) {
       case 'selesai':
         return HugeIcons.strokeRoundedCheckmarkBadge02;
-      case 'pesanan_ditolak' || 'refund_selesai':
+      case 'pesanan_ditolak' || 'refund_selesai' || 'gagal_bayar':
         return HugeIcons.strokeRoundedAlertDiamond;
       case 'pesanan_diproses':
         return HugeIcons.strokeRoundedArrowReloadVertical;
+      case 'pending':
+        return HugeIcons.strokeRoundedLoading03;
       default:
         return HugeIcons.strokeRoundedArrowReloadVertical;
     }
@@ -878,9 +930,9 @@ class _RiwayatPageState extends State<RiwayatPage>
     switch (status) {
       case 'selesai':
         return AppColors.successColor;
-      case 'pesanan_ditolak' || 'refund_selesai':
+      case 'pesanan_ditolak' || 'refund_selesai' || 'gagal_bayar':
         return AppColors.errorColor;
-      case 'pesanan_diproses':
+      case 'pesanan_diproses' || 'pending':
         return AppColors.warningColor;
       default:
         return AppColors.primaryColor;

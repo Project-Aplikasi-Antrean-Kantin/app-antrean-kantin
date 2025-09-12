@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
@@ -41,6 +42,43 @@ class DriverDataSource {
         pesanan: null,
         error: 'Terjadi kesalahan: $e',
       );
+    }
+  }
+
+  Future<bool> updateOrderWithProof(
+    String newStatus,
+    String token,
+    int id,
+    String buktiPath,
+  ) async {
+    final url =
+        Uri.parse('${MasbroConstants.url}/masbro/order/$id?status=$newStatus');
+
+    final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..fields['status'] = newStatus
+      ..files.add(await http.MultipartFile.fromPath(
+        'bukti_pengantaran',
+        buktiPath,
+      ));
+
+    final streamedResponse = await request.send();
+
+    // Ubah ke http.Response biar bisa akses body
+    final response = await http.Response.fromStream(streamedResponse);
+    print("Response status code: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 403 || response.statusCode == 400) {
+      final body = jsonDecode(response.body);
+      final message =
+          body['message'] ?? 'Pesanan telah diantar oleh driver lain';
+      throw CustomHttpException(message, 403);
+    } else {
+      final decoded = jsonDecode(response.body);
+      throw CustomHttpException(decoded['message'], response.statusCode);
     }
   }
 
