@@ -21,12 +21,14 @@ import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
+import 'package:testgetdata/presentation/views/pembeli/list_promo_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/add_more_items_button.dart';
 import 'package:testgetdata/presentation/widgets/bottom_navigation_cart_payment.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/card_selected_delivery_option_toggle.dart';
+import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/list_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
@@ -358,6 +360,11 @@ class _CartPageState extends State<CartPage> {
         final cartProvider = Provider.of<CartProvider>(context, listen: false);
         cartProvider.clearRoomIdAndOngkir();
         cartProvider.getActiveDriver(authProvider.user.token);
+        cartProvider
+            .fetchCashback(authProvider.user.token, true)
+            .then((listCashback) {
+          cartProvider.fetchVoucher(authProvider.user.token, listCashback);
+        });
         cartProvider.syncCartWithServer(authProvider.user.token);
       }
     });
@@ -433,7 +440,18 @@ class _CartPageState extends State<CartPage> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      resizeToAvoidBottomInset: true,
+      backgroundColor: AppColors.whiteColor,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: AppColors.whiteColor100,
+        surfaceTintColor: AppColors.backgroundColor,
+        title: const Text("Pembayaran",
+            style: TextStyle(
+                color: AppColors.textColorBlack,
+                fontSize: 18,
+                fontWeight: FontWeight.w600)),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -454,271 +472,403 @@ class _CartPageState extends State<CartPage> {
                   return const SizedBox();
                 }
 
-                if (cartProvider.isFetchingActiveDriver == true) {
+                if (cartProvider.isFetchingActiveDriver == true ||
+                    cartProvider.isFetchingVoucher == true ||
+                    cartProvider.isFetchCashback == true) {
                   return ShimmerCard(pageType: 'cartPage');
                 }
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 12),
-                      child: SizedBox(
-                        height: 56,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: GestureDetector(
-                                onTap: () => Navigator.pop(context),
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                    ],
-                                  ),
-                                  child: HugeIcon(
-                                    icon: HugeIcons.strokeRoundedArrowLeft02,
-                                    color: AppColors.blackColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'Pembayaran',
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.blackColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        'Detail Pesanan',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.blackColor,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        cartProvider.currentTenant?.namaTenant ?? '',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.blackColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 24, right: 24, top: 12),
-                      child: Consumer<CartProvider>(
-                        builder: (context, cartProvider, _) =>
-                            ListView.separated(
-                          separatorBuilder: (context, index) {
-                            return SizedBox(height: 8);
-                          },
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: activeCart.length,
-                          itemBuilder: (context, i) => Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 8,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: ImageByUrl(
-                                  key: Key(
-                                      '${activeCart[i].menuId}-${activeCart[i].menuNama}'),
-                                  url: activeCart[i].menuGambar,
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width / 2.5,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      capitalizeFirstLetter(
-                                          activeCart[i].menuNama),
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    activeCart[i].catatan != '' &&
-                                            activeCart[i].catatan != null
-                                        ? Text(
-                                            '${activeCart[i].catatan}',
-                                            style: TextStyle(
-                                                color: AppColors.blackColor200,
-                                                fontSize: 12),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                          )
-                                        : Text(
-                                            'Catatan Kosong',
-                                            style: TextStyle(
-                                                color: AppColors.blackColor200,
-                                                fontSize: 12),
-                                          ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            CustomPageBuilder(
-                                                page: DetailFoodPage(
-                                                    cartItem: activeCart[i],
-                                                    addNewItem: true,
-                                                    catatan:
-                                                        activeCart[i].catatan,
-                                                    tenant: cartProvider
-                                                        .currentTenant!)));
-                                      },
-                                      child: Text('Edit',
-                                          style: GoogleFonts.poppins(
-                                            color: AppColors.primaryColor,
-                                            fontSize: 12,
-                                          )),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                  child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                spacing: 8,
-                                children: [
-                                  Text(
-                                    FormatCurrency.intToStringCurrency(
-                                        activeCart[i].menuPrice *
-                                            activeCart[i].count),
-                                    style: GoogleFonts.poppins(
-                                      color: AppColors.blackColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 36,
-                                    width: 36,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                      color: AppColors.primaryColor,
-                                    ),
-                                    alignment: Alignment
-                                        .center, // ini alternatif dari Center()
-                                    child: Text(
-                                      '${activeCart[i].count}',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  )
-                                ],
-                              ))
-                            ],
+                return Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          'Detail Pesanan',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.blackColor400,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Sub total : ${activeCart.length} Menu',
-                              style: GoogleFonts.poppins(
-                                  color: AppColors.primaryColor)),
-                          Text(
-                            FormatCurrency.intToStringCurrency(activeCart.fold(
-                                0,
-                                (prev, item) =>
-                                    prev + (item.count * item.menuPrice))),
-                            style: GoogleFonts.poppins(
-                                color: AppColors.blackColor,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Divider(
-                        color: AppColors.blackColor100,
-                        thickness: 2,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: AddMoreItemsButton(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Divider(
-                        color: AppColors.blackColor100,
-                        thickness: 2,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 15),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          spacing: 12,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Driver Aktif',
-                                style: GoogleFonts.poppins(
-                                  color: AppColors.blackColor,
-                                  fontWeight: FontWeight.w600,
-                                )),
                             Text(
-                              '${cartProvider.totalActiveDriver} Driver',
+                              cartProvider.currentTenant?.namaTenant ?? '',
                               style: GoogleFonts.poppins(
+                                color: AppColors.blackColor,
                                 fontWeight: FontWeight.w600,
-                                color: cartProvider.totalActiveDriver == 0
-                                    ? Colors.red
-                                    : cartProvider.totalActiveDriver > 0 &&
-                                            cartProvider.totalActiveDriver <= 5
-                                        ? AppColors.warningColor
-                                        : AppColors.successColor,
+                                fontSize: 16,
                               ),
-                            )
-                          ]),
-                    ),
-                    if (!isKasirProviderActive) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: CardSelectedDeliveryOptionToggle(
-                          cartProvider: cartProvider,
-                          screenWidth: screenSize.width,
+                            ),
+                            Consumer<CartProvider>(
+                              builder: (context, cartProvider, _) =>
+                                  ListView.separated(
+                                separatorBuilder: (context, index) {
+                                  return SizedBox(height: 8);
+                                },
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: activeCart.length,
+                                itemBuilder: (context, i) => Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 8,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: ImageByUrl(
+                                        key: Key(
+                                            '${activeCart[i].menuId}-${activeCart[i].menuNama}'),
+                                        url: activeCart[i].menuGambar,
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            capitalizeFirstLetter(
+                                                activeCart[i].menuNama),
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          activeCart[i].catatan != '' &&
+                                                  activeCart[i].catatan != null
+                                              ? Text(
+                                                  '${activeCart[i].catatan}',
+                                                  style: TextStyle(
+                                                      color: AppColors
+                                                          .blackColor200,
+                                                      fontSize: 12),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                )
+                                              : Text(
+                                                  'Catatan Kosong',
+                                                  style: TextStyle(
+                                                      color: AppColors
+                                                          .blackColor200,
+                                                      fontSize: 12),
+                                                ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  CustomPageBuilder(
+                                                      page: DetailFoodPage(
+                                                          cartItem:
+                                                              activeCart[i],
+                                                          addNewItem: true,
+                                                          catatan: activeCart[i]
+                                                              .catatan,
+                                                          tenant: cartProvider
+                                                              .currentTenant!)));
+                                            },
+                                            child: Text('Edit',
+                                                style: GoogleFonts.poppins(
+                                                  color: AppColors.primaryColor,
+                                                  fontSize: 12,
+                                                )),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                        child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      spacing: 8,
+                                      children: [
+                                        Text(
+                                          FormatCurrency.intToStringCurrency(
+                                              activeCart[i].menuPrice *
+                                                  activeCart[i].count),
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.blackColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: AppColors.primaryColor,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize
+                                                .min, // biar pas dengan isi
+                                            children: [
+                                              // Tombol -
+                                              GestureDetector(
+                                                onTap: () => cartProvider
+                                                    .removeItemFromTenantCart(
+                                                        catatan: activeCart[i]
+                                                            .catatan,
+                                                        cartProvider
+                                                            .selectedCartTenant!
+                                                            .tenantId,
+                                                        activeCart[i].menuId,
+                                                        context),
+                                                child: Container(
+                                                  width: 28,
+                                                  height: 32,
+                                                  decoration: BoxDecoration(
+                                                    // color: AppColors
+                                                    //     .backgroundColor,
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                      topLeft:
+                                                          Radius.circular(10),
+                                                      bottomLeft:
+                                                          Radius.circular(10),
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      '-',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: AppColors
+                                                            .primaryColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // Counter
+                                              Container(
+                                                width: 28,
+                                                height: 32,
+                                                alignment: Alignment.center,
+                                                // decoration: BoxDecoration(
+                                                //   border: Border.symmetric(
+                                                //     vertical: BorderSide(
+                                                //       color: AppColors
+                                                //           .primaryColor,
+                                                //       width: 2,
+                                                //     ),
+                                                //   ),
+                                                // ),
+                                                child: TextFormField(
+                                                  key: ValueKey(
+                                                      activeCart[i].count),
+                                                  initialValue: activeCart[i]
+                                                      .count
+                                                      .toString(),
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  textAlign: TextAlign.center,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    isDense: true,
+                                                    contentPadding:
+                                                        EdgeInsets.zero,
+                                                  ),
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color:
+                                                        AppColors.primaryColor,
+                                                  ),
+                                                  onChanged: (value) {
+                                                    final intCount =
+                                                        int.tryParse(value);
+                                                    if (intCount != null &&
+                                                        intCount >= 0) {
+                                                      cartProvider
+                                                          .updateItemCount(
+                                                        tenantId: cartProvider
+                                                            .selectedCartTenant!
+                                                            .tenantId,
+                                                        menuId: activeCart[i]
+                                                            .menuId,
+                                                        count: intCount,
+                                                      );
+                                                    }
+                                                  },
+                                                ),
+                                              ),
+
+                                              // Tombol +
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    cartProvider.addItemToCart(
+                                                  catatan:
+                                                      activeCart[i].catatan,
+                                                  tenantId: cartProvider
+                                                      .selectedCartTenant!
+                                                      .tenantId,
+                                                  cart: activeCart[i],
+                                                ),
+                                                child: Container(
+                                                  width: 28,
+                                                  height: 32,
+                                                  decoration: BoxDecoration(
+                                                    // color: AppColors
+                                                    //     .backgroundColor,
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                      topRight:
+                                                          Radius.circular(10),
+                                                      bottomRight:
+                                                          Radius.circular(10),
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      '+',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: AppColors
+                                                            .primaryColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ))
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Sub total : ${activeCart.length} Menu',
+                                    style: GoogleFonts.poppins(
+                                        color: AppColors.primaryColor)),
+                                Text(
+                                  FormatCurrency.intToStringCurrency(
+                                      activeCart.fold(
+                                          0,
+                                          (prev, item) =>
+                                              prev +
+                                              (item.count * item.menuPrice))),
+                                  style: GoogleFonts.poppins(
+                                      color: AppColors.blackColor,
+                                      fontWeight: FontWeight.w600),
+                                )
+                              ],
+                            ),
+                            DashedDivider(
+                              color: AppColors.blackColor100,
+                              dashWidth: 2,
+                              dashSpace: 2,
+                            ),
+                            AddMoreItemsButton(),
+                          ],
                         ),
                       ),
-                      if (cartProvider.selectedDeliveryOption == 1) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: PilihLokasiRuangan(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          'Tipe Pembelian',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.blackColor400,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      if (!isKasirProviderActive) ...[
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 15),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                spreadRadius: 1,
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            spacing: 8,
+                            children: [
+                              if (cartProvider.selectedDeliveryOption == 1)
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Driver Aktif',
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.w600,
+                                          )),
+                                      Text(
+                                        '${cartProvider.totalActiveDriver} Driver',
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.w600,
+                                          color: cartProvider
+                                                      .totalActiveDriver ==
+                                                  0
+                                              ? Colors.red
+                                              : cartProvider.totalActiveDriver >
+                                                          0 &&
+                                                      cartProvider
+                                                              .totalActiveDriver <=
+                                                          5
+                                                  ? AppColors.warningColor
+                                                  : AppColors.successColor,
+                                        ),
+                                      )
+                                    ]),
+                              CardSelectedDeliveryOptionToggle(
+                                cartProvider: cartProvider,
+                                screenWidth: screenSize.width,
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (cartProvider.selectedDeliveryOption == 1) ...[
+                          PilihLokasiRuangan(
                             onChange: (value) {
                               cartProvider.setCatatanLokasi(value);
                             },
@@ -732,19 +882,214 @@ class _CartPageState extends State<CartPage> {
                               cartProvider.getOngkir(
                                   user.token, roomSelected.gedung.ongkir);
                             },
-                          ),
-                        )
+                          )
+                        ],
                       ],
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          "Voucher Terbaik",
+                          style: GoogleFonts.poppins(
+                              color: AppColors.blackColor400,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      if (cartProvider.recommendedCashback != null ||
+                          cartProvider.recommendedVoucher != null)
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 15),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                spreadRadius: 1,
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            spacing: 8,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                    color: cartProvider.selectedVoucher != null
+                                        ? AppColors.successColor100
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: AppColors.successColor,
+                                    )),
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.successColor100,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: HugeIcon(
+                                        icon: HugeIcons.strokeRoundedDiscount,
+                                        color: AppColors.successColor,
+                                        size: 24,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                cartProvider.selectedVoucher !=
+                                                        null
+                                                    ? 'Cashback ${(cartProvider.selectedVoucher!.cashback.value * 100).toInt()}% maks ${cartProvider.selectedVoucher!.cashback.maxCashback ~/ 1000}rb'
+                                                    : cartProvider
+                                                                .recommendedCashback !=
+                                                            null
+                                                        ? 'Cashback ${(cartProvider.recommendedCashback!.value * 100).toInt()}% maks ${cartProvider.recommendedCashback!.maxCashback ~/ 1000}rb'
+                                                        : 'Cashback ${(cartProvider.recommendedVoucher!.cashback.value * 100).toInt()}% maks ${cartProvider.recommendedVoucher!.cashback.maxCashback ~/ 1000}rb',
+                                                style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.w600,
+                                                  color:
+                                                      AppColors.blackColor400,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                              Text(
+                                                cartProvider.selectedVoucher !=
+                                                        null
+                                                    ? 'Min. pembelian ${cartProvider.selectedVoucher!.cashback.minimalOrder ~/ 1000}rb'
+                                                    : 'Min. pembelian ${(cartProvider.recommendedCashback != null ? cartProvider.recommendedCashback!.minimalOrder : cartProvider.recommendedVoucher!.cashback.minimalOrder) ~/ 1000}rb',
+                                                style: GoogleFonts.poppins(
+                                                    fontSize: 12),
+                                              ),
+                                            ]),
+                                      ),
+                                    ),
+                                    if (cartProvider.selectedVoucher == null)
+                                      GestureDetector(
+                                        onTap: () async {
+                                          try {
+                                            if (cartProvider
+                                                    .recommendedCashback !=
+                                                null) {
+                                              await cartProvider.getCashback(
+                                                  user.token,
+                                                  cartProvider
+                                                      .recommendedCashback!
+                                                      .referralCode);
+                                              Fluttertoast.showToast(
+                                                  msg:
+                                                      'Voucher berhasil diklaim, silahkan Pakai',
+                                                  backgroundColor:
+                                                      AppColors.successColor,
+                                                  textColor: Colors.white);
+                                            } else if (cartProvider
+                                                    .recommendedVoucher !=
+                                                null) {
+                                              if (cartProvider.totalPrice <
+                                                  cartProvider
+                                                      .recommendedVoucher!
+                                                      .cashback
+                                                      .minimalOrder) {
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        'Minimal pembelian ${cartProvider.recommendedVoucher!.cashback.minimalOrder ~/ 1000}rb');
+                                                return;
+                                              }
+                                              cartProvider.setSelectedVoucher(
+                                                  cartProvider
+                                                      .recommendedVoucher!);
+                                              Fluttertoast.showToast(
+                                                  msg:
+                                                      'Voucher berhasil dipilih',
+                                                  backgroundColor:
+                                                      AppColors.successColor,
+                                                  textColor: Colors.white);
+                                            }
+                                          } catch (e) {
+                                            Fluttertoast.showToast(
+                                                msg: e.toString());
+                                          }
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: AppColors.successColor,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                          child: Text(
+                                              cartProvider.recommendedCashback !=
+                                                      null
+                                                  ? 'Klaim'
+                                                  : 'Pakai',
+                                              style: GoogleFonts.poppins(
+                                                color:
+                                                    AppColors.successColor400,
+                                                fontWeight: FontWeight.w600,
+                                              )),
+                                        ),
+                                      ),
+                                    if (cartProvider.selectedVoucher != null)
+                                      HugeIcon(
+                                        icon: HugeIcons
+                                            .strokeRoundedCheckmarkCircle02,
+                                        color: AppColors.successColor,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              DashedDivider(
+                                color: AppColors.blackColor300,
+                                dashWidth: 2,
+                                dashSpace: 2,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CustomPageBuilder(page: ListPromoPage()),
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text('Cek promo lainnya',
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.successColor,
+                                          )),
+                                    ),
+                                    HugeIcon(
+                                        icon:
+                                            HugeIcons.strokeRoundedArrowRight02,
+                                        color: AppColors.successColor)
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: RingkasanPembayaranCart(
+                            isKasir: isKasirProviderActive),
+                      ),
+                      SizedBox(
+                        height: 40,
+                      )
                     ],
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: RingkasanPembayaranCart(
-                          isKasir: isKasirProviderActive),
-                    ),
-                    SizedBox(
-                      height: 40,
-                    )
-                  ],
+                  ),
                 );
               },
             ),

@@ -6,10 +6,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/local/cart_local_data_source.dart';
 import 'package:testgetdata/data/model/cart_per_tenant.dart';
+import 'package:testgetdata/data/model/cashback.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/settings_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/data/model/voucher_model.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
@@ -42,6 +44,9 @@ class CartProvider extends ChangeNotifier {
   // UI state
   bool isCartVisible = false;
   bool isLoading = false;
+  bool isFetchingVoucher = false;
+  bool isClaimingCashback = false;
+  bool isFetchCashback = false;
   bool transactionCompleted = false;
   bool orderSuccessful = false;
   Map<String, CartPerTenant> _tenantCarts = {};
@@ -66,6 +71,11 @@ class CartProvider extends ChangeNotifier {
   int get selectedDeliveryOption => _selectedDeliveryOption;
 
   List<SettingsModel> settings = [];
+  List<Voucher> listVoucher = [];
+  List<Cashback> listCashback = [];
+  Voucher? selectedVoucher;
+  Voucher? recommendedVoucher;
+  Cashback? recommendedCashback;
   int biayaExtra = 0;
   int ongkir = 0;
   int biayaLayanan = 0;
@@ -216,21 +226,21 @@ class CartProvider extends ChangeNotifier {
   }
 
   // Adds a new item to the cart or increments an existing item's
-  void addItemToCartOrUpdateQuantity(int menuId, String name, int price,
-      String image, String tenantName, String description, bool isAdd) {
-    final existingItemIndex = _findExistingItemIndex(menuId);
+  // void addItemToCartOrUpdateQuantity(int menuId, String name, int price,
+  //     String image, String tenantName, String description, bool isAdd) {
+  //   final existingItemIndex = _findExistingItemIndex(menuId);
 
-    // Update the existing item or add a new one
-    if (existingItemIndex != -1) {
-      // _updateExistingItem(existingItemIndex, price, isAdd);
-    } else if (isAdd) {
-      // _addItemToCart(menuId, name, price, image, tenantName, description);
-    }
+  //   // Update the existing item or add a new one
+  //   if (existingItemIndex != -1) {
+  //     // _updateExistingItem(existingItemIndex, price, isAdd);
+  //   } else if (isAdd) {
+  //     // _addItemToCart(menuId, name, price, image, tenantName, description);
+  //   }
 
-    // Update the cart visibility
-    _updateCartVisibility();
-    notifyListeners();
-  }
+  //   // Update the cart visibility
+  //   _updateCartVisibility();
+  //   notifyListeners();
+  // }
 
   void getAllCarts() async {
     _tenantCarts = await CartLocalDataSource().loadAllCartsToTenantMap();
@@ -296,6 +306,7 @@ class CartProvider extends ChangeNotifier {
 
   void editCartModelToCart({
     required CartMenuModel cartItem,
+    required BuildContext context,
     required String tenantId,
     required int index,
   }) async {
@@ -330,6 +341,16 @@ class CartProvider extends ChangeNotifier {
           ongkir - (totalItemCount - 10) * (biayaExtra == 0 ? 500 : biayaExtra);
     }
 
+    if (selectedVoucher != null &&
+        listMenu.fold<int>(0, (sum, item) => sum + item.menuPrice) <
+            selectedVoucher!.cashback!.minimalOrder) {
+      selectedVoucher = null;
+      Fluttertoast.showToast(
+          msg: 'Minimal order belum terpenuhi, voucher dihapus',
+          backgroundColor: AppColors.errorColor,
+          textColor: Colors.white);
+    }
+
     _cartMenu = listMenu;
     if (selectedCartTenant?.tenantId == currentTenantId) {
       selectedCartTenant = _tenantCarts[currentTenantId];
@@ -343,6 +364,144 @@ class CartProvider extends ChangeNotifier {
     await CartLocalDataSource()
         .saveTenantCartToLocal(_tenantCarts[currentTenantId]!);
     notifyListeners();
+  }
+
+  Future<void> fetchVoucher(String token, List<Cashback> listCashback) async {
+    isFetchingVoucher = true;
+    try {
+      listVoucher = await TransactionRemoteDataSource().getVoucherData(token);
+
+      // Filter cashback yang belum ada di voucher
+      final filteredCashbacks = listCashback.where((cashback) {
+        final isAlreadyInVoucher = listVoucher.any(
+          (voucher) => voucher.cashback.id == cashback.id,
+        );
+        return !isAlreadyInVoucher;
+      }).toList();
+
+      // Reset default
+      recommendedVoucher = null;
+      recommendedCashback = null;
+
+      // Panggil fungsi khusus buat tentuin rekomendasi
+      _determineRecommendation(listVoucher, filteredCashbacks);
+
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Error in provider: $e');
+    } finally {
+      isFetchingVoucher = false;
+      notifyListeners();
+    }
+  }
+
+  /// Fungsi khusus buat tentuin rekomendasi voucher/cashback
+  void _determineRecommendation(
+    List<Voucher> vouchers,
+    List<Cashback> filteredCashbacks,
+  ) {
+    if (vouchers.isEmpty) {
+      // Kalau gak ada voucher → ambil cashback terbaik
+      recommendedCashback = _getBestCashback(filteredCashbacks);
+      return;
+    }
+
+    final currentVoucher = _getBestVoucher(vouchers);
+    recommendedVoucher = currentVoucher;
+
+    final bestCashback = _getBestCashback(filteredCashbacks);
+
+    // Bandingkan cashback dengan voucher
+    if (bestCashback != null &&
+        currentVoucher != null &&
+        bestCashback.value > currentVoucher.cashback.value &&
+        bestCashback.maxCashback >= currentVoucher.cashback.maxCashback) {
+      // Kalau cashback lebih baik
+      recommendedVoucher = null;
+      recommendedCashback = bestCashback;
+    }
+  }
+
+  Cashback? _getBestCashback(List<Cashback> listCashback) {
+    if (listCashback.isEmpty) return null;
+
+    print('halo ini');
+    listCashback.sort((a, b) {
+      final scoreA = a.value + a.maxCashback;
+      final scoreB = b.value + b.maxCashback;
+      return scoreB.compareTo(scoreA); // terbesar duluan
+    });
+
+    return listCashback.first;
+  }
+
+  Voucher? _getBestVoucher(List<Voucher> listVoucher) {
+    if (listVoucher.isEmpty) return null;
+
+    // ambil hanya voucher dengan qty > 0
+    final availableVouchers = listVoucher.where((v) => v.qty > 0).toList();
+
+    if (availableVouchers.isEmpty) return null;
+
+    availableVouchers.sort((a, b) {
+      final scoreA = a.cashback.value + a.cashback.maxCashback;
+      final scoreB = b.cashback.value + b.cashback.maxCashback;
+      return scoreB.compareTo(scoreA); // terbesar duluan
+    });
+
+    return availableVouchers.first;
+  }
+
+  Future<List<Cashback>> fetchCashback(
+      String token, bool clearSelectedVoucher) async {
+    isFetchCashback = true;
+    try {
+      if (clearSelectedVoucher) {
+        selectedVoucher = null;
+      }
+      listCashback = await TransactionRemoteDataSource().getCashbackData(token);
+      notifyListeners();
+      return listCashback;
+    } catch (e) {
+      throw Exception('Error in provider: $e');
+    } finally {
+      isFetchCashback = false;
+      notifyListeners();
+    }
+  }
+
+  void setSelectedVoucher(Voucher voucher) {
+    selectedVoucher = voucher;
+    notifyListeners();
+  }
+
+  Future<void> getCashback(String token, String referralCode) async {
+    isClaimingCashback = true;
+    try {
+      final newVoucher = await TransactionRemoteDataSource()
+          .claimCashback(token, referralCode);
+      listVoucher.add(newVoucher);
+      // Filter cashback yang belum ada di voucher
+      final filteredCashbacks = listCashback.where((cashback) {
+        final isAlreadyInVoucher = listVoucher.any(
+          (voucher) => voucher.cashback.id == cashback.id,
+        );
+        return !isAlreadyInVoucher;
+      }).toList();
+
+      // Reset default
+      recommendedVoucher = null;
+      recommendedCashback = null;
+
+      // Panggil fungsi khusus buat tentuin rekomendasi
+      _determineRecommendation(listVoucher, filteredCashbacks);
+      notifyListeners();
+    } catch (e) {
+      throw ('$e');
+    } finally {
+      isClaimingCashback = false;
+      notifyListeners();
+    }
   }
 
   void addCartModelToCart({
@@ -385,7 +544,8 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removeItemFromTenantCart(String tenantId, int menuId,
+  Future<void> removeItemFromTenantCart(
+      String tenantId, int menuId, BuildContext context,
       {String? catatan, int? indexCart}) async {
     final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
 
@@ -406,6 +566,16 @@ class CartProvider extends ChangeNotifier {
       menuList[index] = currentItem.copyWith(count: currentItem.count - 1);
     } else {
       menuList.removeAt(index);
+    }
+
+    if (selectedVoucher != null &&
+        menuList.fold<int>(0, (sum, item) => sum + item.menuPrice) <
+            selectedVoucher!.cashback!.minimalOrder) {
+      selectedVoucher = null;
+      Fluttertoast.showToast(
+          msg: 'Minimal order belum terpenuhi, voucher dihapus',
+          backgroundColor: AppColors.errorColor,
+          textColor: Colors.white);
     }
 
     if (menuList.isEmpty) {
@@ -540,18 +710,18 @@ class CartProvider extends ChangeNotifier {
   }
 
   // Finds the index of an existing item in the cart with the given menu ID.
-  int _findExistingItemIndex(int menuId) {
-    return _cartMenu.indexWhere((element) => element.menuId == menuId);
-  }
+  // int _findExistingItemIndex(int menuId) {
+  //   return _cartMenu.indexWhere((element) => element.menuId == menuId);
+  // }
 
-  // Updates the visibility of the cart's bottom navigation bar based on whether
-  void _updateCartVisibility() {
-    final newVisibility = totalItemCount > 0;
-    if (isCartVisible != newVisibility) {
-      isCartVisible = newVisibility;
-      notifyListeners();
-    }
-  }
+  // // Updates the visibility of the cart's bottom navigation bar based on whether
+  // void _updateCartVisibility() {
+  //   final newVisibility = totalItemCount > 0;
+  //   if (isCartVisible != newVisibility) {
+  //     isCartVisible = newVisibility;
+  //     notifyListeners();
+  //   }
+  // }
 
   void setTransactionStatus({bool? isLoading, bool? isTransactionCompleted}) {
     isLoading = isLoading ?? false;

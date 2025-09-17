@@ -445,6 +445,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                   count: count,
                   catatan: _textEditingController.text,
                 ),
+                context: context,
                 tenantId: widget.tenant.id.toString(),
                 index: indexCart ?? 0,
               );

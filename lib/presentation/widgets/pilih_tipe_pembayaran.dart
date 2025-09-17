@@ -31,12 +31,12 @@ class PilihTipePembayaran extends StatelessWidget {
   static final Map<PaymentMethod, Map<String, String>> _paymentOptions = {
     PaymentMethod.koin: {
       'label': 'FoodLab Koin',
-      'icon': 'assets/images/koin-logo.svg',
+      'icon': 'assets/images/qris.png',
       'description': 'Pastikan koin FoodLAB mencukupi',
     },
     PaymentMethod.qris: {
       'label': 'QRIS',
-      'icon': 'assets/images/koin-logo.svg',
+      'icon': 'assets/images/qris.png',
       'description': 'Pembayaran instan dengan QRIS',
     },
   };
@@ -84,7 +84,11 @@ class PilihTipePembayaran extends StatelessWidget {
             spacing: 8,
             children: [
               if (selectedPaymentMethod != null)
-                SvgPicture.asset('assets/images/koin-logo.svg', height: 30),
+                Image.asset(
+                  _paymentOptions[selectedPaymentMethod]!['icon'] as String,
+                  width: _iconSize,
+                  height: _iconSize,
+                ),
               Expanded(
                 child: Container(
                   child: Column(
@@ -179,126 +183,129 @@ class _PaymentOptionBottomSheetState extends State<_PaymentOptionBottomSheet> {
         ? [PaymentMethod.qris]
         : [PaymentMethod.koin, PaymentMethod.qris];
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        color: AppColors.backgroundColor,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Pilih Metode Bayar',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textColorBlack,
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: AppColors.backgroundColor,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pilih Metode Bayar',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textColorBlack,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          ...availableMethods.map((method) {
-            final iconPath =
-                PilihTipePembayaran._paymentOptions[method]!['icon'] as String;
+            const SizedBox(height: 16),
+            ...availableMethods.map((method) {
+              final iconPath = PilihTipePembayaran
+                  ._paymentOptions[method]!['icon'] as String;
 
-            print(iconPath);
+              print(iconPath);
 
-            return Column(
-              children: [
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedPaymentMethod = method);
-                    widget.onSelect(method);
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                        color: _selectedPaymentMethod == method
-                            ? AppColors.primaryColor100
-                            : AppColors.backgroundColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
+              return Column(
+                children: [
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedPaymentMethod = method);
+                      widget.onSelect(method);
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
                           color: _selectedPaymentMethod == method
-                              ? AppColors.primaryColor200
-                              : AppColors.blackColor100,
-                          width: 1.5,
-                        )),
-                    child: Row(
-                      spacing: 8,
-                      children: [
-                        SvgPicture.asset(
-                          PilihTipePembayaran._paymentOptions[method]!['icon']!,
-                          height: 30,
-                        ),
-                        Expanded(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  PilihTipePembayaran
-                                          ._paymentOptions[method]!['label']
-                                      as String,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textColorBlack,
+                              ? AppColors.primaryColor100
+                              : AppColors.backgroundColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _selectedPaymentMethod == method
+                                ? AppColors.primaryColor200
+                                : AppColors.blackColor100,
+                            width: 1.5,
+                          )),
+                      child: Row(
+                        spacing: 8,
+                        children: [
+                          Image.asset(
+                            PilihTipePembayaran
+                                ._paymentOptions[method]!['icon']!,
+                            height: 30,
+                          ),
+                          Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    PilihTipePembayaran
+                                            ._paymentOptions[method]!['label']
+                                        as String,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textColorBlack,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  PilihTipePembayaran._paymentOptions[method]![
-                                      'description'] as String,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.textColorBlack,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    PilihTipePembayaran._paymentOptions[
+                                        method]!['description'] as String,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.textColorBlack,
+                                    ),
                                   ),
-                                ),
-                              ]),
-                        ),
-                        InkWell(
-                          onTap: () => {
-                            widget.onSelect(method),
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: _selectedPaymentMethod == method
-                                    ? AppColors.primaryColor
-                                    : Colors.grey,
-                                width: 2,
-                              ),
-                            ),
-                            child: Center(
-                              child: Container(
-                                width: 24 / 2,
-                                height: 24 / 2,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+                                ]),
+                          ),
+                          InkWell(
+                            onTap: () => {
+                              widget.onSelect(method),
+                            },
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
                                   color: _selectedPaymentMethod == method
                                       ? AppColors.primaryColor
-                                      : Colors.transparent,
+                                      : Colors.grey,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Container(
+                                  width: 24 / 2,
+                                  height: 24 / 2,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _selectedPaymentMethod == method
+                                        ? AppColors.primaryColor
+                                        : Colors.transparent,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          }),
-          const SizedBox(height: 16),
-        ],
+                ],
+              );
+            }),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

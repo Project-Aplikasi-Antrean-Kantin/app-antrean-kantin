@@ -239,7 +239,8 @@ class ListCart extends StatelessWidget {
                                                   .removeItemFromTenantCart(
                                                       catatan: cart.catatan,
                                                       tenantId ?? '',
-                                                      cart.menuId);
+                                                      cart.menuId,
+                                                      context);
                                             },
                                             splashColor: Colors.transparent,
                                             child: Icon(

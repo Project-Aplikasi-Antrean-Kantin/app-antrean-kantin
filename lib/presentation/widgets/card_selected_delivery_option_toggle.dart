@@ -25,15 +25,6 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Tipe Pembelian',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: semibold,
-                color: AppColors.textColorBlack,
-              ),
-            ),
-            const SizedBox(height: 15),
             Row(
               children: [
                 Expanded(

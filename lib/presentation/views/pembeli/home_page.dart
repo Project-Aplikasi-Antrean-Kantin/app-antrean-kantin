@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _onMessageTopupSuccessSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final title = message.data['title']?.toString().toLowerCase();
-      if (title == 'top-up berhasil') {
+      if (title == 'top-up berhasil' || title!.contains('cashback berhasil')) {
         _handleCoinByNotification(coinProvider, user);
       }
       if (title == 'tenant sibuk') {

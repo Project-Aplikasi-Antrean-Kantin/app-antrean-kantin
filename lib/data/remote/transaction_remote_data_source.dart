@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/cashback.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/data/model/voucher_model.dart';
 
 class TransactionRemoteDataSource {
   Future<OrderModel> createTransaction(String auth, String data) async {
@@ -39,6 +41,75 @@ class TransactionRemoteDataSource {
     } catch (e) {
       print('An error occurred: $e');
       throw Exception(e.toString()); // cukup pakai e
+    }
+  }
+
+  Future<Voucher> claimCashback(String auth, String referralCode) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${MasbroConstants.url}/get/voucher/$referralCode'),
+        headers: {
+          'Authorization': "Bearer $auth",
+          'Accept': 'application/json',
+          HttpHeaders.contentTypeHeader: 'application/json'
+        },
+      );
+
+      final jsonBody = jsonDecode(response.body);
+      // print('Response status code: ${jsonBody['message'][0]}');
+      // print('Response body: ${jsonBody['data']['transaksi']}');
+
+      print('Response status code voucher: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        print('sukses claim');
+        return Voucher.fromJson(jsonBody['data']);
+      } else if (response.statusCode == 400)
+        throw jsonBody['message'];
+      else {
+        print('Request failed with status: ${response.statusCode}');
+        print('Error response body: ${response.body}');
+        throw '${jsonBody['message']}';
+      }
+    } catch (e) {
+      print('An error occurred: $e');
+      throw (e.toString()); // cukup pakai e
+    }
+  }
+
+  Future<List<Voucher>> getVoucherData(String token) async {
+    final response = await http.get(
+      Uri.parse("${MasbroConstants.url}/list/voucher/active"),
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+    );
+
+    print('Response status code voucher: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body)['data'] as List<dynamic>;
+      print('Voucher data: $jsonData');
+      return jsonData.map((e) => Voucher.fromJson(e)).toList();
+    } else {
+      throw Exception(
+        jsonDecode(response.body)["message"],
+      );
+    }
+  }
+
+  Future<List<Cashback>> getCashbackData(String token) async {
+    final response = await http.get(
+      Uri.parse("${MasbroConstants.url}/list/cashback/active"),
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body)['data'] as List<dynamic>;
+      print('Cashback data: $jsonData');
+      return jsonData.map((e) => Cashback.fromJson(e)).toList();
+    } else {
+      throw Exception(
+        jsonDecode(response.body)["message"],
+      );
     }
   }
 
