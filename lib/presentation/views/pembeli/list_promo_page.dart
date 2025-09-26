@@ -8,6 +8,7 @@ import 'package:testgetdata/data/model/cashback.dart';
 import 'package:testgetdata/data/model/voucher_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
+import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 
 class ListPromoPage extends StatefulWidget {
@@ -61,24 +62,57 @@ class _ListPromoPageState extends State<ListPromoPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 8,
             children: [
-              Text('Voucher yang bisa kamu pakai',
-                  style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryColor)),
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, _) {
+                  if (cartProvider.selectedVoucher != null) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 16,
+                      children: [
+                        Text(
+                          'Voucher yang kamu pilih',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                        _buildVoucherOrCashback(cartProvider.selectedVoucher!,
+                            cartProvider, authProvider.user.token),
+                      ],
+                    );
+                  } else {
+                    return const SizedBox(); // jangan tampilkan apapun
+                  }
+                },
+              ),
               Consumer<CartProvider>(
                 builder: (context, cartProvider, _) {
                   final filteredVouchers = cartProvider.listVoucher
                       .where((voucher) =>
-                          voucher.qty > 0) // hanya tampil kalau qty > 0
+                          voucher.qty > 0 &&
+                          cartProvider.selectedVoucher?.id !=
+                              voucher.id) // hanya tampil kalau qty > 0
                       .toList();
+                  if (filteredVouchers.isEmpty) {
+                    return const SizedBox(); // jangan tampilkan apapun
+                  }
 
                   return Column(
-                    spacing: 16,
-                    children: filteredVouchers
-                        .map((voucher) => _buildVoucherOrCashback(
-                            voucher, cartProvider, authProvider.user.token))
-                        .toList(),
-                  );
+                      spacing: 16,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Voucher yang bisa kamu pakai',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                        ...filteredVouchers
+                            .map((voucher) => _buildVoucherOrCashback(
+                                voucher, cartProvider, authProvider.user.token))
+                            .toList(),
+                      ]);
                 },
               ),
               Consumer<CartProvider>(
@@ -143,9 +177,8 @@ class _ListPromoPageState extends State<ListPromoPage> {
 
     return Container(
       decoration: BoxDecoration(
-        color: cartProvider.selectedVoucher?.cashback.referralCode ==
-                cashback.referralCode
-            ? Colors.green
+        color: cartProvider.selectedVoucher?.id == data.id && isVoucher
+            ? AppColors.successColor100
             : Colors.white,
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: [
@@ -197,45 +230,60 @@ class _ListPromoPageState extends State<ListPromoPage> {
                     ],
                   ),
                 ),
-                GestureDetector(
-                  onTap: () async {
-                    try {
-                      if (isVoucher) {
-                        if (cartProvider.totalPrice <
-                            data.cashback.minimalOrder) {
+                if (data is Cashback ||
+                    (isVoucher && cartProvider.selectedVoucher?.id != data.id))
+                  GestureDetector(
+                    onTap: () async {
+                      try {
+                        if (isVoucher) {
+                          if (cartProvider.totalPrice <
+                              data.cashback.minimalOrder) {
+                            Fluttertoast.showToast(
+                                msg:
+                                    'Minimal pembelian ${data.cashback.minimalOrder ~/ 1000}rb');
+                            return;
+                          }
+                          cartProvider.setSelectedVoucher(data);
                           Fluttertoast.showToast(
-                              msg:
-                                  'Minimal pembelian ${data.cashback.minimalOrder ~/ 1000}rb');
-                          return;
+                              msg: 'Voucher berhasil dipilih',
+                              backgroundColor: AppColors.successColor,
+                              textColor: Colors.white);
+                        } else {
+                          await cartProvider.getCashback(
+                              token, cashback.referralCode);
+                          Fluttertoast.showToast(
+                              msg: 'Voucher berhasil diklaim',
+                              backgroundColor: AppColors.successColor,
+                              textColor: Colors.white);
                         }
-                        cartProvider.setSelectedVoucher(data);
-                      } else {
-                        await cartProvider.getCashback(
-                            token, cashback.referralCode);
+                      } catch (e) {
+                        Fluttertoast.showToast(msg: e.toString());
                       }
-                    } catch (e) {
-                      Fluttertoast.showToast(msg: e.toString());
-                    }
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isVoucher ? null : AppColors.successColor,
-                      border: Border.all(color: AppColors.successColor),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      isVoucher ? 'Pakai' : 'Klaim',
-                      style: GoogleFonts.poppins(
-                        color: isVoucher
-                            ? AppColors.successColor400
-                            : AppColors.whiteColor100,
-                        fontWeight: FontWeight.w600,
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isVoucher ? null : AppColors.successColor,
+                        border: Border.all(color: AppColors.successColor),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        isVoucher ? 'Pakai' : 'Klaim',
+                        style: GoogleFonts.poppins(
+                          color: isVoucher
+                              ? AppColors.successColor400
+                              : AppColors.whiteColor100,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                if (isVoucher && cartProvider.selectedVoucher?.id == data.id)
+                  HugeIcon(
+                    icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                    color: AppColors.successColor,
+                  ),
               ],
             ),
           ),
@@ -243,7 +291,9 @@ class _ListPromoPageState extends State<ListPromoPage> {
             clipBehavior: Clip.none,
             children: [
               DashedDivider(
-                color: AppColors.blackColor300,
+                color: isVoucher && cartProvider.selectedVoucher?.id == data.id
+                    ? AppColors.blackColor
+                    : AppColors.blackColor200,
                 dashWidth: 2,
                 dashSpace: 2,
               ),
@@ -281,7 +331,10 @@ class _ListPromoPageState extends State<ListPromoPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.successColor100,
+                    color:
+                        isVoucher && cartProvider.selectedVoucher?.id == data.id
+                            ? Colors.white
+                            : AppColors.successColor100,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text.rich(
@@ -310,11 +363,14 @@ class _ListPromoPageState extends State<ListPromoPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.successColor100,
+                    color:
+                        isVoucher && cartProvider.selectedVoucher?.id == data.id
+                            ? Colors.white
+                            : AppColors.successColor100,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                    'Berlaku 21-30 Agustus',
+                    'Berlaku s.d ${FormatDate.dateToDay(cashback.endDate)}',
                     style: GoogleFonts.poppins(
                       color: AppColors.blackColor,
                       fontSize: 12,

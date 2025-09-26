@@ -397,7 +397,10 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
-    List<FiturModel> listFitur = authProvider.user.menu;
+
+    List<FiturModel> listFitur = [
+      ...authProvider.user.menu
+    ]; // copy dulu biar ga rusak state asli
 
     // Halaman yang baru dipilih bukan halaman kasir, maka bersihkan keranjang belanja
     void clearCartIfRequired(int newIndex) {

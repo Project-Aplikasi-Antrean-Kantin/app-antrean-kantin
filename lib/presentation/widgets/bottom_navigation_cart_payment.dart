@@ -13,6 +13,7 @@ import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/bottom_navigation_button.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/pilih_tipe_pembayaran.dart';
+import 'package:testgetdata/presentation/widgets/show_bottom_sheet_usevoucher.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class BottomNavigationCartPayment extends StatefulWidget {
@@ -120,6 +121,16 @@ class _BottomNavigationCartPaymentState
                           log("room id: ${widget.cartProvider.roomId}");
                           if (_isDataIncomplete()) {
                             widget.onIncompleteData();
+                            return;
+                          }
+                          if (widget.cartProvider.showBottomSheetVoucher()) {
+                            showBottomSheetUseVoucher(
+                                context: context,
+                                onFinish: () {
+                                  Navigator.pop(context);
+                                  widget.onConfirmOrder();
+                                },
+                                canSend: true);
                             return;
                           }
                           if (!isKasirActive &&

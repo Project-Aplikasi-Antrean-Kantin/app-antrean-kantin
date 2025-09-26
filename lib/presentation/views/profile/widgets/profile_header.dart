@@ -35,7 +35,7 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 height: 72,
@@ -61,29 +61,38 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.nama.capitalizeFirst(),
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        color: AppColors.blackColor,
-                        fontWeight: FontWeight.w600,
+
+              const SizedBox(width: 10),
+
+              // Flexible biar teks bisa wrap sesuai sisa space
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 15, right: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.nama.capitalizeFirst(),
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          color: AppColors.blackColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        softWrap: true, // penting biar bisa turun ke baris baru
                       ),
-                    ),
-                    Text(
-                      user.email,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: AppColors.blackColor400,
+                      Text(
+                        user.email,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: AppColors.blackColor400,
+                        ),
+                        softWrap: true,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
+
               GestureDetector(
                 onTap: () async {
                   final internetConnection = await hasInternetAccess();
@@ -98,11 +107,12 @@ class ProfileHeader extends StatelessWidget {
                   width: 50,
                   height: 50,
                   child: HugeIcon(
-                      icon: HugeIcons.strokeRoundedPencilEdit02,
-                      size: 32,
-                      color: AppColors.blackColor),
+                    icon: HugeIcons.strokeRoundedPencilEdit02,
+                    size: 32,
+                    color: AppColors.blackColor,
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ],

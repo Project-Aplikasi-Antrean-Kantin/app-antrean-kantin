@@ -12,6 +12,11 @@ class FormatDate {
     return format.format(localDate);
   }
 
+  static String dateToDay(DateTime date) {
+    final format = DateFormat('dd MMMM', 'id_ID');
+    return format.format(date);
+  }
+
   static String formatDateTimeWithWIB(DateTime dateTime) {
     // Format date to "dd MMMM yyyy HH:mm" format
     final DateFormat formatter = DateFormat('dd MMMM yyyy HH:mm', 'id_ID');

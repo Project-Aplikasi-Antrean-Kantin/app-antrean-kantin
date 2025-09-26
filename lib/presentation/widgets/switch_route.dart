@@ -4,6 +4,7 @@ import 'package:testgetdata/presentation/views/pembeli/home_page.dart';
 import 'package:testgetdata/presentation/views/penjual/kasir_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/riwayat_page_as_role.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_page.dart';
+import 'package:testgetdata/presentation/views/penjual/penghasilan_page.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_tenant.dart';
 import 'package:testgetdata/presentation/views/profile/profile_page.dart';
 
@@ -21,6 +22,8 @@ Widget getFeaturePage(String url) {
       return ProfilePage();
     case '/kasir':
       return KasirPage();
+    case '/penghasilan':
+      return PenghasilanPage();
     default:
       return const Center(
         child: Text('Page not found'),

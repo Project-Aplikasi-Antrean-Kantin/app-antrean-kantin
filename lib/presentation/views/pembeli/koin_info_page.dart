@@ -39,8 +39,6 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
         }
       });
     });
-
-    _initializeProviders();
   }
 
   @override
@@ -225,7 +223,16 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
           return ShimmerCard(pageType: 'listTransaksiCoin');
         }
 
-        final grouped = _groupTransactions(provider.transactionCoin);
+        List<CoinTransactionModel> filtered = provider.transactionCoin;
+        if (selectedIndex == 1) {
+          filtered =
+              provider.transactionCoin.where((t) => t.jumlah > 0).toList();
+        } else if (selectedIndex == 2) {
+          filtered =
+              provider.transactionCoin.where((t) => t.jumlah < 0).toList();
+        }
+
+        final grouped = _groupTransactions(filtered);
 
         if (grouped.isEmpty) {
           return const Center(child: Text('Tidak ada transaksi.'));

@@ -115,6 +115,15 @@ class _RiwayatPageState extends State<RiwayatPage>
         historyProvider.fetchHistory(
             context, authProvider.user, widget.role, false,
             forceRefresh: true);
+        if (historyProvider.selectedPesanan != null) {
+          final pesanan = historyProvider.selectedPesanan!;
+          TransactionRemoteDataSource()
+              .getOrderById(authProvider.user.token, pesanan.id.toString())
+              .then((pesanan) {
+            historyProvider.updateSelectedPesanan(pesanan);
+            historyProvider.updatedPesanan(pesanan, widget.role);
+          });
+        }
       });
     }
   }
@@ -760,7 +769,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                       ],
                     ),
                   ),
-                if (pesanan.status == 'pending')
+                if (pesanan.status == 'pending' && widget.tabLabel == 'Beli')
                   GestureDetector(
                     onTap: () async {
                       Navigator.push(

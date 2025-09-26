@@ -19,7 +19,10 @@ class OrderProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> fetchOrders(
-      BuildContext context, String token, OrderStatus status) async {
+    BuildContext context,
+    String token,
+    OrderStatus status,
+  ) async {
     _isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -27,8 +30,11 @@ class OrderProvider with ChangeNotifier {
     try {
       List<Pesanan> allOrders = [];
       for (final value in status.rawValues) {
-        final orders = await OrderTenantRemoteDataSource()
-            .getOrderCustomer(context, token, value);
+        final orders = await OrderTenantRemoteDataSource().getOrderCustomer(
+          context,
+          token,
+          value,
+        );
         allOrders.addAll(orders);
       }
       _pesanan[status] = allOrders;
@@ -47,13 +53,20 @@ class OrderProvider with ChangeNotifier {
   }
 
   Future<bool> updateOrder(
-      String status, String auth, int id, Pesanan pesanan) async {
+    String status,
+    String auth,
+    int id,
+    Pesanan pesanan,
+  ) async {
     if (_isLoading) return false; // Prevent concurrent updates
     _isLoading = true;
     notifyListeners();
     try {
-      final success = await OrderTenantRemoteDataSource()
-          .updateOrderCustomer(status, auth, id);
+      final success = await OrderTenantRemoteDataSource().updateOrderCustomer(
+        status,
+        auth,
+        id,
+      );
       if (success.success) {
         if (status == 'pesanan_diproses') {
           _pesanan[OrderStatus.pesananMasuk]!.remove(pesanan);
@@ -83,15 +96,26 @@ class OrderProvider with ChangeNotifier {
   }
 
   Future<bool> cancelOrder(
-      String auth, int id, Pesanan pesanan, String catatanPenolakan) async {
+    String auth,
+    int id,
+    Pesanan pesanan,
+    String catatanPenolakan,
+  ) async {
     if (_isLoading) return false; // Prevent concurrent updates
     _isLoading = true;
     notifyListeners();
     try {
-      final success = await OrderTenantRemoteDataSource()
-          .cancelOrderCustomer(auth, id, catatanPenolakan);
+      final success = await OrderTenantRemoteDataSource().cancelOrderCustomer(
+        auth,
+        id,
+        catatanPenolakan,
+      );
       if (success.success) {
-        _pesanan[OrderStatus.pesananMasuk]!.remove(pesanan);
+        if (pesanan.status == 'pesanan_diproses') {
+          _pesanan[OrderStatus.pesananDiproses]!.remove(pesanan);
+        } else {
+          _pesanan[OrderStatus.pesananMasuk]!.remove(pesanan);
+        }
         notifyListeners();
       } else {
         errorUpdate = success.error;

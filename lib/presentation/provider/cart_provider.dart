@@ -294,8 +294,19 @@ class CartProvider extends ChangeNotifier {
               tenantGambar: existingCartPerTenant?.tenantGambar ?? '',
               cartMenuList: listMenu,
             );
+    if (ongkir != 0 && totalItemCount > 10) {
+      ongkir =
+          ongkir - (totalItemCount - 10) * (biayaExtra == 0 ? 500 : biayaExtra);
+    }
 
     _cartMenu = listMenu;
+
+    final totalItem =
+        _cartMenu.fold<int>(0, (total, item) => total + item.count);
+    if (totalItem > 10 && ongkir != 0) {
+      ongkir = (totalItem - 10) * (biayaExtra == 0 ? 500 : biayaExtra) + ongkir;
+    }
+
     if (selectedCartTenant?.tenantId == currentTenantId) {
       selectedCartTenant = _tenantCarts[currentTenantId];
     }
@@ -395,6 +406,24 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  bool showBottomSheetVoucher() {
+    if (selectedVoucher != null) return false;
+    final isThereRecommended = listVoucher
+            .where((element) =>
+                element.qty > 0 &&
+                element.cashback.minimalOrder <= deliveryCost)
+            .isNotEmpty &&
+        listCashback
+            .where((element) =>
+                element.value > 0 && element.minimalOrder <= deliveryCost)
+            .isNotEmpty;
+    print('isThereRecommended $isThereRecommended');
+    if (isThereRecommended) {
+      return true;
+    }
+    return false;
+  }
+
   /// Fungsi khusus buat tentuin rekomendasi voucher/cashback
   void _determineRecommendation(
     List<Voucher> vouchers,
@@ -476,6 +505,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> getCashback(String token, String referralCode) async {
+    if (isClaimingCashback) return;
     isClaimingCashback = true;
     try {
       final newVoucher = await TransactionRemoteDataSource()
@@ -590,6 +620,11 @@ class CartProvider extends ChangeNotifier {
       }
       await CartLocalDataSource()
           .saveTenantCartToLocal(_tenantCarts[currentTenantId]!);
+    }
+    print('tenantId iki loh caksadas ${currentTenantId}');
+
+    if (ongkir != 0 && totalItemCount >= 10) {
+      ongkir = ongkir - (biayaExtra == 0 ? 500 : biayaExtra);
     }
 
     if (_currentTenant?.id.toString() == currentTenantId) {
@@ -827,6 +862,9 @@ class CartProvider extends ChangeNotifier {
     if (catatanLokasi.trim().isNotEmpty) {
       data["catatan_lokasi_pengantaran"] = catatanLokasi;
     }
+    if (selectedVoucher != null) {
+      data["voucher_id"] = selectedVoucher!.id;
+    }
 
     return jsonEncode(data);
   }
@@ -928,9 +966,18 @@ class CartProvider extends ChangeNotifier {
     final updatedTenantCart =
         tenantCart.copyWith(cartMenuList: updatedMenuList);
     _tenantCarts[currentTenantId] = updatedTenantCart;
+    if (ongkir != 0 && totalItemCount > 10) {
+      ongkir =
+          ongkir - (totalItemCount - 10) * (biayaExtra == 0 ? 500 : biayaExtra);
+    }
 
     if (_currentTenant?.id.toString() == currentTenantId) {
       _cartMenu = updatedMenuList;
+    }
+    final totalItem =
+        _cartMenu.fold<int>(0, (total, item) => total + item.count);
+    if (totalItem > 10 && ongkir != 0) {
+      ongkir = (totalItem - 10) * (biayaExtra == 0 ? 500 : biayaExtra) + ongkir;
     }
 
     if (selectedCartTenant?.tenantId == currentTenantId) {

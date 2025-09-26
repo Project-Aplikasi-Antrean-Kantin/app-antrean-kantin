@@ -885,15 +885,17 @@ class _CartPageState extends State<CartPage> {
                           )
                         ],
                       ],
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(
-                          "Voucher Terbaik",
-                          style: GoogleFonts.poppins(
-                              color: AppColors.blackColor400,
-                              fontWeight: FontWeight.w600),
+                      if (cartProvider.recommendedCashback != null ||
+                          cartProvider.recommendedVoucher != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Text(
+                            "Voucher ${cartProvider.selectedVoucher != null ? 'Terpilih' : 'Rekomendasi'}",
+                            style: GoogleFonts.poppins(
+                                color: AppColors.blackColor400,
+                                fontWeight: FontWeight.w600),
+                          ),
                         ),
-                      ),
                       if (cartProvider.recommendedCashback != null ||
                           cartProvider.recommendedVoucher != null)
                         Container(

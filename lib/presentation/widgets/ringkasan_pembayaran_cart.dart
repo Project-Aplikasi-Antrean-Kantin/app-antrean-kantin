@@ -218,10 +218,10 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Total",
+                    "Total Pembayaran",
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 14,
                       color: AppColors.primaryColor,
                     ),
                   ),
@@ -233,11 +233,12 @@ class RingkasanPembayaranCart extends StatelessWidget {
                     ),
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
                 ],
               ),
+              SizedBox(height: 8),
               if (cartProvider.selectedVoucher != null)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -246,9 +247,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                     Text(
                       "Cashback",
                       style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: AppColors.successColor,
                       ),
                     ),
                     Text(
@@ -265,8 +266,9 @@ class RingkasanPembayaranCart extends StatelessWidget {
                                 .selectedVoucher!.cashback.maxCashback,
                       ),
                       style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: AppColors.successColor,
                       ),
                     ),
                   ],

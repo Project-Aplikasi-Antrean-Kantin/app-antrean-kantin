@@ -7,17 +7,20 @@ class Cashback {
   final int minimalOrder;
   final int maxCashback;
   final int maxUsed;
+  final DateTime endDate;
+  final DateTime startDate;
 
-  Cashback({
-    required this.id,
-    required this.value,
-    required this.qty,
-    required this.isValid,
-    required this.referralCode,
-    required this.minimalOrder,
-    required this.maxCashback,
-    required this.maxUsed,
-  });
+  Cashback(
+      {required this.id,
+      required this.value,
+      required this.qty,
+      required this.isValid,
+      required this.referralCode,
+      required this.minimalOrder,
+      required this.maxCashback,
+      required this.maxUsed,
+      required this.endDate,
+      required this.startDate});
 
   factory Cashback.fromJson(Map<String, dynamic> json) {
     return Cashback(
@@ -29,6 +32,8 @@ class Cashback {
       minimalOrder: json['minimal_beli'],
       maxCashback: json['max_cashback'],
       maxUsed: json['max_used'],
+      endDate: DateTime.parse(json['end_date']),
+      startDate: DateTime.parse(json['start_date']),
     );
   }
 

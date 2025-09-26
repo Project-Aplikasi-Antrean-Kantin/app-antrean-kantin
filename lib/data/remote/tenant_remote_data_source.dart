@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/income_model.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 
 // Future<bool> addMenuKelola(String auth, String data) async {
@@ -60,6 +61,37 @@ class TenantRemoteDataSource {
     } else {
       print(response.statusCode);
       return false;
+    }
+  }
+
+  Future<Income> getIncome(String token, String url) async {
+    try {
+      print("${MasbroConstants.url}/$url");
+      final response = await http.get(
+        Uri.parse("${MasbroConstants.url}/$url"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json'
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        return Income.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == 401) {
+        // Log untuk unauthorized access
+        print(
+            "Unauthorized: You do not have access to fetch this data. Please check your token.");
+        throw Exception('Unauthorized Access');
+      } else {
+        // Log untuk error lainnya
+        log("Failed to load data. Status code: ${response.statusCode}");
+        throw Exception('Data can\'t be loaded');
+      }
+    } catch (e) {
+      // Log untuk error yang tidak terduga
+      print("Error in fetchData: $e");
+      print("An error occurred: $e");
+      throw Exception('Failed to fetch data');
     }
   }
 

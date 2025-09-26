@@ -181,7 +181,7 @@ class Pesanan {
         ),
         namaPembeli: json["nama_pembeli"],
         phone: json["user"]["phone"],
-        createdAt: DateTime.parse(json["created_at"]).toLocal(),
+        createdAt: DateTime.parse(json["updated_at"]).toLocal(),
         // ruangan: Ruangan.fromJson(json["ruangan"]),
       );
 }

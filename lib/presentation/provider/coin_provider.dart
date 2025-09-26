@@ -34,8 +34,10 @@ class CoinProvider extends ChangeNotifier {
   }
 
   Future<void> getHistoryCoin(String token, bool isInitialFetch) async {
+    if (isLoading || isLoadMore) return;
     if (maxPage != 1) {
       if (isInitialFetch) {
+        transactionCoin = [];
         maxPage = 1;
       }
       // kasih notify biar UI update
@@ -57,10 +59,18 @@ class CoinProvider extends ChangeNotifier {
     try {
       final fetchedData = await CoinRemoteDataSource()
           .getHistoryTransactionCoin(token, currentPage);
+      print("currentPage $currentPage");
+// Gabungin semua data lama + baru
+      final combined = [...transactionCoin, ...fetchedData];
 
-      transactionCoin = transactionCoin.isEmpty
-          ? fetchedData
-          : [...transactionCoin, ...fetchedData];
+// Unik berdasarkan id
+      transactionCoin = combined
+          .fold<Map<int, CoinTransactionModel>>({}, (map, tx) {
+            map[tx.id] = tx;
+            return map;
+          })
+          .values
+          .toList();
 
       if (fetchedData.isNotEmpty) {
         currentPage++;
