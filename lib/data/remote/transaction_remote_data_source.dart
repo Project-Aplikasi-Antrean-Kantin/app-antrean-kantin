@@ -180,6 +180,7 @@ class TransactionRemoteDataSource {
 
   Future<Pesanan> getOrderById(String auth, String id) async {
     print("id kontol: $id");
+    print("${MasbroConstants.url}/order/user/$id");
     try {
       final response = await http.get(
         Uri.parse('${MasbroConstants.url}/order/user/$id'),
@@ -189,12 +190,13 @@ class TransactionRemoteDataSource {
         },
       );
       // final jsonBody = jsonDecode(response.body);
+      print("Response status code: ${response.statusCode}");
       if (response.statusCode == 200) {
         // print(
         //     "Response body: ${(jsonBody['data']['transaksi']['metode_pembayaran'])}");
         return Pesanan.fromJson(jsonDecode(response.body)["data"]["transaksi"]);
       } else {
-        throw Exception('Data cant be load');
+        throw Exception('Data cant be load ${response.body}');
       }
     } catch (e) {
       throw Exception('Data cant be load: $e');

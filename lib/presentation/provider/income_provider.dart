@@ -66,9 +66,14 @@ class IncomeProvider extends ChangeNotifier {
 
   Future<void> nextNewDate(String token) async {
     final backupDate = date;
-    if (selectedSort == "Minggu") date = date.add(const Duration(days: 7));
-    if (selectedSort == "Bulan") date = date.add(const Duration(days: 30));
-    if (selectedSort == "Tahun") date = date.add(const Duration(days: 365));
+
+    if (selectedSort == "Minggu") {
+      date = date.add(const Duration(days: 7));
+    } else if (selectedSort == "Bulan") {
+      date = DateTime(date.year, date.month + 1, date.day);
+    } else if (selectedSort == "Tahun") {
+      date = DateTime(date.year + 1, date.month, date.day);
+    }
 
     try {
       await getIncome(token);
@@ -81,10 +86,14 @@ class IncomeProvider extends ChangeNotifier {
 
   Future<void> prevNewDate(String token) async {
     final backupDate = date;
-    if (selectedSort == "Minggu") date = date.subtract(const Duration(days: 7));
-    if (selectedSort == "Bulan") date = date.subtract(const Duration(days: 30));
-    if (selectedSort == "Tahun")
-      date = date.subtract(const Duration(days: 365));
+
+    if (selectedSort == "Minggu") {
+      date = date.subtract(const Duration(days: 7));
+    } else if (selectedSort == "Bulan") {
+      date = DateTime(date.year, date.month - 1, date.day);
+    } else if (selectedSort == "Tahun") {
+      date = DateTime(date.year - 1, date.month, date.day);
+    }
 
     try {
       await getIncome(token);

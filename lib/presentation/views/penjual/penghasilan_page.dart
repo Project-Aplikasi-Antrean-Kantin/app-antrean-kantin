@@ -8,7 +8,9 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/income_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/views/penjual/detail_penghasilan.dart';
 import 'package:testgetdata/presentation/widgets/bar_chart.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 
 class PenghasilanPage extends StatefulWidget {
   const PenghasilanPage({super.key});
@@ -108,7 +110,8 @@ class _PenghasilanPageState extends State<PenghasilanPage> {
 
                       print("$label => Total pendapatan: $totalPendapatan");
 
-                      return _buildPendapatan(totalPendapatan, keteranganWaktu);
+                      return _buildPendapatan(
+                          context, totalPendapatan, label, keteranganWaktu);
                     }
                   },
 
@@ -126,47 +129,57 @@ class _PenghasilanPageState extends State<PenghasilanPage> {
     );
   }
 
-  Widget _buildPendapatan(int totalPendapatan, String label) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.whiteColor100,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        spacing: 16,
-        children: [
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                color: AppColors.infoColor100, shape: BoxShape.circle),
-            child: HugeIcon(
-                icon: HugeIcons.strokeRoundedMoney03,
-                color: AppColors.primaryColor),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 2,
-            children: [
-              Text('${FormatCurrency.intToStringCoin(totalPendapatan)}',
-                  style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primaryColor)),
-              Text('$label',
-                  style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                      color: AppColors.blackColor300))
-            ],
-          ),
-          Spacer(),
-          HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowRight01,
-              color: AppColors.primaryColor)
-        ],
+  Widget _buildPendapatan(BuildContext context, int totalPendapatan,
+      String label, String keteranganWaktu) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context,
+          CustomPageBuilder(
+              page: DetailPenghasilan(
+            totalPendapatan: totalPendapatan,
+            label: label,
+          ))),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.whiteColor100,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          spacing: 16,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  color: AppColors.infoColor100, shape: BoxShape.circle),
+              child: HugeIcon(
+                  icon: HugeIcons.strokeRoundedMoney03,
+                  color: AppColors.primaryColor),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text('${FormatCurrency.intToStringCoin(totalPendapatan)}',
+                    style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryColor)),
+                Text('$keteranganWaktu',
+                    style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                        color: AppColors.blackColor300))
+              ],
+            ),
+            Spacer(),
+            HugeIcon(
+                icon: HugeIcons.strokeRoundedArrowRight01,
+                color: AppColors.primaryColor)
+          ],
+        ),
       ),
     );
   }
