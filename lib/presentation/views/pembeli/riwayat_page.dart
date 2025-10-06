@@ -53,6 +53,7 @@ class _RiwayatPageState extends State<RiwayatPage>
   int selectedIndex = 0;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   final ScrollController _scrollController = ScrollController();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -262,7 +263,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                             shrinkWrap: true,
                             itemCount: 5,
                             itemBuilder: (context, index) => _buildPesananItem(
-                                Pesanan.getDummyPesanan(), context),
+                                Pesanan.getDummyPesanan(), context, isLoading),
                           )),
                         ],
                       ),
@@ -395,7 +396,9 @@ class _RiwayatPageState extends State<RiwayatPage>
                                                   ...daftarPesanan.map(
                                                     (pesanan) =>
                                                         _buildPesananItem(
-                                                            pesanan, context),
+                                                            pesanan,
+                                                            context,
+                                                            isLoading),
                                                   ),
                                                 ];
                                               }).toList(),
@@ -409,7 +412,8 @@ class _RiwayatPageState extends State<RiwayatPage>
                                                     child: _buildPesananItem(
                                                         Pesanan
                                                             .getDummyPesanan(),
-                                                        context)),
+                                                        context,
+                                                        isLoading)),
                                             ],
                                           ),
                                         )
@@ -499,7 +503,8 @@ class _RiwayatPageState extends State<RiwayatPage>
     );
   }
 
-  Widget _buildPesananItem(Pesanan pesanan, BuildContext context) {
+  Widget _buildPesananItem(
+      Pesanan pesanan, BuildContext context, bool isLoading) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final chatType = getChatType(pesanan.status);
@@ -516,6 +521,8 @@ class _RiwayatPageState extends State<RiwayatPage>
 
     return GestureDetector(
       onTap: () async {
+        if (isLoading) return;
+        isLoading = true;
         final internetConnection = await hasInternetAccess();
         // final prefs = await SharedPreferences.getInstance();
         if (!internetConnection) {

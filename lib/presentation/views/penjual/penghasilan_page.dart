@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
@@ -121,6 +122,28 @@ class _PenghasilanPageState extends State<PenghasilanPage> {
                   shrinkWrap: true, // <– biar ukurannya ngikut isi
                   physics:
                       const NeverScrollableScrollPhysics(), // <– nonaktifin scroll internal
+                ),
+              if (!incomeProvider.isLoading &&
+                  incomeProvider
+                      .selectedIncome!.listIncomeTransaksi.keys.isEmpty)
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset('assets/images/not-found-pendapatan.svg',
+                          width: 200),
+                      Text(
+                          "Yahh... data pendapatan pada periode ini tidak tersedia☹️",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.blackColor400)),
+                      SizedBox(
+                        height: 36,
+                      )
+                    ],
+                  ),
                 ),
             ]),
           ),

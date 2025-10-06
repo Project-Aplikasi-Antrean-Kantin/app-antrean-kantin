@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ class DetailPenghasilan extends StatefulWidget {
 class _DetailPenghasilanState extends State<DetailPenghasilan> {
   List<IncomeTransaksi> listIncome = [];
   bool isLoading = true;
+  bool isOpenDetail = false;
 
   @override
   void initState() {
@@ -49,7 +51,7 @@ class _DetailPenghasilanState extends State<DetailPenghasilan> {
         centerTitle: true,
         backgroundColor: AppColors.whiteColor100,
         surfaceTintColor: AppColors.backgroundColor,
-        title: const Text("Laporan Pendapatan",
+        title: const Text("Detail Penghasilan",
             style: TextStyle(
                 color: AppColors.textColorBlack,
                 fontSize: 18,
@@ -78,7 +80,7 @@ class _DetailPenghasilanState extends State<DetailPenghasilan> {
                           color: AppColors.infoColor),
                       Expanded(
                         child: Text(
-                          "Nominal pesanan yang ditampilkan adalah nominal bersih yang diterima tenant, Nominal Pesanan = 0 (Refund Selesai)",
+                          "Nominal pesanan yang ditampilkan adalah nominal bersih yang diterima tenant, Warna Kuning = Pesanan Ditolak",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
@@ -137,65 +139,91 @@ class _DetailPenghasilanState extends State<DetailPenghasilan> {
 
                       // Scrollable body
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: Table(
-                            columnWidths: const {
-                              0: FlexColumnWidth(1),
-                              1: FlexColumnWidth(2),
-                              2: FlexColumnWidth(2),
-                              3: FlexColumnWidth(1),
-                            },
-                            children: [
-                              ...listIncome.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final item = entry.value;
-                                final authProvider = Provider.of<AuthProvider>(
-                                    context,
-                                    listen: false);
-                                return TableRow(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: index.isEven
+                        child: ListView.builder(
+                          itemCount: listIncome.length,
+                          itemBuilder: (context, index) {
+                            final item = listIncome[index];
+                            final authProvider = Provider.of<AuthProvider>(
+                                context,
+                                listen: false);
+
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: item.status == 'refund_selesai'
+                                    ? AppColors.secondaryColor100
+                                        .withOpacity(0.5)
+                                    : index.isEven
                                         ? AppColors.infoColor100
                                             .withOpacity(0.24)
                                         : AppColors.backgroundColor,
-                                  ),
-                                  children: [
-                                    _buildDataCell("${index + 1}"),
-                                    _buildDataCell("${item.id}"),
-                                    _buildDataCell(
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      flex: 1,
+                                      child: _buildDataCell("${index + 1}")),
+                                  Expanded(
+                                      flex: 2,
+                                      child: _buildDataCell("${item.id}")),
+                                  Expanded(
+                                    flex: 2,
+                                    child: _buildDataCell(
                                       FormatCurrency.intToStringCoin(
                                           item.pendapatanBersih),
                                     ),
-                                    GestureDetector(
-                                      onTap: () => TransactionRemoteDataSource()
-                                          .getOrderById(authProvider.user.token,
-                                              item.id.toString())
-                                          .then((pesanan) {
-                                        ShowBottomSheet(pesanan);
-                                      }),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        if (isOpenDetail) return;
+                                        setState(() {
+                                          isOpenDetail = true;
+                                        });
+                                        try {
+                                          await TransactionRemoteDataSource()
+                                              .getOrderById(
+                                                  authProvider.user.token,
+                                                  item.id.toString())
+                                              .then((pesanan) {
+                                            ShowBottomSheet(pesanan);
+                                          });
+                                        } catch (e) {
+                                          Fluttertoast.showToast(
+                                              msg: e.toString());
+                                        } finally {
+                                          setState(() {
+                                            isOpenDetail = false;
+                                          });
+                                        }
+                                      },
                                       child: Container(
                                         margin: const EdgeInsets.all(4),
                                         padding: const EdgeInsets.all(6),
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: AppColors.infoColor100,
+                                          color: item.status == 'refund_selesai'
+                                              ? AppColors.secondaryColor400
+                                              : AppColors.infoColor100,
                                         ),
                                         child: HugeIcon(
                                           icon:
                                               HugeIcons.strokeRoundedTrolley01,
                                           size: 16,
-                                          color: AppColors.infoColor,
+                                          color: item.status == 'refund_selesai'
+                                              ? AppColors.secondaryColor700
+                                              : AppColors.infoColor,
                                         ),
                                       ),
-                                    )
-                                  ],
-                                );
-                              }).toList(),
-                            ],
-                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -273,34 +301,39 @@ class _DetailPenghasilanState extends State<DetailPenghasilan> {
                   ),
                 ],
               ),
-              Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(2),
-                  1: FlexColumnWidth(1),
-                  2: FlexColumnWidth(2),
-                },
-                children: [
-                  ...item.listTransaksiDetail.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final detail = entry.value;
+              Expanded(
+                child: ListView.builder(
+                  itemCount: item.listTransaksiDetail.length,
+                  itemBuilder: (context, index) {
+                    final detail = item.listTransaksiDetail[index];
 
-                    return TableRow(
+                    return Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: index.isEven
                             ? AppColors.infoColor100.withOpacity(0.24)
                             : Colors.white,
                       ),
-                      children: [
-                        _buildDataCell(detail.namaMenu),
-                        _buildDataCell(detail.jumlah.toString()),
-                        _buildDataCell(
-                          FormatCurrency.intToStringCoin(detail.harga),
-                        ),
-                      ],
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              flex: 2, child: _buildDataCell(detail.namaMenu)),
+                          Expanded(
+                              flex: 1,
+                              child: _buildDataCell(detail.jumlah.toString())),
+                          Expanded(
+                            flex: 2,
+                            child: _buildDataCell(
+                              FormatCurrency.intToStringCoin(detail.harga),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
-                  })
-                ],
+                  },
+                ),
               )
             ],
           ),

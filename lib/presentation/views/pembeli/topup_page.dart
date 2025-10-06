@@ -132,7 +132,7 @@ class _TopupPageState extends State<TopupPage> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
         child: Column(
           children: [
-            SvgPicture.asset('assets/images/koin-logo.svg', height: 50),
+            Image.asset('assets/images/icon-koin-blue.png', height: 50),
             const SizedBox(height: 16),
             Column(
               spacing: 8,

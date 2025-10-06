@@ -131,10 +131,9 @@ class _KoinInfoPageState extends State<KoinInfoPage> {
                         SizedBox(
                           height: 26,
                         ),
-                        SvgPicture.asset(
-                          'assets/images/koin-logo.svg',
-                          color: AppColors.whiteColor,
-                          height: 32,
+                        Image.asset(
+                          'assets/images/icon-koin-plus-white.png',
+                          height: 36,
                         ),
                         Consumer<CoinProvider>(
                           builder: (context, provider, child) => Text(

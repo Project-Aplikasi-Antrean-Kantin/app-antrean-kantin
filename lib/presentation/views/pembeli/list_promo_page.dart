@@ -9,6 +9,8 @@ import 'package:testgetdata/data/model/voucher_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/detail_voucher_page.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 
 class ListPromoPage extends StatefulWidget {
@@ -212,22 +214,45 @@ class _ListPromoPageState extends State<ListPromoPage> {
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Cashback ${(cashback.value * 100).toInt()}% maks ${cashback.maxCashback ~/ 1000}rb',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.blackColor400,
-                          fontSize: 12,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (isVoucher) {
+                        Navigator.push(
+                          context,
+                          CustomPageBuilder(
+                            page: DetailVoucherPage(
+                              voucher: data as Voucher,
+                            ),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          CustomPageBuilder(
+                            page: DetailVoucherPage(
+                              cashback: data as Cashback,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Cashback ${(cashback.value * 100).toInt()}% maks ${cashback.maxCashback ~/ 1000}rb',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blackColor400,
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Min. pembelian ${cashback.minimalOrder ~/ 1000}rb',
-                        style: GoogleFonts.poppins(fontSize: 12),
-                      ),
-                    ],
+                        Text(
+                          'Min. pembelian ${cashback.minimalOrder ~/ 1000}rb',
+                          style: GoogleFonts.poppins(fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 if (data is Cashback ||

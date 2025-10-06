@@ -20,7 +20,7 @@ import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart
 import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
-class ListTenant extends StatelessWidget {
+class ListTenant extends StatefulWidget {
   final List<TenantModel> fullTenant;
   final String url;
   final List<TenantModel> foundTenant;
@@ -34,6 +34,12 @@ class ListTenant extends StatelessWidget {
     required this.fullTenant,
   }) : super(key: key);
 
+  @override
+  State<ListTenant> createState() => _ListTenantState();
+}
+
+class _ListTenantState extends State<ListTenant> {
+  bool _isNavigating = false;
   // Helper untuk cek apakah salah satu menu punya gambar
   bool tenantHasMenuWithImage(TenantModel tenant) {
     if (tenant.tenantFoods == null || tenant.tenantFoods!.isEmpty) return false;
@@ -60,29 +66,31 @@ class ListTenant extends StatelessWidget {
     // 4. tenant.gambar tidak kosong di atas yang kosong
     // 5. Jika semua sama, biarkan urutan asli
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final List<TenantModel> sortedTenant = List<TenantModel>.from(foundTenant)
-      ..sort((a, b) {
-        final aOnline = a.isOnline == true ? 1 : 0;
-        final bOnline = b.isOnline == true ? 1 : 0;
-        if (aOnline != bOnline) return bOnline.compareTo(aOnline);
+    final List<TenantModel> sortedTenant =
+        List<TenantModel>.from(widget.foundTenant)
+          ..sort((a, b) {
+            final aOnline = a.isOnline == true ? 1 : 0;
+            final bOnline = b.isOnline == true ? 1 : 0;
+            if (aOnline != bOnline) return bOnline.compareTo(aOnline);
 
-        // final aPercent = menuImageCompleteness(a);
-        // final bPercent = menuImageCompleteness(b);
-        // if (aPercent != bPercent) return bPercent.compareTo(aPercent);
+            // final aPercent = menuImageCompleteness(a);
+            // final bPercent = menuImageCompleteness(b);
+            // if (aPercent != bPercent) return bPercent.compareTo(aPercent);
 
-        // final aHasMenu = (a.tenantFoods?.isNotEmpty ?? false) ? 1 : 0;
-        // final bHasMenu = (b.tenantFoods?.isNotEmpty ?? false) ? 1 : 0;
-        // if (aHasMenu != bHasMenu) return bHasMenu.compareTo(aHasMenu);
+            // final aHasMenu = (a.tenantFoods?.isNotEmpty ?? false) ? 1 : 0;
+            // final bHasMenu = (b.tenantFoods?.isNotEmpty ?? false) ? 1 : 0;
+            // if (aHasMenu != bHasMenu) return bHasMenu.compareTo(aHasMenu);
 
-        // final aHasGambar =
-        //     a.gambar != null && a.gambar.toString().isNotEmpty ? 1 : 0;
-        // final bHasGambar =
-        //     b.gambar != null && b.gambar.toString().isNotEmpty ? 1 : 0;
-        // if (aHasGambar != bHasGambar) return bHasGambar.compareTo(aHasGambar);
+            // final aHasGambar =
+            //     a.gambar != null && a.gambar.toString().isNotEmpty ? 1 : 0;
+            // final bHasGambar =
+            //     b.gambar != null && b.gambar.toString().isNotEmpty ? 1 : 0;
+            // if (aHasGambar != bHasGambar) return bHasGambar.compareTo(aHasGambar);
 
-        // Tambahkan sorting berdasarkan transaksiBerhasil
-        return (b.transaksiBerhasil ?? 0).compareTo(a.transaksiBerhasil ?? 0);
-      });
+            // Tambahkan sorting berdasarkan transaksiBerhasil
+            return (b.transaksiBerhasil ?? 0)
+                .compareTo(a.transaksiBerhasil ?? 0);
+          });
     if (sortedTenant.isEmpty) {
       return Center(
         child: Text(
@@ -106,21 +114,24 @@ class ListTenant extends StatelessWidget {
         return CardTenant(
           email: authProvider.user.email,
           tenant: tenant,
-          fullTenant: fullTenant,
-          foundTenant: foundTenant,
+          fullTenant: widget.fullTenant,
+          foundTenant: widget.foundTenant,
           onNavigate: (tenant) async {
+            if (_isNavigating) return;
+            _isNavigating = true;
             final internetConnection = await hasInternetAccess();
             if (!internetConnection) {
               showNoConnectionBottomSheet(context: context, onRetry: () {});
               return;
             }
+
             Navigator.push(
                 context,
                 CustomPageBuilder(
                   page: MenuTenant(
-                    url: '$url/${tenant.id}',
+                    url: '${widget.url}/${tenant.id}',
                   ),
-                ));
+                )).then((value) => _isNavigating = false);
           },
         );
       },

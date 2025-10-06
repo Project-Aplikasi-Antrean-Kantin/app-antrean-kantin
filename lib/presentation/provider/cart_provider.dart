@@ -464,6 +464,11 @@ class CartProvider extends ChangeNotifier {
     return listCashback.first;
   }
 
+  void removeVoucher() {
+    selectedVoucher = null;
+    notifyListeners();
+  }
+
   Voucher? _getBestVoucher(List<Voucher> listVoucher) {
     if (listVoucher.isEmpty) return null;
 
@@ -504,8 +509,8 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getCashback(String token, String referralCode) async {
-    if (isClaimingCashback) return;
+  Future<Voucher> getCashback(String token, String referralCode) async {
+    if (isClaimingCashback) return Future.error('Claiming cashback...');
     isClaimingCashback = true;
     try {
       final newVoucher = await TransactionRemoteDataSource()
@@ -526,6 +531,7 @@ class CartProvider extends ChangeNotifier {
       // Panggil fungsi khusus buat tentuin rekomendasi
       _determineRecommendation(listVoucher, filteredCashbacks);
       notifyListeners();
+      return newVoucher;
     } catch (e) {
       throw ('$e');
     } finally {

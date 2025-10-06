@@ -12,9 +12,13 @@ class CustomAlertDialog extends StatelessWidget {
   final bool showOkButton;
   final VoidCallback? onOkPressed;
   final VoidCallback? onCancelPressed;
+  final Color? colorOkButton;
+  final Color? titleColor;
 
   CustomAlertDialog({
     Key? key,
+    this.colorOkButton,
+    this.titleColor,
     required this.title,
     this.textButtonCancel,
     this.textButtonOk,
@@ -44,7 +48,7 @@ class CustomAlertDialog extends StatelessWidget {
                 fontSize: 16,
                 color: title.toLowerCase().contains('peringatan')
                     ? Colors.red
-                    : AppColors.primaryColor,
+                    : titleColor ?? AppColors.primaryColor,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -87,12 +91,13 @@ class CustomAlertDialog extends StatelessWidget {
                   TextButton(
                     onPressed: onOkPressed ?? () => Navigator.of(context).pop(),
                     style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(AppColors.primaryColor),
+                      backgroundColor: WidgetStateProperty.all(
+                          colorOkButton ?? AppColors.primaryColor),
                       shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5.0),
-                          side: const BorderSide(color: AppColors.primaryColor),
+                          side: BorderSide(
+                              color: colorOkButton ?? AppColors.primaryColor),
                         ),
                       ),
                       minimumSize: WidgetStateProperty.all(const Size(100, 30)),

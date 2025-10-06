@@ -21,6 +21,7 @@ import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
+import 'package:testgetdata/presentation/views/pembeli/detail_voucher_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/list_promo_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
@@ -50,7 +51,7 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   List<Ruangan> _roomList = [];
-  PaymentMethod? _selectedPaymentMethod;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.koin;
   DateTime? _lastFetch;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   bool _hasPopped = false;
@@ -943,36 +944,68 @@ class _CartPageState extends State<CartPage> {
                                       ),
                                     ),
                                     Expanded(
-                                      child: Container(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                cartProvider.selectedVoucher !=
-                                                        null
-                                                    ? 'Cashback ${(cartProvider.selectedVoucher!.cashback.value * 100).toInt()}% maks ${cartProvider.selectedVoucher!.cashback.maxCashback ~/ 1000}rb'
-                                                    : cartProvider
-                                                                .recommendedCashback !=
-                                                            null
-                                                        ? 'Cashback ${(cartProvider.recommendedCashback!.value * 100).toInt()}% maks ${cartProvider.recommendedCashback!.maxCashback ~/ 1000}rb'
-                                                        : 'Cashback ${(cartProvider.recommendedVoucher!.cashback.value * 100).toInt()}% maks ${cartProvider.recommendedVoucher!.cashback.maxCashback ~/ 1000}rb',
-                                                style: GoogleFonts.poppins(
-                                                  fontWeight: FontWeight.w600,
-                                                  color:
-                                                      AppColors.blackColor400,
-                                                  fontSize: 12,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          final voucher = cartProvider
+                                                  .selectedVoucher ??
+                                              cartProvider.recommendedVoucher;
+                                          print('voucher $voucher');
+                                          print(
+                                              'selected voucher ${cartProvider.selectedVoucher}');
+
+                                          if (voucher == null) {
+                                            // misal kasih snackbar / balik ke halaman sebelumnya
+                                            if (cartProvider
+                                                    .recommendedCashback !=
+                                                null) {
+                                              Navigator.push(
+                                                  context,
+                                                  CustomPageBuilder(
+                                                      page: DetailVoucherPage(
+                                                    cashback: cartProvider
+                                                        .recommendedCashback,
+                                                  )));
+                                              return;
+                                            }
+                                          }
+                                          Navigator.push(
+                                              context,
+                                              CustomPageBuilder(
+                                                  page: DetailVoucherPage(
+                                                voucher: voucher,
+                                              )));
+                                        },
+                                        child: Container(
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  cartProvider.selectedVoucher !=
+                                                          null
+                                                      ? 'Cashback ${(cartProvider.selectedVoucher!.cashback.value * 100).toInt()}% maks ${cartProvider.selectedVoucher!.cashback.maxCashback ~/ 1000}rb'
+                                                      : cartProvider
+                                                                  .recommendedCashback !=
+                                                              null
+                                                          ? 'Cashback ${(cartProvider.recommendedCashback!.value * 100).toInt()}% maks ${cartProvider.recommendedCashback!.maxCashback ~/ 1000}rb'
+                                                          : 'Cashback ${(cartProvider.recommendedVoucher!.cashback.value * 100).toInt()}% maks ${cartProvider.recommendedVoucher!.cashback.maxCashback ~/ 1000}rb',
+                                                  style: GoogleFonts.poppins(
+                                                    fontWeight: FontWeight.w600,
+                                                    color:
+                                                        AppColors.blackColor400,
+                                                    fontSize: 12,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                cartProvider.selectedVoucher !=
-                                                        null
-                                                    ? 'Min. pembelian ${cartProvider.selectedVoucher!.cashback.minimalOrder ~/ 1000}rb'
-                                                    : 'Min. pembelian ${(cartProvider.recommendedCashback != null ? cartProvider.recommendedCashback!.minimalOrder : cartProvider.recommendedVoucher!.cashback.minimalOrder) ~/ 1000}rb',
-                                                style: GoogleFonts.poppins(
-                                                    fontSize: 12),
-                                              ),
-                                            ]),
+                                                Text(
+                                                  cartProvider.selectedVoucher !=
+                                                          null
+                                                      ? 'Min. pembelian ${cartProvider.selectedVoucher!.cashback.minimalOrder ~/ 1000}rb'
+                                                      : 'Min. pembelian ${(cartProvider.recommendedCashback != null ? cartProvider.recommendedCashback!.minimalOrder : cartProvider.recommendedVoucher!.cashback.minimalOrder) ~/ 1000}rb',
+                                                  style: GoogleFonts.poppins(
+                                                      fontSize: 12),
+                                                ),
+                                              ]),
+                                        ),
                                       ),
                                     ),
                                     if (cartProvider.selectedVoucher == null)
@@ -1081,6 +1114,50 @@ class _CartPageState extends State<CartPage> {
                               )
                             ],
                           ),
+                        ),
+                      if (cartProvider.selectedVoucher != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.infoColor100,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: AppColors.infoColor),
+                              ),
+                              child: Row(
+                                spacing: 16,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/icon-koin-blue.png',
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Yeiy! Cashback ${(cartProvider.selectedVoucher!.cashback.value * 100).toInt()}% jadi milik kamu",
+                                          style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 12,
+                                              color: AppColors.blackColor400),
+                                        ),
+                                        Text(
+                                            "Cashback ${(cartProvider.selectedVoucher!.cashback.value * 100).toInt()}% akan masuk ke FoodLAB koin milik kamu maksimal 1 x 24 jam",
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 12,
+                                              color: AppColors.blackColor400,
+                                            ))
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              )),
                         ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),

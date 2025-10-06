@@ -11,8 +11,8 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 
 class PilihTipePembayaran extends StatelessWidget {
-  final PaymentMethod? selectedPaymentMethod;
-  final Function(PaymentMethod?) onPaymentMethodSelected;
+  final PaymentMethod selectedPaymentMethod;
+  final Function(PaymentMethod) onPaymentMethodSelected;
   final bool isKasirActive;
   final bool isCartActive;
 
@@ -31,7 +31,7 @@ class PilihTipePembayaran extends StatelessWidget {
   static final Map<PaymentMethod, Map<String, String>> _paymentOptions = {
     PaymentMethod.koin: {
       'label': 'FoodLab Koin',
-      'icon': 'assets/images/qris.png',
+      'icon': 'assets/images/icon-koin-blue.png',
       'description': 'Pastikan koin FoodLAB mencukupi',
     },
     PaymentMethod.qris: {
@@ -90,58 +90,62 @@ class PilihTipePembayaran extends StatelessWidget {
                   height: _iconSize,
                 ),
               Expanded(
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                selectedPaymentMethod == null
-                                    ? 'Pilih metode bayar'
-                                    : _paymentOptions[selectedPaymentMethod]![
-                                        'label'] as String,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  color: AppColors.textColorBlack,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.5,
-                                ),
-                              ),
-                              if (selectedPaymentMethod != null)
+                child: GestureDetector(
+                  onTap: () => showModalBottomSheet(
+                    context: context,
+                    builder: (context) => _PaymentOptionBottomSheet(
+                        selectedMethod: selectedPaymentMethod,
+                        isKasirActive: isKasirActive,
+                        onSelect: onPaymentMethodSelected),
+                  ),
+                  child: Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  _formatTotal(total, selectedPaymentMethod),
+                                  selectedPaymentMethod == null
+                                      ? 'Pilih metode bayar'
+                                      : _paymentOptions[selectedPaymentMethod]![
+                                          'label'] as String,
                                   style: GoogleFonts.poppins(
-                                    fontWeight: semibold,
+                                    fontSize: 16,
                                     color: AppColors.textColorBlack,
+                                    fontWeight: FontWeight.w600,
                                     height: 1.5,
                                   ),
                                 ),
-                            ],
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const HugeIcon(
+                                if (selectedPaymentMethod != null)
+                                  Text(
+                                    _formatTotal(total, selectedPaymentMethod),
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: semibold,
+                                      color: AppColors.textColorBlack,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            Expanded(
+                              child: SizedBox(
+                                width: double.infinity,
+                              ),
+                            ),
+                            const HugeIcon(
                               icon:
                                   HugeIcons.strokeRoundedMoreHorizontalCircle02,
                               size: _iconSize,
                               color: AppColors.blackColor,
                             ),
-                            onPressed: () => showModalBottomSheet(
-                              context: context,
-                              builder: (context) => _PaymentOptionBottomSheet(
-                                  selectedMethod: selectedPaymentMethod,
-                                  isKasirActive: isKasirActive,
-                                  onSelect: onPaymentMethodSelected),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -154,9 +158,9 @@ class PilihTipePembayaran extends StatelessWidget {
 }
 
 class _PaymentOptionBottomSheet extends StatefulWidget {
-  final PaymentMethod? selectedMethod;
+  final PaymentMethod selectedMethod;
   final bool isKasirActive;
-  final Function(PaymentMethod?) onSelect;
+  final Function(PaymentMethod) onSelect;
 
   const _PaymentOptionBottomSheet({
     required this.selectedMethod,

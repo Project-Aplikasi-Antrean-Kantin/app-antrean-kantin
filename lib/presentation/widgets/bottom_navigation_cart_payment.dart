@@ -22,8 +22,8 @@ class BottomNavigationCartPayment extends StatefulWidget {
   final CoinProvider coinProvider;
   final UserModel user;
   final int saldoCoin;
-  final PaymentMethod? selectedPaymentMethod;
-  final ValueChanged<PaymentMethod?>
+  final PaymentMethod selectedPaymentMethod;
+  final ValueChanged<PaymentMethod>
       onPaymentMethodSelected; // Diperbaiki ke PaymentMethod?
   final VoidCallback onConfirmOrder;
   final VoidCallback onIncompleteData;
@@ -111,6 +111,8 @@ class _BottomNavigationCartPaymentState
                 ),
                 const SizedBox(height: BottomNavigationCartPayment._spacing),
                 BottomNavigationButton(
+                  isCoinInsufficient: isCoinInsufficient,
+                  paymentMethod: widget.selectedPaymentMethod,
                   isThere10Item: widget.cartProvider.totalItemCount > 10,
                   isEnabled: !isCoinInsufficient &&
                       widget.selectedPaymentMethod != null,

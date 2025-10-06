@@ -281,10 +281,10 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                     color: AppColors.primaryColor100,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.only(top: 36),
-                    child:
-                        Icon(Icons.add_a_photo, size: 40, color: Colors.grey),
+                    child: Image.asset('assets/images/upload-photo.png',
+                        width: 40),
                   ),
                 ),
         ),

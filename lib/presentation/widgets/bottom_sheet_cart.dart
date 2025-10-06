@@ -21,8 +21,36 @@ import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
+void validateCart(Map<String, CartPerTenant> cart, List<TenantModel> tenants) {
+  print(cart);
+  final tenantMap = {for (var t in tenants) t.id: t};
+  print("tenantMap: ${tenantMap[5]}");
+
+  cart.removeWhere((key, tenantCart) {
+    final tenantIdStr = key.replaceFirst("cart_", "");
+    final tenantId = int.tryParse(tenantIdStr);
+    if (tenantId == null) return true; // key cart gak valid
+
+    final tenant = tenantMap[tenantId];
+    print("tenantId: $tenantId, tenant: $tenant");
+
+    if (tenant == null) return true; // tenant tidak ada lagi
+
+    tenantCart.cartMenuList?.removeWhere((menu) {
+      final exists =
+          tenant.tenantFoods?.any((f) => f.id == menu.menuId) ?? false;
+      return !exists;
+    });
+
+    return tenantCart.cartMenuList?.isEmpty ?? true;
+  });
+}
+
 Future<void> showBottomSheetCart(BuildContext context,
     List<TenantModel> tenants, Map<String, CartPerTenant> cart) {
+  print(cart);
+  validateCart(cart, tenants);
+
   return showModalBottomSheet(
     enableDrag: true,
     backgroundColor: AppColors.backgroundColor,

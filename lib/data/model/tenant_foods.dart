@@ -42,7 +42,9 @@ class TenantFoods {
         isReady: json["isReady"],
         deskripsi: json["deskripsi"],
         harga: json["harga"],
-        deletedAt: json["deleted_at"],
+        deletedAt: json["deleted_at"] == null
+            ? null
+            : DateTime.parse(json["deleted_at"]),
         createdAt: json["created_at"] == null
             ? null
             : DateTime.parse(json["created_at"]),

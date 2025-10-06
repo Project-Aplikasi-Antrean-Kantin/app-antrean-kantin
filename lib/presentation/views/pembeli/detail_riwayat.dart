@@ -3,11 +3,14 @@ import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_thermal_printer/utils/printer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
@@ -34,6 +37,8 @@ import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
 import 'package:testgetdata/presentation/widgets/step_progress.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DetailRiwayat extends StatefulWidget {
   final Pesanan pesanan;
@@ -60,11 +65,155 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   bool _isCooldown = false; // state untuk cooldown
   int _cooldownSeconds = 30; // lama cooldown (detik)
   Timer? _timer;
+  final _flutterThermalPrinterPlugin = FlutterThermalPrinter.instance;
+  List<Printer> printers = [];
+  StreamSubscription<List<Printer>>? _devicesStreamSubscription;
+
+  void startScan() async {
+    _devicesStreamSubscription?.cancel();
+    if (await Permission.bluetoothScan.request().isGranted &&
+        await Permission.bluetoothConnect.request().isGranted &&
+        await Permission.locationWhenInUse.request().isGranted) {
+      await _flutterThermalPrinterPlugin.getPrinters(
+        connectionTypes: [ConnectionType.BLE],
+      );
+    } else {
+      debugPrint('Bluetooth permission not granted');
+    }
+
+    _devicesStreamSubscription = _flutterThermalPrinterPlugin.devicesStream
+        .listen((List<Printer> event) {
+      print("Ditemukan ${event.length} perangkat:");
+      for (var d in event) {
+        print("- ${d.name} (${d.address})");
+      }
+      setState(() {
+        printers = event
+            .where((p) =>
+                p.name != null &&
+                p.name!.isNotEmpty &&
+                p.name!.toLowerCase().contains("rpp02n"))
+            .toList();
+      });
+    });
+  }
+
+  /// 🛑 Hentikan scan
+  void stopScan() {
+    _flutterThermalPrinterPlugin.stopScan();
+  }
+
+  /// 🧾 Fungsi untuk generate data struk (ESC/POS)
+  Future<List<int>> _generateReceipt(Pesanan pesanan) async {
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(PaperSize.mm58, profile);
+    List<int> bytes = [];
+
+    bytes += generator.text(
+      '${pesanan.listTransaksiDetail[0].menus!.tenants!.namaTenant}',
+      styles: const PosStyles(
+        align: PosAlign.center,
+        bold: true,
+        height: PosTextSize.size2,
+        width: PosTextSize.size2,
+      ),
+    );
+    bytes += generator.hr();
+    bytes += generator.row([
+      PosColumn(text: 'Tanggal', width: 3, styles: const PosStyles(bold: true)),
+      PosColumn(
+          text: '${FormatDate.formatDateTimeWithWIB(pesanan.createdAt)}',
+          width: 9,
+          styles: const PosStyles(align: PosAlign.right, bold: true)),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          text: 'No. Pesanan', width: 6, styles: const PosStyles(bold: true)),
+      PosColumn(
+          text: 'ORDER-${pesanan.id}',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right, bold: true)),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          text: 'Kode Pemesanan',
+          width: 6,
+          styles: const PosStyles(bold: true)),
+      PosColumn(
+          text: '${pesanan.kodePemesanan}',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right, bold: true)),
+    ]);
+    bytes += generator.row([
+      PosColumn(text: 'Pembeli', width: 6, styles: const PosStyles(bold: true)),
+      PosColumn(
+          text: '${pesanan.namaPembeli}',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right, bold: true)),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          text: 'Pengambilan', width: 6, styles: const PosStyles(bold: true)),
+      PosColumn(
+          text: '${pesanan.isAntar == 1 ? 'Diantar' : 'Ambil Sendiri'}',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right, bold: true)),
+    ]);
+
+    bytes += generator.hr();
+    for (var i = 0; i < pesanan.listTransaksiDetail.length; i++) {
+      final menu = pesanan.listTransaksiDetail[i].menus!;
+      final catatan = pesanan.listTransaksiDetail[i].catatan ?? '';
+
+      // Baris utama: nama + harga
+      bytes += generator.row([
+        PosColumn(text: menu.nama, width: 9),
+        PosColumn(
+          text: '${pesanan.listTransaksiDetail[i].harga}',
+          width: 3,
+          styles: const PosStyles(align: PosAlign.right),
+        ),
+      ]);
+
+      // Baris tambahan: catatan (jika ada)
+      if (catatan.isNotEmpty) {
+        bytes += generator.text(
+          'Catatan: $catatan',
+          styles: const PosStyles(
+            align: PosAlign.left,
+            height: PosTextSize.size1,
+            width: PosTextSize.size1,
+          ),
+        );
+      }
+    }
+
+    bytes += generator.hr();
+    bytes += generator.row([
+      PosColumn(
+          text: 'Total',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.left, bold: true)),
+      PosColumn(
+          text: '${pesanan.total}',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right, bold: true)),
+    ]);
+    bytes += generator.feed(1);
+    bytes += generator.text(
+      'Thank you!',
+      styles: const PosStyles(align: PosAlign.center),
+    );
+    bytes += generator.cut();
+    return bytes;
+  }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      startScan();
+
       if (widget.pesanan.status == 'pending' && widget.fromCartPage == true) {
         Navigator.push(context,
             CustomPageBuilder(page: CheckoutQris(pesanan: widget.pesanan)));
@@ -88,6 +237,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   void dispose() {
     _timer?.cancel();
     _onMessageSubscription?.cancel();
+    _devicesStreamSubscription?.cancel();
 
     super.dispose();
   }
@@ -382,40 +532,90 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   width: screenWidth - 48, // ini dia kuncinya!
                   child: FloatingActionButton.extended(
                     onPressed: () async {
-                      final connectivityResult = await hasInternetAccess();
-                      if (!connectivityResult) {
-                        Fluttertoast.showToast(
-                          msg: "Tidak ada koneksi internet",
-                          backgroundColor: AppColors.errorColor,
-                          textColor: Colors.white,
-                        );
-                        return;
-                      }
-                      if (historyProvider.selectedPesanan!
-                              .listTransaksiDetail[0].menus?.tenants ==
-                          null) return;
-                      final cartMenu =
-                          historyProvider.selectedPesanan!.toCartMenuList();
+                      await Permission.bluetoothScan.request();
+                      await Permission.bluetoothConnect.request();
+                      await Permission.locationWhenInUse.request();
+                      final prefs = await SharedPreferences.getInstance();
+                      final printersAddress =
+                          prefs.getString('printersAddress') ?? '';
 
-                      cartProvider.setCurrentTenant(
-                        historyProvider.selectedPesanan!.listTransaksiDetail[0]
-                            .menus!.tenants!,
-                        cartMenu,
+                      final isOn =
+                          await _flutterThermalPrinterPlugin.isBleTurnedOn();
+                      print("Bluetooth aktif: $isOn");
+
+                      await _flutterThermalPrinterPlugin.getPrinters(
+                        connectionTypes: [ConnectionType.BLE],
                       );
 
-                      Future.delayed(const Duration(milliseconds: 300), () {
-                        Navigator.push(
-                          context,
-                          CustomPageBuilder(
-                            page: MenuTenant(
-                              url:
-                                  '${MasbroConstants.url}/tenants/${historyProvider.selectedPesanan!.listTransaksiDetail[0].menus!.tenants!.id}',
-                              cart: cartMenu,
-                            ),
-                          ),
-                        );
-                      });
+                      await Future.delayed(const Duration(seconds: 4));
+
+                      final availablePrinters =
+                          await _flutterThermalPrinterPlugin
+                              .devicesStream.first;
+                      print(
+                          "Jumlah printer ditemukan: ${availablePrinters.length}");
+                      Printer? printer;
+                      if (printersAddress.isNotEmpty) {
+                        printer = printers.firstWhereOrNull(
+                            (element) => element.address == printersAddress);
+                      }
+                      await _flutterThermalPrinterPlugin
+                          .connect(printer ?? printers[0]);
+                      final data = await _generateReceipt(
+                          historyProvider.selectedPesanan!);
+
+                      print(printers);
+                      await _flutterThermalPrinterPlugin.printData(
+                        printer ?? printers[0],
+                        data,
+                        longData: true,
+                      );
+                      prefs.setString('printersAddress',
+                          '${printer?.address ?? printers[0].address ?? ''}');
                     },
+
+                    // onPressed: () async {
+                    //   // final connectivityResult = await hasInternetAccess();
+                    //   // if (!connectivityResult) {
+                    //   //   Fluttertoast.showToast(
+                    //   //     msg: "Tidak ada koneksi internet",
+                    //   //     backgroundColor: AppColors.errorColor,
+                    //   //     textColor: Colors.white,
+                    //   //   );
+                    //   //   return;
+                    //   // }
+                    //   // if (historyProvider.selectedPesanan!
+                    //   //         .listTransaksiDetail[0].menus?.tenants ==
+                    //   //     null) return;
+                    //   // final cartMenu =
+                    //   //     historyProvider.selectedPesanan!.toCartMenuList();
+
+                    //   // cartProvider.setCurrentTenant(
+                    //   //   historyProvider.selectedPesanan!.listTransaksiDetail[0]
+                    //   //       .menus!.tenants!,
+                    //   //   cartMenu,
+                    //   // );
+
+                    //   // Future.delayed(const Duration(milliseconds: 300), () {
+                    //   //   Navigator.push(
+                    //   //     context,
+                    //   //     CustomPageBuilder(
+                    //   //       page: MenuTenant(
+                    //   //         url:
+                    //   //             '${MasbroConstants.url}/tenants/${historyProvider.selectedPesanan!.listTransaksiDetail[0].menus!.tenants!.id}',
+                    //   //         cart: cartMenu,
+                    //   //       ),
+                    //   //     ),
+                    //   //   );
+                    //   // });
+                    //   startScan();
+                    //   final data = await _generateReceipt();
+                    //   await _flutterThermalPrinterPlugin.printData(
+                    //     printers[0],
+                    //     data,
+                    //     longData: true,
+                    //   );
+                    // },
                     backgroundColor: AppColors.primaryColor,
                     label: Center(
                       child: Text(
@@ -1187,12 +1387,15 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              '${pesanan.namaPembeli}',
-              style: GoogleFonts.poppins(
-                color: AppColors.primaryColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: Text(
+                '${pesanan.namaPembeli}',
+                softWrap: true,
+                style: GoogleFonts.poppins(
+                  color: AppColors.primaryColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             Container(

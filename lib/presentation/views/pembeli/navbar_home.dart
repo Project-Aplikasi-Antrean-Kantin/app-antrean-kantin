@@ -513,19 +513,146 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
 
     return WillPopScope(
       onWillPop: () async {
-        final shouldExit = await showDialog<bool>(
-            context: context,
-            builder: (context) => CustomAlertDialog(
-                  title: 'Konfirmasi Keluar',
-                  message: 'Apakah Anda yakin ingin keluar aplikasi?',
-                  showCancelButton: true,
-                  onOkPressed: () {
-                    Navigator.of(context).pop(true); // User memilih keluar
-                  },
-                  onCancelPressed: () {
-                    Navigator.of(context).pop(false); // User batal
-                  },
-                ));
+        final screenSize = MediaQuery.of(context).size;
+        final isSmallScreen = screenSize.height < 600;
+        final shouldExit = await showModalBottomSheet<bool>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          enableDrag: false,
+          builder: (_) {
+            return SafeArea(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: screenSize.height * 0.8,
+                    ),
+                    padding: EdgeInsets.all(screenSize.width * 0.05),
+                    decoration: const BoxDecoration(
+                      color: AppColors.backgroundColor,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                                vertical: screenSize.height * 0.01),
+                            child: Image.asset(
+                              'assets/images/confirmation-exit.png',
+                              width: screenSize.width * 0.5,
+                              height: screenSize.width * 0.5,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          SizedBox(height: screenSize.height * 0.02),
+                          Text(
+                            "Keluar Aplikasi",
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: isSmallScreen ? 16 : 20,
+                              color: AppColors.textColorBlack,
+                            ),
+                          ),
+                          SizedBox(height: screenSize.height * 0.015),
+                          Text(
+                            "Yakin mau keluar aplikasi?",
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.normal,
+                              fontSize: isSmallScreen ? 12 : 14,
+                              color: AppColors.textColorBlack,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: screenSize.height * 0.03),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: PrimaryButton(
+                                  borderColor: AppColors.primaryColor,
+                                  borderRadius: 20,
+                                  height: screenSize.height * 0.06,
+                                  elevation: 0,
+                                  color: AppColors.containerColorWhite,
+                                  child: Text(
+                                    "Batal",
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: isSmallScreen ? 12 : 14,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: screenSize.width * 0.03),
+                              Expanded(
+                                child: PrimaryButton(
+                                  elevation: 0,
+                                  color: AppColors.primaryColor,
+                                  height: screenSize.height * 0.06,
+                                  borderRadius: 20,
+                                  child: Text(
+                                    "Keluar",
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: isSmallScreen ? 12 : 14,
+                                      color: AppColors.textColorwhite,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(true); // User memilih keluar
+                                    ;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: -50,
+                    right: 10,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: AppColors.textColorBlack,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
 
         return shouldExit ?? false;
       },

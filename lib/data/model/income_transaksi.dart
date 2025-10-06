@@ -19,7 +19,6 @@ class IncomeTransaksi {
 
   factory IncomeTransaksi.fromJson(Map<String, dynamic> json) {
     final formatter = DateFormat("dd-MM-yyyy HH:mm:ss"); // sesuai format API
-
     return IncomeTransaksi(
       id: json['id'],
       status: json['status'],

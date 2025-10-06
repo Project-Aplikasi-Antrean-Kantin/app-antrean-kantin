@@ -6,8 +6,10 @@ class Income {
   List<int> totalPesananSelesai;
   List<int> totalPesananRefund;
   Map<String, List<IncomeTransaksi>> listIncomeTransaksi;
+  int totalPendapatan;
 
   Income({
+    required this.totalPendapatan,
     required this.labels,
     required this.listIncomeTransaksi,
     required this.totalPesananSelesai,
@@ -29,6 +31,7 @@ class Income {
       labels: List<String>.from(json['labels'].map((x) => x.toString())),
       totalPesananSelesai:
           List<int>.from(json['selesaiData'].map((x) => x as int)),
+      totalPendapatan: json['totalPendapatan'],
       totalPesananRefund:
           List<int>.from(json['refundData'].map((x) => x as int)),
       listIncomeTransaksi: grouped,
@@ -49,9 +52,11 @@ class Income {
     }
 
     if (selectedSort == "Bulan") {
-      final start = transaksiList.first.tanggal;
-      final end = transaksiList.last.tanggal;
-      return "${DateFormat("dd MMM", "id_ID").format(start)} - ${DateFormat("dd MMM yyyy").format(end)}";
+      final start = transaksiList.first.tanggal.subtract(
+          Duration(days: transaksiList.first.tanggal.weekday - 1)); // Senin
+      final end = start.add(const Duration(days: 6)); // Minggu
+      final formatter = DateFormat("dd MMM yyyy", "id_ID");
+      return "${formatter.format(start)} - ${formatter.format(end)}";
     }
 
     if (selectedSort == "Tahun") {
@@ -70,8 +75,8 @@ class Income {
       allTransaksi.sort((a, b) => a.tanggal.compareTo(b.tanggal));
 
       if (selectedSort == "Minggu") {
-        final start = allTransaksi.first.tanggal;
-        final end = allTransaksi.last.tanggal;
+        final start = date.subtract(Duration(days: date.weekday - 1)); // Senin
+        final end = start.add(const Duration(days: 6)); // Minggu
         final formatter = DateFormat("dd MMM yyyy", "id_ID");
         return "${formatter.format(start)} - ${formatter.format(end)}";
       }

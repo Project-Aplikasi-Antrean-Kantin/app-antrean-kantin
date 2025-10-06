@@ -420,9 +420,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        SvgPicture.asset(
-                                            'assets/images/koin-logo.svg',
-                                            height: 28),
+                                        Image.asset(
+                                            'assets/images/icon-koin-blue.png',
+                                            height: 32),
                                         const SizedBox(width: 8),
                                         Column(
                                           crossAxisAlignment:
@@ -515,9 +515,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   ),
                                   child: Column(
                                     children: [
-                                      SvgPicture.asset(
-                                        'assets/images/koin-logo-add.svg',
-                                        height: 24,
+                                      Image.asset(
+                                        'assets/images/icon-koin-plus-blue.png',
+                                        height: 32,
                                       ),
                                       Text(
                                         'Isi Koin',

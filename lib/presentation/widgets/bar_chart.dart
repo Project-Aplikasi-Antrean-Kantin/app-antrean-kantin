@@ -8,6 +8,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/income_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/income_provider.dart';
+import 'package:testgetdata/presentation/views/common/format_currency.dart';
 
 class BarChartSample2 extends StatefulWidget {
   final Income income;
@@ -188,206 +189,199 @@ class BarChartSample2State extends State<BarChartSample2> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                Center(
+                  child: Text(
+                      FormatCurrency.intToStringCurrency(
+                          widget.income.totalPendapatan),
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          color: AppColors.primaryColor)),
+                ),
+                const SizedBox(height: 8),
                 AspectRatio(
                   aspectRatio: 1.2,
                   child: Row(
                     children: [
-                      IconButton(
-                        icon: HugeIcon(
-                            icon: HugeIcons.strokeRoundedArrowLeft01,
-                            color: AppColors.primaryColor),
-                        onPressed: () {
-                          _scrollController.animateTo(
-                            _scrollController.offset - 120,
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                          );
-                        },
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          controller: _scrollController,
-                          scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            width: filteredIndexes.length * 100,
-                            child: BarChart(
-                              BarChartData(
-                                maxY: maxY,
-                                barTouchData: BarTouchData(
-                                  touchTooltipData: BarTouchTooltipData(
-                                    fitInsideHorizontally: true,
-                                    fitInsideVertically: true,
-                                    getTooltipColor: (group) => Colors.black87,
-                                    getTooltipItem:
-                                        (group, groupIndex, rod, rodIndex) {
-                                      final selesai =
-                                          group.barRods[0].toY.toInt();
-                                      final refund =
-                                          group.barRods[1].toY.toInt();
-
-                                      return BarTooltipItem(
-                                        'Selesai: $selesai\nRefund/Ditolak: $refund',
-                                        const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  // touchCallback:
-                                  //     (FlTouchEvent event, response) {
-                                  //   if (response == null ||
-                                  //       response.spot == null) {
-                                  //     setState(() {
-                                  //       touchedGroupIndex = -1;
-                                  //       showingBarGroups =
-                                  //           List.of(rawBarGroups);
-                                  //     });
-                                  //     return;
-                                  //   }
-
-                                  //   touchedGroupIndex =
-                                  //       response.spot!.touchedBarGroupIndex;
-
-                                  //   setState(() {
-                                  //     if (!event.isInterestedForInteractions) {
-                                  //       touchedGroupIndex = -1;
-                                  //       showingBarGroups =
-                                  //           List.of(rawBarGroups);
-                                  //       return;
-                                  //     }
-                                  //     showingBarGroups = List.of(rawBarGroups);
-                                  //     if (touchedGroupIndex != -1) {
-                                  //       // var sum = 0.0;
-                                  //       // for (final rod
-                                  //       //     in showingBarGroups[touchedGroupIndex]
-                                  //       //         .barRods) {
-                                  //       //   sum += rod.toY;
-                                  //       // }
-                                  //       // final avg = sum /
-                                  //       //     showingBarGroups[touchedGroupIndex]
-                                  //       //         .barRods
-                                  //       //         .length;
-
-                                  //       // showingBarGroups[touchedGroupIndex] =
-                                  //       //     showingBarGroups[touchedGroupIndex].copyWith(
-                                  //       //   barRods: showingBarGroups[touchedGroupIndex]
-                                  //       //       .barRods
-                                  //       //       .map((rod) {
-                                  //       //     return rod.copyWith(
-                                  //       //         toY: avg, color: widget.avgColor);
-                                  //       //   }).toList(),
-                                  //       // );
-                                  //     }
-                                  //   });
-                                  // },
+                      if (filteredIndexes.isNotEmpty)
+                        IconButton(
+                          icon: HugeIcon(
+                              icon: HugeIcons.strokeRoundedArrowLeft01,
+                              color: AppColors.primaryColor),
+                          onPressed: () {
+                            _scrollController.animateTo(
+                              _scrollController.offset - 120,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            );
+                          },
+                        ),
+                      if (filteredIndexes.isNotEmpty)
+                        Expanded(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Bagian kiri: Sticky Left Titles (angka-angka Y)
+                              Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: List.generate(
+                                  3, // jumlah grid/label vertikal (atur sesuai kebutuhan)
+                                  (i) {
+                                    double value = (maxY / 5) * (5 - i);
+                                    return SizedBox(
+                                      height:
+                                          40, // sesuaikan biar sejajar dengan bar chart
+                                      child: Text(
+                                        value.toInt().toString(),
+                                        style: const TextStyle(
+                                            fontSize: 12, color: Colors.black),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                titlesData: FlTitlesData(
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 28,
-                                      getTitlesWidget: (value, meta) {
-                                        final int rounded = value
-                                            .round(); // bulatkan ke int terdekat
+                              ),
 
-                                        // biar ga muncul duplikat, kita cek kalau yang ditampilkan
-                                        // memang sama dengan value yg sudah dibulatkan (dalam toleransi kecil)
-                                        if ((value - rounded).abs() < 0.5) {
-                                          if (value == maxY) return Text("");
-                                          return Text(
-                                            rounded.toString(),
-                                            style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black),
-                                          );
-                                        }
+                              const SizedBox(
+                                  width: 8), // jarak antara Y axis dan chart
 
-                                        return const SizedBox.shrink();
-                                      },
-                                    ),
-                                  ),
-                                  rightTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  topTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      reservedSize: 28,
-                                      showTitles: true,
-                                      getTitlesWidget: (value, meta) {
-                                        int index = value.toInt();
+                              // Bagian kanan: chart yang bisa di-scroll horizontal
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  controller: _scrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  child: SizedBox(
+                                    width: filteredIndexes.length * 100,
+                                    child: BarChart(
+                                      BarChartData(
+                                        maxY: maxY,
+                                        barTouchData: BarTouchData(
+                                          touchTooltipData: BarTouchTooltipData(
+                                            fitInsideHorizontally: true,
+                                            fitInsideVertically: true,
+                                            getTooltipColor: (group) =>
+                                                Colors.black87,
+                                            getTooltipItem: (group, groupIndex,
+                                                rod, rodIndex) {
+                                              final selesai =
+                                                  group.barRods[0].toY.toInt();
+                                              final refund =
+                                                  group.barRods[1].toY.toInt();
 
-                                        if (index < 0 ||
-                                            index >= filteredIndexes.length) {
-                                          return const SizedBox.shrink();
-                                        }
+                                              return BarTooltipItem(
+                                                'Selesai: $selesai\nRefund/Ditolak: $refund',
+                                                const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        titlesData: FlTitlesData(
+                                          leftTitles: const AxisTitles(
+                                            sideTitles:
+                                                SideTitles(showTitles: false),
+                                          ),
+                                          rightTitles: const AxisTitles(
+                                            sideTitles:
+                                                SideTitles(showTitles: false),
+                                          ),
+                                          topTitles: const AxisTitles(
+                                            sideTitles:
+                                                SideTitles(showTitles: false),
+                                          ),
+                                          bottomTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              reservedSize: 28,
+                                              showTitles: true,
+                                              getTitlesWidget: (value, meta) {
+                                                int index = value.toInt();
+                                                if (index < 0 ||
+                                                    index >=
+                                                        filteredIndexes
+                                                            .length) {
+                                                  return const SizedBox
+                                                      .shrink();
+                                                }
 
-                                        final originalIndex =
-                                            filteredIndexes[index];
-                                        final label =
-                                            widget.income.labels[originalIndex];
+                                                final originalIndex =
+                                                    filteredIndexes[index];
+                                                final label = widget.income
+                                                    .labels[originalIndex];
 
-                                        return SideTitleWidget(
-                                          meta: meta,
-                                          space: 8,
-                                          child: Text(
-                                            label,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              color: Colors.black,
+                                                return SideTitleWidget(
+                                                  meta: meta,
+                                                  space: 8,
+                                                  child: Text(
+                                                    label,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 12,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           ),
-                                        );
-                                      },
+                                        ),
+                                        borderData: FlBorderData(show: false),
+                                        barGroups: List.generate(
+                                            filteredIndexes.length, (i) {
+                                          final index = filteredIndexes[i];
+                                          return BarChartGroupData(
+                                            x: i,
+                                            barRods: [
+                                              BarChartRodData(
+                                                toY: widget.income
+                                                    .totalPesananSelesai[index]
+                                                    .toDouble(),
+                                                color: AppColors.primaryColor,
+                                              ),
+                                              BarChartRodData(
+                                                toY: widget.income
+                                                    .totalPesananRefund[index]
+                                                    .toDouble(),
+                                                color: AppColors.secondaryColor,
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                        gridData: const FlGridData(show: false),
+                                      ),
                                     ),
                                   ),
                                 ),
-                                borderData: FlBorderData(
-                                  show: false,
-                                ),
-                                barGroups:
-                                    List.generate(filteredIndexes.length, (i) {
-                                  final index = filteredIndexes[i];
-                                  return BarChartGroupData(
-                                    x: i, // pakai index rapat, bukan index asli
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: widget
-                                            .income.totalPesananSelesai[index]
-                                            .toDouble(),
-                                        color: AppColors.primaryColor,
-                                      ),
-                                      BarChartRodData(
-                                        toY: widget
-                                            .income.totalPesananRefund[index]
-                                            .toDouble(),
-                                        color: AppColors.secondaryColor,
-                                      ),
-                                    ],
-                                  );
-                                }),
-                                gridData: const FlGridData(show: false),
                               ),
-                            ),
+                            ],
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: HugeIcon(
-                            icon: HugeIcons.strokeRoundedArrowRight01,
-                            color: AppColors.primaryColor),
-                        onPressed: () {
-                          _scrollController.animateTo(
-                            _scrollController.offset + 120,
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                          );
-                        },
-                      ),
+                      if (filteredIndexes.isEmpty)
+                        Expanded(
+                          child: Text(
+                            "Yahh.. sayangnya statistik transaksi periode ini tidak tersedia☹️",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                                color: AppColors.blackColor400,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12),
+                            softWrap: true,
+                          ),
+                        ),
+                      if (filteredIndexes.isNotEmpty)
+                        IconButton(
+                          icon: HugeIcon(
+                              icon: HugeIcons.strokeRoundedArrowRight01,
+                              color: AppColors.primaryColor),
+                          onPressed: () {
+                            _scrollController.animateTo(
+                              _scrollController.offset + 120,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            );
+                          },
+                        ),
                     ],
                   ),
                 ),
