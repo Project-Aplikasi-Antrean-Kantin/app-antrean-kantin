@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -13,6 +14,7 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
@@ -25,6 +27,7 @@ class PesananCard extends StatefulWidget {
   final OrderStatus status;
   final String token;
   final List<Pesanan> listPesanan;
+  final FlutterThermalPrinter printer;
 
   const PesananCard({
     Key? key,
@@ -32,6 +35,7 @@ class PesananCard extends StatefulWidget {
     required this.status,
     required this.token,
     required this.listPesanan,
+    required this.printer,
   }) : super(key: key);
 
   @override
@@ -126,6 +130,28 @@ class PesananCardState extends State<PesananCard> {
             padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
             child: _buildActionButton(context, widget.pesanan),
           ),
+          Padding(
+              padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+              child: GestureDetector(
+                onTap: () {
+                  showBottomSheetBluetoothDevices(
+                      context, widget.printer, widget.pesanan);
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Text('Cetak',
+                      style: GoogleFonts.poppins(
+                          color: AppColors.whiteColor,
+                          fontSize: 16,
+                          fontWeight: semibold)),
+                ),
+              )),
         ],
       ),
     );

@@ -70,11 +70,19 @@ class PesananItemWidget extends StatelessWidget {
                     onTap: () {
                       _showDetailPesanan(context, pesanan);
                     },
-                    child: Text('Detail',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.primaryColor,
-                          fontSize: 12,
-                        )),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.infoColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text('Detail',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.whiteColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                          )),
+                    ),
                   )
                 ],
               ),

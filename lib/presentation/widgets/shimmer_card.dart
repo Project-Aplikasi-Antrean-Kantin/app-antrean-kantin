@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:shimmer/shimmer.dart';
@@ -37,7 +38,8 @@ class ShimmerCard extends StatelessWidget {
                             : _buildCoinTransactionShimmer(context));
   }
 
-  static Widget buildPesananPageShimmer(OrderStatus status) {
+  static Widget buildPesananPageShimmer(
+      OrderStatus status, FlutterThermalPrinter printer) {
     return Container(
       margin: const EdgeInsets.only(bottom: 5),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
@@ -47,6 +49,7 @@ class ShimmerCard extends StatelessWidget {
             height: 8,
           ),
           itemBuilder: (context, index) => PesananCard(
+            printer: printer,
             pesanan: Pesanan.getDummyPesanan(),
             status: status,
             token: "sad",

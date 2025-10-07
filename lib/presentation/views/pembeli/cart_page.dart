@@ -593,11 +593,33 @@ class _CartPageState extends State<CartPage> {
                                                           tenant: cartProvider
                                                               .currentTenant!)));
                                             },
-                                            child: Text('Edit',
-                                                style: GoogleFonts.poppins(
-                                                  color: AppColors.primaryColor,
-                                                  fontSize: 12,
-                                                )),
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 6, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                  color: AppColors.infoColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
+                                              child: Row(
+                                                spacing: 8,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  HugeIcon(
+                                                      size: 16,
+                                                      icon: HugeIcons
+                                                          .strokeRoundedEdit02,
+                                                      color:
+                                                          AppColors.whiteColor),
+                                                  Text('Edit',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        color: AppColors
+                                                            .whiteColor,
+                                                        fontSize: 12,
+                                                      )),
+                                                ],
+                                              ),
+                                            ),
                                           )
                                         ],
                                       ),

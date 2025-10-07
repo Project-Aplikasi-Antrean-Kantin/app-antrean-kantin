@@ -2,14 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
+import 'package:flutter_thermal_printer/utils/printer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
+import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_list.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
@@ -23,37 +27,75 @@ class PesananTenant extends StatefulWidget {
 
 class _PesananTenantState extends State<PesananTenant> {
   DateTime? _lastFetch;
+  final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   StreamSubscription<RemoteMessage>? _onMessageTimeOutSubscription;
+  StreamSubscription<List<Printer>>? _devicesStreamSubscription;
 
   @override
   void initState() {
     super.initState();
-    // Fetch orders for all statuses on initialization
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final user = authProvider.user;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+      final printerProvider =
+          Provider.of<PrinterProvider>(context, listen: false);
+      final user = authProvider.user;
 
-    Future.wait([
-      for (var status in OrderStatus.values)
-        orderProvider.fetchOrders(context, user.token, status),
-    ]);
+      startScan(printerProvider);
 
-    // Listen for foreground notifications
-    _onMessageSubscription =
-        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final title = message.data['title']?.toString().toLowerCase();
-      if (title == 'pesanan masuk') {
-        _handleNewOrderNotification(orderProvider, user);
-      }
+      Future.wait([
+        for (var status in OrderStatus.values)
+          orderProvider.fetchOrders(context, user.token, status),
+      ]);
+
+      // Listen for foreground notifications
+      _onMessageSubscription =
+          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        final title = message.data['title']?.toString().toLowerCase();
+        if (title == 'pesanan masuk') {
+          _handleNewOrderNotification(orderProvider, user);
+        }
+      });
+
+      _onMessageTimeOutSubscription =
+          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        final title = message.data['title']?.toString().toLowerCase();
+        if (title == 'pesanan dibatalkan otomatis') {
+          _handleNewOrderNotification(orderProvider, user);
+        }
+      });
     });
+  }
 
-    _onMessageTimeOutSubscription =
-        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final title = message.data['title']?.toString().toLowerCase();
-      if (title == 'pesanan dibatalkan otomatis') {
-        _handleNewOrderNotification(orderProvider, user);
+  void startScan(PrinterProvider printerProvider) async {
+    _devicesStreamSubscription?.cancel();
+    print('coba scan');
+    if (await Permission.bluetoothScan.request().isGranted &&
+        await Permission.bluetoothConnect.request().isGranted &&
+        await Permission.locationWhenInUse.request().isGranted) {
+      await printer.getPrinters(
+        connectionTypes: [ConnectionType.BLE],
+      );
+    } else {
+      debugPrint('Bluetooth permission not granted');
+    }
+
+    _devicesStreamSubscription =
+        printer.devicesStream.listen((List<Printer> event) {
+      print("Ditemukan ${event.length} perangkat:");
+      for (var d in event) {
+        print("- ${d.name} (${d.address})");
       }
+      printerProvider.setPrinters(event);
+      // setState(() {
+      //   printers = event
+      //       .where((p) =>
+      //           p.name != null &&
+      //           p.name!.isNotEmpty &&
+      //           p.name!.toLowerCase().contains("rpp02n"))
+      //       .toList();
+      // });
     });
   }
 
@@ -75,6 +117,8 @@ class _PesananTenantState extends State<PesananTenant> {
     // Cancel Firebase listeners to prevent accessing context after unmount
     _onMessageTimeOutSubscription?.cancel();
     _onMessageSubscription?.cancel();
+    _devicesStreamSubscription?.cancel();
+    printer.stopScan();
     super.dispose();
   }
 
@@ -139,7 +183,7 @@ class _PesananTenantState extends State<PesananTenant> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   itemCount: 2,
                   itemBuilder: (context, index) =>
-                      ShimmerCard.buildPesananPageShimmer(status),
+                      ShimmerCard.buildPesananPageShimmer(status, printer),
                 ),
               );
             }
@@ -295,6 +339,7 @@ class _PesananTenantState extends State<PesananTenant> {
               );
             }
             return PesananList(
+              printer: printer,
               status: status,
               onRefresh: () =>
                   orderProvider.fetchOrders(context, user.token, status),

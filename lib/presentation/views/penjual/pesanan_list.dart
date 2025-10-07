@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -12,11 +13,13 @@ import 'package:testgetdata/presentation/widgets/search_widget.dart';
 class PesananList extends StatefulWidget {
   final OrderStatus status;
   final Future<void> Function() onRefresh;
+  final FlutterThermalPrinter printer;
 
   const PesananList({
     Key? key,
     required this.status,
     required this.onRefresh,
+    required this.printer,
   }) : super(key: key);
 
   @override
@@ -83,6 +86,7 @@ class _PesananListState extends State<PesananList> {
                     pesanan: pesananItem,
                     status: widget.status,
                     token: user.token,
+                    printer: widget.printer,
                   );
                 },
               ),
