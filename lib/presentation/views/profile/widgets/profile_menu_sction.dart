@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
+import 'package:flutter_thermal_printer/utils/printer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -13,12 +18,15 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
+import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_rekening.dart';
 import 'package:testgetdata/presentation/views/penjual/form_operational.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_page.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_review.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/profile_menu_item.dart';
@@ -41,10 +49,48 @@ class ProfileMenuSection extends StatefulWidget {
 
 class _ProfileMenuSectionState extends State<ProfileMenuSection> {
   bool isOnline = false;
+  StreamSubscription<List<Printer>>? _devicesStreamSubscription;
+  final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
   @override
   void initState() {
     super.initState();
     isOnline = widget.user.isOnline ?? false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final printer = Provider.of<PrinterProvider>(context, listen: false);
+      if (widget.user.role.contains("tenant")) {
+        startScan(printer);
+      }
+    });
+  }
+
+  void startScan(PrinterProvider printerProvider) async {
+    _devicesStreamSubscription?.cancel();
+    print('coba scan');
+    if (await Permission.bluetoothScan.request().isGranted &&
+        await Permission.bluetoothConnect.request().isGranted &&
+        await Permission.locationWhenInUse.request().isGranted) {
+      await printer.getPrinters(
+        connectionTypes: [ConnectionType.BLE],
+      );
+    } else {
+      debugPrint('Bluetooth permission not granted');
+    }
+
+    _devicesStreamSubscription =
+        printer.devicesStream.listen((List<Printer> event) {
+      print("Ditemukan ${event.length} perangkat:");
+      for (var d in event) {
+        print("- ${d.name} (${d.address})");
+      }
+      printerProvider.setPrinters(event);
+    });
+  }
+
+  @override
+  void dispose() {
+    _devicesStreamSubscription?.cancel();
+    printer.stopScan();
+    super.dispose();
   }
 
   @override
@@ -188,6 +234,19 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection> {
                 );
               },
             ),
+            ProfileMenuItem(
+              icon: Iconsax.receipt_item_copy,
+              title: 'Mesin Cetak',
+              titleColor: AppColors.blackColor,
+              onTap: () async {
+                final internetConnection = await hasInternetAccess();
+                if (!internetConnection) {
+                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  return;
+                }
+                showBottomSheetBluetoothDevices(context);
+              },
+            )
           ],
           //profil driver
           if (widget.user.permission.contains('read driver status')) ...[
@@ -269,15 +328,10 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection> {
             title: 'Review Aplikasi',
             showIconArrow: false,
             onTap: () async {
-              final link = widget.authProvider.settings
-                  .firstWhere((setting) => setting.nama == 'link_user_review')
-                  .nilai;
-              final userReviewUrl = Uri.parse(link);
-
-              if (await canLaunchUrl(userReviewUrl)) {
-                await launchUrl(userReviewUrl,
-                    mode: LaunchMode.externalApplication);
-              }
+              showBottomSheetReview(
+                user: widget.user,
+                context: context,
+              );
             },
           ),
           ProfileMenuItem(

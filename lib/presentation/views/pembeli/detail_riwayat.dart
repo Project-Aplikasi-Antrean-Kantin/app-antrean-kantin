@@ -28,6 +28,7 @@ import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
@@ -69,6 +70,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   Timer? _timer;
   final _flutterThermalPrinterPlugin = FlutterThermalPrinter.instance;
   StreamSubscription<List<Printer>>? _devicesStreamSubscription;
+  bool _isPrinting = false;
 
   void startScan(PrinterProvider printerProvider) async {
     _devicesStreamSubscription?.cancel();
@@ -948,13 +950,106 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                           ],
                         ),
                       ),
-                    GestureDetector(
-                      onTap: () => showBottomSheetBluetoothDevices(
-                          context,
-                          _flutterThermalPrinterPlugin,
-                          historyProvider.selectedPesanan!),
-                      child: Text("cetak"),
-                    ),
+                    if (widget.label.toLowerCase() == 'jual')
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Cetak Nota Pesanan"),
+                            GestureDetector(
+                              onTap: () async {
+                                final user = Provider.of<AuthProvider>(context,
+                                        listen: false)
+                                    .user;
+                                final printerProvider =
+                                    Provider.of<PrinterProvider>(context,
+                                        listen: false);
+                                if (printerProvider.selectedPrinter == null) {
+                                  print(user.menu
+                                      .map((element) => element.url)
+                                      .toList());
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    CustomPageBuilder(
+                                      page: NavbarHome(
+                                        pageIndex: user.menu.indexWhere(
+                                            (element) =>
+                                                element.url == '/profile'),
+                                      ),
+                                    ),
+                                    (route) => false,
+                                  );
+                                  showBottomSheetBluetoothDevices(context);
+                                  Fluttertoast.showToast(
+                                      msg: 'Silahkan Pilih Printer');
+                                  return;
+                                }
+                                setState(() {
+                                  _isPrinting = true;
+                                });
+                                try {
+                                  await _flutterThermalPrinterPlugin.connect(
+                                      printerProvider.selectedPrinter!);
+                                  final data = await generateReceipt(
+                                      widget.pesanan,
+                                      printerProvider.selectedPrinter!,
+                                      context);
+
+                                  await _flutterThermalPrinterPlugin.printData(
+                                    printerProvider.selectedPrinter!,
+                                    data,
+                                    longData: true,
+                                  );
+                                  Fluttertoast.showToast(
+                                      msg: 'Cetak Berhasil',
+                                      backgroundColor: AppColors.successColor,
+                                      textColor: AppColors.whiteColor);
+                                } catch (e) {
+                                  Fluttertoast.showToast(msg: e.toString());
+                                } finally {
+                                  setState(() {
+                                    _isPrinting = false;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.successColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: _isPrinting
+                                    ? const SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Row(
+                                        spacing: 8,
+                                        children: [
+                                          HugeIcon(
+                                              icon: HugeIcons
+                                                  .strokeRoundedInvoice04,
+                                              size: 16,
+                                              color: AppColors.whiteColor100),
+                                          Text("Cetak",
+                                              style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.w600,
+                                                  color:
+                                                      AppColors.whiteColor100,
+                                                  fontSize: 12))
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     SizedBox(height: 96),
                   ],
                 ),

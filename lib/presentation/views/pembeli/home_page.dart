@@ -26,6 +26,7 @@ import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
+import 'package:testgetdata/presentation/provider/review_provider.dart';
 import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
@@ -202,12 +203,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final coinProvider = Provider.of<CoinProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
+    final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
 
     final user = authProvider.user;
     _scrollController.addListener(_scrollListener);
 
     authProvider.fetchUserData(user.token);
     cartProvider.getAllCarts();
+    reviewProvider.setReviewSelection(user.token);
 
     futureTenant = PublicRemoteDataSource().getTenant(context, url, user.token);
     final prefs = SharedPreferences.getInstance().then((prefs) {

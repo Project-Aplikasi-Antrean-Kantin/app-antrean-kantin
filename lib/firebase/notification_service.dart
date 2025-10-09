@@ -60,6 +60,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     final unreadMessages = sharedPreferences.getString('unread');
     final availableChat = sharedPreferences.getString('available_chat');
+    sharedPreferences.setBool('user_review', true);
     final transaksiIdStr = message.notification!.body!.split(' ')[1].trim();
     final transaksiId = int.tryParse(transaksiIdStr);
 

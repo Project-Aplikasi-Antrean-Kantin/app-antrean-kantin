@@ -17,6 +17,7 @@ import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_review.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
@@ -50,6 +51,7 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
       final historyProvider =
           Provider.of<HistoryProvider>(context, listen: false);
       final user = Provider.of<AuthProvider>(context, listen: false).user;
+
       final prefs = SharedPreferences.getInstance().then((prefs) {
         final tenantSibuk = prefs.getString("tenant_sibuk");
         if (tenantSibuk != null) {
@@ -189,10 +191,12 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
         if (title != null && title.contains('pesanan selesai')) {
           final transaksiId =
               int.parse(message.notification!.body!.split(' ')[1]);
+
           historyProvider.removeAvailableChat(transaksiId);
           historyProvider.removeUnreadMessages(transaksiId).then((_) {
             historyProvider.loadUnreadMessages();
           });
+          showBottomSheetReview(context: context, user: user);
         }
         if (title != null && title.contains('top-up berhasil')) {
           final prefs = SharedPreferences.getInstance().then((prefs) {
@@ -311,8 +315,9 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.reload(); // ⬅️ wajib ditunggu
-
       final tenantSibuk = prefs.getString("tenant_sibuk");
+      final needReview = prefs.getBool("user_review");
+      print("needReview: $needReview");
       if (tenantSibuk != null) {
         if (!mounted) return;
         showDialog(
@@ -390,6 +395,9 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
             );
           },
         );
+      }
+      if (needReview != null && needReview) {
+        showBottomSheetReview(context: context, user: user);
       }
     }
   }

@@ -35,8 +35,10 @@ class Pesanan {
   String? urlQris;
   DateTime? expiredQris;
   final DateTime createdAt;
+  int? cashbackAmount;
 
   Pesanan({
+    this.cashbackAmount,
     this.namaDriver,
     this.fotoDriver,
     required this.id,
@@ -169,6 +171,7 @@ class Pesanan {
         subTotal: json["sub_total"],
         gedung: json["gedung"],
         urlQris: json["qr_url"],
+        cashbackAmount: json["cashback_amount"],
         expiredQris:
             json["expiry"] != null ? DateTime.parse(json["expiry"]) : null,
         biayaAdmin: json["biaya_admin"],

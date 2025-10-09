@@ -1,8 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:image/image.dart' as img;
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
@@ -10,8 +15,6 @@ import 'package:testgetdata/presentation/views/common/format_date.dart';
 
 Future<void> showBottomSheetBluetoothDevices(
   BuildContext context,
-  FlutterThermalPrinter _flutterThermalPrinterPlugin,
-  Pesanan pesanan,
 ) async {
   await showModalBottomSheet<void>(
     backgroundColor: AppColors.backgroundColor,
@@ -72,6 +75,11 @@ Future<void> showBottomSheetBluetoothDevices(
                                   final selected = printerProvider.printer
                                       .firstWhere((p) => p.name == value);
                                   printerProvider.selectPrinter(selected);
+                                  Fluttertoast.showToast(
+                                      msg: '${selected.name} terpilih',
+                                      textColor: AppColors.whiteColor,
+                                      backgroundColor: AppColors.successColor);
+                                  Navigator.pop(context);
                                   // setState(() {}); // supaya update UI
                                 },
                               ),
@@ -85,50 +93,50 @@ Future<void> showBottomSheetBluetoothDevices(
                     const SizedBox(height: 16),
 
                     // Tombol Cetak
-                    ElevatedButton(
-                      onPressed: localSelectedPrinter == null
-                          ? null
-                          : () async {
-                              printerProvider.setPrinting(true);
-                              try {
-                                await _flutterThermalPrinterPlugin
-                                    .connect(localSelectedPrinter);
-                                final data = await _generateReceipt(pesanan);
+                    // ElevatedButton(
+                    //   onPressed: localSelectedPrinter == null
+                    //       ? null
+                    //       : () async {
+                    //           printerProvider.setPrinting(true);
+                    //           try {
+                    //             await _flutterThermalPrinterPlugin
+                    //                 .connect(localSelectedPrinter);
+                    //             final data = await _generateReceipt(pesanan);
 
-                                await _flutterThermalPrinterPlugin.printData(
-                                  localSelectedPrinter,
-                                  data,
-                                  longData: true,
-                                );
-                              } catch (e) {
-                                Fluttertoast.showToast(msg: e.toString());
-                              } finally {
-                                printerProvider.setPrinting(false);
-                              }
-                              Navigator.pop(context);
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: printerProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Cetak',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                    ),
+                    //             await _flutterThermalPrinterPlugin.printData(
+                    //               localSelectedPrinter,
+                    //               data,
+                    //               longData: true,
+                    //             );
+                    //           } catch (e) {
+                    //             Fluttertoast.showToast(msg: e.toString());
+                    //           } finally {
+                    //             printerProvider.setPrinting(false);
+                    //           }
+                    //           Navigator.pop(context);
+                    //         },
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: AppColors.primaryColor,
+                    //     padding: const EdgeInsets.symmetric(vertical: 14),
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(8),
+                    //     ),
+                    //   ),
+                    //   child: printerProvider.isLoading
+                    //       ? const SizedBox(
+                    //           height: 20,
+                    //           width: 20,
+                    //           child: CircularProgressIndicator(
+                    //             color: Colors.white,
+                    //             strokeWidth: 2,
+                    //           ),
+                    //         )
+                    //       : const Text(
+                    //           'Cetak',
+                    //           style:
+                    //               TextStyle(fontSize: 16, color: Colors.white),
+                    //         ),
+                    // ),
                   ],
                 ),
               ),
@@ -140,104 +148,187 @@ Future<void> showBottomSheetBluetoothDevices(
   );
 }
 
-Future<List<int>> _generateReceipt(Pesanan pesanan) async {
+Future<Uint8List> loadLogo() async {
+  final ByteData data = await rootBundle.load('assets/images/Logo Header.png');
+  final Uint8List bytesImage = data.buffer.asUint8List();
+  final img.Image image = img.decodeImage(bytesImage)!;
+  final img.Image resized = img.copyResize(image, width: 384);
+  return Uint8List.fromList(img.encodePng(resized));
+}
+
+Future<List<int>> generateReceipt(
+    Pesanan pesanan, Printer selectedPrinter, BuildContext context) async {
+  final printer = FlutterThermalPrinter.instance;
   final profile = await CapabilityProfile.load();
   final generator = Generator(PaperSize.mm58, profile);
+
   List<int> bytes = [];
 
+  // ==== 1. Cetak logo ====
+  try {
+    ByteData imageByteData =
+        await rootBundle.load("assets/images/logo_print.png");
+    Uint8List imageBytesUint8List = imageByteData.buffer.asUint8List();
+    img.Image image = img.decodeImage(imageBytesUint8List)!;
+    bytes += generator.image(image);
+
+// With hide
+  } catch (e) {
+    print('Gagal memuat logo: $e');
+  }
+
+  // ==== 2. Header ====
+  bytes = [
+    ...bytes,
+    ...generator.text(
+      pesanan.kodePemesanan ?? '',
+      styles: const PosStyles(
+        align: PosAlign.center,
+        bold: true,
+        height: PosTextSize.size3,
+        width: PosTextSize.size3,
+      ),
+    ),
+    ...generator.text(
+      pesanan.namaPembeli!.substring(
+              0,
+              pesanan.namaPembeli!.length > 30
+                  ? 30
+                  : pesanan.namaPembeli!.length) ??
+          '',
+      styles: const PosStyles(
+        align: PosAlign.center,
+        bold: true, height: PosTextSize.size2, // tinggi 2x
+        width: PosTextSize.size1, // lebar normal
+      ),
+    ),
+    ...generator.hr(),
+  ];
+
+  // ==== 3. Info Umum ====
+  bytes = [
+    ...bytes,
+    ...generator.row([
+      PosColumn(
+          text: 'Tanggal', width: 3, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text: FormatDate.formatDateTimeWithWIB(pesanan.createdAt),
+        width: 9,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.row([
+      PosColumn(text: 'Tenant', width: 3, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text: '${pesanan.listTransaksiDetail.first.menus!.tenants!.namaTenant}',
+        width: 9,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.row([
+      PosColumn(
+          text: 'No. Pesanan', width: 6, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text: 'ORDER-${pesanan.id}',
+        width: 6,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.row([
+      PosColumn(
+          text: 'Pengambilan', width: 6, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text: pesanan.isAntar == 1 ? 'Diantar' : 'Ambil Sendiri',
+        width: 6,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.hr(),
+  ];
+
   bytes += generator.text(
-    '${pesanan.listTransaksiDetail[0].menus!.tenants!.namaTenant}',
+    'Pesanan',
     styles: const PosStyles(
       align: PosAlign.center,
       bold: true,
-      height: PosTextSize.size2,
-      width: PosTextSize.size2,
+      height: PosTextSize.size1,
+      width: PosTextSize.size1,
     ),
   );
-  bytes += generator.hr();
-  bytes += generator.row([
-    PosColumn(text: 'Tanggal', width: 3, styles: const PosStyles(bold: true)),
-    PosColumn(
-        text: '${FormatDate.formatDateTimeWithWIB(pesanan.createdAt)}',
-        width: 9,
-        styles: const PosStyles(align: PosAlign.right, bold: true)),
-  ]);
-  bytes += generator.row([
-    PosColumn(
-        text: 'No. Pesanan', width: 6, styles: const PosStyles(bold: true)),
-    PosColumn(
-        text: 'ORDER-${pesanan.id}',
-        width: 6,
-        styles: const PosStyles(align: PosAlign.right, bold: true)),
-  ]);
-  bytes += generator.row([
-    PosColumn(
-        text: 'Kode Pemesanan', width: 6, styles: const PosStyles(bold: true)),
-    PosColumn(
-        text: '${pesanan.kodePemesanan}',
-        width: 6,
-        styles: const PosStyles(align: PosAlign.right, bold: true)),
-  ]);
-  bytes += generator.row([
-    PosColumn(text: 'Pembeli', width: 6, styles: const PosStyles(bold: true)),
-    PosColumn(
-        text: '${pesanan.namaPembeli}',
-        width: 6,
-        styles: const PosStyles(align: PosAlign.right, bold: true)),
-  ]);
-  bytes += generator.row([
-    PosColumn(
-        text: 'Pengambilan', width: 6, styles: const PosStyles(bold: true)),
-    PosColumn(
-        text: '${pesanan.isAntar == 1 ? 'Diantar' : 'Ambil Sendiri'}',
-        width: 6,
-        styles: const PosStyles(align: PosAlign.right, bold: true)),
-  ]);
 
-  bytes += generator.hr();
+  // ==== 4. Detail Pesanan ====
   for (var i = 0; i < pesanan.listTransaksiDetail.length; i++) {
-    final menu = pesanan.listTransaksiDetail[i].menus!;
-    final catatan = pesanan.listTransaksiDetail[i].catatan ?? '';
+    final detail = pesanan.listTransaksiDetail[i];
+    final menu = detail.menus!;
+    final catatan = detail.catatan ?? '-';
 
-    // Baris utama: nama + harga
-    bytes += generator.row([
-      PosColumn(text: menu.nama, width: 9),
-      PosColumn(
-        text: '${pesanan.listTransaksiDetail[i].harga}',
-        width: 3,
-        styles: const PosStyles(align: PosAlign.right),
-      ),
-    ]);
-
-    // Baris tambahan: catatan (jika ada)
-    if (catatan.isNotEmpty) {
-      bytes += generator.text(
-        'Catatan: $catatan',
-        styles: const PosStyles(
-          align: PosAlign.left,
-          height: PosTextSize.size1,
-          width: PosTextSize.size1,
+    bytes = [
+      ...bytes,
+      ...generator.row([
+        PosColumn(text: '${detail.jumlah}x ${menu.nama}', width: 9),
+        PosColumn(
+          text: '${detail.harga}',
+          width: 3,
+          styles: const PosStyles(align: PosAlign.right),
         ),
-      );
+      ]),
+    ];
+
+    if (catatan.isNotEmpty) {
+      bytes = [
+        ...bytes,
+        ...generator.row([
+          PosColumn(text: 'Catatan:', width: 4),
+          PosColumn(
+            text: '${catatan}',
+            width: 8,
+            styles: const PosStyles(align: PosAlign.right),
+          )
+        ]),
+      ];
     }
   }
 
-  bytes += generator.hr();
-  bytes += generator.row([
-    PosColumn(
+  // ==== 5. Total ====
+  bytes = [
+    ...bytes,
+    ...generator.hr(),
+    ...generator.row([
+      PosColumn(
         text: 'Total',
         width: 6,
-        styles: const PosStyles(align: PosAlign.left, bold: true)),
-    PosColumn(
+        styles: const PosStyles(align: PosAlign.left, bold: true),
+      ),
+      PosColumn(
         text: '${pesanan.subTotal}',
         width: 6,
-        styles: const PosStyles(align: PosAlign.right, bold: true)),
-  ]);
-  bytes += generator.feed(1);
-  bytes += generator.text(
-    'Thank you!',
-    styles: const PosStyles(align: PosAlign.center),
-  );
-  bytes += generator.cut();
+        styles: const PosStyles(align: PosAlign.right, bold: true),
+      ),
+    ]),
+    if (pesanan.cashbackAmount != null && pesanan.cashbackAmount! > 0)
+      ...generator.row([
+        PosColumn(
+          text: 'Cashback',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.left, bold: true),
+        ),
+        PosColumn(
+          text: '${pesanan.cashbackAmount}',
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right, bold: true),
+        ),
+      ]),
+    ...generator.feed(1),
+    ...generator.text(
+      'Selamat Menikmati',
+      styles: const PosStyles(align: PosAlign.center, bold: true),
+    ),
+    ...generator.text(
+      'Terima kasih!',
+      styles: const PosStyles(align: PosAlign.center, bold: true),
+    ),
+    ...generator.cut(),
+  ];
+
   return bytes;
 }

@@ -4,6 +4,7 @@ import 'package:testgetdata/core/exceptions/api_exception.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/review_selection.dart';
 import 'package:testgetdata/data/model/settings_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
@@ -35,6 +36,68 @@ class PublicRemoteDataSource {
     } else {
       print(response.statusCode);
       throw ApiException(status: json['status'], message: message);
+    }
+  }
+
+  Future<String> submitReview(
+    String token,
+    int rating,
+    String description,
+    List<int> ratingMoods,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${MasbroConstants.url}/ratings'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'rating': rating,
+          'description': description,
+          'rating_moods': ratingMoods,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['message'] as String;
+      } else {
+        throw Exception('Failed to submit review: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Failed to submit review: $e');
+    }
+  }
+
+  Future<List<ReviewSelection>> getReviewSelection(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${MasbroConstants.url}/rating-moods'),
+        headers: {
+          'Authorization': "Bearer $token",
+          'Accept': 'application/json',
+        },
+      );
+
+      final json = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final jsonData = json['data'] as List<dynamic>;
+
+        // ubah ke List<ReviewSelection>
+        final list = jsonData.map((e) => ReviewSelection.fromJson(e)).toList();
+
+        // urutkan berdasarkan 'order'
+        list.sort((a, b) => a.order.compareTo(b.order));
+
+        return list;
+      } else {
+        throw Exception('Failed to load review selection');
+      }
+    } catch (e) {
+      throw Exception('Failed to load review selection');
     }
   }
 

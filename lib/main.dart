@@ -13,6 +13,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/presentation/provider/income_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
+import 'package:testgetdata/presentation/provider/review_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'firebase/notification_service.dart';
 import 'presentation/provider/auth_provider.dart';
@@ -213,6 +214,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => DeliveryProvider()),
         ChangeNotifierProvider(create: (_) => IncomeProvider()),
         ChangeNotifierProvider(create: (_) => PrinterProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navKey,

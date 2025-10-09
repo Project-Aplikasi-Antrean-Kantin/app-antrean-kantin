@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/common/token_manager.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
@@ -84,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final version = await authProvider.getCurrentVersion();
 
-    if (version != '1.1.0') {
+    if (version != MasbroConstants.version) {
       _showExitConfirmationDialog(context);
       return;
     }
