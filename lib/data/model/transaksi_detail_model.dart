@@ -30,17 +30,20 @@ class ListTransaksiDetail {
   factory ListTransaksiDetail.fromJson(Map<String, dynamic> json) =>
       ListTransaksiDetail(
         id: json["id"],
-        transaksiId: json["transaksi_id"],
+        transaksiId: json["transaksi_id"] ?? json["cashier_id"] ?? 0,
         jumlah: json["jumlah"],
         harga: json["harga"],
-        status: json["status"],
+        status: json["status"] ?? "cashier",
         catatan: json["catatan"],
         createdAt: DateTime.parse(json["created_at"]),
-        menusKelolaId: json["menus_kelola_id"],
-        namaMenu: json["nama_menu"] ?? '-',
-        kategoriMenu: json["kategori_menu"] ?? '-',
+        menusKelolaId: json["menus_kelola_id"] ?? json["menu_id"],
+        namaMenu: json["nama_menu"] ?? json["menu"]["nama"] ?? "-",
+        kategoriMenu: json["kategori_menu"] ?? "-",
         //menus: TenantFoods.fromJson(json["menus"]),
-        menus:
-            json["menus"] != null ? TenantFoods.fromJson(json["menus"]) : null,
+        menus: json["menus"] != null
+            ? TenantFoods.fromJson(json["menus"])
+            : json["menu"] != null
+                ? TenantFoods.fromJson(json["menu"])
+                : null,
       );
 }

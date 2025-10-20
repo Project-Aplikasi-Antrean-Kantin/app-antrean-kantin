@@ -91,12 +91,6 @@ class BarChartSample2State extends State<BarChartSample2> {
     return Column(
       children: [
         SizedBox(height: 20),
-        Text('Statistik Pendapatan',
-            style: GoogleFonts.poppins(
-              color: AppColors.whiteColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            )),
         const SizedBox(height: 20),
         Consumer2<IncomeProvider, AuthProvider>(
           builder: (context, provider, auth, _) => Container(
@@ -110,83 +104,88 @@ class BarChartSample2State extends State<BarChartSample2> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.only(right: 24, bottom: 8, top: 8),
-                  child: Row(
-                    spacing: 8,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () =>
-                            provider.setSelectedSort('Minggu', auth.user.token),
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: provider.selectedSort == 'Minggu'
-                                ? AppColors.primaryColor
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text('Minggu',
-                              style: GoogleFonts.poppins(
-                                  fontWeight: provider.selectedSort == 'Minggu'
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: provider.selectedSort == 'Minggu'
-                                      ? AppColors.whiteColor
-                                      : AppColors.blackColor300,
-                                  fontSize: 14)),
+                Text('Statistik Transaksi',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      color: AppColors.blackColor400,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    )),
+                const SizedBox(height: 8),
+                Row(
+                  spacing: 8,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () =>
+                          provider.setSelectedSort('Minggu', auth.user.token),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: provider.selectedSort == 'Minggu'
+                              ? AppColors.primaryColor
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
                         ),
+                        child: Text('Minggu',
+                            style: GoogleFonts.poppins(
+                                fontWeight: provider.selectedSort == 'Minggu'
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: provider.selectedSort == 'Minggu'
+                                    ? AppColors.whiteColor
+                                    : AppColors.blackColor300,
+                                fontSize: 14)),
                       ),
-                      GestureDetector(
-                        onTap: () =>
-                            provider.setSelectedSort('Bulan', auth.user.token),
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: provider.selectedSort == 'Bulan'
-                                ? AppColors.primaryColor
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text('Bulan',
-                              style: GoogleFonts.poppins(
-                                  fontWeight: provider.selectedSort == 'Bulan'
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: provider.selectedSort == 'Bulan'
-                                      ? AppColors.whiteColor
-                                      : AppColors.blackColor300,
-                                  fontSize: 14)),
+                    ),
+                    GestureDetector(
+                      onTap: () =>
+                          provider.setSelectedSort('Bulan', auth.user.token),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: provider.selectedSort == 'Bulan'
+                              ? AppColors.primaryColor
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
                         ),
+                        child: Text('Bulan',
+                            style: GoogleFonts.poppins(
+                                fontWeight: provider.selectedSort == 'Bulan'
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: provider.selectedSort == 'Bulan'
+                                    ? AppColors.whiteColor
+                                    : AppColors.blackColor300,
+                                fontSize: 14)),
                       ),
-                      GestureDetector(
-                        onTap: () =>
-                            provider.setSelectedSort('Tahun', auth.user.token),
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: provider.selectedSort == 'Tahun'
-                                ? AppColors.primaryColor
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text('Tahun',
-                              style: GoogleFonts.poppins(
-                                  fontWeight: provider.selectedSort == 'Tahun'
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: provider.selectedSort == 'Tahun'
-                                      ? AppColors.whiteColor
-                                      : AppColors.blackColor300,
-                                  fontSize: 14)),
+                    ),
+                    GestureDetector(
+                      onTap: () =>
+                          provider.setSelectedSort('Tahun', auth.user.token),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: provider.selectedSort == 'Tahun'
+                              ? AppColors.primaryColor
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      )
-                    ],
-                  ),
+                        child: Text('Tahun',
+                            style: GoogleFonts.poppins(
+                                fontWeight: provider.selectedSort == 'Tahun'
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: provider.selectedSort == 'Tahun'
+                                    ? AppColors.whiteColor
+                                    : AppColors.blackColor300,
+                                fontSize: 14)),
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Center(
@@ -337,13 +336,13 @@ class BarChartSample2State extends State<BarChartSample2> {
                                                 toY: widget.income
                                                     .totalPesananSelesai[index]
                                                     .toDouble(),
-                                                color: AppColors.primaryColor,
+                                                color: AppColors.successColor,
                                               ),
                                               BarChartRodData(
                                                 toY: widget.income
                                                     .totalPesananRefund[index]
                                                     .toDouble(),
-                                                color: AppColors.secondaryColor,
+                                                color: AppColors.errorColor,
                                               ),
                                             ],
                                           );
@@ -401,12 +400,12 @@ class BarChartSample2State extends State<BarChartSample2> {
                           height: 8,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(2),
-                            color: AppColors.primaryColor,
+                            color: AppColors.successColor,
                           ),
                         ),
                         Text('Selesai',
                             style: GoogleFonts.poppins(
-                                color: AppColors.primaryColor,
+                                color: AppColors.successColor,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12)),
                       ],
@@ -420,10 +419,10 @@ class BarChartSample2State extends State<BarChartSample2> {
                             height: 8,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(2),
-                                color: AppColors.secondaryColor)),
+                                color: AppColors.errorColor)),
                         Text('Refund/Ditolak',
                             style: GoogleFonts.poppins(
-                                color: AppColors.secondaryColor,
+                                color: AppColors.errorColor,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12)),
                       ],

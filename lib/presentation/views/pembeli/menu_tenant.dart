@@ -17,6 +17,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_cashier.dart';
 import 'package:testgetdata/presentation/widgets/busy_tenant_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/card_tenant.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
@@ -64,6 +65,7 @@ class _MenuTenantState extends State<MenuTenant> {
       }
 
       print("tenantData cak iki slur ${tenantData}");
+      print("widget.cart cak iki slur ${widget.cart}");
       if (widget.cart != null) {
         Provider.of<CartProvider>(context, listen: false)
             .setCurrentTenant(tenantData, widget.cart);
@@ -498,6 +500,7 @@ class _MenuTenantState extends State<MenuTenant> {
 
   Widget? _buildFloatingActionButton(
       BuildContext context, CartProvider cartProvider) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 100),
       switchInCurve: Curves.easeIn,
@@ -522,6 +525,11 @@ class _MenuTenantState extends State<MenuTenant> {
                         backgroundColor: AppColors.errorColor,
                         textColor: Colors.white);
                     isThereUnavailableMenu = false;
+                    return;
+                  }
+                  if (_currentTenant != null &&
+                      _currentTenant!.emailPemilik == authProvider.user.email) {
+                    showBottomSheetCashier(context, _currentTenant!);
                     return;
                   }
                   if (_currentTenant != null &&

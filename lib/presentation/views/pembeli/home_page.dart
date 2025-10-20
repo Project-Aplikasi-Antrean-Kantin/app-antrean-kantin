@@ -467,7 +467,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                       prefs.getString('current_va');
                                   TopUpModel? currentVa;
                                   print('jsonCurrentVa $jsonCurrentVa');
-
+                                  final internetConnection =
+                                      await hasInternetAccess();
+                                  if (!internetConnection) {
+                                    Fluttertoast.showToast(
+                                        msg: "Tidak ada koneksi internet");
+                                    return;
+                                  }
                                   if (jsonCurrentVa != null) {
                                     final decoded = jsonDecode(
                                         jsonCurrentVa); // ini Map<String, dynamic>
@@ -504,7 +510,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 24, vertical: 16),
+                                      horizontal: 24, vertical: 11.5),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(16),

@@ -392,7 +392,8 @@ class _DeliveryCardState extends State<DeliveryCard> {
                         )
                       ],
                     )),
-                  if (widget.status == DeliveryStatus.siapDiantar)
+                  if (widget.pesanan.status == 'siap_diantar' ||
+                      widget.pesanan.driverId == null)
                     PrimaryButton(
                       isLoading: _isLoading, // Use local loading state
                       elevation: 0,
@@ -401,7 +402,10 @@ class _DeliveryCardState extends State<DeliveryCard> {
                       borderRadius: 20,
                       child: Text(
                         widget.status == DeliveryStatus.siapDiantar
-                            ? 'Antar Pesanan'
+                            ? widget.pesanan.driverId == null &&
+                                    widget.pesanan.status == 'siap_diantar'
+                                ? 'Antar Pesanan'
+                                : 'Ambil'
                             : 'Selesai Diantar',
                         style: GoogleFonts.poppins(
                           color: Colors.white,
@@ -420,21 +424,39 @@ class _DeliveryCardState extends State<DeliveryCard> {
                           widget.pesanan.id,
                           widget.pesanan,
                         );
-
-                        Fluttertoast.showToast(
-                          msg: result.success
-                              ? widget.status == DeliveryStatus.siapDiantar
-                                  ? 'Segera antar pesanan!'
-                                  : 'Pesanan selesai 🎉'
-                              : result.error ??
-                                  'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          backgroundColor:
-                              result.success ? Colors.grey : Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
+                        if (widget.pesanan.status == 'siap_diantar') {
+                          Fluttertoast.showToast(
+                            msg: result.success
+                                ? widget.status == DeliveryStatus.siapDiantar
+                                    ? 'Segera antar pesanan!'
+                                    : 'Pesanan selesai 🎉'
+                                : result.error ??
+                                    'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor:
+                                result.success ? Colors.grey : Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                        } else {
+                          Fluttertoast.showToast(
+                            msg: result.success
+                                ? 'Segera datang ke tenant! Ini adalah pesanan Prioritas'
+                                : result.error ??
+                                    'ORDER-${widget.pesanan.id} telah diantar oleh driver lain',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor:
+                                result.success ? Colors.grey : Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                        }
+                        if (result.error != null) {
+                          deliveryProvider.fetchOrders(
+                              widget.userToken, widget.status);
+                        }
 
                         if (mounted) {
                           // Check if the widget is still mounted
@@ -442,7 +464,54 @@ class _DeliveryCardState extends State<DeliveryCard> {
                             _isLoading = false;
                           });
                         }
-                        if (result.success) widget.onSuccess();
+                        if (result.success &&
+                            widget.pesanan.status == 'siap_diantar')
+                          widget.onSuccess();
+                      },
+                    ),
+                  if ((widget.pesanan.status == 'pesanan_masuk' ||
+                          widget.pesanan.status == 'pesanan_diproses') &&
+                      widget.pesanan.driverId != null)
+                    PrimaryButton(
+                      isLoading: _isLoading, // Use local loading state
+                      elevation: 0,
+                      width: screenSize.width * 0.4,
+                      height: screenSize.height * 0.065,
+                      borderRadius: 20,
+                      child: Text(
+                        widget.pesanan.status == 'pesanan_masuk'
+                            ? 'Pesanan Diproses'
+                            : 'Ubah ke Antar',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      onLongPress: () {
+                        setState(() {
+                          _isLoading = true; // Set local loading state
+                        });
+                        try {
+                          deliveryProvider.updateOrder(
+                            widget.pesanan.status == 'pesanan_masuk'
+                                ? 'pesanan_diproses'
+                                : 'diantar',
+                            widget.userToken,
+                            widget.pesanan.id,
+                            widget.pesanan,
+                          );
+                          if (mounted) {
+                            // Check if the widget is still mounted
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                          Fluttertoast.showToast(msg: 'Success');
+                          if (widget.pesanan.status != 'pesanan_masuk')
+                            widget.onSuccess();
+                        } catch (e) {
+                          Fluttertoast.showToast(msg: e.toString());
+                        }
                       },
                     ),
                   if (widget.status == DeliveryStatus.diantar)

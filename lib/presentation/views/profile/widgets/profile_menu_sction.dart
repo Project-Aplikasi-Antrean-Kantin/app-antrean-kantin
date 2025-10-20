@@ -47,13 +47,18 @@ class ProfileMenuSection extends StatefulWidget {
   State<ProfileMenuSection> createState() => _ProfileMenuSectionState();
 }
 
-class _ProfileMenuSectionState extends State<ProfileMenuSection> {
+class _ProfileMenuSectionState extends State<ProfileMenuSection>
+    with WidgetsBindingObserver {
   bool isOnline = false;
   StreamSubscription<List<Printer>>? _devicesStreamSubscription;
+  StreamSubscription<bool>? _bluetoothConnection;
+  bool isBleTurnedOn = false;
+  bool isLoadingBluetooth = false;
   final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     isOnline = widget.user.isOnline ?? false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final printer = Provider.of<PrinterProvider>(context, listen: false);
@@ -63,33 +68,88 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection> {
     });
   }
 
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        widget.user.role.contains("tenant")) {
+      startScan(Provider.of<PrinterProvider>(context, listen: false));
+    }
+  }
+
   void startScan(PrinterProvider printerProvider) async {
+    setState(() {
+      isLoadingBluetooth = true;
+    });
+
     _devicesStreamSubscription?.cancel();
-    print('coba scan');
+    _bluetoothConnection?.cancel();
+    printer.stopScan();
+
+    print('Mulai scan printer BLE...');
+
+    // === Request Permission ===
     if (await Permission.bluetoothScan.request().isGranted &&
         await Permission.bluetoothConnect.request().isGranted &&
         await Permission.locationWhenInUse.request().isGranted) {
-      await printer.getPrinters(
-        connectionTypes: [ConnectionType.BLE],
-      );
+      // Dengarkan status BLE (nyala/mati)
+      _bluetoothConnection = printer.isBleTurnedOnStream.listen((event) async {
+        print("isBleTurnedOnStream: $event");
+
+        if (!mounted) return;
+        setState(() {
+          isBleTurnedOn = event;
+        });
+
+        if (event == true) {
+          // ✅ Kalau Bluetooth udah nyala, baru mulai scan
+          try {
+            await printer.getPrinters(connectionTypes: [ConnectionType.BLE]);
+
+            _devicesStreamSubscription =
+                printer.devicesStream.listen((List<Printer> event) {
+              print("Ditemukan ${event.length} perangkat:");
+              for (var d in event) {
+                print("- ${d.name} (${d.address})");
+              }
+              printerProvider.setPrinters(event);
+            });
+          } catch (e) {
+            Fluttertoast.showToast(msg: e.toString());
+          } finally {
+            if (mounted) {
+              setState(() {
+                isLoadingBluetooth = false;
+              });
+            }
+          }
+        } else {
+          // 🚫 Bluetooth belum nyala
+          if (mounted) {
+            Fluttertoast.showToast(
+              msg: "Bluetooth belum aktif, mohon nyalakan dulu...",
+            );
+            // printer.turnOnBluetooth();
+          }
+          setState(() {
+            isLoadingBluetooth = false;
+          });
+
+          // Opsional: buka dialog atau auto aktifkan
+        }
+      });
     } else {
       debugPrint('Bluetooth permission not granted');
+      setState(() {
+        isLoadingBluetooth = false;
+      });
     }
-
-    _devicesStreamSubscription =
-        printer.devicesStream.listen((List<Printer> event) {
-      print("Ditemukan ${event.length} perangkat:");
-      for (var d in event) {
-        print("- ${d.name} (${d.address})");
-      }
-      printerProvider.setPrinters(event);
-    });
   }
 
   @override
   void dispose() {
     _devicesStreamSubscription?.cancel();
     printer.stopScan();
+    _bluetoothConnection?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -235,13 +295,19 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection> {
               },
             ),
             ProfileMenuItem(
-              icon: Iconsax.receipt_item_copy,
+              icon: HugeIcons.strokeRoundedInvoice04,
               title: 'Mesin Cetak',
               titleColor: AppColors.blackColor,
               onTap: () async {
-                final internetConnection = await hasInternetAccess();
-                if (!internetConnection) {
-                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                if (isLoadingBluetooth) {
+                  Fluttertoast.showToast(
+                      msg: "Memindai Perangkat Bluetooth...");
+                  return;
+                }
+                if (!isBleTurnedOn) {
+                  Fluttertoast.showToast(msg: "Bluetooth belum diaktifkan");
+
+                  await printer.turnOnBluetooth();
                   return;
                 }
                 showBottomSheetBluetoothDevices(context);

@@ -134,81 +134,84 @@ class PesananCardState extends State<PesananCard> {
             padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
             child: _buildActionButton(context, widget.pesanan),
           ),
-          Padding(
-              padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-              child: GestureDetector(
-                onTap: () async {
-                  final user =
-                      Provider.of<AuthProvider>(context, listen: false).user;
-                  final printerProvider =
-                      Provider.of<PrinterProvider>(context, listen: false);
-                  if (printerProvider.selectedPrinter == null) {
-                    print(user.menu.map((element) => element.url).toList());
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      CustomPageBuilder(
-                        page: NavbarHome(
-                          pageIndex: user.menu.indexWhere(
-                              (element) => element.url == '/profile'),
-                        ),
-                      ),
-                      (route) => false,
-                    );
-                    showBottomSheetBluetoothDevices(context);
-                    Fluttertoast.showToast(msg: 'Silahkan Pilih Printer');
-                    return;
-                  }
-                  setState(() {
-                    _isPrinting = true;
-                  });
-                  try {
-                    await widget.printer
-                        .connect(printerProvider.selectedPrinter!);
-                    final data = await generateReceipt(widget.pesanan,
-                        printerProvider.selectedPrinter!, context);
-
-                    await widget.printer.printData(
-                      printerProvider.selectedPrinter!,
-                      data,
-                      longData: true,
-                    );
-                    Fluttertoast.showToast(
-                        msg: 'Cetak Berhasil',
-                        backgroundColor: AppColors.successColor,
-                        textColor: AppColors.whiteColor);
-                  } catch (e) {
-                    Fluttertoast.showToast(msg: e.toString());
-                    print(e);
-                  } finally {
-                    setState(() {
-                      _isPrinting = false;
-                    });
-                  }
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  width: double.infinity,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: _isPrinting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
+          if (widget.pesanan.status != 'pesanan_masuk')
+            Padding(
+                padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                child: GestureDetector(
+                  onTap: () async {
+                    final user =
+                        Provider.of<AuthProvider>(context, listen: false).user;
+                    final printerProvider =
+                        Provider.of<PrinterProvider>(context, listen: false);
+                    if (printerProvider.selectedPrinter == null) {
+                      print(user.menu.map((element) => element.url).toList());
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        CustomPageBuilder(
+                          page: NavbarHome(
+                            pageIndex: user.menu.indexWhere(
+                                (element) => element.url == '/profile'),
                           ),
-                        )
-                      : Text('Cetak',
-                          style: GoogleFonts.poppins(
-                              color: AppColors.whiteColor,
-                              fontSize: 16,
-                              fontWeight: semibold)),
-                ),
-              )),
+                        ),
+                        (route) => false,
+                      );
+                      // showBottomSheetBluetoothDevices(context);
+                      Fluttertoast.showToast(
+                          msg: 'Silahkan Pilih Printer, tekan Mesin Cetak');
+                      return;
+                    }
+                    setState(() {
+                      _isPrinting = true;
+                    });
+                    try {
+                      await widget.printer
+                          .connect(printerProvider.selectedPrinter!);
+                      final data = await generateReceipt(widget.pesanan,
+                          printerProvider.selectedPrinter!, context);
+
+                      await widget.printer.printData(
+                        printerProvider.selectedPrinter!,
+                        data,
+                        longData: true,
+                      );
+                      Fluttertoast.showToast(
+                          msg: 'Cetak Berhasil',
+                          backgroundColor: AppColors.successColor,
+                          textColor: AppColors.whiteColor);
+                    } catch (e) {
+                      Fluttertoast.showToast(msg: e.toString());
+                      print(e);
+                    } finally {
+                      setState(() {
+                        _isPrinting = false;
+                      });
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: double.infinity,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      border:
+                          Border.all(color: AppColors.successColor, width: 2),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: _isPrinting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: AppColors.successColor,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text('Cetak',
+                            style: GoogleFonts.poppins(
+                                color: AppColors.successColor,
+                                fontSize: 16,
+                                fontWeight: semibold)),
+                  ),
+                )),
         ],
       ),
     );

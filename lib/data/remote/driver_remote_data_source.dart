@@ -45,7 +45,7 @@ class DriverDataSource {
     }
   }
 
-  Future<bool> updateOrderWithProof(
+  Future<({bool success, Pesanan? pesanan})> updateOrderWithProof(
     String newStatus,
     String token,
     int id,
@@ -70,7 +70,8 @@ class DriverDataSource {
     print("Response body: ${response.body}");
 
     if (response.statusCode == 200) {
-      return true;
+      final jsonBody = jsonDecode(response.body);
+      return (success: true, pesanan: Pesanan.fromJson(jsonBody['data']));
     } else if (response.statusCode == 403 || response.statusCode == 400) {
       final body = jsonDecode(response.body);
       final message =
@@ -82,7 +83,8 @@ class DriverDataSource {
     }
   }
 
-  Future<bool> updateOrderDelivery(String status, String auth, int id) async {
+  Future<({bool success, Pesanan? pesanan})> updateOrderDelivery(
+      String status, String auth, int id) async {
     final response = await http.put(
       Uri.parse('${MasbroConstants.url}/masbro/order/$id'),
       headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
@@ -90,16 +92,23 @@ class DriverDataSource {
     );
     print({"status code update pesanan": response.statusCode});
     print({"body update pesanan": response.body});
+    print({"data update pesanan": jsonDecode(response.body)['data']});
 
     if (response.statusCode == 200) {
-      return true;
+      return (
+        success: true,
+        pesanan: Pesanan.fromJson(jsonDecode(response.body)['data']),
+      );
     } else if (response.statusCode == 403 || response.statusCode == 400) {
       final body = jsonDecode(response.body);
       final message =
           body['message'] ?? 'Pesanan telah diantar oleh driver lain';
       throw CustomHttpException(message, 403);
     } else {
-      return false;
+      return (
+        success: false,
+        pesanan: null,
+      );
     }
   }
 

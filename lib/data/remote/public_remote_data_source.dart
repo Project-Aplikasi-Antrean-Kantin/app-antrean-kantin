@@ -71,6 +71,28 @@ class PublicRemoteDataSource {
     }
   }
 
+  Future<bool> isNeededReview(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${MasbroConstants.url}/ratings/check-version'),
+        headers: {
+          'Authorization': "Bearer $token",
+          'Accept': 'application/json',
+        },
+      );
+
+      final json = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return json['data'] as bool;
+      } else {
+        throw Exception('Failed to load review selection');
+      }
+    } catch (e) {
+      throw Exception('Failed to load review selection');
+    }
+  }
+
   Future<List<ReviewSelection>> getReviewSelection(String token) async {
     try {
       final response = await http.get(

@@ -7,7 +7,9 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 
 class PrimaryButton extends StatelessWidget {
   final Widget child;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
+
   final bool? isLoading;
   final bool? isEnabled;
   final Color? color;
@@ -20,9 +22,10 @@ class PrimaryButton extends StatelessWidget {
   final Color? forgroundColor;
   final String? waitingText;
   const PrimaryButton({
+    this.onLongPress,
     super.key,
     required this.child,
-    required this.onPressed,
+    this.onPressed,
     this.isLoading = false,
     this.reverseLoading = false,
     this.isEnabled = true,
@@ -39,6 +42,7 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+      onLongPress: onLongPress,
       onPressed: isEnabled!
           ? !isLoading!
               ? onPressed

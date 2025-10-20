@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/fitur_model.dart';
+import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
@@ -196,7 +197,14 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
           historyProvider.removeUnreadMessages(transaksiId).then((_) {
             historyProvider.loadUnreadMessages();
           });
-          showBottomSheetReview(context: context, user: user);
+          PublicRemoteDataSource()
+              .isNeededReview(user.token)
+              .then((bool value) {
+            if (value) {
+              showBottomSheetReview(context: context, user: user);
+            }
+            ;
+          });
         }
         if (title != null && title.contains('top-up berhasil')) {
           final prefs = SharedPreferences.getInstance().then((prefs) {
@@ -397,7 +405,12 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
         );
       }
       if (needReview != null && needReview) {
-        showBottomSheetReview(context: context, user: user);
+        PublicRemoteDataSource().isNeededReview(user.token).then((bool value) {
+          if (value) {
+            showBottomSheetReview(context: context, user: user);
+          }
+          ;
+        });
       }
     }
   }

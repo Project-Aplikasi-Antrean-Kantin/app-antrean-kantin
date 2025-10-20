@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,6 +56,7 @@ class _RiwayatPageState extends State<RiwayatPage>
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   final ScrollController _scrollController = ScrollController();
   bool isLoading = false;
+  bool _isDropdownOpen = false;
 
   @override
   void initState() {
@@ -71,11 +74,16 @@ class _RiwayatPageState extends State<RiwayatPage>
           final body = message.data['body']?.toString().toLowerCase();
           final transaksiId = body?.split(' ')[1].trim();
           print('transaksiId: $transaksiId');
+
+          final isPureNumber = RegExp(r'^\d+$').hasMatch(transaksiId ?? '');
+
+          print('transaksiId: $transaksiId');
           if (title != null &&
               transaksiId != 'pesanan' &&
               title.contains('pesanan') &&
               !title.contains('pesanan masuk') &&
-              transaksiId != null) {
+              transaksiId != null &&
+              isPureNumber) {
             TransactionRemoteDataSource()
                 .getOrderById(authProvider.user.token, transaksiId)
                 .then((pesanan) {
@@ -477,27 +485,89 @@ class _RiwayatPageState extends State<RiwayatPage>
   }
 
   Widget _buildListFilter(bool isLoading) {
+    final List<String> statusList = [
+      "Semua",
+      if (widget.tabLabel != "Antar") ...[
+        "Pesanan Masuk",
+        "Diproses",
+        "Siap Diambil",
+        "Siap Diantar",
+      ],
+      "Diantar",
+      "Selesai",
+      if (widget.tabLabel != "Antar") "Refund",
+    ];
+
     return Skeletonizer(
       enabled: isLoading,
-      child: SingleChildScrollView(
-        scrollDirection:
-            widget.tabLabel == "Antar" ? Axis.vertical : Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 8,
-          children: [
-            _buildFilterButton("Semua", 0),
-            if (widget.tabLabel != "Antar")
-              _buildFilterButton("Pesanan Masuk", 1),
-            if (widget.tabLabel != "Antar") _buildFilterButton("Diproses", 2),
-            if (widget.tabLabel != "Antar")
-              _buildFilterButton("Siap Diambil", 3),
-            if (widget.tabLabel != "Antar")
-              _buildFilterButton("Siap Diantar", 4),
-            _buildFilterButton("Diantar", 5),
-            _buildFilterButton("Selesai", 6),
-            if (widget.tabLabel != "Antar") _buildFilterButton("Refund", 7),
-          ],
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          value: statusList[selectedIndex],
+          items: statusList.map((status) {
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Row(
+                children: [
+                  Icon(Iconsax.tag, size: 18, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  Text(status,
+                      style: GoogleFonts.poppins(
+                          color: selectedIndex != 0
+                              ? AppColors.primaryColor
+                              : Colors.black,
+                          fontSize: 14)),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value == null) return;
+            final index = statusList.indexOf(value);
+            setState(() => selectedIndex = index);
+          },
+          onMenuStateChange: (isOpen) => setState(() {
+            _isDropdownOpen = isOpen;
+          }),
+
+          // === Customisasi dropdown utama ===
+          buttonStyleData: ButtonStyleData(
+            height: 45,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                  color: selectedIndex != 0
+                      ? AppColors.primaryColor
+                      : Colors.grey.shade300),
+              color: Colors.white,
+            ),
+          ),
+          iconStyleData: IconStyleData(
+            icon: Icon(
+              _isDropdownOpen ? Iconsax.arrow_up_1 : Iconsax.arrow_down,
+              color: selectedIndex != 0 ? AppColors.primaryColor : Colors.black,
+            ),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
+                )
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 6),
+          ),
+          menuItemStyleData: const MenuItemStyleData(
+            height: 45,
+            padding: EdgeInsets.symmetric(horizontal: 12),
+          ),
         ),
       ),
     );
@@ -574,7 +644,6 @@ class _RiwayatPageState extends State<RiwayatPage>
           children: [
             Row(
               spacing: 8,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
@@ -584,8 +653,8 @@ class _RiwayatPageState extends State<RiwayatPage>
                                   ?.gambar ??
                               ''
                           : '',
-                      height: 104,
-                      width: 104,
+                      height: 76,
+                      width: 76,
                       fit: BoxFit.cover),
                 ),
                 Flexible(
@@ -594,6 +663,71 @@ class _RiwayatPageState extends State<RiwayatPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: pesanan.isPriority == 1
+                                      ? AppColors.primaryColor
+                                      : Colors.grey),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              spacing: 2,
+                              children: [
+                                if (pesanan.isPriority == 1)
+                                  Icon(Iconsax.flash_1,
+                                      size: 16, color: AppColors.primaryColor),
+                                Text(
+                                  pesanan.isPriority == 1
+                                      ? "Express"
+                                      : "Reguler",
+                                  style: GoogleFonts.poppins(
+                                    color: pesanan.isPriority == 1
+                                        ? AppColors.primaryColor
+                                        : Colors.black,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: getStatusColor(pesanan.status)),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              spacing: 2,
+                              children: [
+                                Icon(getIconByStatus(pesanan.status),
+                                    size: 16,
+                                    color: getStatusColor(pesanan.status)),
+                                Text(
+                                  getStatus(pesanan.status),
+                                  style: GoogleFonts.poppins(
+                                    color: getStatusColor(pesanan.status),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          // HugeIcon(
+                          //     icon: getIconByStatus(pesanan.status),
+                          //     color: getStatusColor(pesanan.status)),
+                        ],
+                      ),
+                      Row(
+                        spacing: 8,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Text(
@@ -602,6 +736,8 @@ class _RiwayatPageState extends State<RiwayatPage>
                                           ?.tenants?.namaTenant ??
                                       '-'
                                   : '-',
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.poppins(
                                 color: AppColors.blackColor,
                                 fontSize: 16,
@@ -609,39 +745,47 @@ class _RiwayatPageState extends State<RiwayatPage>
                               ),
                             ),
                           ),
-                          HugeIcon(
-                              icon: getIconByStatus(pesanan.status),
-                              color: getStatusColor(pesanan.status)),
-                        ],
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
                           Text(
                             FormatDate.dateTimeToStringDate(pesanan.createdAt),
                             style: GoogleFonts.poppins(
-                              color: AppColors.blackColor,
+                              color: AppColors.primaryColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              getStatus(pesanan.status),
-                              textAlign: TextAlign.end,
-                              style: GoogleFonts.poppins(
-                                color: getStatusColor(pesanan.status),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              softWrap: false,
-                            ),
-                          ),
+                          )
+                          // HugeIcon(
+                          //     icon: getIconByStatus(pesanan.status),
+                          //     color: getStatusColor(pesanan.status)),
                         ],
                       ),
+                      // Row(
+                      //   crossAxisAlignment: CrossAxisAlignment.start,
+                      //   children: [
+                      //     Text(
+                      //       FormatDate.dateTimeToStringDate(pesanan.createdAt),
+                      //       style: GoogleFonts.poppins(
+                      //         color: AppColors.blackColor,
+                      //         fontSize: 12,
+                      //         fontWeight: FontWeight.w400,
+                      //       ),
+                      //     ),
+                      //     const SizedBox(width: 8),
+                      //     // Expanded(
+                      //     //   child: Text(
+                      //     //     getStatus(pesanan.status),
+                      //     //     textAlign: TextAlign.end,
+                      //     //     style: GoogleFonts.poppins(
+                      //     //       color: getStatusColor(pesanan.status),
+                      //     //       fontSize: 12,
+                      //     //       fontWeight: FontWeight.w400,
+                      //     //     ),
+                      //     //     overflow: TextOverflow.ellipsis,
+                      //     //     maxLines: 2,
+                      //     //     softWrap: false,
+                      //     //   ),
+                      //     // ),
+                      //   ],
+                      // ),
                       Wrap(
                         spacing: 8, // Jarak antar item horizontal
                         runSpacing: 4, // Jarak antar baris
@@ -670,29 +814,38 @@ class _RiwayatPageState extends State<RiwayatPage>
             ),
             DashedDivider(height: 1, color: AppColors.blackColor100),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
-                  children: [
-                    Text(
-                      FormatCurrency.intToStringCurrency(pesanan.total),
-                      style: GoogleFonts.poppins(
-                        color: AppColors.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                if (pesanan.status == 'refund_selesai' ||
+                    pesanan.status == 'selesai' ||
+                    pesanan.status == 'pending' ||
+                    pesanan.status == 'gagal_bayar')
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 4,
+                    children: [
+                      Text(
+                        FormatCurrency.intToStringCurrency(pesanan.total),
+                        style: GoogleFonts.poppins(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${pesanan.listTransaksiDetail.length} Menu',
-                      style: GoogleFonts.poppins(
-                        color: AppColors.blackColor,
-                        fontSize: 12,
+                      Text(
+                        '${pesanan.listTransaksiDetail.length} Menu',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.blackColor,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
+                    ],
+                  ),
+                if (pesanan.status == 'refund_selesai' ||
+                    pesanan.status == 'selesai' ||
+                    pesanan.status == 'pending' ||
+                    pesanan.status == 'gagal_bayar')
+                  const Spacer(),
                 if (pesanan.status != 'refund_selesai' &&
                     pesanan.status != 'selesai' &&
                     pesanan.status != 'pending' &&
@@ -743,21 +896,28 @@ class _RiwayatPageState extends State<RiwayatPage>
                         Container(
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                              horizontal: 8, vertical: 8),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.primaryColor,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
+                            color: AppColors.primaryColor100,
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Text(
-                            textAlign: TextAlign.center,
-                            'Chat ${chatType == 'driver' ? widget.tabLabel == 'Antar' ? 'Pembeli' : 'Driver' : widget.tabLabel == 'Jual' ? 'Pembeli' : 'Penjual'}',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.primaryColor,
-                              fontSize: 14,
-                              fontWeight: semibold,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Iconsax.message,
+                                color: AppColors.primaryColor,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                textAlign: TextAlign.center,
+                                'Chat ${chatType == 'driver' ? widget.tabLabel == 'Antar' ? 'Pembeli' : 'Driver' : widget.tabLabel == 'Jual' ? 'Pembeli' : 'Penjual'}',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.whiteColor900,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         if (isThereNewChat)
@@ -855,12 +1015,12 @@ class _RiwayatPageState extends State<RiwayatPage>
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 8),
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: AppColors.primaryColor,
                                 ),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 'Pesan Lagi',
@@ -876,7 +1036,6 @@ class _RiwayatPageState extends State<RiwayatPage>
                     : Container(),
               ],
             ),
-            const SizedBox(height: 5),
           ],
         ),
       ),
@@ -929,12 +1088,22 @@ class _RiwayatPageState extends State<RiwayatPage>
 
   IconData getIconByStatus(String status) {
     switch (status) {
-      case 'selesai':
-        return HugeIcons.strokeRoundedCheckmarkBadge02;
-      case 'pesanan_ditolak' || 'refund_selesai' || 'gagal_bayar':
-        return HugeIcons.strokeRoundedAlertDiamond;
+      case 'pesanan_masuk':
+        return Iconsax.login_1;
       case 'pesanan_diproses':
-        return HugeIcons.strokeRoundedArrowReloadVertical;
+        return Iconsax.repeat;
+      case 'siap_diantar':
+        return Iconsax.reserve;
+      case 'siap_diambil':
+        return Iconsax.flag_2;
+      case 'diantar':
+        return Iconsax.routing;
+      case 'selesai':
+        return Iconsax.tick_circle;
+      case 'gagal_bayar':
+        return Iconsax.money_remove;
+      case 'refund_selesai':
+        return Iconsax.directbox_send;
       case 'pending':
         return HugeIcons.strokeRoundedLoading03;
       default:
@@ -944,12 +1113,23 @@ class _RiwayatPageState extends State<RiwayatPage>
 
   Color getStatusColor(String status) {
     switch (status) {
+      case 'pesanan_masuk':
+        return AppColors.warningColor400;
+      case 'pesanan_diproses':
+        return AppColors.warningColor;
+      case 'siap_diambil':
+        return AppColors.secondaryColor;
+      case 'siap_diantar':
+        return AppColors.primaryColor300;
+
       case 'selesai':
         return AppColors.successColor;
-      case 'pesanan_ditolak' || 'refund_selesai' || 'gagal_bayar':
+      case 'pending':
+        return AppColors.whiteColor600;
+      case 'gagal_bayar':
         return AppColors.errorColor;
-      case 'pesanan_diproses' || 'pending':
-        return AppColors.warningColor;
+      case 'refund_selesai':
+        return AppColors.blackColor;
       default:
         return AppColors.primaryColor;
     }

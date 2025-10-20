@@ -36,6 +36,7 @@ class Pesanan {
   DateTime? expiredQris;
   final DateTime createdAt;
   int? cashbackAmount;
+  int? isPriority;
 
   Pesanan({
     this.cashbackAmount,
@@ -49,6 +50,7 @@ class Pesanan {
     required this.kodePemesanan,
     this.ruanganId,
     required this.total,
+    this.isPriority,
     required this.ongkosKirim,
     required this.biayaLayanan,
     required this.isAntar,
@@ -172,6 +174,7 @@ class Pesanan {
         gedung: json["gedung"],
         urlQris: json["qr_url"],
         cashbackAmount: json["cashback_amount"],
+        isPriority: json["isPriority"] ?? 0,
         expiredQris:
             json["expiry"] != null ? DateTime.parse(json["expiry"]) : null,
         biayaAdmin: json["biaya_admin"],
@@ -183,7 +186,7 @@ class Pesanan {
               .map((x) => ListTransaksiDetail.fromJson(x)),
         ),
         namaPembeli: json["nama_pembeli"],
-        phone: json["user"]["phone"],
+        phone: json["user"]?["phone"] ?? "-",
         createdAt: DateTime.parse(json["updated_at"]).toLocal(),
         // ruangan: Ruangan.fromJson(json["ruangan"]),
       );

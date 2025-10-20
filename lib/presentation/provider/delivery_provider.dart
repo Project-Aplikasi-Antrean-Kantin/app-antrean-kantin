@@ -62,7 +62,7 @@ class DeliveryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      bool success;
+      ({Pesanan? pesanan, bool success}) success;
 
       // Kalau ada bukti foto -> panggil API khusus multipart upload
       if (buktiPath != null) {
@@ -80,18 +80,34 @@ class DeliveryProvider with ChangeNotifier {
         );
       }
 
-      if (success) {
+      if (success.success) {
         if (newStatus == 'diantar') {
-          _pesanan[DeliveryStatus.siapDiantar]!
-              .removeWhere((element) => element.id == id);
-          _pesanan[DeliveryStatus.diantar]!.add(pesanan);
+          if (pesanan.status == 'siap_diantar') {
+            _pesanan[DeliveryStatus.siapDiantar]!
+                .removeWhere((element) => element.id == id);
+            _pesanan[DeliveryStatus.diantar]!.add(success.pesanan!);
+          } else {
+            if (pesanan.driverId == null) {
+              _pesanan[DeliveryStatus.siapDiantar]!
+                  .removeWhere((element) => element.id == id);
+              _pesanan[DeliveryStatus.siapDiantar]!.add(success.pesanan!);
+            } else {
+              _pesanan[DeliveryStatus.siapDiantar]!
+                  .removeWhere((element) => element.id == id);
+              _pesanan[DeliveryStatus.diantar]!.add(success.pesanan!);
+            }
+          }
         } else if (newStatus == 'selesai') {
           _pesanan[DeliveryStatus.diantar]!
               .removeWhere((element) => element.id == id);
+        } else if (newStatus == 'pesanan_diproses') {
+          _pesanan[DeliveryStatus.siapDiantar]!
+              .removeWhere((element) => element.id == id);
+          _pesanan[DeliveryStatus.siapDiantar]!.add(success.pesanan!);
         }
       }
 
-      return (success: success, error: null);
+      return (success: success.success, error: null);
     } catch (e) {
       String error = 'Terjadi kesalahan';
       if (e is CustomHttpException && e.statusCode == 403) {
@@ -100,6 +116,7 @@ class DeliveryProvider with ChangeNotifier {
       } else {
         error = 'Error: $e';
       }
+      print('Error updating order: $error');
       return (success: false, error: error);
     } finally {
       _isLoading = false;

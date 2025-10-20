@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:image/image.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -11,6 +12,7 @@ import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/income_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/views/common/format_date.dart';
 
 class DetailPenghasilan extends StatefulWidget {
   final String label;
@@ -51,7 +53,7 @@ class _DetailPenghasilanState extends State<DetailPenghasilan> {
         centerTitle: true,
         backgroundColor: AppColors.whiteColor100,
         surfaceTintColor: AppColors.backgroundColor,
-        title: const Text("Detail Penghasilan",
+        title: const Text("Detail Pendapatan",
             style: TextStyle(
                 color: AppColors.textColorBlack,
                 fontSize: 18,
@@ -269,21 +271,42 @@ class _DetailPenghasilanState extends State<DetailPenghasilan> {
           child: Column(
             spacing: 8,
             children: [
-              Text("No. Pesanan"),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  "ORDER-${item.id.toString()}",
-                  style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("No. Pesanan"),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          "ORDER-${item.id.toString()}",
+                          style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Column(
+                      spacing: 8,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text("Tanggal"),
+                        Text(FormatDate.formatDateTimeWithWIB(item.createdAt))
+                      ],
+                    ),
+                  )
+                ],
               ),
               Table(
                 columnWidths: const {

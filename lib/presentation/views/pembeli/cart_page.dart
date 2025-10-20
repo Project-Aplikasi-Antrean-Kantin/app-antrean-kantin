@@ -822,7 +822,7 @@ class _CartPageState extends State<CartPage> {
                               dashWidth: 2,
                               dashSpace: 2,
                             ),
-                            AddMoreItemsButton(),
+                            AddMoreItemsButton(widget.tenantId),
                           ],
                         ),
                       ),
@@ -905,6 +905,110 @@ class _CartPageState extends State<CartPage> {
                               cartProvider.getOngkir(
                                   user.token, roomSelected.gedung.ongkir);
                             },
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 15),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              spacing: 8,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    if (cartProvider.priority == 0)
+                                      cartProvider.setIsPriority(1);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: cartProvider.priority == 1
+                                            ? AppColors.infoColor
+                                            : AppColors.infoColor300,
+                                      ),
+                                      color: cartProvider.priority == 1
+                                          ? AppColors.infoColor300
+                                          : AppColors.whiteColor100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Prioritas Ongkir +3000',
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Pesananmu akan menjadi prioritas dengan benefit mendapat driver ketika pesanan masuk ke tenant',
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.blackColor,
+                                          ),
+                                          softWrap: true,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    if (cartProvider.priority == 1)
+                                      cartProvider.setIsPriority(0);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: cartProvider.priority == 0
+                                            ? AppColors.infoColor
+                                            : AppColors.infoColor300,
+                                      ),
+                                      color: cartProvider.priority == 0
+                                          ? AppColors.infoColor300
+                                          : AppColors.whiteColor100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Standard',
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Pesananmu akan menjadi standard kasjdaskjd',
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.blackColor,
+                                          ),
+                                          softWrap: true,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           )
                         ],
                       ],
@@ -940,63 +1044,64 @@ class _CartPageState extends State<CartPage> {
                             spacing: 8,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                    color: cartProvider.selectedVoucher != null
-                                        ? AppColors.successColor100
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: AppColors.successColor,
-                                    )),
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.successColor100,
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: HugeIcon(
-                                        icon: HugeIcons.strokeRoundedDiscount,
-                                        color: AppColors.successColor,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          final voucher = cartProvider
-                                                  .selectedVoucher ??
-                                              cartProvider.recommendedVoucher;
-                                          print('voucher $voucher');
-                                          print(
-                                              'selected voucher ${cartProvider.selectedVoucher}');
+                              GestureDetector(
+                                onTap: () {
+                                  final voucher =
+                                      cartProvider.selectedVoucher ??
+                                          cartProvider.recommendedVoucher;
+                                  print('voucher $voucher');
+                                  print(
+                                      'selected voucher ${cartProvider.selectedVoucher}');
 
-                                          if (voucher == null) {
-                                            // misal kasih snackbar / balik ke halaman sebelumnya
-                                            if (cartProvider
-                                                    .recommendedCashback !=
-                                                null) {
-                                              Navigator.push(
-                                                  context,
-                                                  CustomPageBuilder(
-                                                      page: DetailVoucherPage(
-                                                    cashback: cartProvider
-                                                        .recommendedCashback,
-                                                  )));
-                                              return;
-                                            }
-                                          }
-                                          Navigator.push(
-                                              context,
-                                              CustomPageBuilder(
-                                                  page: DetailVoucherPage(
-                                                voucher: voucher,
-                                              )));
-                                        },
+                                  if (voucher == null) {
+                                    // misal kasih snackbar / balik ke halaman sebelumnya
+                                    if (cartProvider.recommendedCashback !=
+                                        null) {
+                                      Navigator.push(
+                                          context,
+                                          CustomPageBuilder(
+                                              page: DetailVoucherPage(
+                                            cashback: cartProvider
+                                                .recommendedCashback,
+                                          )));
+                                      return;
+                                    }
+                                  }
+                                  Navigator.push(
+                                      context,
+                                      CustomPageBuilder(
+                                          page: DetailVoucherPage(
+                                        voucher: voucher,
+                                      )));
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                      color:
+                                          cartProvider.selectedVoucher != null
+                                              ? AppColors.successColor100
+                                              : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: AppColors.successColor,
+                                      )),
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.successColor100,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: HugeIcon(
+                                          icon: HugeIcons.strokeRoundedDiscount,
+                                          color: AppColors.successColor,
+                                          size: 24,
+                                        ),
+                                      ),
+                                      Expanded(
                                         child: Container(
                                           child: Column(
                                               crossAxisAlignment:
@@ -1029,82 +1134,82 @@ class _CartPageState extends State<CartPage> {
                                               ]),
                                         ),
                                       ),
-                                    ),
-                                    if (cartProvider.selectedVoucher == null)
-                                      GestureDetector(
-                                        onTap: () async {
-                                          try {
-                                            if (cartProvider
-                                                    .recommendedCashback !=
-                                                null) {
-                                              await cartProvider.getCashback(
-                                                  user.token,
-                                                  cartProvider
-                                                      .recommendedCashback!
-                                                      .referralCode);
-                                              Fluttertoast.showToast(
-                                                  msg:
-                                                      'Voucher berhasil diklaim, silahkan Pakai',
-                                                  backgroundColor:
-                                                      AppColors.successColor,
-                                                  textColor: Colors.white);
-                                            } else if (cartProvider
-                                                    .recommendedVoucher !=
-                                                null) {
-                                              if (cartProvider.totalPrice <
-                                                  cartProvider
-                                                      .recommendedVoucher!
-                                                      .cashback
-                                                      .minimalOrder) {
+                                      if (cartProvider.selectedVoucher == null)
+                                        GestureDetector(
+                                          onTap: () async {
+                                            try {
+                                              if (cartProvider
+                                                      .recommendedCashback !=
+                                                  null) {
+                                                await cartProvider.getCashback(
+                                                    user.token,
+                                                    cartProvider
+                                                        .recommendedCashback!
+                                                        .referralCode);
                                                 Fluttertoast.showToast(
                                                     msg:
-                                                        'Minimal pembelian ${cartProvider.recommendedVoucher!.cashback.minimalOrder ~/ 1000}rb');
-                                                return;
+                                                        'Voucher berhasil diklaim, silahkan Pakai',
+                                                    backgroundColor:
+                                                        AppColors.successColor,
+                                                    textColor: Colors.white);
+                                              } else if (cartProvider
+                                                      .recommendedVoucher !=
+                                                  null) {
+                                                if (cartProvider.totalPrice <
+                                                    cartProvider
+                                                        .recommendedVoucher!
+                                                        .cashback
+                                                        .minimalOrder) {
+                                                  Fluttertoast.showToast(
+                                                      msg:
+                                                          'Minimal pembelian ${cartProvider.recommendedVoucher!.cashback.minimalOrder ~/ 1000}rb');
+                                                  return;
+                                                }
+                                                cartProvider.setSelectedVoucher(
+                                                    cartProvider
+                                                        .recommendedVoucher!);
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        'Voucher berhasil dipilih',
+                                                    backgroundColor:
+                                                        AppColors.successColor,
+                                                    textColor: Colors.white);
                                               }
-                                              cartProvider.setSelectedVoucher(
-                                                  cartProvider
-                                                      .recommendedVoucher!);
+                                            } catch (e) {
                                               Fluttertoast.showToast(
-                                                  msg:
-                                                      'Voucher berhasil dipilih',
-                                                  backgroundColor:
-                                                      AppColors.successColor,
-                                                  textColor: Colors.white);
+                                                  msg: e.toString());
                                             }
-                                          } catch (e) {
-                                            Fluttertoast.showToast(
-                                                msg: e.toString());
-                                          }
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 8),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: AppColors.successColor,
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: AppColors.successColor,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                             ),
-                                            borderRadius:
-                                                BorderRadius.circular(16),
+                                            child: Text(
+                                                cartProvider.recommendedCashback !=
+                                                        null
+                                                    ? 'Klaim'
+                                                    : 'Pakai',
+                                                style: GoogleFonts.poppins(
+                                                  color:
+                                                      AppColors.successColor400,
+                                                  fontWeight: FontWeight.w600,
+                                                )),
                                           ),
-                                          child: Text(
-                                              cartProvider.recommendedCashback !=
-                                                      null
-                                                  ? 'Klaim'
-                                                  : 'Pakai',
-                                              style: GoogleFonts.poppins(
-                                                color:
-                                                    AppColors.successColor400,
-                                                fontWeight: FontWeight.w600,
-                                              )),
                                         ),
-                                      ),
-                                    if (cartProvider.selectedVoucher != null)
-                                      HugeIcon(
-                                        icon: HugeIcons
-                                            .strokeRoundedCheckmarkCircle02,
-                                        color: AppColors.successColor,
-                                      ),
-                                  ],
+                                      if (cartProvider.selectedVoucher != null)
+                                        HugeIcon(
+                                          icon: HugeIcons
+                                              .strokeRoundedCheckmarkCircle02,
+                                          color: AppColors.successColor,
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               DashedDivider(

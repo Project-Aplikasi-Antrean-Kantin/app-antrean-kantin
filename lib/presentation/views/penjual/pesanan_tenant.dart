@@ -38,11 +38,11 @@ class _PesananTenantState extends State<PesananTenant> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-      final printerProvider =
-          Provider.of<PrinterProvider>(context, listen: false);
+      // final printerProvider =
+      //     Provider.of<PrinterProvider>(context, listen: false);
       final user = authProvider.user;
 
-      startScan(printerProvider);
+      // startScan(printerProvider);
 
       Future.wait([
         for (var status in OrderStatus.values)
@@ -68,36 +68,36 @@ class _PesananTenantState extends State<PesananTenant> {
     });
   }
 
-  void startScan(PrinterProvider printerProvider) async {
-    _devicesStreamSubscription?.cancel();
-    print('coba scan');
-    if (await Permission.bluetoothScan.request().isGranted &&
-        await Permission.bluetoothConnect.request().isGranted &&
-        await Permission.locationWhenInUse.request().isGranted) {
-      await printer.getPrinters(
-        connectionTypes: [ConnectionType.BLE],
-      );
-    } else {
-      debugPrint('Bluetooth permission not granted');
-    }
+  // void startScan(PrinterProvider printerProvider) async {
+  //   _devicesStreamSubscription?.cancel();
+  //   print('coba scan');
+  //   if (await Permission.bluetoothScan.request().isGranted &&
+  //       await Permission.bluetoothConnect.request().isGranted &&
+  //       await Permission.locationWhenInUse.request().isGranted) {
+  //     await printer.getPrinters(
+  //       connectionTypes: [ConnectionType.BLE],
+  //     );
+  //   } else {
+  //     debugPrint('Bluetooth permission not granted');
+  //   }
 
-    _devicesStreamSubscription =
-        printer.devicesStream.listen((List<Printer> event) {
-      print("Ditemukan ${event.length} perangkat:");
-      for (var d in event) {
-        print("- ${d.name} (${d.address})");
-      }
-      printerProvider.setPrinters(event);
-      // setState(() {
-      //   printers = event
-      //       .where((p) =>
-      //           p.name != null &&
-      //           p.name!.isNotEmpty &&
-      //           p.name!.toLowerCase().contains("rpp02n"))
-      //       .toList();
-      // });
-    });
-  }
+  //   _devicesStreamSubscription =
+  //       printer.devicesStream.listen((List<Printer> event) {
+  //     print("Ditemukan ${event.length} perangkat:");
+  //     for (var d in event) {
+  //       print("- ${d.name} (${d.address})");
+  //     }
+  //     printerProvider.setPrinters(event);
+  //     // setState(() {
+  //     //   printers = event
+  //     //       .where((p) =>
+  //     //           p.name != null &&
+  //     //           p.name!.isNotEmpty &&
+  //     //           p.name!.toLowerCase().contains("rpp02n"))
+  //     //       .toList();
+  //     // });
+  //   });
+  // }
 
   void _handleNewOrderNotification(
       OrderProvider orderProvider, UserModel user) {

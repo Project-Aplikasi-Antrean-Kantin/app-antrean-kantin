@@ -52,17 +52,17 @@ class _MenuTileState extends State<MenuTile> {
 
     return GestureDetector(
       onTap: () {
-        if (authProvider.user.email == widget.tenant.emailPemilik) {
-          Fluttertoast.showToast(
-            msg: "Tidak bisa menambahkan ke keranjang, karena ini tenantmu",
-            toastLength: Toast.LENGTH_SHORT,
-            backgroundColor: AppColors.errorColor,
-            textColor: AppColors.whiteColor,
-          );
-          cartProvider.clearItemByMenuIdFromCart(
-              cartProvider.currentTenant!.id.toString(), widget.food.id);
-          return;
-        }
+        // if (authProvider.user.email == widget.tenant.emailPemilik) {
+        //   Fluttertoast.showToast(
+        //     msg: "Tidak bisa menambahkan ke keranjang, karena ini tenantmu",
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     backgroundColor: AppColors.errorColor,
+        //     textColor: AppColors.whiteColor,
+        //   );
+        //   cartProvider.clearItemByMenuIdFromCart(
+        //       cartProvider.currentTenant!.id.toString(), widget.food.id);
+        //   return;
+        // }
         if (widget.food.isReady == 0) {
           Fluttertoast.showToast(
             msg: "Menu belum tersedia",
@@ -108,9 +108,7 @@ class _MenuTileState extends State<MenuTile> {
                               height: 144,
                             ),
                           ),
-                          widget.tenant.emailPemilik == authProvider.user.email
-                              ? Container()
-                              : Positioned(
+                        Positioned(
                                   bottom: 4,
                                   right: 4,
                                   child: Container(

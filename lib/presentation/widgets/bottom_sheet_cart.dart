@@ -81,6 +81,15 @@ Future<void> showBottomSheetCart(BuildContext context,
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
+                    Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Text(
                       'Keranjang',
                       style: GoogleFonts.poppins(

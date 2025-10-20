@@ -7,6 +7,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/local/cart_local_data_source.dart';
 import 'package:testgetdata/data/model/cart_per_tenant.dart';
 import 'package:testgetdata/data/model/cashback.dart';
+import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/settings_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
@@ -48,6 +49,7 @@ class CartProvider extends ChangeNotifier {
   bool isClaimingCashback = false;
   bool isFetchCashback = false;
   bool transactionCompleted = false;
+  bool submittingCashierTransaction = false;
   bool orderSuccessful = false;
   Map<String, CartPerTenant> _tenantCarts = {};
   Map<String, CartPerTenant> get tenantCarts => _tenantCarts;
@@ -67,8 +69,10 @@ class CartProvider extends ChangeNotifier {
   List<Ruangan> listRuangan = [];
 
   int _selectedDeliveryOption = 1;
+  int _priority = 0;
 
   int get selectedDeliveryOption => _selectedDeliveryOption;
+  int get priority => _priority;
 
   List<SettingsModel> settings = [];
   List<Voucher> listVoucher = [];
@@ -107,6 +111,7 @@ class CartProvider extends ChangeNotifier {
       } else {
         ongkir = ongkosKirim;
       }
+      if (priority == 1) ongkir += 3000;
       // Beritahu UI bahwa data telah berubah
       notifyListeners();
     } catch (e) {
@@ -736,6 +741,7 @@ class CartProvider extends ChangeNotifier {
     final tenantId = _currentTenant?.id.toString();
     _currentTenant = null;
     ongkir = 0;
+    _priority = 0;
 
     print('clear cart $clearLocal');
     roomId = null;
@@ -750,6 +756,16 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearCartOnly() async {
+    final tenantId = _currentTenant?.id.toString();
+    if (_tenantCarts.isNotEmpty && tenantId != null) {
+      _tenantCarts.remove(tenantId);
+      _cartMenu = _tenantCarts[tenantId]?.cartMenuList ?? [];
+      await CartLocalDataSource().clearCart(tenantId);
+    }
+
+    notifyListeners();
+  }
   // Finds the index of an existing item in the cart with the given menu ID.
   // int _findExistingItemIndex(int menuId) {
   //   return _cartMenu.indexWhere((element) => element.menuId == menuId);
@@ -859,6 +875,7 @@ class CartProvider extends ChangeNotifier {
       "total": totalPrice,
       "ruangan_id": roomId,
       "metode_pembayaran": paymentMethod,
+      "isPriority": _priority,
       "ongkos_kirim":
           _selectedDeliveryOption == 1 ? getTotalItemCount() * 1000 : 0,
       "menus": cart.map((x) => x.toJson()).toList(),
@@ -875,6 +892,37 @@ class CartProvider extends ChangeNotifier {
     return jsonEncode(data);
   }
 
+  String toJsonCashier(List<CartMenuModel> cart) {
+    final data = {
+      "menus": cart.map((x) => x.toJson()).toList(),
+    };
+
+    return jsonEncode(data);
+  }
+
+  Future<CashierTransaction?> createCashierTransaction(
+      BuildContext context, String token) async {
+    submittingCashierTransaction = true;
+    notifyListeners();
+    int total = getTotalItemCount();
+    print('total $total');
+    print('paymentMethod $paymentMethod');
+
+    print('totalItemCount $totalItemCount');
+    try {
+      final result = await TransactionRemoteDataSource()
+          .createCashierTransaction(token, toJsonCashier(_cartMenu));
+      return result;
+    } catch (e) {
+      print(e);
+      throw Exception(e.toString());
+    } finally {
+      print('isAntar : $_selectedDeliveryOption');
+      submittingCashierTransaction = false;
+      notifyListeners();
+    }
+  }
+
   // Sets the payment method
   void setPaymentMethod(String metode) {
     paymentMethod = metode;
@@ -885,6 +933,21 @@ class CartProvider extends ChangeNotifier {
     _selectedDeliveryOption = delivery;
   }
 
+  void setIsPriority(int selectedPriority) {
+    if (roomId == null) {
+      Fluttertoast.showToast(msg: "Pilih ruangan terlebih dahulu");
+      return;
+    }
+    ;
+    _priority = selectedPriority;
+    if (selectedPriority == 1) {
+      ongkir += 3000;
+    } else {
+      ongkir -= 3000;
+    }
+    notifyListeners();
+  }
+
   // Sets the room ID
   void setIdRoom(int id) {
     roomId = id;
@@ -892,6 +955,7 @@ class CartProvider extends ChangeNotifier {
 
   void clearRoomIdAndOngkir() {
     roomId = null;
+    _priority = 0;
     ongkir = 0;
     notifyListeners();
   }

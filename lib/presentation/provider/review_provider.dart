@@ -27,6 +27,7 @@ class ReviewProvider extends ChangeNotifier {
     final List<int> ratingMoods =
         selectedReviewSelection.map((e) => e.id).toList();
     isSubmitting = true;
+    notifyListeners();
 
     try {
       final response = await PublicRemoteDataSource().submitReview(

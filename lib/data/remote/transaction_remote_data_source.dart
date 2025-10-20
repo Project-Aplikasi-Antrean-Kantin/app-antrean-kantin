@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/cashback.dart';
+import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/data/model/order_model.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
@@ -31,6 +32,38 @@ class TransactionRemoteDataSource {
 
       if (response.statusCode == 201) {
         return OrderModel.fromJson(jsonBody);
+      } else if (response.statusCode == 400)
+        throw jsonBody['message'][0];
+      else {
+        print('Request failed with status: ${response.statusCode}');
+        print('Error response body: ${response.body}');
+        throw '${jsonBody['message'][0]}';
+      }
+    } catch (e) {
+      print('An error occurred: $e');
+      throw Exception(e.toString()); // cukup pakai e
+    }
+  }
+
+  Future<CashierTransaction> createCashierTransaction(
+      String auth, String data) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${MasbroConstants.url}/tenant/kasir'),
+        headers: {
+          'Authorization': "Bearer $auth",
+          'Accept': 'application/json',
+          HttpHeaders.contentTypeHeader: 'application/json'
+        },
+        body: data,
+      );
+
+      final jsonBody = jsonDecode(response.body);
+      // print('Response status code: ${jsonBody['message'][0]}');
+      print('Response body: ${jsonBody['data']}');
+
+      if (response.statusCode == 201) {
+        return CashierTransaction.fromJson(jsonBody['data']);
       } else if (response.statusCode == 400)
         throw jsonBody['message'][0];
       else {

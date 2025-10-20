@@ -42,7 +42,7 @@ class _PenghasilanPageState extends State<PenghasilanPage> {
         centerTitle: true,
         backgroundColor: AppColors.whiteColor100,
         surfaceTintColor: AppColors.backgroundColor,
-        title: const Text("Laporan Pendapatan",
+        title: const Text("Pendapatan",
             style: TextStyle(
                 color: AppColors.textColorBlack,
                 fontSize: 18,

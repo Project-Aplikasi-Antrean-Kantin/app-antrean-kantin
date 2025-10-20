@@ -46,7 +46,12 @@ class _PerluPengantaranState extends State<PerluPengantaran>
     _onMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final title = message.data['title']?.toString().toLowerCase();
+      print("title $title");
+      print("title.contains('prioritas') ${title?.contains('prioritas')}");
       if (title == 'ada pesanan siap diantar') {
+        _handleNewDeliveryNotification(deliveryProvider, user);
+      }
+      if (title != null && title.contains('prioritas')) {
         _handleNewDeliveryNotification(deliveryProvider, user);
       }
     });

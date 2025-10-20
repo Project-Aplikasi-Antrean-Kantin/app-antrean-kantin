@@ -21,7 +21,7 @@ void showBottomSheetReview({
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    enableDrag: false,
+    enableDrag: true,
     builder: (context) {
       return AnimatedPadding(
         duration: const Duration(milliseconds: 150),
@@ -34,7 +34,9 @@ void showBottomSheetReview({
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.9,
             ),
-            padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.05,
+                vertical: 8),
             decoration: const BoxDecoration(
               color: AppColors.whiteColor100,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -47,7 +49,18 @@ void showBottomSheetReview({
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // === semua isi kamu di sini ===
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[400],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Text(
                         'Seberapa besar kemungkinan merekomendasikan FoodLAB ke orang lain?',
                         style: GoogleFonts.poppins(
@@ -186,7 +199,6 @@ void showBottomSheetReview({
                           ),
                         ),
                       const SizedBox(height: 8),
-
                       PrimaryButton(
                         borderRadius: 16,
                         waitingText:
@@ -221,10 +233,10 @@ void showBottomSheetReview({
 }
 
 Color getSelectedColor(int value) {
-  if (value <= 3) {
+  if (value <= 6) {
     return AppColors.errorColor;
   }
-  if (value <= 7) {
+  if (value <= 8) {
     return AppColors.warningColor;
   }
   if (value <= 10) {

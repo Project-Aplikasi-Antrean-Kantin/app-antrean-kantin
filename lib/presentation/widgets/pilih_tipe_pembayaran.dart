@@ -270,8 +270,10 @@ class _PaymentOptionBottomSheetState extends State<_PaymentOptionBottomSheet> {
                                 ]),
                           ),
                           InkWell(
-                            onTap: () => {
-                              widget.onSelect(method),
+                            onTap: () {
+                              setState(() => _selectedPaymentMethod = method);
+                              widget.onSelect(method);
+                              Navigator.pop(context);
                             },
                             borderRadius: BorderRadius.circular(8),
                             child: Container(

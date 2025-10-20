@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:app_settings/app_settings.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -69,43 +70,89 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   int _cooldownSeconds = 30; // lama cooldown (detik)
   Timer? _timer;
   final _flutterThermalPrinterPlugin = FlutterThermalPrinter.instance;
-  StreamSubscription<List<Printer>>? _devicesStreamSubscription;
+  // StreamSubscription<List<Printer>>? _devicesStreamSubscription;
+  // StreamSubscription<bool>? _bluetoothConnection;
+  bool isBleTurnedOn = false;
+  bool isLoadingBluetooth = false;
   bool _isPrinting = false;
 
-  void startScan(PrinterProvider printerProvider) async {
-    _devicesStreamSubscription?.cancel();
-    if (await Permission.bluetoothScan.request().isGranted &&
-        await Permission.bluetoothConnect.request().isGranted &&
-        await Permission.locationWhenInUse.request().isGranted) {
-      await _flutterThermalPrinterPlugin.getPrinters(
-        connectionTypes: [ConnectionType.BLE],
-      );
-    } else {
-      debugPrint('Bluetooth permission not granted');
-    }
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed) {
+  //     startScan(Provider.of<PrinterProvider>(context, listen: false));
+  //   }
+  // }
 
-    _devicesStreamSubscription = _flutterThermalPrinterPlugin.devicesStream
-        .listen((List<Printer> event) {
-      print("Ditemukan ${event.length} perangkat:");
-      for (var d in event) {
-        print("- ${d.name} (${d.address})");
-      }
-      printerProvider.setPrinters(event);
-      // setState(() {
-      //   printers = event
-      //       .where((p) =>
-      //           p.name != null &&
-      //           p.name!.isNotEmpty &&
-      //           p.name!.toLowerCase().contains("rpp02n"))
-      //       .toList();
-      // });
-    });
-  }
+  // void startScan(PrinterProvider printerProvider) async {
+  //   setState(() {
+  //     isLoadingBluetooth = true;
+  //   });
 
-  /// 🛑 Hentikan scan
-  void stopScan() {
-    _flutterThermalPrinterPlugin.stopScan();
-  }
+  //   _devicesStreamSubscription?.cancel();
+  //   _bluetoothConnection?.cancel();
+  //   print('Mulai scan printer BLE...');
+
+  //   // === Request Permission ===
+  //   if (await Permission.bluetoothScan.request().isGranted &&
+  //       await Permission.bluetoothConnect.request().isGranted &&
+  //       await Permission.locationWhenInUse.request().isGranted) {
+  //     // Dengarkan status BLE (nyala/mati)
+  //     _bluetoothConnection = _flutterThermalPrinterPlugin.isBleTurnedOnStream
+  //         .listen((event) async {
+  //       print("isBleTurnedOnStream: $event");
+
+  //       if (!mounted) return;
+  //       setState(() {
+  //         isBleTurnedOn = event;
+  //       });
+
+  //       if (event == true) {
+  //         // ✅ Kalau Bluetooth udah nyala, baru mulai scan
+  //         try {
+  //           await _flutterThermalPrinterPlugin
+  //               .getPrinters(connectionTypes: [ConnectionType.BLE]);
+
+  //           _devicesStreamSubscription = _flutterThermalPrinterPlugin
+  //               .devicesStream
+  //               .listen((List<Printer> event) {
+  //             print("Ditemukan ${event.length} perangkat:");
+  //             for (var d in event) {
+  //               print("- ${d.name} (${d.address})");
+  //             }
+  //             printerProvider.setPrinters(event);
+  //           });
+  //         } catch (e) {
+  //           Fluttertoast.showToast(msg: e.toString());
+  //         } finally {
+  //           if (mounted) {
+  //             setState(() {
+  //               isLoadingBluetooth = false;
+  //             });
+  //           }
+  //         }
+  //       } else {
+  //         // 🚫 Bluetooth belum nyala
+  //         if (mounted) {
+  //           Fluttertoast.showToast(
+  //             msg: "Bluetooth belum aktif, mohon nyalakan dulu...",
+  //           );
+  //         }
+
+  //         // Opsional: buka dialog atau auto aktifkan
+  //         await _flutterThermalPrinterPlugin.turnOnBluetooth();
+  //       }
+  //     });
+  //   } else {
+  //     debugPrint('Bluetooth permission not granted');
+  //     setState(() {
+  //       isLoadingBluetooth = false;
+  //     });
+  //   }
+  // }
+
+  // /// 🛑 Hentikan scan
+  // void stopScan() {
+  //   _flutterThermalPrinterPlugin.stopScan();
+  // }
 
   /// 🧾 Fungsi untuk generate data struk (ESC/POS)
 
@@ -113,14 +160,23 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final printerProvider =
-          Provider.of<PrinterProvider>(context, listen: false);
+      // final printerProvider =
+      //     Provider.of<PrinterProvider>(context, listen: false);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      // _bluetoothConnection = _flutterThermalPrinterPlugin.isBleTurnedOnStream
+      //     .listen((event) async {
+      //   print("isBleTurnedOnStream: $event");
+
+      //   if (!mounted) return;
+      //   setState(() {
+      //     isBleTurnedOn = event;
+      //   });
+      // });
       print(
           'widget.label: ${widget.label} authProvider.user.role: ${authProvider.user.role}');
       if (widget.label.toLowerCase() == 'jual' &&
           authProvider.user.role.contains('tenant')) {
-        startScan(printerProvider);
+        // startScan(printerProvider);
       }
 
       if (widget.pesanan.status == 'pending' && widget.fromCartPage == true) {
@@ -146,8 +202,9 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   void dispose() {
     _timer?.cancel();
     _onMessageSubscription?.cancel();
-    _devicesStreamSubscription?.cancel();
+    // _devicesStreamSubscription?.cancel();
     _flutterThermalPrinterPlugin.stopScan();
+    // _bluetoothConnection?.cancel();
 
     super.dispose();
   }
@@ -950,6 +1007,33 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                           ],
                         ),
                       ),
+                    if (widget.pesanan.status != 'pending' &&
+                        widget.pesanan.status != 'refund_selesai' &&
+                        widget.pesanan.status != 'pesanan_masuk' &&
+                        widget.pesanan.status != 'gagal_bayar' &&
+                        widget.pesanan.cashbackAmount != null &&
+                        widget.pesanan.cashbackAmount! > 0)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Cashback",
+                              style: GoogleFonts.poppins(
+                                  fontWeight: semibold,
+                                  color: AppColors.successColor),
+                            ),
+                            const Spacer(),
+                            Text(
+                              FormatCurrency.intToStringCurrency(
+                                  widget.pesanan.cashbackAmount ?? 0),
+                              style: GoogleFonts.poppins(
+                                  fontWeight: semibold,
+                                  color: AppColors.successColor),
+                            ),
+                          ],
+                        ),
+                      ),
                     if (widget.label.toLowerCase() == 'jual')
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -980,14 +1064,33 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                                     ),
                                     (route) => false,
                                   );
-                                  showBottomSheetBluetoothDevices(context);
+                                  // if (isBleTurnedOn) {
+                                  //   showBottomSheetBluetoothDevices(context);
+                                  // }
                                   Fluttertoast.showToast(
-                                      msg: 'Silahkan Pilih Printer');
+                                      msg:
+                                          'Silahkan Pilih Printer, tekan Mesin Cetak');
                                   return;
                                 }
                                 setState(() {
                                   _isPrinting = true;
                                 });
+                                // if (isLoadingBluetooth) {
+                                //   Fluttertoast.showToast(
+                                //       msg: "Memindai Perangkat Bluetooth...");
+                                //   return;
+                                // }
+                                // if (!isBleTurnedOn) {
+                                //   Fluttertoast.showToast(
+                                //       msg:
+                                //           "Bluetooth belum diaktifkan, membuka pengaturan...");
+
+                                //   AppSettings.openAppSettings(
+                                //       type: AppSettingsType.bluetooth);
+                                //   return;
+                                // }
+                                // showBottomSheetBluetoothDevices(context);
+
                                 try {
                                   await _flutterThermalPrinterPlugin.connect(
                                       printerProvider.selectedPrinter!);
@@ -1218,14 +1321,23 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
 
   Color getStatusColor(String status) {
     switch (status) {
-      case 'refund_selesai':
-        return AppColors.primaryColor;
-      case 'selesai':
-        return AppColors.successColor;
-      case 'pesanan_ditolak':
-        return AppColors.errorColor;
+      case 'pesanan_masuk':
+        return AppColors.warningColor400;
       case 'pesanan_diproses':
         return AppColors.warningColor;
+      case 'siap_diambil':
+        return AppColors.secondaryColor;
+      case 'siap_diantar':
+        return AppColors.primaryColor300;
+
+      case 'selesai':
+        return AppColors.successColor;
+      case 'pending':
+        return AppColors.whiteColor600;
+      case 'gagal_bayar':
+        return AppColors.errorColor;
+      case 'refund_selesai':
+        return AppColors.blackColor;
       default:
         return AppColors.primaryColor;
     }

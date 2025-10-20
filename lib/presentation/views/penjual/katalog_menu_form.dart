@@ -392,30 +392,34 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 10,
                     children: [
-                      Container(
-                        width: 88,
-                        height: 88,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          image: selectedImagePath != null
-                              ? DecorationImage(
-                                  image: FileImage(File(selectedImagePath!)),
-                                  fit: BoxFit.cover,
-                                )
-                              : isEditMode &&
-                                      widget.initialData!.gambar != null &&
-                                      widget.initialData!.gambar.isNotEmpty
-                                  ? DecorationImage(
-                                      image: NetworkImage(
-                                        '${MasbroConstants.baseUrl}${widget.initialData!.gambar}',
+                      GestureDetector(
+                        onTap: () =>
+                            _buildBottomSheetProfile(context, authProvider),
+                        child: Container(
+                          width: 88,
+                          height: 88,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: selectedImagePath != null
+                                ? DecorationImage(
+                                    image: FileImage(File(selectedImagePath!)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : isEditMode &&
+                                        widget.initialData!.gambar != null &&
+                                        widget.initialData!.gambar.isNotEmpty
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                          '${MasbroConstants.baseUrl}${widget.initialData!.gambar}',
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : const DecorationImage(
+                                        image: AssetImage(
+                                            'assets/images/dummy.jpeg'),
+                                        fit: BoxFit.cover,
                                       ),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/dummy.jpeg'),
-                                      fit: BoxFit.cover,
-                                    ),
+                          ),
                         ),
                       ),
                       Flexible(

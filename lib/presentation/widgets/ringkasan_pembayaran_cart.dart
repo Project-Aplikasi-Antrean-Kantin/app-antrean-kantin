@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/data/model/ruangan_model.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
@@ -102,13 +103,13 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Biaya pengantaran",
+                      "Biaya pengantaran ${cartProvider.ongkir == 0 ? "" : cartProvider.totalItemCount > 10 ? "(${(cartProvider.totalItemCount - 10) * cartProvider.biayaExtra} + ${cartProvider.ongkir - ((cartProvider.totalItemCount - 10) * cartProvider.biayaExtra)})" : ""}",
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: AppColors.textColorBlack,
                       ),
                     ),
-                    cartProvider.ongkir == 0
+                    cartProvider.roomId == null
                         ? Flexible(
                             child: Text('Pilih Ruangan Terlebih dahulu',
                                 textAlign: TextAlign.end,
