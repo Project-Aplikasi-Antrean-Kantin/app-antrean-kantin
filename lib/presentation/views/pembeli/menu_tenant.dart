@@ -109,21 +109,69 @@ class _MenuTenantState extends State<MenuTenant> {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
     expandedHeight = MediaQuery.of(context).size.height / 3.5;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: FutureBuilder<TenantModel>(
         future: _futureTenantFoods,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return _buildTenantView(context, snapshot.data!, cartProvider);
+            return SafeArea(
+              child: _buildTenantView(context, snapshot.data!, cartProvider),
+            );
           } else if (snapshot.hasError) {
             return Center(child: Text('${snapshot.error}'));
           }
           return ShimmerCard(pageType: 'menuTenant');
         },
       ),
-      floatingActionButton: _buildFloatingActionButton(context, cartProvider),
+
+      // ✅ area klik FAB + tombol diperluas
+      floatingActionButton: SafeArea(
+        child: SizedBox(
+          height: 160, // area klik lebih luas
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.bottomCenter,
+            children: [
+              if (_currentTenant != null &&
+                  authProvider.user.email == _currentTenant!.emailPemilik)
+                Positioned(
+                  bottom: cartProvider.cart.isEmpty ? 0 : 80,
+                  right: 20,
+                  child: Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        print("Promo diklik ✅");
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        foregroundColor: AppColors.whiteColor,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 4,
+                      ),
+                      child: const Text('Riwayat kasir'),
+                    ),
+                  ),
+                ),
+
+              // FAB utama
+              Positioned(
+                bottom: 0,
+                left: 20,
+                right: 20,
+                child: _buildFloatingActionButton(context, cartProvider)!,
+              ),
+            ],
+          ),
+        ),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -170,7 +218,7 @@ class _MenuTenantState extends State<MenuTenant> {
                       ),
                     ),
                   )
-                : _buildMenuGrid(tenant),
+                : _buildMenuGrid(tenant, context),
             const SliverToBoxAdapter(
               child: SizedBox(height: 70),
             ),
@@ -474,7 +522,9 @@ class _MenuTenantState extends State<MenuTenant> {
     );
   }
 
-  SliverGrid _buildMenuGrid(TenantModel tenant) {
+  SliverGrid _buildMenuGrid(TenantModel tenant, BuildContext context) {
+    final isWidthLargerThanHeight =
+        MediaQuery.of(context).size.width > MediaQuery.of(context).size.height;
     final List<TenantFoods> foodsToShow =
         _filteredFoods ?? tenant.tenantFoods ?? [];
 
@@ -491,9 +541,9 @@ class _MenuTenantState extends State<MenuTenant> {
         },
         childCount: foodsToShow.length,
       ),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.8,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: isWidthLargerThanHeight ? 3 : 2,
+        childAspectRatio: isWidthLargerThanHeight ? 1 : 0.8,
       ),
     );
   }

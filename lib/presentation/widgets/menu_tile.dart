@@ -108,26 +108,233 @@ class _MenuTileState extends State<MenuTile> {
                               height: 144,
                             ),
                           ),
-                        Positioned(
-                                  bottom: 4,
-                                  right: 4,
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primaryColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: cartItemCount > 0
-                                        ? Center(
+                          Positioned(
+                            bottom: widget.tenant.emailPemilik ==
+                                        authProvider.user.email &&
+                                    cartItemCount > 0
+                                ? 0
+                                : 4,
+                            right: widget.tenant.emailPemilik ==
+                                        authProvider.user.email &&
+                                    cartItemCount > 0
+                                ? 0
+                                : 4,
+                            child: cartItemCount > 0
+                                ? widget.tenant.emailPemilik !=
+                                        authProvider.user.email
+                                    ? Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
                                             child: Text('${cartItemCount}',
                                                 style: GoogleFonts.poppins(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w500,
-                                                    fontSize: 16)))
-                                        : Icon(Icons.add, color: Colors.white),
+                                                    fontSize: 16))))
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: AppColors.primaryColor,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize
+                                              .min, // biar pas dengan isi
+                                          children: [
+                                            // Tombol -
+                                            GestureDetector(
+                                              onTap: () {
+                                                final currentCart = cartProvider
+                                                    .cart
+                                                    .firstWhere((cart) =>
+                                                        cart.menuId ==
+                                                        widget.food.id);
+                                                cartProvider
+                                                    .removeItemFromTenantCart(
+                                                        catatan:
+                                                            currentCart.catatan,
+                                                        widget.tenant.id
+                                                            .toString(),
+                                                        currentCart.menuId,
+                                                        context);
+                                              },
+                                              child: Container(
+                                                width: 28,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  // color: AppColors
+                                                  //     .backgroundColor,
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(10),
+                                                    bottomLeft:
+                                                        Radius.circular(10),
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    '-',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color:
+                                                          AppColors.whiteColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                            // Counter
+                                            Container(
+                                              width: 28,
+                                              height: 32,
+                                              alignment: Alignment.center,
+                                              // decoration: BoxDecoration(
+                                              //   border: Border.symmetric(
+                                              //     vertical: BorderSide(
+                                              //       color: AppColors
+                                              //           .primaryColor,
+                                              //       width: 2,
+                                              //     ),
+                                              //   ),
+                                              // ),
+                                              child: TextFormField(
+                                                key: ValueKey(cartProvider.cart
+                                                    .firstWhere((cart) =>
+                                                        cart.menuId ==
+                                                        widget.food.id)
+                                                    .count),
+                                                initialValue: cartProvider.cart
+                                                    .firstWhere((cart) =>
+                                                        cart.menuId ==
+                                                        widget.food.id)
+                                                    .count
+                                                    .toString(),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                textAlign: TextAlign.center,
+                                                decoration:
+                                                    const InputDecoration(
+                                                  border: InputBorder.none,
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      EdgeInsets.zero,
+                                                ),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.whiteColor,
+                                                ),
+                                                onChanged: (value) {
+                                                  final intCount =
+                                                      int.tryParse(value);
+                                                  if (intCount != null &&
+                                                      intCount >= 0) {
+                                                    cartProvider
+                                                        .updateItemCount(
+                                                      tenantId: widget.tenant.id
+                                                          .toString(),
+                                                      menuId: cartProvider.cart
+                                                          .firstWhere((cart) =>
+                                                              cart.menuId ==
+                                                              widget.food.id)
+                                                          .menuId,
+                                                      count: intCount,
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+
+                                            // Tombol +
+                                            GestureDetector(
+                                              onTap: () =>
+                                                  cartProvider.addItemToCart(
+                                                catatan: cartProvider.cart
+                                                    .firstWhere((cart) =>
+                                                        cart.menuId ==
+                                                        widget.food.id)
+                                                    .catatan,
+                                                tenantId:
+                                                    widget.tenant.id.toString(),
+                                                cart: cartProvider.cart
+                                                    .firstWhere((cart) =>
+                                                        cart.menuId ==
+                                                        widget.food.id),
+                                              ),
+                                              child: Container(
+                                                width: 28,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  // color: AppColors
+                                                  //     .backgroundColor,
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(10),
+                                                    bottomRight:
+                                                        Radius.circular(10),
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    '+',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color:
+                                                          AppColors.whiteColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                : GestureDetector(
+                                    onTap: () {
+                                      if (widget.tenant.emailPemilik !=
+                                          authProvider.user.email) {
+                                        Navigator.push(
+                                            context,
+                                            CustomPageBuilder(
+                                                page: DetailFoodPage(
+                                              addNewItem: true,
+                                              food: widget.food,
+                                              tenant: widget.tenant,
+                                            )));
+                                        return;
+                                      }
+                                      cartProvider.addItemToCart(
+                                          tenantId: widget.tenant.id.toString(),
+                                          newItem: widget.food,
+                                          tenantName: widget.tenant.namaTenant);
+                                      return;
+                                    },
+                                    child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(Icons.add,
+                                            color: Colors.white)),
                                   ),
-                                ),
+                          ),
                         ],
                       )
                     : ColorFiltered(
@@ -267,7 +474,7 @@ class _MenuTileState extends State<MenuTile> {
                           children: [
                             Container(
                               child: SizedBox(
-                                width: MediaQuery.of(context).size.width / 1.7,
+                                width: MediaQuery.of(context).size.width / 2,
                                 child: Text(
                                   capitalizeFirstLetter(food.nama),
                                   style: GoogleFonts.poppins(
@@ -296,8 +503,13 @@ class _MenuTileState extends State<MenuTile> {
                           child: ListView.separated(
                               separatorBuilder: (context, index) =>
                                   const SizedBox(height: 12),
-                              itemCount: cartItemsByMenuId.length,
+                              itemCount: cartItemsByMenuId.length + 1,
                               itemBuilder: (context, index) {
+                                if (cartItemsByMenuId.length == index) {
+                                  return SizedBox(
+                                    height: 36,
+                                  );
+                                }
                                 final cartItem = cartItemsByMenuId[index];
                                 return Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,

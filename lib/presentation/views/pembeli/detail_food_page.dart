@@ -112,269 +112,272 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
         floatingActionButton: MediaQuery.of(context).viewInsets.bottom != 0
             ? Container()
             : _buildFloatingActionButton(context),
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SingleChildScrollView(
-            child: Consumer<CartProvider>(builder: (context, cartProvider, _) {
-              final item = cartProvider.cart
-                  .firstWhereOrNull((item) => item.menuId == food.id);
-              isThereItem = item != null;
-              return Column(
-                spacing: 16,
-                children: [
-                  Stack(children: [
-                    ImageByUrl(
-                      url: food.gambar.toString(),
-                      width: double.infinity,
-                      height: MediaQuery.of(context).size.height / 3.5,
+        body: SafeArea(
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SingleChildScrollView(
+              child:
+                  Consumer<CartProvider>(builder: (context, cartProvider, _) {
+                final item = cartProvider.cart
+                    .firstWhereOrNull((item) => item.menuId == food.id);
+                isThereItem = item != null;
+                return Column(
+                  spacing: 16,
+                  children: [
+                    Stack(children: [
+                      ImageByUrl(
+                        url: food.gambar.toString(),
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height / 3.5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(
+                            top: 24, left: 16, right: 16, bottom: 16),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            padding: EdgeInsets.all(16),
+                            child: HugeIcon(
+                              icon: HugeIcons.strokeRoundedCancel01,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      )
+                    ]),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 16,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 1.75,
+                                child: Text('${food.nama}',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                              Expanded(
+                                  child: Text(
+                                textAlign: TextAlign.end,
+                                FormatCurrency.intToStringCurrency(food.harga),
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                  color: AppColors.textColorBlack,
+                                ),
+                              ))
+                            ],
+                          ),
+                          if (food.deskripsi != null &&
+                              food.deskripsi.toString().toLowerCase() != 'null')
+                            Text(
+                              food.deskripsi.toString(),
+                              style: GoogleFonts.poppins(fontSize: 14),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      thickness: 1,
+                      color: Colors.grey,
                     ),
                     Container(
-                      padding: const EdgeInsets.only(
-                          top: 24, left: 16, right: 16, bottom: 16),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          child: HugeIcon(
-                            icon: HugeIcons.strokeRoundedCancel01,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    )
-                  ]),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 16,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.75,
-                              child: Text('${food.nama}',
-                                  style: GoogleFonts.poppins(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600)),
-                            ),
-                            Expanded(
-                                child: Text(
-                              textAlign: TextAlign.end,
-                              FormatCurrency.intToStringCurrency(food.harga),
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                                color: AppColors.textColorBlack,
-                              ),
-                            ))
-                          ],
-                        ),
-                        if (food.deskripsi != null &&
-                            food.deskripsi.toString().toLowerCase() != 'null')
-                          Text(
-                            food.deskripsi.toString(),
-                            style: GoogleFonts.poppins(fontSize: 14),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Divider(
-                    thickness: 1,
-                    color: Colors.grey,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Catatan Untuk Tenant',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                              color: Color(0xFFCDCDCD),
-                              borderRadius: BorderRadius.circular(16)),
-                          child: Text('Opsional',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 12, fontWeight: FontWeight.w600)),
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      spacing: 4,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColors.primaryColor,
-                              width: 1.5,
-                            ),
-                          ),
-                          height: 124,
-                          child: TextField(
-                            controller: _textEditingController,
-                            decoration: const InputDecoration(
-                                hintStyle: TextStyle(fontSize: 14),
-                                hintText: 'Tambahkan catatan untuk tenant',
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 16),
-                                border: InputBorder.none,
-                                counter: SizedBox.shrink()),
-                            maxLines: null,
-                            maxLength: 200,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                              textAlign: TextAlign.end,
-                              '${_textEditingController.text.length} / 200 '),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IntrinsicWidth(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppColors.primaryColor,
-                          width: 2,
-                        ),
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24),
                       child: Row(
-                        mainAxisSize:
-                            MainAxisSize.min, // penting agar Row tidak stretch
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Tombol -
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  if (count >= 1) count--;
-                                });
-                              },
-                              child: Ink(
-                                width: 48,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                    color: AppColors.backgroundColor,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10),
-                                    )),
-                                child: Center(
-                                  child: Text(
-                                    '-',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                          Text(
+                            'Catatan Untuk Tenant',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-
-                          // Count
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                                color: Color(0xFFCDCDCD),
+                                borderRadius: BorderRadius.circular(16)),
+                            child: Text('Opsional',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 12, fontWeight: FontWeight.w600)),
+                          )
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        spacing: 4,
+                        children: [
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.symmetric(
-                                vertical: BorderSide(
-                                  color: AppColors.primaryColor,
-                                  width: 2,
-                                ),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: AppColors.primaryColor,
+                                width: 1.5,
                               ),
                             ),
-                            width: 48,
-                            height: 36,
-                            alignment: Alignment.center,
-                            child: TextFormField(
-                              key: ValueKey(count),
-                              initialValue: count.toString(),
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
+                            height: 124,
+                            child: TextField(
+                              controller: _textEditingController,
                               decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primaryColor,
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  count = int.tryParse(value) ?? 0;
-                                });
-                              },
+                                  hintStyle: TextStyle(fontSize: 14),
+                                  hintText: 'Tambahkan catatan untuk tenant',
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 16),
+                                  border: InputBorder.none,
+                                  counter: SizedBox.shrink()),
+                              maxLines: null,
+                              maxLength: 200,
                             ),
                           ),
-
-                          // Tombol +
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  count++;
-                                });
-                              },
-                              child: Ink(
-                                width: 48,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: AppColors.backgroundColor,
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(10),
-                                    bottomRight: Radius.circular(10),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '+',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                                textAlign: TextAlign.end,
+                                '${_textEditingController.text.length} / 200 '),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 6,
-                  )
-                ],
-              );
-            }),
+                    IntrinsicWidth(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.primaryColor,
+                            width: 2,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize
+                              .min, // penting agar Row tidak stretch
+                          children: [
+                            // Tombol -
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    if (count >= 1) count--;
+                                  });
+                                },
+                                child: Ink(
+                                  width: 48,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                      color: AppColors.backgroundColor,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10),
+                                      )),
+                                  child: Center(
+                                    child: Text(
+                                      '-',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Count
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.symmetric(
+                                  vertical: BorderSide(
+                                    color: AppColors.primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              width: 48,
+                              height: 36,
+                              alignment: Alignment.center,
+                              child: TextFormField(
+                                key: ValueKey(count),
+                                initialValue: count.toString(),
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryColor,
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    count = int.tryParse(value) ?? 0;
+                                  });
+                                },
+                              ),
+                            ),
+
+                            // Tombol +
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    count++;
+                                  });
+                                },
+                                child: Ink(
+                                  width: 48,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.backgroundColor,
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '+',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height / 6,
+                    )
+                  ],
+                );
+              }),
+            ),
           ),
         ),
       ),

@@ -384,12 +384,11 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                       ];
         return Scaffold(
           backgroundColor: AppColors.backgroundColor,
-          floatingActionButton: Consumer<CartProvider>(
-            builder: (context, cartProvider, child) {
+          floatingActionButton: Consumer2<CartProvider, AuthProvider>(
+            builder: (context, cartProvider, authProvider, child) {
               final screenWidth = MediaQuery.of(context).size.width;
               final chatType = getChatType(
-                historyProvider.selectedPesanan!.status,
-              );
+                  historyProvider.selectedPesanan!, authProvider.user.nama);
               final isValidStatus = historyProvider.selectedPesanan!.status !=
                       'selesai' &&
                   historyProvider.selectedPesanan!.status !=
@@ -401,10 +400,11 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   historyProvider.selectedPesanan!.id,
                 ),
               );
-              final canChatTenant = historyProvider.availableChatList.contains(
-                    historyProvider.selectedPesanan!.id,
-                  ) &&
-                  chatType == 'tenant';
+              final canChatTenant = (historyProvider.availableChatList.contains(
+                        historyProvider.selectedPesanan!.id,
+                      ) &&
+                      chatType == 'tenant') ||
+                  widget.label == 'Jual';
 
               if (historyProvider.selectedPesanan!.status == 'pending' &&
                   widget.label == 'Beli')
@@ -435,7 +435,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   ),
                 );
 
-              if (widget.label == 'Antar') return Container();
+              // if (widget.label == 'Antar') return Container();
               if (historyProvider.selectedPesanan!.status == 'diantar' &&
                   widget.label == 'Jual') return Container();
 
@@ -653,6 +653,44 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.blackColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color:
+                                  historyProvider.selectedPesanan!.isPriority ==
+                                          1
+                                      ? AppColors.primaryColor
+                                      : Colors.grey),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 4,
+                          children: [
+                            if (historyProvider.selectedPesanan!.isPriority ==
+                                1)
+                              Icon(Iconsax.flash_1,
+                                  size: 24, color: AppColors.primaryColor),
+                            Text(
+                              historyProvider.selectedPesanan!.isPriority == 1
+                                  ? "Express"
+                                  : "Reguler",
+                              style: GoogleFonts.poppins(
+                                color: historyProvider
+                                            .selectedPesanan!.isPriority ==
+                                        1
+                                    ? AppColors.primaryColor
+                                    : Colors.black,
+                                fontSize: 16,
                               ),
                             ),
                           ],
@@ -1253,27 +1291,78 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
 
   Widget _buildStatus(String status) {
     return Center(
-      child: Text(
-        capitalizeFirstLetter(status.replaceAll('_', ' ')),
-        style: GoogleFonts.poppins(
-          color: getStatusColor(status),
-          fontWeight: FontWeight.w500,
-          fontSize: 18,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          border: Border.all(color: getStatusColor(status)),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 4,
+          children: [
+            Icon(getIconByStatus(status),
+                size: 24, color: getStatusColor(status)),
+            Text(
+              capitalizeFirstLetter(status.replaceAll('_', ' ')),
+              style: GoogleFonts.poppins(
+                color: getStatusColor(status),
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  String getChatType(String status) {
+  IconData getIconByStatus(String status) {
     switch (status) {
       case 'pesanan_masuk':
-        return 'tenant';
+        return Iconsax.login_1_copy;
       case 'pesanan_diproses':
-        return 'tenant';
-      case 'siap_diambil':
-        return 'tenant';
+        return Iconsax.repeat;
       case 'siap_diantar':
-        return 'tenant';
+        return Iconsax.reserve;
+      case 'siap_diambil':
+        return Iconsax.flag_2;
+      case 'diantar':
+        return Iconsax.routing;
+      case 'selesai':
+        return Iconsax.tick_circle;
+      case 'gagal_bayar':
+        return Iconsax.money_remove;
+      case 'refund_selesai':
+        return Iconsax.directbox_send;
+      case 'pending':
+        return HugeIcons.strokeRoundedLoading03;
+      default:
+        return HugeIcons.strokeRoundedArrowReloadVertical;
+    }
+  }
+
+  String getChatType(Pesanan pesanan, String namaUser) {
+    switch (pesanan.status) {
+      case 'pesanan_masuk':
+        return ((pesanan.driverId != null && widget.label == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
+      case 'pesanan_diproses':
+        return ((pesanan.driverId != null && widget.label == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
+      case 'siap_diambil':
+        return ((pesanan.driverId != null && widget.label == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
+      case 'siap_diantar':
+        return ((pesanan.driverId != null && widget.label == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
       case 'diantar':
         return 'driver';
       default:

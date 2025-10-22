@@ -302,7 +302,8 @@ class _DeliveryCardState extends State<DeliveryCard> {
                     ? MainAxisAlignment.end
                     : MainAxisAlignment.center,
                 children: [
-                  if (widget.status == DeliveryStatus.diantar)
+                  if ((widget.status == DeliveryStatus.diantar ||
+                      widget.pesanan.driverId != null))
                     Expanded(
                         child: Row(
                       mainAxisSize: MainAxisSize.min,

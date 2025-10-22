@@ -561,73 +561,6 @@ class PesananCardState extends State<PesananCard> {
           spacing: 8,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Expanded(
-            //   child: Stack(
-            //     clipBehavior: Clip.none,
-            //     children: [
-            //       OutlinedButton(
-            //         style: OutlinedButton.styleFrom(
-            //           minimumSize:
-            //               Size(double.infinity, screenSize.height * 0.075),
-            //           side: BorderSide(
-            //               color: AppColors.primaryColor), // border warna
-            //           shape: RoundedRectangleBorder(
-            //             borderRadius: BorderRadius.circular(20),
-            //           ),
-            //           padding: const EdgeInsets.symmetric(
-            //             horizontal: 16,
-            //             vertical: 16,
-            //           ),
-            //         ),
-            //         onPressed: () async {
-            //           final connectivityResult = await hasInternetAccess();
-            //           if (!connectivityResult) {
-            //             Fluttertoast.showToast(
-            //               msg: 'Tidak ada koneksi internet',
-            //             );
-            //             showNoConnectionBottomSheet(
-            //                 context: context, onRetry: () {});
-            //             return;
-            //           }
-            //           historyProvider.removeUnreadMessages(widget.pesanan.id);
-
-            //           Navigator.push(
-            //             context,
-            //             CustomPageBuilder(
-            //               page: ChatPage(
-            //                 pesanan: widget.pesanan,
-            //                 chatType: "tenant",
-            //               ),
-            //             ),
-            //           );
-            //         },
-            //         child: Text(
-            //           'Chat Pembeli',
-            //           style: GoogleFonts.poppins(
-            //             color: AppColors.primaryColor,
-            //             fontSize: 14,
-            //             fontWeight: semibold,
-            //           ),
-            //         ),
-            //       ),
-
-            //       // bulatan indikator
-            //       if (isThereNewChat)
-            //         Positioned(
-            //           right: 2,
-            //           top: -2,
-            //           child: Container(
-            //             width: 16,
-            //             height: 16,
-            //             decoration: BoxDecoration(
-            //               color: AppColors.primaryColor,
-            //               shape: BoxShape.circle,
-            //             ),
-            //           ),
-            //         ),
-            //     ],
-            //   ),
-            // ),
             Expanded(
                 child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -647,62 +580,64 @@ class PesananCardState extends State<PesananCard> {
                     color: AppColors.errorColor,
                   ),
                 ),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        shape:
-                            const CircleBorder(), // ✅ ini yang bikin benar-benar bundar
-                        side: BorderSide(
-                            color: AppColors.primaryColor300, width: 2),
-                        padding: const EdgeInsets.all(
-                            12), // jarak icon dengan border
-                      ),
-                      onPressed: () async {
-                        final connectivityResult = await hasInternetAccess();
-                        if (!connectivityResult) {
-                          Fluttertoast.showToast(
-                              msg: 'Tidak ada koneksi internet');
-                          showNoConnectionBottomSheet(
-                              context: context, onRetry: () {});
-                          return;
-                        }
-                        historyProvider.removeUnreadMessages(widget.pesanan.id);
+                if (pesanan.driverId == null)
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          shape:
+                              const CircleBorder(), // ✅ ini yang bikin benar-benar bundar
+                          side: BorderSide(
+                              color: AppColors.primaryColor300, width: 2),
+                          padding: const EdgeInsets.all(
+                              12), // jarak icon dengan border
+                        ),
+                        onPressed: () async {
+                          final connectivityResult = await hasInternetAccess();
+                          if (!connectivityResult) {
+                            Fluttertoast.showToast(
+                                msg: 'Tidak ada koneksi internet');
+                            showNoConnectionBottomSheet(
+                                context: context, onRetry: () {});
+                            return;
+                          }
+                          historyProvider
+                              .removeUnreadMessages(widget.pesanan.id);
 
-                        Navigator.push(
-                          context,
-                          CustomPageBuilder(
-                            page: ChatPage(
-                              pesanan: widget.pesanan,
-                              chatType: "tenant",
+                          Navigator.push(
+                            context,
+                            CustomPageBuilder(
+                              page: ChatPage(
+                                pesanan: widget.pesanan,
+                                chatType: "tenant",
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      child: const Icon(
-                        Iconsax.message_text_copy,
-                        size: 24,
-                        color: AppColors.primaryColor300,
-                      ),
-                    ),
-
-                    // bulatan indikator
-                    if (isThereNewChat)
-                      Positioned(
-                        right: 8,
-                        top: 4,
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryColor,
-                            shape: BoxShape.circle,
-                          ),
+                          );
+                        },
+                        child: const Icon(
+                          Iconsax.message_text_copy,
+                          size: 24,
+                          color: AppColors.primaryColor300,
                         ),
                       ),
-                  ],
-                ),
+
+                      // bulatan indikator
+                      if (isThereNewChat)
+                        Positioned(
+                          right: 8,
+                          top: 4,
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
               ],
             )),
             Expanded(
@@ -896,7 +831,7 @@ class PesananCardState extends State<PesananCard> {
                   ),
                 ],
               )
-            : pesanan.status == 'siap_diantar'
+            : pesanan.status == 'siap_diantar' && pesanan.driverId == null
                 ? Stack(
                     clipBehavior: Clip.none,
                     children: [
@@ -964,9 +899,6 @@ class PesananCardState extends State<PesananCard> {
                     ],
                   )
                 : SizedBox.shrink();
-
-      default:
-        return const SizedBox.shrink();
     }
   }
 }

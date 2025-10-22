@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -906,6 +907,16 @@ class _CartPageState extends State<CartPage> {
                                   user.token, roomSelected.gedung.ongkir);
                             },
                           ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Text(
+                              "Opsi Pengantaran",
+                              style: GoogleFonts.poppins(
+                                color: AppColors.blackColor400,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                           Container(
                             margin: const EdgeInsets.symmetric(horizontal: 15),
                             padding: const EdgeInsets.all(12),
@@ -936,31 +947,95 @@ class _CartPageState extends State<CartPage> {
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                         color: cartProvider.priority == 1
-                                            ? AppColors.infoColor
-                                            : AppColors.infoColor300,
+                                            ? AppColors.primaryColor
+                                            : AppColors.blackColor100,
                                       ),
-                                      color: cartProvider.priority == 1
-                                          ? AppColors.infoColor300
-                                          : AppColors.whiteColor100,
-                                      borderRadius: BorderRadius.circular(8),
+                                      color: AppColors.whiteColor100,
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          'Prioritas Ongkir +3000',
-                                          style: GoogleFonts.poppins(
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.w600,
+                                        Expanded(
+                                          flex: 3,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon(Iconsax.flash_1,
+                                                      color: AppColors
+                                                          .primaryColor),
+                                                  Text(
+                                                    'Express',
+                                                    style: GoogleFonts.poppins(
+                                                      color:
+                                                          AppColors.blackColor,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Text(
+                                                'Jaminan pesan tidak tertolak, lebih cepat sampai tempatmu',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12,
+                                                  color: AppColors.primaryColor,
+                                                ),
+                                                softWrap: true,
+                                              )
+                                            ],
                                           ),
                                         ),
-                                        Text(
-                                          'Pesananmu akan menjadi prioritas dengan benefit mendapat driver ketika pesanan masuk ke tenant',
-                                          style: GoogleFonts.poppins(
-                                            color: AppColors.blackColor,
+                                        Expanded(
+                                          flex: 1,
+                                          child: Row(
+                                            spacing: 8,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                cartProvider.roomId == null
+                                                    ? '-'
+                                                    : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir + 3000}',
+                                                style: GoogleFonts.poppins(
+                                                    color: AppColors.blackColor,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                              Container(
+                                                width: 24,
+                                                height: 24,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    color: cartProvider
+                                                                .priority ==
+                                                            1
+                                                        ? AppColors.primaryColor
+                                                        : Colors.grey,
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Container(
+                                                    width: 24 / 2,
+                                                    height: 24 / 2,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: cartProvider
+                                                                  .priority ==
+                                                              1
+                                                          ? AppColors
+                                                              .primaryColor
+                                                          : Colors.transparent,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          softWrap: true,
                                         )
                                       ],
                                     ),
@@ -977,31 +1052,66 @@ class _CartPageState extends State<CartPage> {
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                         color: cartProvider.priority == 0
-                                            ? AppColors.infoColor
-                                            : AppColors.infoColor300,
+                                            ? AppColors.primaryColor
+                                            : AppColors.blackColor100,
                                       ),
-                                      color: cartProvider.priority == 0
-                                          ? AppColors.infoColor300
-                                          : AppColors.whiteColor100,
+                                      color: AppColors.whiteColor100,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          'Standard',
+                                          'Reguler',
                                           style: GoogleFonts.poppins(
                                             color: AppColors.blackColor,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                        Text(
-                                          'Pesananmu akan menjadi standard kasjdaskjd',
-                                          style: GoogleFonts.poppins(
-                                            color: AppColors.blackColor,
-                                          ),
-                                          softWrap: true,
+                                        Row(
+                                          spacing: 8,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              cartProvider.roomId == null
+                                                  ? '-'
+                                                  : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir}',
+                                              style: GoogleFonts.poppins(
+                                                  color: AppColors.blackColor,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                            Container(
+                                              width: 24,
+                                              height: 24,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color:
+                                                      cartProvider.priority == 0
+                                                          ? AppColors
+                                                              .primaryColor
+                                                          : Colors.grey,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child: Container(
+                                                  width: 24 / 2,
+                                                  height: 24 / 2,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: cartProvider
+                                                                .priority ==
+                                                            0
+                                                        ? AppColors.primaryColor
+                                                        : Colors.transparent,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         )
                                       ],
                                     ),

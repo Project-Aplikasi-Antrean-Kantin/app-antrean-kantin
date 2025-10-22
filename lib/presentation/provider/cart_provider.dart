@@ -125,6 +125,10 @@ class CartProvider extends ChangeNotifier {
 
   void setDeliveryOption(int option) {
     print('deliveryOptions ${option}');
+    if (option == 0) {
+      _priority = 0;
+      notifyListeners();
+    }
     if (_selectedDeliveryOption != option) {
       // Hanya update jika ada perubahan
       setIsDelivery(option);

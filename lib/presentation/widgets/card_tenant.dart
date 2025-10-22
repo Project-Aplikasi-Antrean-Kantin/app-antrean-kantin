@@ -110,21 +110,14 @@ class CardTenant extends StatelessWidget {
   }
 
   Widget _buildImageWidget(double width, double height, String url) {
-    return Stack(
-      children: [
-        ShimmerLoadingWidget(
-          shimmerContainerImage: true,
-          padding: EdgeInsets.zero,
-          heightContainerImage: height,
-          widhtContainerImage: width,
-        ),
-        ImageByUrl(
-          url: url,
-          width: width,
-          fit: BoxFit.cover,
-          height: height,
-        ),
-      ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: ImageByUrl(
+        url: url,
+        width: width,
+        fit: BoxFit.cover,
+        height: height,
+      ),
     );
   }
 
@@ -228,7 +221,9 @@ class CardTenant extends StatelessWidget {
         itemBuilder: (context, index) {
           final food = tenant.tenantFoods![index];
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: index == 0
+                ? const EdgeInsets.only(right: 8, top: 8, bottom: 8)
+                : const EdgeInsets.all(8.0),
             child: SizedBox(
               width: 100,
               child: Column(
@@ -236,7 +231,7 @@ class CardTenant extends StatelessWidget {
                 children: [
                   if (food.gambar != null && food.gambar!.isNotEmpty)
                     tenant.isOnline == true
-                        ? _buildImageWidget(72, 72, food.gambar!)
+                        ? _buildImageWidget(96, 96, food.gambar!)
                         : ColorFiltered(
                             colorFilter: const ColorFilter.matrix([
                               0.2126,
@@ -260,7 +255,7 @@ class CardTenant extends StatelessWidget {
                               1,
                               0,
                             ]),
-                            child: _buildImageWidget(56, 56, food.gambar!),
+                            child: _buildImageWidget(96, 96, food.gambar!),
                           )
                   else
                     Image.asset(

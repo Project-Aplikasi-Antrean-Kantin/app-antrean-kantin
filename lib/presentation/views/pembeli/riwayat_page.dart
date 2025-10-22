@@ -577,7 +577,7 @@ class _RiwayatPageState extends State<RiwayatPage>
       Pesanan pesanan, BuildContext context, bool isLoading) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final chatType = getChatType(pesanan.status);
+    final chatType = getChatType(pesanan, authProvider.user.nama);
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
     final user = authProvider.user;
@@ -690,7 +690,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                                     color: pesanan.isPriority == 1
                                         ? AppColors.primaryColor
                                         : Colors.black,
-                                    fontSize: 12,
+                                    fontSize: 10,
                                   ),
                                 ),
                               ],
@@ -714,7 +714,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                                   getStatus(pesanan.status),
                                   style: GoogleFonts.poppins(
                                     color: getStatusColor(pesanan.status),
-                                    fontSize: 12,
+                                    fontSize: 10,
                                   ),
                                 ),
                               ],
@@ -1042,16 +1042,28 @@ class _RiwayatPageState extends State<RiwayatPage>
     );
   }
 
-  String getChatType(String status) {
-    switch (status) {
+  String getChatType(Pesanan pesanan, String namaUser) {
+    switch (pesanan.status) {
       case 'pesanan_masuk':
-        return 'tenant';
+        return ((pesanan.driverId != null && widget.tabLabel == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
       case 'pesanan_diproses':
-        return 'tenant';
+        return ((pesanan.driverId != null && widget.tabLabel == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
       case 'siap_diambil':
-        return 'tenant';
+        return ((pesanan.driverId != null && widget.tabLabel == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
       case 'siap_diantar':
-        return 'tenant';
+        return ((pesanan.driverId != null && widget.tabLabel == 'Beli') ||
+                (pesanan.namaDriver != null && pesanan.namaDriver == namaUser))
+            ? 'driver'
+            : 'tenant';
       case 'diantar':
         return 'driver';
       default:
@@ -1089,7 +1101,7 @@ class _RiwayatPageState extends State<RiwayatPage>
   IconData getIconByStatus(String status) {
     switch (status) {
       case 'pesanan_masuk':
-        return Iconsax.login_1;
+        return Iconsax.login_1_copy;
       case 'pesanan_diproses':
         return Iconsax.repeat;
       case 'siap_diantar':
