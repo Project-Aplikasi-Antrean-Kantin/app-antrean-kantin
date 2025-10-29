@@ -20,8 +20,8 @@ Widget getFeaturePage(String url) {
       return RiwayatPageAsRole();
     case '/profile':
       return ProfilePage();
-    case '/kasir':
-      return KasirPage();
+    // case '/kasir':
+    //   return KasirPage();
     case '/penghasilan':
       return PenghasilanPage();
     default:

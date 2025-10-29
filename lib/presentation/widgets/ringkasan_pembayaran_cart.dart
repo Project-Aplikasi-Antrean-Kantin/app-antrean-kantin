@@ -11,19 +11,14 @@ import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 
 class RingkasanPembayaranCart extends StatelessWidget {
-  final bool isKasir;
-
   const RingkasanPembayaranCart({
     super.key,
-    required this.isKasir,
   });
 
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
-    final kasirProvider = Provider.of<KasirProvider>(context);
     log("ongkir RP dari server: " + cartProvider.ongkir.toString());
-    log(kasirProvider.totalItems.toString());
     return Column(
       children: [
         Container(
@@ -62,28 +57,18 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  isKasir
-                      ? Text(
-                          "Total pesanan (${kasirProvider.totalItems} menu)",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: AppColors.textColorBlack,
-                          ),
-                        )
-                      : Text(
-                          "Total pesanan (${cartProvider.totalItemCount} menu)",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: AppColors.textColorBlack,
-                          ),
-                        ),
+                  Text(
+                    "Total pesanan (${cartProvider.totalItemCount} menu)",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: AppColors.textColorBlack,
+                    ),
+                  ),
                   Column(
                     children: [
                       Text(
                         FormatCurrency.intToStringCurrency(
-                          isKasir
-                              ? kasirProvider.cartCost
-                              : cartProvider.deliveryCost,
+                          cartProvider.deliveryCost,
                         ),
                         style: GoogleFonts.poppins(
                           fontSize: 14,
@@ -97,7 +82,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
               const SizedBox(
                 height: 7,
               ),
-              if (!isKasir && cartProvider.selectedDeliveryOption != 0)
+              if (cartProvider.selectedDeliveryOption != 0)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,9 +213,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   ),
                   Text(
                     FormatCurrency.intToStringCurrency(
-                      isKasir
-                          ? kasirProvider.getTotal()
-                          : cartProvider.getTotal(),
+                      cartProvider.getTotal(),
                     ),
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,

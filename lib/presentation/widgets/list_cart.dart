@@ -117,15 +117,15 @@ class ListCart extends StatelessWidget {
                                   children: [
                                     InkWell(
                                       onTap: () {
-                                        kasirProvider
-                                            .addItemToCartOrUpdateQuantity(
-                                          cart.menuId,
-                                          cart.menuNama,
-                                          cart.menuPrice,
-                                          cart.menuNama,
-                                          cart.deskripsi ?? '',
-                                          false,
-                                        );
+                                        // kasirProvider
+                                        //     .addItemToCartOrUpdateQuantity(
+                                        //   cart.menuId,
+                                        //   cart.menuNama,
+                                        //   cart.menuPrice,
+                                        //   cart.menuNama,
+                                        //   cart.deskripsi ?? '',
+                                        //   false,
+                                        // );
                                       },
                                       splashColor: Colors.transparent,
                                       child: Icon(
@@ -134,32 +134,32 @@ class ListCart extends StatelessWidget {
                                         size: 30,
                                       ),
                                     ),
-                                    SizedBox(
-                                      width:
-                                          30, // Pastikan lebar tetap agar tidak bergeser
-                                      child: Text(
-                                        kasirProvider
-                                            .getItemCount(cart.menuId)
-                                            .toString(),
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: medium,
-                                          color: AppColors.textColorBlack,
-                                        ),
-                                      ),
-                                    ),
+                                    // SizedBox(
+                                    //   width:
+                                    //       30, // Pastikan lebar tetap agar tidak bergeser
+                                    //   child: Text(
+                                    //     kasirProvider
+                                    //         .getItemCount(cart.menuId)
+                                    //         .toString(),
+                                    //     textAlign: TextAlign.center,
+                                    //     style: GoogleFonts.poppins(
+                                    //       fontSize: 16,
+                                    //       fontWeight: medium,
+                                    //       color: AppColors.textColorBlack,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     InkWell(
                                       onTap: () {
-                                        kasirProvider
-                                            .addItemToCartOrUpdateQuantity(
-                                          cart.menuId,
-                                          cart.menuNama,
-                                          cart.menuPrice,
-                                          cart.menuNama,
-                                          cart.deskripsi ?? '',
-                                          true,
-                                        );
+                                        // kasirProvider
+                                        //     .addItemToCartOrUpdateQuantity(
+                                        //   cart.menuId,
+                                        //   cart.menuNama,
+                                        //   cart.menuPrice,
+                                        //   cart.menuNama,
+                                        //   cart.deskripsi ?? '',
+                                        //   true,
+                                        // );
                                       },
                                       splashColor: Colors.transparent,
                                       child: Icon(

@@ -560,9 +560,6 @@ class _MenuTenantState extends State<MenuTenant> {
               width: MediaQuery.of(context).size.width - 40,
               child: FloatingActionButton(
                 onPressed: () async {
-                  KasirProvider kasirProvider =
-                      Provider.of<KasirProvider>(context, listen: false);
-                  kasirProvider.setIsKasir(false);
                   bool isThereUnavailableMenu =
                       await cartProvider.removeUnavailableMenusFromCart(
                           cartProvider.currentTenant!.id.toString(),

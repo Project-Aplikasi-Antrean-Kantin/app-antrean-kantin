@@ -77,6 +77,39 @@ class TransactionRemoteDataSource {
     }
   }
 
+  Future<List<CashierTransaction>> getListCashierTransaction(
+      String auth) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${MasbroConstants.url}/tenant/kasir/riwayat'),
+        headers: {
+          'Authorization': "Bearer $auth",
+          'Accept': 'application/json',
+          HttpHeaders.contentTypeHeader: 'application/json'
+        },
+      );
+
+      final jsonBody = jsonDecode(response.body);
+      // print('Response status code: ${jsonBody['message'][0]}');
+      print('Response body: ${jsonBody['data']}');
+
+      if (response.statusCode == 200) {
+        return (jsonBody['data'] as List)
+            .map((e) => CashierTransaction.fromJson(e))
+            .toList();
+      } else if (response.statusCode == 400)
+        throw jsonBody['message'][0];
+      else {
+        print('Request failed with status: ${response.statusCode}');
+        print('Error response body: ${response.body}');
+        throw '${jsonBody['message'][0]}';
+      }
+    } catch (e) {
+      print('An error occurred: $e');
+      throw Exception(e.toString()); // cukup pakai e
+    }
+  }
+
   Future<Voucher> claimCashback(String auth, String referralCode) async {
     try {
       final response = await http.post(

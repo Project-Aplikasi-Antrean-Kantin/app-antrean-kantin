@@ -13,14 +13,12 @@ import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 class PilihTipePembayaran extends StatelessWidget {
   final PaymentMethod selectedPaymentMethod;
   final Function(PaymentMethod) onPaymentMethodSelected;
-  final bool isKasirActive;
   final bool isCartActive;
 
   const PilihTipePembayaran({
     Key? key,
     required this.selectedPaymentMethod,
     required this.onPaymentMethodSelected,
-    required this.isKasirActive,
     required this.isCartActive,
   }) : super(key: key);
 
@@ -49,7 +47,6 @@ class PilihTipePembayaran extends StatelessWidget {
       ),
       builder: (context) => _PaymentOptionBottomSheet(
         selectedMethod: selectedPaymentMethod,
-        isKasirActive: isKasirActive,
         onSelect: (method) {
           onPaymentMethodSelected(method);
           Navigator.pop(context);
@@ -68,8 +65,7 @@ class PilihTipePembayaran extends StatelessWidget {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
-    final total =
-        isKasirActive ? kasirProvider.getTotal() : cartProvider.getTotal();
+    final total = cartProvider.getTotal();
 
     return Semantics(
       label: selectedPaymentMethod == null
@@ -95,7 +91,6 @@ class PilihTipePembayaran extends StatelessWidget {
                     context: context,
                     builder: (context) => _PaymentOptionBottomSheet(
                         selectedMethod: selectedPaymentMethod,
-                        isKasirActive: isKasirActive,
                         onSelect: onPaymentMethodSelected),
                   ),
                   child: Container(
@@ -159,12 +154,10 @@ class PilihTipePembayaran extends StatelessWidget {
 
 class _PaymentOptionBottomSheet extends StatefulWidget {
   final PaymentMethod selectedMethod;
-  final bool isKasirActive;
   final Function(PaymentMethod) onSelect;
 
   const _PaymentOptionBottomSheet({
     required this.selectedMethod,
-    required this.isKasirActive,
     required this.onSelect,
   });
 
@@ -183,9 +176,7 @@ class _PaymentOptionBottomSheetState extends State<_PaymentOptionBottomSheet> {
   }
 
   Widget build(BuildContext context) {
-    final availableMethods = widget.isKasirActive
-        ? [PaymentMethod.qris]
-        : [PaymentMethod.koin, PaymentMethod.qris];
+    final availableMethods = [PaymentMethod.koin, PaymentMethod.qris];
 
     return SafeArea(
       child: Container(

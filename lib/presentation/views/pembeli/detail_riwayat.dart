@@ -1308,6 +1308,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
               style: GoogleFonts.poppins(
                 color: getStatusColor(status),
                 fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

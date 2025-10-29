@@ -282,26 +282,22 @@ class _CartPageState extends State<CartPage> {
     int total = cartProvider.totalItemCount;
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
-    if (kasirProvider.cart.isNotEmpty) {
-      await kasirProvider.buatTransaksi(user.token);
-      kasirProvider.clearCart();
-      // _navigateToSuccessPage(context, cartProvider,);
+
+    final result = await cartProvider.createTransaction(
+        context, user.token, paymentMethod.name);
+    if (result?.status == 'success') {
+      print('Transaction successful ${result?.pesanan}');
+      historyProvider.updateSelectedPesanan(result!.pesanan);
+      _navigateToSuccessPage(
+          context, cartProvider, result.pesanan, user, historyProvider);
+      cartProvider.clearCart(true);
     } else {
-      final result = await cartProvider.createTransaction(
-          context, user.token, paymentMethod.name);
-      if (result?.status == 'success') {
-        print('Transaction successful ${result?.pesanan}');
-        historyProvider.updateSelectedPesanan(result!.pesanan);
-        _navigateToSuccessPage(
-            context, cartProvider, result.pesanan, user, historyProvider);
-        cartProvider.clearCart(true);
-      } else {
-        print(
-          'Transaction failed ${result?.messages}',
-        );
-        cartProvider.setTransactionStatus(isTransactionCompleted: false);
-      }
+      print(
+        'Transaction failed ${result?.messages}',
+      );
+      cartProvider.setTransactionStatus(isTransactionCompleted: false);
     }
+
     cartProvider.setTransactionStatus(isLoading: false);
   }
 
@@ -402,9 +398,6 @@ class _CartPageState extends State<CartPage> {
     //     kasirProvider.isKasir ? PaymentMethod.cod : PaymentMethod.koin;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      log("CartPage initState: roomId = ${cartProvider.roomId}");
-      // cartProvider.getOngkir(user.token);
-      kasirProvider.getOngkir(user.token);
       TransactionRemoteDataSource().getRoomData(user.token).then((value) {
         if (!mounted) return; // ⛑️ Cegah crash jika widget sudah dispose
         setState(() {
@@ -460,11 +453,9 @@ class _CartPageState extends State<CartPage> {
             child: Consumer2<CartProvider, KasirProvider>(
               builder: (context, cartProvider, kasirProvider, _) {
                 final activeCart = cartProvider.cart;
-                final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
+                // final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
                 print('cartProvider ${cartProvider.cart}');
-                if (activeCart.isEmpty &&
-                    !isKasirProviderActive &&
-                    !_hasPopped) {
+                if (activeCart.isEmpty && !_hasPopped) {
                   _hasPopped = true;
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (Navigator.canPop(context)) {
@@ -837,7 +828,7 @@ class _CartPageState extends State<CartPage> {
                           ),
                         ),
                       ),
-                      if (!isKasirProviderActive) ...[
+                      ...[
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 15),
                           padding: const EdgeInsets.all(12),
@@ -1398,8 +1389,7 @@ class _CartPageState extends State<CartPage> {
                         ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: RingkasanPembayaranCart(
-                            isKasir: isKasirProviderActive),
+                        child: RingkasanPembayaranCart(),
                       ),
                       SizedBox(
                         height: 40,
@@ -1412,8 +1402,7 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
       ),
-      bottomNavigationBar: context.watch<CartProvider>().totalItemCount > 0 ||
-              context.watch<KasirProvider>().isCartVisible
+      bottomNavigationBar: context.watch<CartProvider>().totalItemCount > 0
           ? SafeArea(
               child: Consumer<CoinProvider>(
                 builder: (context, coinProvider, _) {

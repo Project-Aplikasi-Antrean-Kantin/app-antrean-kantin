@@ -123,14 +123,14 @@ Future<void> showDetailMenuBottomSheet(BuildContext context, DetailMenu menu,
                     onTap: () {
                       if (menu.dataFoods.isReady == 1) {
                         if (isCashier) {
-                          kasirProvider.addItemToCartOrUpdateQuantity(
-                            menu.dataFoods.id,
-                            menu.dataFoods.nama,
-                            menu.dataFoods.harga,
-                            menu.dataFoods.gambar,
-                            menu.dataFoods.deskripsi.toString(),
-                            true,
-                          );
+                          // kasirProvider.addItemToCartOrUpdateQuantity(
+                          //   menu.dataFoods.id,
+                          //   menu.dataFoods.nama,
+                          //   menu.dataFoods.harga,
+                          //   menu.dataFoods.gambar,
+                          //   menu.dataFoods.deskripsi.toString(),
+                          //   true,
+                          // );
                         } else {
                           cartProvider.addItemToCart(
                               newItem: menu.dataFoods,

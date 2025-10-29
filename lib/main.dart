@@ -238,7 +238,7 @@ class _MyAppState extends State<MyApp> {
           '/riwayat': (_) => const RiwayatPageAsRole(),
           '/profile': (_) => const ProfilePage(),
           '/katalog_menu': (_) => const KatalogMenu(),
-          '/kasir': (_) => const KasirPage(),
+          // '/kasir': (_) => const KasirPage(),
         },
       ),
     );

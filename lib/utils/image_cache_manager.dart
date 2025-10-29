@@ -25,7 +25,6 @@ class ImageCacheManager {
 
   Future<File?> getLocalImage(String url) async {
     if (_memoryCache.containsKey(url)) {
-      print('cek local image dari memory cache: ${_memoryCache.length}');
       return _memoryCache[url];
     }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
@@ -126,10 +127,21 @@ class CardTenant extends StatelessWidget {
       spacing: 3,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          tenant.namaTenant,
+          style: GoogleFonts.poppins(
+            color: Colors.black87,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         Row(
           children: [
             HugeIcon(
-              icon: HugeIcons.strokeRoundedTimeSetting03,
+              icon: Iconsax.clock,
+              size: 20,
               color: tenant.isOnline == true
                   ? tenant.busyUntil != null
                       ? AppColors.warningColor
@@ -144,7 +156,6 @@ class CardTenant extends StatelessWidget {
                       : 'Buka'
                   : 'Tutup',
               style: TextStyle(
-                fontStyle: FontStyle.italic,
                 color: tenant.isOnline == true
                     ? tenant.busyUntil != null
                         ? AppColors.warningColor
@@ -167,21 +178,13 @@ class CardTenant extends StatelessWidget {
             ),
           ],
         ),
-        Text(
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-          tenant.namaTenant,
-          style: GoogleFonts.poppins(
-            color: Colors.black87,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
         Row(
           children: [
             HugeIcon(
-                icon: HugeIcons.strokeRoundedShoppingBasket01,
-                color: AppColors.secondaryColor),
+              icon: Iconsax.bag_tick,
+              color: AppColors.secondaryColor,
+              size: 20,
+            ),
             const SizedBox(width: 4),
             Text(
               tenant.transaksiBerhasil.toString(),

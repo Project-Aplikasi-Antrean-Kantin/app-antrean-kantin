@@ -12,6 +12,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/cart_per_tenant.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
@@ -21,27 +22,38 @@ import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
-void validateCart(Map<String, CartPerTenant> cart, List<TenantModel> tenants) {
-  print(cart);
+void validateCart(
+  Map<String, CartPerTenant> cart,
+  List<TenantModel> tenants,
+  BuildContext context,
+) {
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
   final tenantMap = {for (var t in tenants) t.id: t};
-  print("tenantMap: ${tenantMap[5]}");
 
   cart.removeWhere((key, tenantCart) {
     final tenantIdStr = key.replaceFirst("cart_", "");
     final tenantId = int.tryParse(tenantIdStr);
+
     if (tenantId == null) return true; // key cart gak valid
 
     final tenant = tenantMap[tenantId];
-    print("tenantId: $tenantId, tenant: $tenant");
-
     if (tenant == null) return true; // tenant tidak ada lagi
 
+    // 🔥 Hapus semua menu di tenant ini kalau pemilik tenant = user login
+    if (tenant.emailPemilik == authProvider.user.email) {
+      print(
+          "Menghapus semua cart dari tenant milik user: ${tenant.namaTenant}");
+      return true;
+    }
+
+    // Hapus menu yang tidak ada lagi di daftar tenantFoods
     tenantCart.cartMenuList?.removeWhere((menu) {
       final exists =
-          tenant.tenantFoods?.any((f) => f.id == menu.menuId) ?? false;
+          (tenant.tenantFoods?.any((f) => f.id == menu.menuId)) ?? false;
       return !exists;
     });
 
+    // Hapus tenantCart kalau kosong setelah filtering
     return tenantCart.cartMenuList?.isEmpty ?? true;
   });
 }
@@ -49,7 +61,7 @@ void validateCart(Map<String, CartPerTenant> cart, List<TenantModel> tenants) {
 Future<void> showBottomSheetCart(BuildContext context,
     List<TenantModel> tenants, Map<String, CartPerTenant> cart) {
   print(cart);
-  validateCart(cart, tenants);
+  validateCart(cart, tenants, context);
 
   return showModalBottomSheet(
     enableDrag: true,

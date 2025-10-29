@@ -715,6 +715,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                                   style: GoogleFonts.poppins(
                                     color: getStatusColor(pesanan.status),
                                     fontSize: 10,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],

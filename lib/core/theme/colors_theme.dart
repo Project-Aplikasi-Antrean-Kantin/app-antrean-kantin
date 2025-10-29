@@ -81,7 +81,7 @@ class AppColors {
   static const Color infoColor800 = Color(0xFF123250);
   static const Color infoColor900 = Color(0xFF0B1E30);
 
-  static const Color backgroundColor = Color(0xFFF5F5F5);
+  static const Color backgroundColor = Color(0xFFFAFAFA);
   static const Color unselectedIconColor = Color(0xFF808191);
   static const Color selectedIconColor = Color(0xFF14487A);
   static const Color lineDividerColor = Color(0xFFB3B3B3);

@@ -391,154 +391,203 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             children: [
                               // 👉 Saldo dan tombol isi saldo kamu tadi
                               Expanded(
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    final internetConnection =
-                                        await hasInternetAccess();
-                                    if (!internetConnection) {
-                                      Fluttertoast.showToast(
-                                          msg: "Tidak ada koneksi internet");
-                                      return;
-                                    }
-                                    Navigator.push(
-                                        context,
-                                        CustomPageBuilder(
-                                            page: const KoinInfoPage()));
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2),
-                                          blurRadius: 6,
-                                          offset: Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      spacing: 8,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Image.asset(
-                                            'assets/images/icon-koin-blue.png',
-                                            height: 32),
-                                        const SizedBox(width: 8),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'FoodLAB Koin',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: AppColors.textColorBlack,
-                                              ),
-                                            ),
-                                            Text(
-                                              FormatCurrency
-                                                  .intToStringCurrency(
-                                                coinProvider.saldoKoin,
-                                              ),
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: AppColors.primaryColor,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                onTap: () async {
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  final jsonCurrentVa =
-                                      prefs.getString('current_va');
-                                  TopUpModel? currentVa;
-                                  print('jsonCurrentVa $jsonCurrentVa');
-                                  final internetConnection =
-                                      await hasInternetAccess();
-                                  if (!internetConnection) {
-                                    Fluttertoast.showToast(
-                                        msg: "Tidak ada koneksi internet");
-                                    return;
-                                  }
-                                  if (jsonCurrentVa != null) {
-                                    final decoded = jsonDecode(
-                                        jsonCurrentVa); // ini Map<String, dynamic>
-                                    final kodeBayar =
-                                        decoded['kode_bayar'] as String;
-                                    if (kodeBayar.contains('https:')) {
-                                      currentVa =
-                                          TopUpModel.fromJsonQris(decoded);
-                                    } else {
-                                      currentVa = TopUpModel.fromJson(
-                                          decoded); // ini TopUpModel
-                                    }
-
-                                    print('Kode Bayar: ${currentVa.kodeBayar}');
-                                    print('Nominal: ${currentVa.nominal}');
-                                    print('current_va ${currentVa}');
-                                    print(
-                                        'Akhir Bayar: ${currentVa.akhirBayar}');
-                                  } else {
-                                    print(
-                                        'current_va belum tersedia di SharedPreferences.');
-                                  }
-
-                                  if (jsonCurrentVa != null &&
-                                      jsonCurrentVa.isNotEmpty &&
-                                      currentVa != null) {
-                                    _handleNavigation(KodeVaPage(
-                                      currentVa: currentVa,
-                                    ));
-                                  } else {
-                                    _handleNavigation(
-                                        TopupPage(email: user.email));
-                                  }
-                                },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24, vertical: 11.5),
+                                  // padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        blurRadius: 6,
-                                        offset: Offset(0, 3),
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 1,
+                                        offset: Offset(0, 2),
                                       ),
                                     ],
                                   ),
-                                  child: Column(
+                                  child: Row(
+                                    spacing: 8,
                                     children: [
-                                      Image.asset(
-                                        'assets/images/icon-koin-plus-blue.png',
-                                        height: 32,
-                                      ),
-                                      Text(
-                                        'Isi Koin',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
+                                      Expanded(
+                                        flex: 60,
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            splashColor: Colors
+                                                .transparent, // hilangkan efek ripple
+                                            onTap: () async {
+                                              final internetConnection =
+                                                  await hasInternetAccess();
+                                              if (!internetConnection) {
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        "Tidak ada koneksi internet");
+                                                return;
+                                              }
+                                              Navigator.push(
+                                                  context,
+                                                  CustomPageBuilder(
+                                                      page:
+                                                          const KoinInfoPage()));
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          16)),
+                                              padding: const EdgeInsets.all(16),
+                                              child: Center(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                        'assets/images/icon-koin-blue.png',
+                                                        height: 32),
+                                                    const SizedBox(width: 8),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          'FoodLAB Koin',
+                                                          style: GoogleFonts
+                                                              .poppins(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color: AppColors
+                                                                .textColorBlack,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          FormatCurrency
+                                                              .intToStringCurrency(
+                                                            coinProvider
+                                                                .saldoKoin,
+                                                          ),
+                                                          style: GoogleFonts
+                                                              .poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: AppColors
+                                                                .primaryColor,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: const SizedBox(
+                                          height: 52,
+                                          child: VerticalDivider(
+                                            color: Color(0xFFCDCDCD),
+                                            thickness: 1,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 30,
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            splashColor: Colors
+                                                .transparent, // hilangkan efek ripple
+                                            // behavior: HitTestBehavior
+                                            //     .opaque, // ✅ area tap jadi selebar parent-nya
+
+                                            onTap: () async {
+                                              final prefs =
+                                                  await SharedPreferences
+                                                      .getInstance();
+                                              final jsonCurrentVa =
+                                                  prefs.getString('current_va');
+                                              TopUpModel? currentVa;
+                                              print(
+                                                  'jsonCurrentVa $jsonCurrentVa');
+                                              final internetConnection =
+                                                  await hasInternetAccess();
+                                              if (!internetConnection) {
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        "Tidak ada koneksi internet");
+                                                return;
+                                              }
+                                              if (jsonCurrentVa != null) {
+                                                final decoded = jsonDecode(
+                                                    jsonCurrentVa); // ini Map<String, dynamic>
+                                                final kodeBayar =
+                                                    decoded['kode_bayar']
+                                                        as String;
+                                                if (kodeBayar
+                                                    .contains('https:')) {
+                                                  currentVa =
+                                                      TopUpModel.fromJsonQris(
+                                                          decoded);
+                                                } else {
+                                                  currentVa = TopUpModel.fromJson(
+                                                      decoded); // ini TopUpModel
+                                                }
+
+                                                print(
+                                                    'Kode Bayar: ${currentVa.kodeBayar}');
+                                                print(
+                                                    'Nominal: ${currentVa.nominal}');
+                                                print(
+                                                    'current_va ${currentVa}');
+                                                print(
+                                                    'Akhir Bayar: ${currentVa.akhirBayar}');
+                                              } else {
+                                                print(
+                                                    'current_va belum tersedia di SharedPreferences.');
+                                              }
+
+                                              if (jsonCurrentVa != null &&
+                                                  jsonCurrentVa.isNotEmpty &&
+                                                  currentVa != null) {
+                                                _handleNavigation(KodeVaPage(
+                                                  currentVa: currentVa,
+                                                ));
+                                              } else {
+                                                _handleNavigation(TopupPage(
+                                                    email: user.email));
+                                              }
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.all(16),
+                                              child: Column(
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/icon-koin-plus-blue.png',
+                                                    height: 32,
+                                                  ),
+                                                  Text(
+                                                    'Isi Koin',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      )
                                     ],
                                   ),
                                 ),
-                              )
+                              ),
+                              // const SizedBox(width: 16),
                             ],
                           ),
                         ),

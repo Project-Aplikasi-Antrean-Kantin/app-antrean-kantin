@@ -425,13 +425,10 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
 
     // Halaman yang baru dipilih bukan halaman kasir, maka bersihkan keranjang belanja
     void clearCartIfRequired(int newIndex) {
-      KasirProvider kasirProvider =
-          Provider.of<KasirProvider>(context, listen: false);
       FiturModel selectedFeature = listFitur[newIndex];
       if (selectedFeature.nama.toLowerCase() == "kasir") {
         return;
       }
-      kasirProvider.clearCart();
     }
 
     String kapitalHurufDepan(String text) {

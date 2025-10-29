@@ -33,13 +33,13 @@ class TenantFoods {
 
   factory TenantFoods.fromJson(Map<String, dynamic> json) => TenantFoods(
         id: json["id"],
-        nama: json["nama"],
-        kategoriId: json["kategori_id"],
+        nama: json["nama"] ?? json["nama_menu"],
+        kategoriId: json["kategori_id"] ?? 0,
         // detailMenu: json["detail_menu"] != null
         //     ? DetailMenu.fromJson(json["detail_menu"])
         //     : null,
         gambar: json["gambar"],
-        isReady: json["isReady"],
+        isReady: json["isReady"] ?? 0,
         deskripsi: json["deskripsi"],
         harga: json["harga"],
         deletedAt: json["deleted_at"] == null
@@ -52,9 +52,11 @@ class TenantFoods {
             ? null
             : DateTime.parse(json["updated_at"]),
         tenantId: json["tenant_id"],
-        tenants: json["tenants"] == null
-            ? null
-            : TenantModel.fromJson(json["tenants"]),
+        tenants: json["tenants"] != null
+            ? TenantModel.fromJson(json["tenants"])
+            : json["tenant"] != null
+                ? TenantModel.fromJson(json["tenant"])
+                : null,
       );
   @override
   String toString() {

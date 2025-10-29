@@ -60,7 +60,6 @@ class _BottomNavigationCartPaymentState
 
   /// Checks if delivery location data is incomplete.
   bool _isDataIncomplete() =>
-      !widget.kasirProvider.cart.isNotEmpty &&
       widget.cartProvider.selectedDeliveryOption == 1 &&
       (widget.cartProvider.roomId == null || widget.cartProvider.roomId! <= 0);
 
@@ -79,10 +78,7 @@ class _BottomNavigationCartPaymentState
 
   @override
   Widget build(BuildContext context) {
-    final isKasirActive = widget.kasirProvider.cart.isNotEmpty;
-    final totalHarga = isKasirActive
-        ? widget.kasirProvider.getTotal()
-        : widget.cartProvider.getTotal();
+    final totalHarga = widget.cartProvider.getTotal();
     final isCoinInsufficient = _isCoinInsufficient(totalHarga);
 
     return Semantics(
@@ -105,7 +101,6 @@ class _BottomNavigationCartPaymentState
               children: [
                 PilihTipePembayaran(
                   isCartActive: widget.cartProvider.cart.isNotEmpty,
-                  isKasirActive: isKasirActive,
                   selectedPaymentMethod: widget.selectedPaymentMethod,
                   onPaymentMethodSelected: widget.onPaymentMethodSelected,
                 ),
@@ -135,9 +130,8 @@ class _BottomNavigationCartPaymentState
                                 canSend: true);
                             return;
                           }
-                          if (!isKasirActive &&
-                              !widget.cartProvider
-                                  .isCartValid(widget.cartProvider.roomId)) {
+                          if (!widget.cartProvider
+                              .isCartValid(widget.cartProvider.roomId)) {
                             widget.onIncompleteData();
                             return;
                           }

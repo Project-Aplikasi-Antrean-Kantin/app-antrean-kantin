@@ -94,7 +94,7 @@ class TenantModel {
             ? DateTime.parse(json["busy_until"])
             : null,
         namaTenant: json["nama_tenant"],
-        namaKavling: json["nama_kavling"],
+        namaKavling: json["nama_kavling"] ?? '-',
         nomorRekeningToko: json["no_rekening_toko"],
         nomorRekeningPribadi: json["no_rekening_pribadi"],
         gambar: json["gambar"] ?? '',
@@ -116,8 +116,12 @@ class TenantModel {
             : null,
         emailPemilik: json["pemilik"] != null ? json["pemilik"]["email"] : null,
         deletedAt: json["deleted_at"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"] != null
+            ? DateTime.parse(json["created_at"])
+            : DateTime.now(),
+        updatedAt: json["updated_at"] != null
+            ? DateTime.parse(json["updated_at"])
+            : DateTime.now(),
       );
 
   @override
