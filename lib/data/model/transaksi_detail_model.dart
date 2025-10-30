@@ -27,6 +27,40 @@ class ListTransaksiDetail {
     this.menus,
   });
 
+  //copy with
+  ListTransaksiDetail copyWith({
+    int? id,
+    int? transaksiId,
+    int? jumlah,
+    int? harga,
+    String? status,
+    String? catatan,
+    int? menusKelolaId,
+    String? namaMenu,
+    DateTime? createdAt,
+    String? kategoriMenu,
+    TenantFoods? menus,
+  }) {
+    return ListTransaksiDetail(
+      id: id ?? this.id,
+      transaksiId: transaksiId ?? this.transaksiId,
+      jumlah: jumlah ?? this.jumlah,
+      harga: harga ?? this.harga,
+      status: status ?? this.status,
+      catatan: catatan ?? this.catatan,
+      menusKelolaId: menusKelolaId ?? this.menusKelolaId,
+      namaMenu: namaMenu ?? this.namaMenu,
+      createdAt: createdAt ?? this.createdAt,
+      kategoriMenu: kategoriMenu ?? this.kategoriMenu,
+      menus: menus ?? this.menus,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'tenantfoods: $menus';
+  }
+
   factory ListTransaksiDetail.fromJson(Map<String, dynamic> json) =>
       ListTransaksiDetail(
         id: json["id"],
@@ -37,7 +71,9 @@ class ListTransaksiDetail {
         catatan: json["catatan"],
         createdAt: DateTime.parse(json["created_at"]),
         menusKelolaId: json["menus_kelola_id"] ?? json["menu_id"],
-        namaMenu: json["nama_menu"] ?? json["menu"]["nama"] ?? "-",
+        namaMenu: json["nama_menu"] ??
+            json["menu"]["nama"] ??
+            json["menu"]["nama_menu"],
         kategoriMenu: json["kategori_menu"] ?? "-",
         //menus: TenantFoods.fromJson(json["menus"]),
         menus: json["menus"] != null

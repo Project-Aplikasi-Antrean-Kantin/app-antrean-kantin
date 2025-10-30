@@ -14,7 +14,8 @@ import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/riwayat_kasir_page.dart';
+import 'package:testgetdata/presentation/views/penjual/pesanan_kasir.dart';
+import 'package:testgetdata/presentation/views/penjual/riwayat_kasir_page.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_list.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
@@ -471,7 +472,7 @@ class _PesananTenantState extends State<PesananTenant> {
                 );
               }).toList(),
             ),
-            RiwayatKasirPage()
+            PesananKasir()
           ],
         ),
       ),

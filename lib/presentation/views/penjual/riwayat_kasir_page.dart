@@ -263,9 +263,11 @@ class _RiwayatKasirPageState extends State<RiwayatKasirPage> {
                     context,
                     CustomPageBuilder(
                       page: MenuTenant(
-                          url:
-                              '${MasbroConstants.url}/tenants/${transaction.listTransaksiDetail[0].menus!.tenants!.id.toString()}',
-                          cart: cartMenuList),
+                        url:
+                            '${MasbroConstants.url}/tenants/${transaction.listTransaksiDetail[0].menus!.tenants!.id.toString()}',
+                        cart: cartMenuList,
+                        cashierTransactionId: transaction.id.toString(),
+                      ),
                     ),
                   );
                 },

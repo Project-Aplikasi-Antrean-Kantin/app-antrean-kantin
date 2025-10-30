@@ -12,6 +12,7 @@ import 'package:testgetdata/data/model/tenant_foods.dart';
 class KasirProvider extends ChangeNotifier {
   List<CashierTransaction> cashierTransactions = [];
   bool isLoading = false;
+  bool submittingCashierTransaction = false;
 
   void addCashierTransaction(CashierTransaction cashierTransaction) {
     cashierTransactions.add(cashierTransaction);
@@ -21,6 +22,95 @@ class KasirProvider extends ChangeNotifier {
   void deleteCashierTransaction(CashierTransaction cashierTransaction) {
     cashierTransactions.remove(cashierTransaction);
     notifyListeners();
+  }
+
+  void updateCashierTransactionState(CashierTransaction updatedTransaction) {
+    int index = cashierTransactions
+        .indexWhere((element) => element.id == updatedTransaction.id);
+
+    if (index == -1) return;
+
+    final existingTransaction = cashierTransactions[index];
+
+    // 1️⃣ Ambil list transaksi baru (hapus yang gak ada di updated)
+    final updatedDetails = existingTransaction.listTransaksiDetail
+        .where((detail) => updatedTransaction.listTransaksiDetail.any(
+              (u) =>
+                  u.menusKelolaId == detail.menusKelolaId &&
+                  u.catatan == detail.catatan,
+            ))
+        .map((detail) {
+      // 2️⃣ Update data yang masih ada
+      final matchingUpdatedDetail =
+          updatedTransaction.listTransaksiDetail.firstWhere(
+        (u) =>
+            u.menusKelolaId == detail.menusKelolaId &&
+            u.catatan == detail.catatan,
+      );
+
+      return detail.copyWith(
+        jumlah: matchingUpdatedDetail.jumlah,
+        harga: matchingUpdatedDetail.harga,
+      );
+    }).toList();
+
+    // 3️⃣ Tambahkan item baru yang belum ada di existing
+    for (var newDetail in updatedTransaction.listTransaksiDetail) {
+      final exists = updatedDetails.any((d) =>
+          d.menusKelolaId == newDetail.menusKelolaId &&
+          d.catatan == newDetail.catatan);
+      if (!exists) {
+        updatedDetails.add(newDetail);
+      }
+    }
+
+    // 4️⃣ Update transaksi di list utama
+    cashierTransactions[index] = existingTransaction.copyWith(
+      total: updatedTransaction.total ?? existingTransaction.total,
+      listTransaksiDetail: updatedDetails,
+    );
+
+    notifyListeners();
+  }
+
+  Future<void> updateStatusCashierTransaction(
+      String auth, String newStatus, int id) async {
+    try {
+      final result =
+          await TransactionRemoteDataSource().updateStatusCashierTransaction(
+        auth,
+        newStatus,
+        id.toString(),
+      );
+      if (result) {
+        int index =
+            cashierTransactions.indexWhere((element) => element.id == id);
+        cashierTransactions[index] = cashierTransactions[index].copyWith(
+          status: newStatus,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> updateCashierTransaction(
+      BuildContext context, String token, String data, String id) async {
+    submittingCashierTransaction = true;
+    notifyListeners();
+    try {
+      final result = await TransactionRemoteDataSource()
+          .updateCashierTransaction(token, data, id);
+
+      updateCashierTransactionState(result);
+    } catch (e) {
+      print(e);
+      throw Exception(e.toString());
+    } finally {
+      submittingCashierTransaction = false;
+      notifyListeners();
+    }
   }
 
   Future<void> getListCashierTransaction(String token) async {

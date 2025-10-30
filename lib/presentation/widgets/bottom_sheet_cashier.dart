@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,7 @@ import 'package:testgetdata/data/model/cart_per_tenant.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
@@ -23,7 +26,8 @@ import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
-Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant) {
+Future<void> showBottomSheetCashier(
+    BuildContext context, TenantModel tenant, bool isEdit, String? id) {
   return showModalBottomSheet(
     enableDrag: true,
     backgroundColor: AppColors.backgroundColor,
@@ -79,10 +83,15 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant) {
                         child: Consumer<CartProvider>(
                             builder: (context, cartProvider, _) {
                           final activeCart = cartProvider.cart;
-                          if (activeCart.isEmpty) {
-                            Future.microtask(() => Navigator.pop(context));
+                          if (activeCart.isEmpty && Navigator.canPop(context)) {
+                            Future.microtask(() {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            });
                             return const SizedBox(); // return widget kosong biar nggak error
                           }
+
                           return ListView.separated(
                               separatorBuilder: (context, index) {
                                 return SizedBox(height: 12);
@@ -360,9 +369,7 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant) {
                         }),
                       ),
                     ),
-                    buildBottomSheetCartList(
-                      context,
-                    ),
+                    buildBottomSheetCartList(context, isEdit, id),
                   ],
                 ),
               );
@@ -374,9 +381,9 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant) {
   );
 }
 
-Widget buildBottomSheetCartList(BuildContext context) {
-  return Consumer2<CartProvider, AuthProvider>(
-      builder: (innerContext, cartProvider, authProvider, child) {
+Widget buildBottomSheetCartList(BuildContext context, bool isEdit, String? id) {
+  return Consumer3<CartProvider, AuthProvider, KasirProvider>(builder:
+      (innerContext, cartProvider, authProvider, kasirProvider, child) {
     final listCart = cartProvider.cart;
     print('cek listCart iki loh cak ${listCart}');
     if (listCart.isEmpty) return Container();
@@ -421,23 +428,34 @@ Widget buildBottomSheetCartList(BuildContext context) {
             isLoading: cartProvider.submittingCashierTransaction,
             onPressed: () async {
               final internetConnection = await hasInternetAccess();
+              final data = jsonEncode({
+                "menus": cartProvider.cart.map((x) => x.toJson()).toList(),
+              });
+
               if (!internetConnection) {
                 Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
                 return;
               }
               try {
-                await cartProvider.createCashierTransaction(
-                    context, authProvider.user.token);
+                if (isEdit && id != null) {
+                  await kasirProvider.updateCashierTransaction(
+                      context, authProvider.user.token, data, id);
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                } else {
+                  await cartProvider.createCashierTransaction(
+                      context, authProvider.user.token);
+                }
               } catch (e) {
                 Fluttertoast.showToast(msg: e.toString());
               } finally {
-                // Navigator.pop(context);
                 cartProvider.clearCartOnly();
               }
               Fluttertoast.showToast(msg: "Transaksi berhasil dicatat");
             },
             child: Text(
-              "Catat Transaksi",
+              isEdit ? "Update Transaksi" : "Catat Transaksi",
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14,

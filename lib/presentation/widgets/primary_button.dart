@@ -11,6 +11,8 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   final bool? isLoading;
+  final double? paddingVertical;
+  final double? paddingHorizontal;
   final bool? isEnabled;
   final Color? color;
   final double? width;
@@ -22,6 +24,8 @@ class PrimaryButton extends StatelessWidget {
   final Color? forgroundColor;
   final String? waitingText;
   const PrimaryButton({
+    this.paddingVertical,
+    this.paddingHorizontal,
     this.onLongPress,
     super.key,
     required this.child,
@@ -52,7 +56,9 @@ class PrimaryButton extends StatelessWidget {
             },
       style: ElevatedButton.styleFrom(
         elevation: elevation ?? 1,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(
+            horizontal: paddingHorizontal ?? 16,
+            vertical: paddingVertical ?? 14),
         shape: RoundedRectangleBorder(
           // borderRadius: BorderRadius.all(
           //   Radius.circular(6.0),

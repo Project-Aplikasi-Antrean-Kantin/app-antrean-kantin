@@ -122,6 +122,7 @@ class PesananCardState extends State<PesananCard> {
               terimaPesanan: () {},
             );
           }).toList(),
+          DashedDivider(color: AppColors.blackColor100, height: 2),
 
           // Summary Section
           Padding(

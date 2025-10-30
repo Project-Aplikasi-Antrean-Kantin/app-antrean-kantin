@@ -24,6 +24,35 @@ class CashierTransaction {
     required this.listTransaksiDetail,
   });
 
+  @override
+  String toString() {
+    return 'PesananModel(kodePemesanan: $status), listTransaksiDetail: $listTransaksiDetail';
+  }
+
+  //copy with
+  CashierTransaction copyWith({
+    int? id,
+    int? orderTenant,
+    int? userId,
+    int? total,
+    String? kodePemesanan,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<ListTransaksiDetail>? listTransaksiDetail,
+    String? status,
+  }) =>
+      CashierTransaction(
+        status: status ?? this.status,
+        kodePemesanan: kodePemesanan ?? this.kodePemesanan,
+        orderTenant: orderTenant ?? this.orderTenant,
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        total: total ?? this.total,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        listTransaksiDetail: listTransaksiDetail ?? this.listTransaksiDetail,
+      );
+
   factory CashierTransaction.fromJson(Map<String, dynamic> json) =>
       CashierTransaction(
         status: json["status"],

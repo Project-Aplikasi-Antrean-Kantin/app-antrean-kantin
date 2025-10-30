@@ -30,7 +30,10 @@ import 'cart_page.dart';
 class MenuTenant extends StatefulWidget {
   final String url;
   final List<CartMenuModel>? cart;
-  const MenuTenant({Key? key, required this.url, this.cart}) : super(key: key);
+  final String? cashierTransactionId;
+  const MenuTenant(
+      {Key? key, required this.url, this.cart, this.cashierTransactionId})
+      : super(key: key);
 
   @override
   _MenuTenantState createState() => _MenuTenantState();
@@ -576,7 +579,11 @@ class _MenuTenantState extends State<MenuTenant> {
                   }
                   if (_currentTenant != null &&
                       _currentTenant!.emailPemilik == authProvider.user.email) {
-                    showBottomSheetCashier(context, _currentTenant!);
+                    showBottomSheetCashier(
+                        context,
+                        _currentTenant!,
+                        widget.cashierTransactionId != null,
+                        widget.cashierTransactionId);
                     return;
                   }
                   if (_currentTenant != null &&

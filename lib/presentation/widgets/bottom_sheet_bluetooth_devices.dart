@@ -9,6 +9,7 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
@@ -158,7 +159,6 @@ Future<Uint8List> loadLogo() async {
 
 Future<List<int>> generateReceipt(
     Pesanan pesanan, Printer selectedPrinter, BuildContext context) async {
-  final printer = FlutterThermalPrinter.instance;
   final profile = await CapabilityProfile.load();
   final generator = Generator(PaperSize.mm58, profile);
 
@@ -318,6 +318,148 @@ Future<List<int>> generateReceipt(
           styles: const PosStyles(align: PosAlign.right, bold: true),
         ),
       ]),
+    ...generator.feed(1),
+    ...generator.text(
+      'Selamat Menikmati',
+      styles: const PosStyles(align: PosAlign.center, bold: true),
+    ),
+    ...generator.text(
+      'Terima kasih!',
+      styles: const PosStyles(align: PosAlign.center, bold: true),
+    ),
+    ...generator.cut(),
+  ];
+
+  return bytes;
+}
+
+Future<List<int>> generateReceiptCashier(CashierTransaction transaksi,
+    Printer selectedPrinter, BuildContext context) async {
+  final profile = await CapabilityProfile.load();
+  final generator = Generator(PaperSize.mm58, profile);
+
+  List<int> bytes = [];
+
+  // ==== 1. Cetak logo ====
+  try {
+    ByteData imageByteData =
+        await rootBundle.load("assets/images/logo_print.png");
+    Uint8List imageBytesUint8List = imageByteData.buffer.asUint8List();
+    img.Image image = img.decodeImage(imageBytesUint8List)!;
+    bytes += generator.image(image);
+
+// With hide
+  } catch (e) {
+    print('Gagal memuat logo: $e');
+  }
+
+  // ==== 2. Header ====
+  bytes = [
+    ...bytes,
+    ...generator.text(
+      transaksi.kodePemesanan,
+      styles: const PosStyles(
+        align: PosAlign.center,
+        bold: true,
+        height: PosTextSize.size3,
+        width: PosTextSize.size3,
+      ),
+    ),
+    ...generator.hr(),
+  ];
+
+  // ==== 3. Info Umum ====
+  bytes = [
+    ...bytes,
+    ...generator.row([
+      PosColumn(
+          text: 'Tanggal', width: 3, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text: FormatDate.formatDateTimeWithWIB(transaksi.createdAt),
+        width: 9,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.row([
+      PosColumn(text: 'Tenant', width: 3, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text:
+            '${transaksi.listTransaksiDetail.first.menus!.tenants!.namaTenant}',
+        width: 9,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.row([
+      PosColumn(
+          text: 'No. Pesanan', width: 6, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text: 'KASIR-${transaksi.orderTenant}',
+        width: 6,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.hr(),
+  ];
+
+  bytes += generator.text(
+    'Pesanan',
+    styles: const PosStyles(
+      align: PosAlign.center,
+      bold: true,
+      height: PosTextSize.size1,
+      width: PosTextSize.size1,
+    ),
+  );
+
+  // ==== 4. Detail Pesanan ====
+  for (var i = 0; i < transaksi.listTransaksiDetail.length; i++) {
+    final detail = transaksi.listTransaksiDetail[i];
+    final menu = detail.menus!;
+    final catatan = detail.catatan ?? '-';
+
+    bytes = [
+      ...bytes,
+      ...generator.row([
+        PosColumn(text: '${detail.jumlah}x ${menu.nama}', width: 9),
+        PosColumn(
+          text: '${detail.harga}',
+          width: 3,
+          styles: const PosStyles(align: PosAlign.right),
+        ),
+      ]),
+    ];
+
+    if (catatan.isNotEmpty) {
+      bytes = [
+        ...bytes,
+        ...generator.row([
+          PosColumn(text: 'Catatan:', width: 4),
+          PosColumn(
+            text: '${catatan}',
+            width: 8,
+            styles: const PosStyles(align: PosAlign.right),
+          )
+        ]),
+      ];
+    }
+  }
+
+  // ==== 5. Total ====
+  bytes = [
+    ...bytes,
+    ...generator.hr(),
+    ...generator.row([
+      PosColumn(
+        text: 'Total',
+        width: 6,
+        styles: const PosStyles(align: PosAlign.left, bold: true),
+      ),
+      PosColumn(
+        text: '${transaksi.total}',
+        width: 6,
+        styles: const PosStyles(align: PosAlign.right, bold: true),
+      ),
+    ]),
     ...generator.feed(1),
     ...generator.text(
       'Selamat Menikmati',

@@ -404,15 +404,20 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
           },
         );
       }
-      if (needReview != null && needReview) {
-        PublicRemoteDataSource().isNeededReview(user.token).then((bool value) {
-          if (value) {
-            showBottomSheetReview(context: context, user: user);
-          }
-          ;
-        });
-      }
+      // if (needReview != null && needReview) {
+      //   PublicRemoteDataSource().isNeededReview(user.token).then((bool value) {
+      //     if (value) {
+      //       showBottomSheetReview(context: context, user: user);
+      //     }
+      //     ;
+      //   });
+      // }
     }
+  }
+
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override

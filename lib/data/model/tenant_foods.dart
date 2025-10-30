@@ -60,6 +60,6 @@ class TenantFoods {
       );
   @override
   String toString() {
-    return 'TenantFoods: $isReady';
+    return 'TenantFoods: $isReady tenants: $tenants';
   }
 }

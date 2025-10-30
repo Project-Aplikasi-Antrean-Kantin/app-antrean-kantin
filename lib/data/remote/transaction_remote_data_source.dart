@@ -45,6 +45,34 @@ class TransactionRemoteDataSource {
     }
   }
 
+  Future<bool> updateStatusCashierTransaction(
+      String auth, String newStatus, String id) async {
+    try {
+      print(
+          '${MasbroConstants.url}/tenant/kasir/order/${id}?status=${newStatus}');
+      final response = await http.put(
+        Uri.parse(
+            '${MasbroConstants.url}/tenant/kasir/order/$id?status=$newStatus'),
+        headers: {
+          'Authorization': 'Bearer $auth',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('An error occurred: $e');
+      return false;
+    }
+  }
+
   Future<CashierTransaction> createCashierTransaction(
       String auth, String data) async {
     try {
@@ -63,6 +91,38 @@ class TransactionRemoteDataSource {
       print('Response body: ${jsonBody['data']}');
 
       if (response.statusCode == 201) {
+        return CashierTransaction.fromJson(jsonBody['data']);
+      } else if (response.statusCode == 400)
+        throw jsonBody['message'][0];
+      else {
+        print('Request failed with status: ${response.statusCode}');
+        print('Error response body: ${response.body}');
+        throw '${jsonBody['message'][0]}';
+      }
+    } catch (e) {
+      print('An error occurred: $e');
+      throw Exception(e.toString()); // cukup pakai e
+    }
+  }
+
+  Future<CashierTransaction> updateCashierTransaction(
+      String auth, String data, String id) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${MasbroConstants.url}/tenant/kasir/$id'),
+        headers: {
+          'Authorization': "Bearer $auth",
+          'Accept': 'application/json',
+          HttpHeaders.contentTypeHeader: 'application/json'
+        },
+        body: data,
+      );
+
+      final jsonBody = jsonDecode(response.body);
+      // print('Response status code: ${jsonBody['message'][0]}');
+      print('Response body update: ${jsonBody['data']}');
+
+      if (response.statusCode == 200) {
         return CashierTransaction.fromJson(jsonBody['data']);
       } else if (response.statusCode == 400)
         throw jsonBody['message'][0];
