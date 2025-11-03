@@ -31,8 +31,13 @@ class MenuTenant extends StatefulWidget {
   final String url;
   final List<CartMenuModel>? cart;
   final String? cashierTransactionId;
+  final bool? fromCashier;
   const MenuTenant(
-      {Key? key, required this.url, this.cart, this.cashierTransactionId})
+      {Key? key,
+      required this.url,
+      this.cart,
+      this.cashierTransactionId,
+      this.fromCashier = false})
       : super(key: key);
 
   @override
@@ -133,47 +138,7 @@ class _MenuTenantState extends State<MenuTenant> {
 
       // ✅ area klik FAB + tombol diperluas
       floatingActionButton: SafeArea(
-        child: SizedBox(
-          height: 160, // area klik lebih luas
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.bottomCenter,
-            children: [
-              if (_currentTenant != null &&
-                  authProvider.user.email == _currentTenant!.emailPemilik)
-                Positioned(
-                  bottom: cartProvider.cart.isEmpty ? 0 : 80,
-                  right: 20,
-                  child: Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        print("Promo diklik ✅");
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        foregroundColor: AppColors.whiteColor,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 4,
-                      ),
-                      child: const Text('Riwayat kasir'),
-                    ),
-                  ),
-                ),
-
-              // FAB utama
-              Positioned(
-                bottom: 0,
-                left: 20,
-                right: 20,
-                child: _buildFloatingActionButton(context, cartProvider)!,
-              ),
-            ],
-          ),
-        ),
+        child: _buildFloatingActionButton(context, cartProvider)!,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -582,8 +547,9 @@ class _MenuTenantState extends State<MenuTenant> {
                     showBottomSheetCashier(
                         context,
                         _currentTenant!,
-                        widget.cashierTransactionId != null,
-                        widget.cashierTransactionId);
+                        (widget.cashierTransactionId != null),
+                        widget.cashierTransactionId,
+                        widget.fromCashier);
                     return;
                   }
                   if (_currentTenant != null &&

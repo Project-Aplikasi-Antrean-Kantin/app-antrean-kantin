@@ -57,14 +57,9 @@ class PesananCardState extends State<PesananCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: AppColors.blackColor300,
+        ),
       ),
       child: Column(
         spacing: 16,
@@ -72,6 +67,51 @@ class PesananCardState extends State<PesananCard> {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Center(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: widget.pesanan.isPriority == 1
+                              ? AppColors.primaryColor
+                              : Colors.grey),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 4,
+                      children: [
+                        if (widget.pesanan.isPriority == 1)
+                          Icon(Iconsax.flash_1,
+                              size: 16, color: AppColors.primaryColor),
+                        Text(
+                          widget.pesanan.isPriority == 1
+                              ? "Express"
+                              : "Reguler",
+                          style: GoogleFonts.poppins(
+                            color: widget.pesanan.isPriority == 1
+                                ? AppColors.primaryColor
+                                : AppColors.whiteColor800,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                _buildStatus(
+                  widget.pesanan.status,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Container(
@@ -132,7 +172,10 @@ class PesananCardState extends State<PesananCard> {
 
           // Action Buttons
           Padding(
-            padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+            padding: EdgeInsets.only(
+                bottom: widget.pesanan.status != 'pesanan_masuk' ? 0 : 16,
+                left: 16,
+                right: 16),
             child: _buildActionButton(context, widget.pesanan),
           ),
           if (widget.pesanan.status != 'pesanan_masuk')
@@ -193,6 +236,7 @@ class PesananCardState extends State<PesananCard> {
                     width: double.infinity,
                     height: 48,
                     decoration: BoxDecoration(
+                      color: AppColors.successColor,
                       border:
                           Border.all(color: AppColors.successColor, width: 2),
                       borderRadius: BorderRadius.circular(12.0),
@@ -202,18 +246,46 @@ class PesananCardState extends State<PesananCard> {
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
-                              color: AppColors.successColor,
+                              color: AppColors.whiteColor,
                               strokeWidth: 2,
                             ),
                           )
                         : Text('Cetak',
                             style: GoogleFonts.poppins(
-                                color: AppColors.successColor,
+                                color: AppColors.whiteColor,
                                 fontSize: 16,
                                 fontWeight: semibold)),
                   ),
                 )),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatus(String status) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          border: Border.all(color: getStatusColor(status)),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 4,
+          children: [
+            Icon(getIconByStatus(status),
+                size: 16, color: getStatusColor(status)),
+            Text(
+              capitalizeFirstLetter(status.replaceAll('_', ' ')),
+              style: GoogleFonts.poppins(
+                color: getStatusColor(status),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -484,18 +556,15 @@ class PesananCardState extends State<PesananCard> {
               child: PrimaryButton(
                 isEnabled: !_isLoading,
                 elevation: 0,
-                forgroundColor: AppColors.debugColor,
-                borderColor: AppColors.debugColor,
-                color: AppColors.containerColorWhite,
-                height: screenSize.height * 0.075,
-                borderRadius: 20,
+                color: AppColors.errorColor100,
+                borderRadius: 12,
                 child: Text(
                   'Tolak',
                   style: GoogleFonts.poppins(
                     color: !_isLoading
-                        ? AppColors.debugColor
+                        ? AppColors.errorColor
                         : AppColors.containerColorGrey,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 onPressed: () async {
@@ -508,13 +577,12 @@ class PesananCardState extends State<PesananCard> {
               child: PrimaryButton(
                 isLoading: _isLoading,
                 elevation: 0,
-                height: screenSize.height * 0.075,
-                borderRadius: 20,
+                borderRadius: 12,
                 child: Text(
                   'Terima',
                   style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
+                    color: AppColors.whiteColor,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 onPressed: () async {
@@ -564,20 +632,18 @@ class PesananCardState extends State<PesananCard> {
           children: [
             Expanded(
                 child: Row(
+              spacing: 8,
               mainAxisSize: MainAxisSize.min,
               children: [
-                OutlinedButton(
+                IconButton(
                   style: OutlinedButton.styleFrom(
+                    backgroundColor: AppColors.errorColor100,
                     shape: const CircleBorder(),
-                    side: BorderSide(
-                      color: AppColors.errorColor,
-                      width: 2,
-                    ),
                     padding: const EdgeInsets.all(12),
                   ),
                   onPressed: () => bottomSheetCatatan(context, pesanan),
-                  child: HugeIcon(
-                    icon: HugeIcons.strokeRoundedCancel02,
+                  icon: Icon(
+                    Iconsax.close_circle,
                     color: AppColors.errorColor,
                   ),
                 ),
@@ -585,12 +651,11 @@ class PesananCardState extends State<PesananCard> {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      OutlinedButton(
+                      IconButton(
                         style: OutlinedButton.styleFrom(
                           shape:
                               const CircleBorder(), // ✅ ini yang bikin benar-benar bundar
-                          side: BorderSide(
-                              color: AppColors.primaryColor300, width: 2),
+                          backgroundColor: AppColors.primaryColor100,
                           padding: const EdgeInsets.all(
                               12), // jarak icon dengan border
                         ),
@@ -616,10 +681,10 @@ class PesananCardState extends State<PesananCard> {
                             ),
                           );
                         },
-                        child: const Icon(
-                          Iconsax.message_text_copy,
+                        icon: const Icon(
+                          Iconsax.message,
                           size: 24,
-                          color: AppColors.primaryColor300,
+                          color: AppColors.primaryColor,
                         ),
                       ),
 
@@ -643,16 +708,15 @@ class PesananCardState extends State<PesananCard> {
             )),
             Expanded(
               child: PrimaryButton(
-                height: screenSize.height * 0.075,
                 isLoading: _isLoading,
                 elevation: 0,
-                borderRadius: 20,
+                borderRadius: 12,
                 color: AppColors.primaryColor,
                 child: Text(
                   'Pesanan Siap',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 onPressed: () async {
@@ -709,20 +773,10 @@ class PesananCardState extends State<PesananCard> {
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: Size(
-                                double.infinity, screenSize.height * 0.075),
-                            side: BorderSide(
-                                color: AppColors.primaryColor), // border warna
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                          ),
+                        PrimaryButton(
+                          borderRadius: 12,
+                          elevation: 0,
+                          color: AppColors.primaryColor100,
                           onPressed: () async {
                             final connectivityResult =
                                 await hasInternetAccess();
@@ -747,13 +801,19 @@ class PesananCardState extends State<PesananCard> {
                               ),
                             );
                           },
-                          child: Text(
-                            'Chat Pembeli',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.primaryColor,
-                              fontSize: 14,
-                              fontWeight: semibold,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 4,
+                            children: [
+                              Text(
+                                'Chat Pembeli',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 14,
+                                  fontWeight: semibold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
@@ -778,14 +838,13 @@ class PesananCardState extends State<PesananCard> {
                     child: PrimaryButton(
                       isLoading: _isLoading,
                       elevation: 0,
-                      height: screenSize.height * 0.075,
-                      borderRadius: 20,
+                      borderRadius: 12,
                       color: AppColors.primaryColor,
                       child: Text(
                         'Selesai',
                         style: GoogleFonts.poppins(
                           color: Colors.white,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       onPressed: () async {
@@ -900,6 +959,82 @@ class PesananCardState extends State<PesananCard> {
                     ],
                   )
                 : SizedBox.shrink();
+    }
+  }
+
+  String getStatus(String status) {
+    switch (status) {
+      case 'refund_selesai':
+        return 'Refund';
+      case 'gagal_bayar':
+        return 'Gagal Bayar';
+      case 'pending':
+        return 'Pending';
+      case 'selesai':
+        return 'Selesai';
+      case 'pesanan_ditolak':
+        return 'Ditolak';
+      case 'pesanan_diproses':
+        return 'Diproses';
+      case 'pesanan_masuk':
+        return 'Pesanan Masuk';
+      case 'diantar':
+        return 'Diantar';
+      case 'siap_diambil':
+        return 'Siap Diambil';
+      case 'siap_diantar':
+        return 'Siap Diantar';
+      default:
+        return '';
+    }
+  }
+
+  IconData getIconByStatus(String status) {
+    switch (status) {
+      case 'pesanan_masuk':
+        return Iconsax.login_1_copy;
+      case 'pesanan_diproses':
+        return Iconsax.repeat;
+      case 'siap_diantar':
+        return Iconsax.reserve;
+      case 'siap_diambil':
+        return Iconsax.flag_2;
+      case 'diantar':
+        return Iconsax.routing;
+      case 'selesai':
+        return Iconsax.tick_circle;
+      case 'gagal_bayar':
+        return Iconsax.money_remove;
+      case 'refund_selesai':
+        return Iconsax.directbox_send;
+      case 'pending':
+        return HugeIcons.strokeRoundedLoading03;
+      default:
+        return HugeIcons.strokeRoundedArrowReloadVertical;
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'pesanan_masuk':
+        return AppColors.warningColor400;
+      case 'pesanan_diproses':
+        return AppColors.warningColor;
+      case 'siap_diambil':
+        return AppColors.secondaryColor;
+      case 'siap_diantar':
+        return AppColors.primaryColor300;
+
+      case 'selesai':
+        return AppColors.successColor;
+      case 'pending':
+        return AppColors.whiteColor600;
+      case 'gagal_bayar':
+        return AppColors.errorColor;
+      case 'refund_selesai':
+        return AppColors.blackColor;
+      default:
+        return AppColors.primaryColor;
     }
   }
 }

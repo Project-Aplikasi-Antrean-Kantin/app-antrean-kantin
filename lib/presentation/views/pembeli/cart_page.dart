@@ -968,14 +968,16 @@ class _CartPageState extends State<CartPage> {
                                                   ),
                                                 ],
                                               ),
-                                              Text(
-                                                'Jaminan pesan tidak tertolak, lebih cepat sampai tempatmu',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 12,
-                                                  color: AppColors.primaryColor,
-                                                ),
-                                                softWrap: true,
-                                              )
+                                              if (cartProvider.roomId != null)
+                                                Text(
+                                                  'Jaminan pesan tidak tertolak, lebih cepat sampai tempatmu',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12,
+                                                    color:
+                                                        AppColors.primaryColor,
+                                                  ),
+                                                  softWrap: true,
+                                                )
                                             ],
                                           ),
                                         ),
@@ -989,7 +991,7 @@ class _CartPageState extends State<CartPage> {
                                               Text(
                                                 cartProvider.roomId == null
                                                     ? '-'
-                                                    : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir + 3000}',
+                                                    : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir + 3000 + (cartProvider.totalItemCount > 10 ? (cartProvider.totalItemCount - 10) * 500 : 0)}',
                                                 style: GoogleFonts.poppins(
                                                     color: AppColors.blackColor,
                                                     fontWeight:

@@ -38,6 +38,7 @@ class OrderProvider with ChangeNotifier {
         allOrders.addAll(orders);
       }
       _pesanan[status] = allOrders;
+      print("status: ${status.rawValues}");
       print('pesanan masuk: ${_pesanan[status]}');
     } catch (e) {
       errorMessage = 'Gagal memuat pesanan: $e';

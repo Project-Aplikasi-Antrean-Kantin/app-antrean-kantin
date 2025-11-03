@@ -26,8 +26,8 @@ import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
-Future<void> showBottomSheetCashier(
-    BuildContext context, TenantModel tenant, bool isEdit, String? id) {
+Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
+    bool isEdit, String? id, bool? fromCashier) {
   return showModalBottomSheet(
     enableDrag: true,
     backgroundColor: AppColors.backgroundColor,
@@ -369,7 +369,7 @@ Future<void> showBottomSheetCashier(
                         }),
                       ),
                     ),
-                    buildBottomSheetCartList(context, isEdit, id),
+                    buildBottomSheetCartList(context, isEdit, id, fromCashier),
                   ],
                 ),
               );
@@ -381,7 +381,8 @@ Future<void> showBottomSheetCashier(
   );
 }
 
-Widget buildBottomSheetCartList(BuildContext context, bool isEdit, String? id) {
+Widget buildBottomSheetCartList(
+    BuildContext context, bool isEdit, String? id, bool? fromCashier) {
   return Consumer3<CartProvider, AuthProvider, KasirProvider>(builder:
       (innerContext, cartProvider, authProvider, kasirProvider, child) {
     final listCart = cartProvider.cart;
@@ -437,15 +438,21 @@ Widget buildBottomSheetCartList(BuildContext context, bool isEdit, String? id) {
                 return;
               }
               try {
-                if (isEdit && id != null) {
-                  await kasirProvider.updateCashierTransaction(
-                      context, authProvider.user.token, data, id);
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
+                if (isEdit) {
+                  if (id != null) {
+                    await kasirProvider.updateCashierTransaction(
+                        context, authProvider.user.token, data, id);
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
                   }
                 } else {
-                  await cartProvider.createCashierTransaction(
+                  final result = await cartProvider.createCashierTransaction(
                       context, authProvider.user.token);
+                  kasirProvider.addCashierTransaction(result);
+                  if (Navigator.canPop(context) && fromCashier == true) {
+                    Navigator.pop(context);
+                  }
                 }
               } catch (e) {
                 Fluttertoast.showToast(msg: e.toString());

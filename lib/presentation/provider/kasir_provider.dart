@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/data/model/settings_model.dart';
+import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
@@ -13,9 +14,15 @@ class KasirProvider extends ChangeNotifier {
   List<CashierTransaction> cashierTransactions = [];
   bool isLoading = false;
   bool submittingCashierTransaction = false;
+  TenantModel? tenant;
 
   void addCashierTransaction(CashierTransaction cashierTransaction) {
     cashierTransactions.add(cashierTransaction);
+    notifyListeners();
+  }
+
+  void setTenant(TenantModel tenant) {
+    this.tenant = tenant;
     notifyListeners();
   }
 

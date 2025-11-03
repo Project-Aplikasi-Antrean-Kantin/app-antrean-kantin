@@ -48,8 +48,6 @@ class TransactionRemoteDataSource {
   Future<bool> updateStatusCashierTransaction(
       String auth, String newStatus, String id) async {
     try {
-      print(
-          '${MasbroConstants.url}/tenant/kasir/order/${id}?status=${newStatus}');
       final response = await http.put(
         Uri.parse(
             '${MasbroConstants.url}/tenant/kasir/order/$id?status=$newStatus'),

@@ -19,7 +19,7 @@ class PublicRemoteDataSource {
 
     final json = jsonDecode(response.body);
     String message = json['message'].toString();
-    print('message dari server: $json');
+    print('message dari server: ${json['data']}');
 
     if (response.statusCode == 200) {
       final jsonData = json['data']['tenants'] as List<dynamic>;

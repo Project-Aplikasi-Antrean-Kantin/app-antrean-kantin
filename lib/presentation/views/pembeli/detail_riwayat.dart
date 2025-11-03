@@ -603,6 +603,24 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
+          appBar: AppBar(
+            surfaceTintColor: Colors.transparent,
+            leading: HugeIcon(
+              color: AppColors.whiteColor900,
+              icon: HugeIcons.strokeRoundedArrowLeft01,
+              size: 32,
+            ),
+            backgroundColor: AppColors.backgroundColor,
+            centerTitle: true,
+            title: Text(
+              "Detail Pesanan",
+              style: GoogleFonts.poppins(
+                color: AppColors.whiteColor900,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
           body: SafeArea(
             child: RefreshIndicator(
               backgroundColor: AppColors.backgroundColor,
@@ -617,88 +635,58 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   spacing: 16,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 12),
-                      child: SizedBox(
-                        height: 56,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: GestureDetector(
-                                onTap: () => Navigator.pop(context),
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                    ],
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: historyProvider
+                                                .selectedPesanan!.isPriority ==
+                                            1
+                                        ? AppColors.primaryColor
+                                        : Colors.grey),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 4,
+                                children: [
+                                  if (historyProvider
+                                          .selectedPesanan!.isPriority ==
+                                      1)
+                                    Icon(Iconsax.flash_1,
+                                        size: 24,
+                                        color: AppColors.primaryColor),
+                                  Text(
+                                    historyProvider
+                                                .selectedPesanan!.isPriority ==
+                                            1
+                                        ? "Express"
+                                        : "Reguler",
+                                    style: GoogleFonts.poppins(
+                                      color: historyProvider.selectedPesanan!
+                                                  .isPriority ==
+                                              1
+                                          ? AppColors.primaryColor
+                                          : Colors.black,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                  child: HugeIcon(
-                                    icon: HugeIcons.strokeRoundedArrowLeft02,
-                                    color: AppColors.blackColor,
-                                  ),
-                                ),
+                                ],
                               ),
                             ),
-                            Text(
-                              'Rincian Pesanan',
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.blackColor,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          _buildStatus(
+                            historyProvider.selectedPesanan?.status ??
+                                'selesai',
+                          ),
+                        ],
                       ),
-                    ),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  historyProvider.selectedPesanan!.isPriority ==
-                                          1
-                                      ? AppColors.primaryColor
-                                      : Colors.grey),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 4,
-                          children: [
-                            if (historyProvider.selectedPesanan!.isPriority ==
-                                1)
-                              Icon(Iconsax.flash_1,
-                                  size: 24, color: AppColors.primaryColor),
-                            Text(
-                              historyProvider.selectedPesanan!.isPriority == 1
-                                  ? "Express"
-                                  : "Reguler",
-                              style: GoogleFonts.poppins(
-                                color: historyProvider
-                                            .selectedPesanan!.isPriority ==
-                                        1
-                                    ? AppColors.primaryColor
-                                    : Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    _buildStatus(
-                      historyProvider.selectedPesanan?.status ?? 'selesai',
                     ),
                     DashedDivider(height: 2, color: AppColors.blackColor100),
                     Padding(

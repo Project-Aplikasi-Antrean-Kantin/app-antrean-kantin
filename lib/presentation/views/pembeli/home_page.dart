@@ -26,6 +26,7 @@ import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/review_provider.dart';
 import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
@@ -67,6 +68,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool isScrolledEnough = false;
   late double expandedHeight;
   bool showBottomSheet = false;
+  bool isLoadingTenant = true;
 
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   StreamSubscription<RemoteMessage>? _onMessageTopupSuccessSubscription;
@@ -204,6 +206,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
     final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
+    final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
 
     final user = authProvider.user;
     _scrollController.addListener(_scrollListener);
@@ -212,7 +215,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     cartProvider.getAllCarts();
     reviewProvider.setReviewSelection(user.token);
 
-    futureTenant = PublicRemoteDataSource().getTenant(context, url, user.token);
+    futureTenant = PublicRemoteDataSource()
+        .getTenant(context, url, user.token)
+        .then((listTenant) {
+      final yourTenant = listTenant
+          .firstWhereOrNull((tenant) => tenant.emailPemilik == user.email);
+      if (yourTenant != null) {
+        kasirProvider.setTenant(yourTenant);
+      }
+      return listTenant;
+    });
     final prefs = SharedPreferences.getInstance().then((prefs) {
       prefs.reload();
       if (prefs.getString('tenant_sibuk') != null) {
@@ -259,9 +271,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void _scrollListener() {
     final scrollOffset = _scrollController.offset;
-    if (scrollOffset > expandedHeight - 30 && !isScrolledEnough) {
+    if (scrollOffset > expandedHeight - 60 && !isScrolledEnough) {
       setState(() => isScrolledEnough = true);
-    } else if (scrollOffset <= expandedHeight - 30 && isScrolledEnough) {
+    } else if (scrollOffset <= expandedHeight - 60 && isScrolledEnough) {
       setState(() => isScrolledEnough = false);
     }
   }
@@ -359,371 +371,337 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             },
           ),
           backgroundColor: AppColors.backgroundColor,
-          body: Stack(children: [
-            CustomScrollView(
-              controller: _scrollController, // Tambahkan controller
-              slivers: [
-                SliverAppBar(
-                  clipBehavior: Clip.none,
-                  stretch: true,
-                  expandedHeight: expandedHeight,
-                  pinned: false,
-                  flexibleSpace: Stack(
-                      fit: StackFit.expand,
-                      clipBehavior: Clip.none,
-                      children: [
-                        Positioned.fill(
-                          child: FlexibleSpaceBar(
-                            background: Image.asset(
-                              'assets/images/beranda_banner6.png',
-                              fit: BoxFit.cover,
-                              height: expandedHeight,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom:
-                              -30, // Geser sedikit ke bawah dari batas bottom gambar
-                          left: 16,
-                          right: 16,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // 👉 Saldo dan tombol isi saldo kamu tadi
-                              Expanded(
-                                child: Container(
-                                  // padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 1,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      Expanded(
-                                        flex: 60,
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            splashColor: Colors
-                                                .transparent, // hilangkan efek ripple
-                                            onTap: () async {
-                                              final internetConnection =
-                                                  await hasInternetAccess();
-                                              if (!internetConnection) {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Tidak ada koneksi internet");
-                                                return;
-                                              }
-                                              Navigator.push(
-                                                  context,
-                                                  CustomPageBuilder(
-                                                      page:
-                                                          const KoinInfoPage()));
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          16)),
-                                              padding: const EdgeInsets.all(16),
-                                              child: Center(
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Image.asset(
-                                                        'assets/images/icon-koin-blue.png',
-                                                        height: 32),
-                                                    const SizedBox(width: 8),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'FoodLAB Koin',
-                                                          style: GoogleFonts
-                                                              .poppins(
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color: AppColors
-                                                                .textColorBlack,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          FormatCurrency
-                                                              .intToStringCurrency(
-                                                            coinProvider
-                                                                .saldoKoin,
-                                                          ),
-                                                          style: GoogleFonts
-                                                              .poppins(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color: AppColors
-                                                                .primaryColor,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: const SizedBox(
-                                          height: 52,
-                                          child: VerticalDivider(
-                                            color: Color(0xFFCDCDCD),
-                                            thickness: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 30,
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            splashColor: Colors
-                                                .transparent, // hilangkan efek ripple
-                                            // behavior: HitTestBehavior
-                                            //     .opaque, // ✅ area tap jadi selebar parent-nya
-
-                                            onTap: () async {
-                                              final prefs =
-                                                  await SharedPreferences
-                                                      .getInstance();
-                                              final jsonCurrentVa =
-                                                  prefs.getString('current_va');
-                                              TopUpModel? currentVa;
-                                              print(
-                                                  'jsonCurrentVa $jsonCurrentVa');
-                                              final internetConnection =
-                                                  await hasInternetAccess();
-                                              if (!internetConnection) {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Tidak ada koneksi internet");
-                                                return;
-                                              }
-                                              if (jsonCurrentVa != null) {
-                                                final decoded = jsonDecode(
-                                                    jsonCurrentVa); // ini Map<String, dynamic>
-                                                final kodeBayar =
-                                                    decoded['kode_bayar']
-                                                        as String;
-                                                if (kodeBayar
-                                                    .contains('https:')) {
-                                                  currentVa =
-                                                      TopUpModel.fromJsonQris(
-                                                          decoded);
-                                                } else {
-                                                  currentVa = TopUpModel.fromJson(
-                                                      decoded); // ini TopUpModel
-                                                }
-
-                                                print(
-                                                    'Kode Bayar: ${currentVa.kodeBayar}');
-                                                print(
-                                                    'Nominal: ${currentVa.nominal}');
-                                                print(
-                                                    'current_va ${currentVa}');
-                                                print(
-                                                    'Akhir Bayar: ${currentVa.akhirBayar}');
-                                              } else {
-                                                print(
-                                                    'current_va belum tersedia di SharedPreferences.');
-                                              }
-
-                                              if (jsonCurrentVa != null &&
-                                                  jsonCurrentVa.isNotEmpty &&
-                                                  currentVa != null) {
-                                                _handleNavigation(KodeVaPage(
-                                                  currentVa: currentVa,
-                                                ));
-                                              } else {
-                                                _handleNavigation(TopupPage(
-                                                    email: user.email));
-                                              }
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.all(16),
-                                              child: Column(
-                                                children: [
-                                                  Image.asset(
-                                                    'assets/images/icon-koin-plus-blue.png',
-                                                    height: 32,
-                                                  ),
-                                                  Text(
-                                                    'Isi Koin',
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // const SizedBox(width: 16),
-                            ],
-                          ),
-                        ),
-                      ]),
-                ),
-                SliverToBoxAdapter(child: SizedBox(height: 80)),
-                FutureBuilder<List<TenantModel>>(
-                  future: futureTenant,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting ||
-                        isSearching) {
-                      return SliverSkeletonizer(
-                        child: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return CardTenant(
-                                tenant: TenantModel(
-                                  id: 1,
-                                  namaTenant: 'Bakso Pak Budi',
-                                  namaKavling: 'Kavling A1',
-                                  transaksiBerhasil: 120,
-                                  gambar:
-                                      'https://example.com/images/bakso.jpg',
-                                  userId: 10,
-                                  createdAt: DateTime.now(),
-                                  updatedAt: DateTime.now(),
-                                ),
-                                email: 'ezra',
-                              );
-                            },
-                            childCount: 7,
-                          ),
-                        ),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return SliverToBoxAdapter(
-                          child: Center(
-                              child: Column(
-                        spacing: 8,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image(
-                              height: 216,
-                              image: const AssetImage(
-                                  'assets/images/No-connection.png')),
-                          Text(
-                            'Upss Koneksimu Hilang!',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.whiteColor900,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          Text(
-                            'Cek jaringan internet kamu dulu, ya.    Tenang, kami tetap nungguin kamu balik 😄',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
-                              color: const Color(0xFF585858),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 96,
+                    ),
+                    Image.asset(
+                      'assets/images/beranda_banner6.png',
+                      fit: BoxFit.cover,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 1,
+                            offset: Offset(0, 2),
                           ),
                         ],
-                      )));
-                    }
-                    if (isFirstLoad) {
-                      fullTenant = snapshot.data ?? [];
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          setState(() {
-                            yourTenant = fullTenant.firstWhereOrNull(
-                              (tenant) => tenant.emailPemilik == user.email,
-                            );
-                          });
-                        }
-                      });
-
-                      print('Sebelum Sort:');
-                      fullTenant.forEach((e) =>
-                          print('${e.namaTenant}: ${e.transaksiBerhasil}'));
-
-                      fullTenant.sort((a, b) {
-                        return (b.transaksiBerhasil ?? 0)
-                            .compareTo(a.transaksiBerhasil ?? 0);
-                      });
-
-                      // print('Setelah Sort:');
-                      // fullTenant.forEach((e) =>
-                      //     print('${e.namaTenant}: ${e.transaksiBerhasil}'));
-
-                      foundTenant = fullTenant;
-                      isFirstLoad = false;
-                    }
-
-                    return SliverToBoxAdapter(
-                      child: foundTenant.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 16),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Image(
-                                      width:
-                                          MediaQuery.of(context).size.width / 2,
-                                      image: const AssetImage(
-                                          "assets/images/404-Not-Found.png"),
+                      ),
+                      child: Row(
+                        spacing: 8,
+                        children: [
+                          Expanded(
+                            flex: 60,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                splashColor:
+                                    Colors.transparent, // hilangkan efek ripple
+                                onTap: () async {
+                                  final internetConnection =
+                                      await hasInternetAccess();
+                                  if (!internetConnection) {
+                                    Fluttertoast.showToast(
+                                        msg: "Tidak ada koneksi internet");
+                                    return;
+                                  }
+                                  Navigator.push(
+                                      context,
+                                      CustomPageBuilder(
+                                          page: const KoinInfoPage()));
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16)),
+                                  padding: const EdgeInsets.all(16),
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                            'assets/images/icon-koin-blue.png',
+                                            height: 32),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'FoodLAB Koin',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.textColorBlack,
+                                              ),
+                                            ),
+                                            Text(
+                                              FormatCurrency
+                                                  .intToStringCurrency(
+                                                coinProvider.saldoKoin,
+                                              ),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.primaryColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                        'Yah menu yang kamu cari masih belum tersedia nih :(',
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.poppins(
-                                            color: AppColors.blackColor400))
-                                  ],
+                                  ),
                                 ),
                               ),
-                            )
-                          : ListTenant(
-                              url: url,
-                              fullTenant: fullTenant,
-                              foundTenant: foundTenant,
-                              onNavigate: _handleNavigation,
                             ),
-                    );
-                  },
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: const SizedBox(
+                              height: 52,
+                              child: VerticalDivider(
+                                color: Color(0xFFCDCDCD),
+                                thickness: 1,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 30,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                splashColor:
+                                    Colors.transparent, // hilangkan efek ripple
+                                // behavior: HitTestBehavior
+                                //     .opaque, // ✅ area tap jadi selebar parent-nya
+
+                                onTap: () async {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  final jsonCurrentVa =
+                                      prefs.getString('current_va');
+                                  TopUpModel? currentVa;
+                                  print('jsonCurrentVa $jsonCurrentVa');
+                                  final internetConnection =
+                                      await hasInternetAccess();
+                                  if (!internetConnection) {
+                                    Fluttertoast.showToast(
+                                        msg: "Tidak ada koneksi internet");
+                                    return;
+                                  }
+                                  if (jsonCurrentVa != null) {
+                                    final decoded = jsonDecode(
+                                        jsonCurrentVa); // ini Map<String, dynamic>
+                                    final kodeBayar =
+                                        decoded['kode_bayar'] as String;
+                                    if (kodeBayar.contains('https:')) {
+                                      currentVa =
+                                          TopUpModel.fromJsonQris(decoded);
+                                    } else {
+                                      currentVa = TopUpModel.fromJson(
+                                          decoded); // ini TopUpModel
+                                    }
+
+                                    print('Kode Bayar: ${currentVa.kodeBayar}');
+                                    print('Nominal: ${currentVa.nominal}');
+                                    print('current_va ${currentVa}');
+                                    print(
+                                        'Akhir Bayar: ${currentVa.akhirBayar}');
+                                  } else {
+                                    print(
+                                        'current_va belum tersedia di SharedPreferences.');
+                                  }
+
+                                  if (jsonCurrentVa != null &&
+                                      jsonCurrentVa.isNotEmpty &&
+                                      currentVa != null) {
+                                    _handleNavigation(KodeVaPage(
+                                      currentVa: currentVa,
+                                    ));
+                                  } else {
+                                    _handleNavigation(
+                                        TopupPage(email: user.email));
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(16),
+                                  child: Column(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/icon-koin-plus-blue.png',
+                                        height: 32,
+                                      ),
+                                      Text(
+                                        'Isi Koin',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    FutureBuilder<List<TenantModel>>(
+                      future: futureTenant,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            isSearching) {
+                          return Skeletonizer(
+                            child: ListView.builder(
+                              shrinkWrap: true, // ✅ biar ukurannya sesuai isi
+                              physics:
+                                  NeverScrollableScrollPhysics(), // ✅ biar gak scroll dobel
+                              padding: EdgeInsets.zero,
+                              itemCount: 7,
+                              itemBuilder: (context, index) {
+                                return CardTenant(
+                                  tenant: TenantModel(
+                                    id: 1,
+                                    namaTenant: 'Bakso Pak Budi',
+                                    namaKavling: 'Kavling A1',
+                                    transaksiBerhasil: 120,
+                                    gambar:
+                                        'https://example.com/images/bakso.jpg',
+                                    userId: 10,
+                                    createdAt: DateTime.now(),
+                                    updatedAt: DateTime.now(),
+                                  ),
+                                  email: 'ezra',
+                                );
+                              },
+                            ),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                              child: Column(
+                            spacing: 8,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image(
+                                  height: 216,
+                                  image: const AssetImage(
+                                      'assets/images/No-connection.png')),
+                              Text(
+                                'Upss Koneksimu Hilang!',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.whiteColor900,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              Text(
+                                'Cek jaringan internet kamu dulu, ya.    Tenang, kami tetap nungguin kamu balik 😄',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  color: const Color(0xFF585858),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ));
+                        }
+                        if (isFirstLoad) {
+                          fullTenant = snapshot.data ?? [];
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) {
+                              setState(() {
+                                yourTenant = fullTenant.firstWhereOrNull(
+                                  (tenant) => tenant.emailPemilik == user.email,
+                                );
+                              });
+                              setState(() {
+                                isLoadingTenant = false;
+                              });
+                            }
+                          });
+
+                          print('Sebelum Sort:');
+                          fullTenant.forEach((e) =>
+                              print('${e.namaTenant}: ${e.transaksiBerhasil}'));
+
+                          fullTenant.sort((a, b) {
+                            return (b.transaksiBerhasil ?? 0)
+                                .compareTo(a.transaksiBerhasil ?? 0);
+                          });
+
+                          // print('Setelah Sort:');
+                          // fullTenant.forEach((e) =>
+                          //     print('${e.namaTenant}: ${e.transaksiBerhasil}'));
+
+                          foundTenant = fullTenant;
+                          isFirstLoad = false;
+                        }
+
+                        return foundTenant.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 16),
+                                child: Center(
+                                  child: Column(
+                                    children: [
+                                      Image(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                        image: const AssetImage(
+                                            "assets/images/404-Not-Found.png"),
+                                      ),
+                                      Text(
+                                          'Yah menu yang kamu cari masih belum tersedia nih :(',
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                              color: AppColors.blackColor400))
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : ListTenant(
+                                url: url,
+                                fullTenant: fullTenant,
+                                foundTenant: foundTenant,
+                                onNavigate: _handleNavigation,
+                              );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            if (yourTenant != null || !user.role.contains('tenant'))
+              ),
               Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeInOut,
                   padding: const EdgeInsets.only(
-                      top: 40, left: 24, right: 24, bottom: 16),
+                    top: 40,
+                    left: 24,
+                    right: 24,
+                    bottom: 16,
+                  ),
                   color: isScrolledEnough
                       ? Colors.white.withOpacity(1)
                       : Colors.white.withOpacity(0.0),
@@ -731,25 +709,33 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     spacing: 8,
                     children: [
                       Expanded(
-                        child: SearchWidget(
-                          paddingHorizontal: 0,
-                          paddingVertical: 0,
-                          tittle: "Lagi pengen makan apa?",
-                          onChanged: filterTenantsDebounced,
+                        child: Skeletonizer(
+                          enabled: isLoadingTenant,
+                          child: SearchWidget(
+                            paddingHorizontal: 0,
+                            paddingVertical: 0,
+                            tittle: "Lagi pengen makan apa?",
+                            onChanged: filterTenantsDebounced,
+                          ),
                         ),
                       ),
-                      if (user.role.contains('tenant') && yourTenant != null)
-                        TenantButton(
+                      if (user.role.contains('tenant'))
+                        Skeletonizer(
+                          enabled: isLoadingTenant,
+                          child: TenantButton(
                             isBusyNotInterruptYet: isBusyNotInterruptYet,
                             onRefresh: () => RetryFetch(true),
                             yourTenant: yourTenant,
                             isScrolledEnough: isScrolledEnough,
-                            user: user),
+                            user: user,
+                          ),
+                        ),
                     ],
                   ),
                 ),
-              ),
-          ]),
+              )
+            ],
+          ),
         ),
       ),
     );

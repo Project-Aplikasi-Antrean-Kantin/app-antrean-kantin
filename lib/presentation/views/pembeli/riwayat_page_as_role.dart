@@ -72,14 +72,16 @@ class _RiwayatPageAsRoleState extends State<RiwayatPageAsRole>
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: Text(
-                  'Aktivitas',
-                  style: GoogleFonts.poppins(
-                    color: user.role.contains('tenant')
-                        ? AppColors.whiteColor
-                        : AppColors.primaryColor,
-                    fontSize: 18,
-                    fontWeight: bold,
+                child: Center(
+                  child: Text(
+                    'Aktivitas',
+                    style: GoogleFonts.poppins(
+                      color: user.role.contains('tenant')
+                          ? AppColors.whiteColor
+                          : AppColors.primaryColor,
+                      fontSize: 18,
+                      fontWeight: bold,
+                    ),
                   ),
                 ),
               ),

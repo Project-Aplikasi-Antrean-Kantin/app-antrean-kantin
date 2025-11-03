@@ -904,7 +904,7 @@ class CartProvider extends ChangeNotifier {
     return jsonEncode(data);
   }
 
-  Future<CashierTransaction?> createCashierTransaction(
+  Future<CashierTransaction> createCashierTransaction(
       BuildContext context, String token) async {
     submittingCashierTransaction = true;
     notifyListeners();

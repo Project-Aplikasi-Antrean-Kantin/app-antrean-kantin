@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/transaksi_detail_model.dart';
@@ -71,17 +72,26 @@ class PesananItemWidget extends StatelessWidget {
                       _showDetailPesanan(context, pesanan);
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppColors.infoColor,
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppColors.warningColor,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Text('Detail',
-                          style: GoogleFonts.poppins(
-                            color: AppColors.whiteColor,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12,
-                          )),
+                      child: Row(
+                        spacing: 4,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Iconsax.note_2,
+                              color: AppColors.whiteColor, size: 16),
+                          Text('Detail',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.whiteColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              )),
+                        ],
+                      ),
                     ),
                   )
                 ],

@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:hugeicons/hugeicons.dart';
+
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
@@ -36,6 +38,76 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
   Future<int> _getImageSize(String path) async {
     final file = File(path);
     return (await file.length() / 1024).round();
+  }
+
+  Future<void> _getImageFromGallery() async {
+    final pickedImage =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      debugPrint('Original image path: ${pickedImage.path}');
+      final tempDir = await getTemporaryDirectory();
+      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempPath = '${tempDir.path}/$tempFileName';
+      debugPrint('Target path for compressed image: $tempPath');
+
+      try {
+        final compressedImage = await FlutterImageCompress.compressAndGetFile(
+          pickedImage.path,
+          tempPath,
+          quality: 70,
+          minWidth: 1024,
+          minHeight: 1024,
+        );
+        if (compressedImage != null) {
+          debugPrint('Compressed image path: ${compressedImage.path}');
+          selectedImagePath = compressedImage.path;
+          int imageSizeKB = await _getImageSize(selectedImagePath!);
+          debugPrint('Compressed image size: $imageSizeKB KB');
+          if (imageSizeKB > 2048) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CustomAlertDialog(
+                  title: "Peringatan!",
+                  message:
+                      "Gambar yang kamu pilih lebih dari 2MB bahkan setelah kompresi.",
+                  showCancelButton: false,
+                );
+              },
+            );
+            selectedImagePath = null;
+          }
+          Navigator.pop(context);
+          widget.onImageSelected(selectedImagePath); // ⬅️ lempar ke parent
+
+          setState(() {});
+        } else {
+          debugPrint('Compression returned null');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CustomAlertDialog(
+                title: "Gagal!",
+                message: "Gagal mengompresi gambar. Silakan coba lagi.",
+                showCancelButton: false,
+              );
+            },
+          );
+        }
+      } catch (e) {
+        debugPrint('Compression error: $e');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CustomAlertDialog(
+              title: "Error!",
+              message: "Terjadi kesalahan saat mengompresi gambar: $e",
+              showCancelButton: false,
+            );
+          },
+        );
+      }
+    }
   }
 
   /// Fungsi ambil foto dari kamera + kompres
@@ -135,7 +207,9 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       GestureDetector(
-                        onTap: _getImageFromCamera,
+                        onTap: () {
+                          _buildBottomSheetProfile(context);
+                        },
                         child: _buildImagePicker(),
                       ),
                       Flexible(
@@ -297,8 +371,9 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
               setState(() {
                 if (hasImage) {
                   selectedImagePath = null;
+                  widget.onImageSelected(null); // ⬅️ lempar ke parent
                 } else {
-                  _getImageFromCamera();
+                  _buildBottomSheetProfile(context);
                 }
                 widget
                     .onImageSelected(selectedImagePath); // ⬅️ lempar ke parent
@@ -325,5 +400,145 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
         ),
       ],
     );
+  }
+
+  Future<void> _buildBottomSheetProfile(BuildContext context) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                decoration: BoxDecoration(
+                    color: AppColors.whiteColor400,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 5,
+                  child: Column(
+                    spacing: 16,
+                    children: [
+                      Text(
+                        'Gambar Pengantaran',
+                        style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _getImageFromCamera();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedCamera02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Kamera',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _getImageFromGallery();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedImage02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Galeri',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              print('cek');
+                              if (selectedImagePath != null) {
+                                selectedImagePath = null;
+                                widget.onImageSelected(
+                                    null); // ⬅️ lempar ke parent
+
+                                Navigator.pop(context);
+                                setState(() {});
+                                print('Gambar berhasil dihapus');
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                border: BoxBorder.all(
+                                    color: AppColors.blackColor100, width: 1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedDelete02,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    'Hapus',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                )),
+          );
+        });
   }
 }

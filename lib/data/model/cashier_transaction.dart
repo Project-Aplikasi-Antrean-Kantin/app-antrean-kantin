@@ -61,8 +61,8 @@ class CashierTransaction {
         id: json["id"],
         userId: json["user_id"],
         total: json["total"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: DateTime.parse(json["created_at"]).toLocal(),
+        updatedAt: DateTime.parse(json["updated_at"]).toLocal(),
         listTransaksiDetail: List<ListTransaksiDetail>.from(
             json["details"].map((x) => ListTransaksiDetail.fromJson(x))),
       );

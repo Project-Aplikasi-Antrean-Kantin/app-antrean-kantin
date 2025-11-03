@@ -680,27 +680,79 @@ class _DeliveryCardState extends State<DeliveryCard> {
     );
   }
 
-  Widget _buildCostRow(String label, int amount) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            color: AppColors.textColorBlack,
-            fontSize: 12,
-            fontWeight: medium,
-          ),
-        ),
-        Text(
-          FormatCurrency.intToStringCurrency(amount),
-          style: GoogleFonts.poppins(
-            color: AppColors.textColorBlack,
-            fontSize: 12,
-            fontWeight: medium,
-          ),
-        ),
-      ],
-    );
+  String getStatus(String status) {
+    switch (status) {
+      case 'refund_selesai':
+        return 'Refund';
+      case 'gagal_bayar':
+        return 'Gagal Bayar';
+      case 'pending':
+        return 'Pending';
+      case 'selesai':
+        return 'Selesai';
+      case 'pesanan_ditolak':
+        return 'Ditolak';
+      case 'pesanan_diproses':
+        return 'Diproses';
+      case 'pesanan_masuk':
+        return 'Pesanan Masuk';
+      case 'diantar':
+        return 'Diantar';
+      case 'siap_diambil':
+        return 'Siap Diambil';
+      case 'siap_diantar':
+        return 'Siap Diantar';
+      default:
+        return '';
+    }
+  }
+
+  IconData getIconByStatus(String status) {
+    switch (status) {
+      case 'pesanan_masuk':
+        return Iconsax.login_1_copy;
+      case 'pesanan_diproses':
+        return Iconsax.repeat;
+      case 'siap_diantar':
+        return Iconsax.reserve;
+      case 'siap_diambil':
+        return Iconsax.flag_2;
+      case 'diantar':
+        return Iconsax.routing;
+      case 'selesai':
+        return Iconsax.tick_circle;
+      case 'gagal_bayar':
+        return Iconsax.money_remove;
+      case 'refund_selesai':
+        return Iconsax.directbox_send;
+      case 'pending':
+        return HugeIcons.strokeRoundedLoading03;
+      default:
+        return HugeIcons.strokeRoundedArrowReloadVertical;
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'pesanan_masuk':
+        return AppColors.warningColor400;
+      case 'pesanan_diproses':
+        return AppColors.warningColor;
+      case 'siap_diambil':
+        return AppColors.secondaryColor;
+      case 'siap_diantar':
+        return AppColors.primaryColor300;
+
+      case 'selesai':
+        return AppColors.successColor;
+      case 'pending':
+        return AppColors.whiteColor600;
+      case 'gagal_bayar':
+        return AppColors.errorColor;
+      case 'refund_selesai':
+        return AppColors.blackColor;
+      default:
+        return AppColors.primaryColor;
+    }
   }
 }

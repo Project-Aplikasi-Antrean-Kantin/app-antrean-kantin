@@ -70,14 +70,14 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void showCustomSnackbar(String message, {bool success = false}) {
+  void showCustomSnackbar(BuildContext ctx, String message,
+      {bool success = false}) {
+    final scaffoldMessenger = ScaffoldMessenger.of(ctx);
+
     final snackBar = SnackBar(
       content: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
+        onTap: () => scaffoldMessenger.hideCurrentSnackBar(),
         child: Row(
           children: [
             Icon(
@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    scaffoldMessenger.showSnackBar(snackBar);
   }
 
   bool validateInputs() {
@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
     return [emailError, passwordError].every((e) => e == null);
   }
 
-  Future<void> _handleLogin(AuthProvider authProvider) async {
+  Future<void> _handleLogin(AuthProvider authProvider, BuildContext ctx) async {
     if (!validateInputs()) return;
 
     setState(() => _isLoading = true);
@@ -135,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
       final token = await FirebaseMessaging.instance.getToken();
       log("Token fcm: " + token.toString());
       if (token == null) {
-        showCustomSnackbar("Gagal mengakses perangkat. Silakan coba lagi.",
+        showCustomSnackbar(ctx, "Gagal mengakses perangkat. Silakan coba lagi.",
             success: false);
         setState(() => _isLoading = false);
         return;
@@ -146,7 +146,13 @@ class _LoginPageState extends State<LoginPage> {
       await authProvider.fetchUserData(authProvider.user.token);
 
       if (mounted) {
-        showCustomSnackbar("Login berhasil! Selamat datang.", success: true);
+        showCustomSnackbar(ctx, "Login berhasil! Selamat datang.",
+            success: true);
+
+        // kasih jeda dikit biar snackbar muncul dulu sebelum pindah halaman
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        if (!mounted) return;
         Future.delayed(const Duration(milliseconds: 1000), () {
           Navigator.pushAndRemoveUntil(
             context,
@@ -161,12 +167,14 @@ class _LoginPageState extends State<LoginPage> {
           e.message.toLowerCase().contains('not found') ||
           e.message.toLowerCase().contains('belum terdaftar')) {
         showCustomSnackbar(
+          ctx,
           "Email belum terdaftar. Silakan daftar akun terlebih dahulu.",
           success: false,
         );
       } else {
         if (e.message.isNotEmpty && e.message.contains('verifikasi')) {
           showCustomSnackbar(
+            ctx,
             "Email belum diverifikasi. Silakan periksa email anda.",
             success: false,
           );
@@ -180,6 +188,7 @@ class _LoginPageState extends State<LoginPage> {
           return;
         }
         showCustomSnackbar(
+          ctx,
           e.message.isNotEmpty
               ? e.message
               : "Email atau password salah. Silakan periksa kembali.",
@@ -188,6 +197,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       showCustomSnackbar(
+        ctx,
         "Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.",
         success: false,
       );
@@ -291,7 +301,7 @@ class _LoginPageState extends State<LoginPage> {
                     isLoading: _isLoading,
                     borderRadius: 20,
                     onPressed: () =>
-                        _isLoading ? null : _handleLogin(authProvider),
+                        _isLoading ? null : _handleLogin(authProvider, context),
                     child: Center(
                       child: Text(
                         "Masuk",
