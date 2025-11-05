@@ -17,6 +17,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_cashier.dart';
 import 'package:testgetdata/presentation/widgets/busy_tenant_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/card_tenant.dart';
@@ -532,6 +533,8 @@ class _MenuTenantState extends State<MenuTenant> {
                       await cartProvider.removeUnavailableMenusFromCart(
                           cartProvider.currentTenant!.id.toString(),
                           _currentTenant?.tenantFoods ?? []);
+                  final tenantProvider =
+                      Provider.of<TenantProvider>(context, listen: false);
                   if (isThereUnavailableMenu) {
                     print(
                         'terdapat menu yang tidak tersedia ${cartProvider.cart}');
@@ -560,7 +563,9 @@ class _MenuTenantState extends State<MenuTenant> {
                         textColor: Colors.white);
                     return;
                   }
-                  Navigator.push(context, _buildCartPageRoute());
+                  showBottomSheetCart(context, tenantProvider.tenants!,
+                      cartProvider.tenantCarts);
+                  // Navigator.push(context, _buildCartPageRoute());
                 },
                 backgroundColor: AppColors.primaryColor,
                 shape: RoundedRectangleBorder(

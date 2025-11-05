@@ -12,11 +12,13 @@ import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 class PesananItemWidget extends StatelessWidget {
   final ListTransaksiDetail pesanan;
   final bool withPadding;
+  final bool isTenant;
   final Function() tolakPesanan;
   final Function() terimaPesanan;
 
   PesananItemWidget({
     Key? key,
+    required this.isTenant,
     required this.pesanan,
     required this.tolakPesanan,
     required this.terimaPesanan,
@@ -47,6 +49,7 @@ class PesananItemWidget extends StatelessWidget {
               width: MediaQuery.of(context).size.width / 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 4,
                 children: [
                   Text(
                     capitalizeFirstLetter(pesanan.namaMenu),
@@ -54,46 +57,85 @@ class PesananItemWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
-                  pesanan.catatan != '' && pesanan.catatan != null
-                      ? Text(
-                          '${pesanan.catatan}',
-                          style: TextStyle(
-                              color: AppColors.blackColor200, fontSize: 12),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        )
-                      : Text(
-                          'Catatan Kosong',
-                          style: TextStyle(
-                              color: AppColors.blackColor200, fontSize: 12),
-                        ),
-                  GestureDetector(
-                    onTap: () {
-                      _showDetailPesanan(context, pesanan);
-                    },
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  if (isTenant)
+                    Container(
+                      padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.warningColor,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.warningColor200,
                       ),
-                      child: Row(
-                        spacing: 4,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Iconsax.note_2,
-                              color: AppColors.whiteColor, size: 16),
-                          Text('Detail',
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Catatan :',
                               style: GoogleFonts.poppins(
-                                color: AppColors.whiteColor,
-                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF313131),
                                 fontSize: 12,
-                              )),
-                        ],
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w700,
+                                height: 1.60,
+                              ),
+                            ),
+                            TextSpan(
+                              text: pesanan.catatan != '' &&
+                                      pesanan.catatan != null
+                                  ? '  ${pesanan.catatan}'
+                                  : ' -',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFF313131),
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w400,
+                                height: 1.60,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  )
+                  if (!isTenant)
+                    pesanan.catatan != '' && pesanan.catatan != null
+                        ? Text(
+                            '${pesanan.catatan}',
+                            style: TextStyle(
+                                color: AppColors.blackColor200, fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          )
+                        : Text(
+                            'Catatan Kosong',
+                            style: TextStyle(
+                                color: AppColors.blackColor200, fontSize: 12),
+                          ),
+                  if (!isTenant)
+                    GestureDetector(
+                      onTap: () {
+                        _showDetailPesanan(context, pesanan);
+                      },
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.warningColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          spacing: 4,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Iconsax.note_2,
+                                color: AppColors.whiteColor, size: 16),
+                            Text('Detail',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.whiteColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                )),
+                          ],
+                        ),
+                      ),
+                    )
                 ],
               ),
             ),

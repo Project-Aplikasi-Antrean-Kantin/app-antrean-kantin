@@ -79,6 +79,7 @@ extension CashierTransactionToCartExtension on CashierTransaction {
         );
       } else {
         return CartMenuModel(
+          tenantId: detail.menus!.tenants!.id.toString(),
           menuId: detail.menusKelolaId ?? 0,
           menuNama: detail.namaMenu,
           menuPrice: detail.harga,

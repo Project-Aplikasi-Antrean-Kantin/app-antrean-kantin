@@ -283,6 +283,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
               .map((item) => Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: PesananItemWidget(
+                      isTenant: false,
                       withPadding: false,
                       pesanan: item,
                       tolakPesanan: () {},

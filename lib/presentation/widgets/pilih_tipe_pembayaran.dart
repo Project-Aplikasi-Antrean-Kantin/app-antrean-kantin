@@ -65,7 +65,9 @@ class PilihTipePembayaran extends StatelessWidget {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
-    final total = cartProvider.getTotal();
+    final total = cartProvider.selectedCartTenant.isNotEmpty
+        ? cartProvider.selectedTenantDeliveryCost
+        : cartProvider.getTotal();
 
     return Semantics(
       label: selectedPaymentMethod == null

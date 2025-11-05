@@ -25,7 +25,7 @@ class AuthRemoteDataSource {
 
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('last_send_email', DateTime.now().toString());
+        await prefs.setString('last_send_verify_email', DateTime.now().toString());
         return true;
       } else if (response.statusCode == 401) {
         throw ApiException(status: json['status'], message: message);
@@ -82,7 +82,7 @@ class AuthRemoteDataSource {
 
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('last_send_email', DateTime.now().toString());
+        await prefs.setString('last_send_reset_password', DateTime.now().toString());
         if (response.body.isNotEmpty) {
           final json = jsonDecode(response.body);
           String message = json['message'].toString();

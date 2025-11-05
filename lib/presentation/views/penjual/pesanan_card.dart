@@ -157,6 +157,7 @@ class PesananCardState extends State<PesananCard> {
           // List Menu Items
           ...widget.pesanan.listTransaksiDetail.map((item) {
             return PesananItemWidget(
+              isTenant: true,
               pesanan: item,
               tolakPesanan: () {},
               terimaPesanan: () {},

@@ -78,8 +78,11 @@ class _BottomNavigationCartPaymentState
 
   @override
   Widget build(BuildContext context) {
-    final totalHarga = widget.cartProvider.getTotal();
+    final totalHarga = widget.cartProvider.selectedCartTenant.length != 0
+        ? widget.cartProvider.selectedTenantDeliveryCost
+        : widget.cartProvider.getTotal();
     final isCoinInsufficient = _isCoinInsufficient(totalHarga);
+    print("total harga fake $totalHarga");
 
     return Semantics(
       label: 'Navigasi pembayaran keranjang',

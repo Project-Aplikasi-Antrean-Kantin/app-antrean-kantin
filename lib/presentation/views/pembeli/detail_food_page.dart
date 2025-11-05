@@ -63,16 +63,30 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
     CartMenuModel? item;
     if (widget.cartItem == null) {
       if (widget.addNewItem) {
-        item = cartProvider.cart.firstWhereOrNull(
-            (item) => item.menuId == food.id && item.catatan == widget.catatan);
+        final tenantCart =
+            cartProvider.tenantCarts[widget.tenant.id.toString()];
+
+        // pastikan tenantCart tidak null dulu
+        final listMenu = tenantCart?.cartMenuList ?? [];
+
+        if (listMenu.isEmpty) {
+          item = cartProvider.cart.firstWhereOrNull((item) =>
+              item.menuId == food.id && item.catatan == widget.catatan);
+        } else {
+          item = listMenu.firstWhereOrNull((item) =>
+              item.menuId == food.id && item.catatan == widget.catatan);
+        }
       } else {
-        item = cartProvider.cart
+        item = cartProvider
+            .tenantCarts[widget.tenant.id.toString()]!.cartMenuList!
             .firstWhereOrNull((item) => item.menuId == food.id);
       }
     } else {
       print('cek doang');
-      indexCart = cartProvider.cart.indexWhere(
-          (item) => item.menuId == food.id && item.catatan == widget.catatan);
+      indexCart = cartProvider
+          .tenantCarts[widget.tenant.id.toString()]!.cartMenuList!
+          .indexWhere((item) =>
+              item.menuId == food.id && item.catatan == widget.catatan);
       print('indexCart ${indexCart}');
       item = widget.cartItem;
     }
@@ -118,8 +132,13 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
             child: SingleChildScrollView(
               child:
                   Consumer<CartProvider>(builder: (context, cartProvider, _) {
-                final item = cartProvider.cart
-                    .firstWhereOrNull((item) => item.menuId == food.id);
+                final tenantCart =
+                    cartProvider.tenantCarts[widget.tenant.id.toString()];
+                final cartMenuList = tenantCart?.cartMenuList ?? [];
+
+                final item = cartMenuList.firstWhereOrNull(
+                  (item) => item.menuId == food.id,
+                );
                 isThereItem = item != null;
                 return Column(
                   spacing: 16,
@@ -386,6 +405,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
 
   Widget _buildFloatingActionButton(BuildContext context) {
     return Consumer<CartProvider>(builder: (context, cartProvider, _) {
+      print(widget.tenant.id.toString());
       int totalPrice = 0;
       if (count > 0) {
         totalPrice = food.harga * count;
@@ -439,6 +459,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
             if (widget.cartItem != null && indexCart != null) {
               cartProvider.editCartModelToCart(
                 cartItem: CartMenuModel(
+                  tenantId: widget.tenant.id.toString(),
                   kategoriId: food.kategoriId,
                   isReady: food.isReady,
                   menuId: food.id,
@@ -455,6 +476,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
             } else {
               cartProvider.addCartModelToCart(
                 cartItem: CartMenuModel(
+                  tenantId: widget.tenant.id.toString(),
                   kategoriId: food.kategoriId,
                   isReady: food.isReady,
                   menuId: food.id,
@@ -464,6 +486,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                   count: count,
                   catatan: _textEditingController.text,
                 ),
+                tenant: widget.tenant,
                 tenantId: widget.tenant.id.toString(),
               );
             }

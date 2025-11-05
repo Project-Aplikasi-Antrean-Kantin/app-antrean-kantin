@@ -7,6 +7,7 @@ class CartMenuModel {
   int kategoriId;
   int menuPrice;
   final String menuGambar;
+  final String tenantId;
   String? catatan;
   int count;
   bool isLoading;
@@ -14,6 +15,7 @@ class CartMenuModel {
 
   CartMenuModel({
     required this.isReady,
+    required this.tenantId,
     required this.kategoriId,
     required this.menuId,
     required this.menuGambar,
@@ -28,6 +30,7 @@ class CartMenuModel {
   Map<String, dynamic> toJson() => {
         "id": menuId,
         "jumlah": count,
+        "tenant_id": tenantId,
         "harga": menuPrice,
         "catatan": catatan,
         "menu_nama": menuNama,
@@ -42,6 +45,7 @@ class CartMenuModel {
     String? catatan,
   }) {
     return CartMenuModel(
+      tenantId: this.tenantId,
       kategoriId: this.kategoriId,
       isReady: this.isReady,
       menuPrice: this.menuPrice,
@@ -58,6 +62,7 @@ class CartMenuModel {
     String? tenantName,
   }) {
     return CartMenuModel(
+      tenantId: tenantFoods.tenantId.toString(),
       kategoriId: tenantFoods.kategoriId,
       isReady: tenantFoods.isReady,
       menuId: tenantFoods.id,
@@ -70,6 +75,7 @@ class CartMenuModel {
 
   factory CartMenuModel.fromJson(Map<String, dynamic> json) {
     return CartMenuModel(
+      tenantId: json['tenant_id'] ?? '',
       kategoriId: json['kategori_id'],
       isReady: json['is_ready'],
       menuId: json['id'],

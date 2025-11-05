@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/local/cart_local_data_source.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/cart_per_tenant.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
@@ -26,9 +27,13 @@ void validateCart(
   Map<String, CartPerTenant> cart,
   List<TenantModel> tenants,
   BuildContext context,
-) {
+) async {
   final authProvider = Provider.of<AuthProvider>(context, listen: false);
   final tenantMap = {for (var t in tenants) t.id: t};
+  final cartLocal = CartLocalDataSource();
+
+  // Simpan daftar tenantId yang akan dihapus (karena perlu async clearCart)
+  final List<int> tenantsToClear = [];
 
   cart.removeWhere((key, tenantCart) {
     final tenantIdStr = key.replaceFirst("cart_", "");
@@ -43,6 +48,20 @@ void validateCart(
     if (tenant.emailPemilik == authProvider.user.email) {
       print(
           "Menghapus semua cart dari tenant milik user: ${tenant.namaTenant}");
+      tenantsToClear.add(tenantId);
+      return true;
+    }
+
+    // 🚨 Jika ada menu yang tidak memiliki tenantId, hapus seluruh cart
+    final hasInvalidTenantId = tenantCart.cartMenuList?.any(
+          (menu) => menu.tenantId == '',
+        ) ??
+        false;
+
+    if (hasInvalidTenantId) {
+      print(
+          "Menghapus cart karena ada menu tanpa tenantId di tenant: ${tenant.namaTenant}");
+      tenantsToClear.add(tenantId);
       return true;
     }
 
@@ -54,8 +73,17 @@ void validateCart(
     });
 
     // Hapus tenantCart kalau kosong setelah filtering
-    return tenantCart.cartMenuList?.isEmpty ?? true;
+    final shouldRemove = tenantCart.cartMenuList?.isEmpty ?? true;
+    if (shouldRemove) {
+      tenantsToClear.add(tenantId);
+    }
+    return shouldRemove;
   });
+
+  // Jalankan clearCart untuk semua tenant yang dihapus
+  for (final tenantId in tenantsToClear) {
+    await cartLocal.clearCart(tenantId.toString());
+  }
 }
 
 Future<void> showBottomSheetCart(BuildContext context,
@@ -113,41 +141,44 @@ Future<void> showBottomSheetCart(BuildContext context,
                     ),
                     const SizedBox(height: 8),
                     isCartBenarBenarKosong
-                        ? Column(
-                            spacing: 8,
-                            children: [
-                              Image(
-                                width: MediaQuery.of(context).size.width / 2,
-                                image: const AssetImage(
-                                    "assets/images/404-Not-Found.png"),
-                              ),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width / 2,
-                                child: Text(
-                                    'Keranjang kamu kosong nih, yuk pesan menu!',
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.poppins(
-                                        color: AppColors.blackColor400)),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    'Pesan sekarang',
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.poppins(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
+                        ? SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              spacing: 8,
+                              children: [
+                                Image(
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  image: const AssetImage(
+                                      "assets/images/404-Not-Found.png"),
                                 ),
-                              )
-                            ],
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  child: Text(
+                                      'Keranjang kamu kosong nih, yuk pesan menu!',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.poppins(
+                                          color: AppColors.blackColor400)),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      'Pesan sekarang',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.white, fontSize: 16),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           )
                         : Expanded(
                             child: ListView(
@@ -155,8 +186,11 @@ Future<void> showBottomSheetCart(BuildContext context,
                                   .expand((entry) {
                                 final tenantId = entry.key;
                                 final cartPerTenant = entry.value;
+
                                 final tenant = tenants.firstWhereOrNull(
                                     (t) => t.id == int.parse(tenantId));
+                                print(
+                                    "tenant: $tenant, cartProvider.tenantCarts: ${cartProvider.tenantCarts}");
                                 if (tenant == null) return [Container()];
                                 int totalHarga = 0;
 
@@ -191,10 +225,10 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                 spacing: 8,
                                                 children: [
                                                   InkWell(
-                                                    onTap: () => {
+                                                    onTap: () {
                                                       cartProvider
                                                           .setSelectedCartTenant(
-                                                              cartPerTenant)
+                                                              cartPerTenant);
                                                     },
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -206,9 +240,12 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                         shape: BoxShape.circle,
                                                         border: Border.all(
                                                           color: cartProvider
-                                                                      .selectedCartTenant
-                                                                      ?.tenantId ==
-                                                                  cartPerTenant
+                                                                  .selectedCartTenant
+                                                                  .any((tenant) =>
+                                                                      tenant
+                                                                          .tenantId ==
+                                                                      cartPerTenant
+                                                                          .tenantId)
                                                               ? AppColors
                                                                   .primaryColor
                                                               : Colors.grey,
@@ -217,17 +254,19 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                       ),
                                                       child: Center(
                                                         child: Container(
-                                                          width: 24 / 2,
-                                                          height: 24 / 2,
+                                                          width: 12,
+                                                          height: 12,
                                                           decoration:
                                                               BoxDecoration(
                                                             shape:
                                                                 BoxShape.circle,
                                                             color: cartProvider
-                                                                        .selectedCartTenant
-                                                                        ?.tenantId ==
-                                                                    cartPerTenant
-                                                                        .tenantId
+                                                                    .selectedCartTenant
+                                                                    .any((tenant) =>
+                                                                        tenant
+                                                                            .tenantId ==
+                                                                        cartPerTenant
+                                                                            .tenantId)
                                                                 ? AppColors
                                                                     .primaryColor
                                                                 : Colors
@@ -595,101 +634,121 @@ Future<void> showBottomSheetCart(BuildContext context,
 }
 
 Widget buildBottomSheetCartList(
-    BuildContext context, List<TenantModel> tenants) {
-  return Consumer<CartProvider>(builder: (innerContext, cartProvider, child) {
-    final listCart = cartProvider.selectedCartTenant?.cartMenuList ?? [];
-    print('cek listCart iki loh cak ${listCart}');
-    if (listCart.isEmpty) return Container();
-    final totalPrice =
-        listCart.map((e) => e.menuPrice * e.count).reduce((a, b) => a + b);
-    final tenant = tenants.firstWhereOrNull(
-      (e) => e.id.toString() == cartProvider.selectedCartTenant?.tenantId,
-    );
+  BuildContext context,
+  List<TenantModel> tenants,
+) {
+  return Consumer<CartProvider>(
+    builder: (innerContext, cartProvider, child) {
+      // gabungkan semua menu dari semua tenant yang ada di selectedCartTenant
+      final listCart = cartProvider.selectedCartTenant
+          .map((tenantCart) => tenantCart.cartMenuList ?? [])
+          .expand((menuList) => menuList)
+          .toList();
 
-    if (tenant == null) return Container(); // atau tampilkan error friendly
+      print('cek listCart iki loh cak $listCart');
 
-    return Column(
-      children: [
-        Divider(
-          color: Colors.grey,
-          thickness: 1,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Total Harga",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
+      if (listCart.isEmpty) return const SizedBox.shrink();
+
+      final totalPrice = listCart
+          .map((e) => e.menuPrice * e.count)
+          .fold<int>(0, (a, b) => a + b);
+
+      // ambil tenant pertama yang sesuai dengan salah satu tenant di selectedCartTenant
+      final selectedTenant = tenants.firstWhereOrNull(
+        (tenant) => cartProvider.selectedCartTenant
+            .any((e) => e.tenantId == tenant.id.toString()),
+      );
+
+      if (selectedTenant == null) return const SizedBox.shrink();
+
+      return Column(
+        children: [
+          const Divider(
+            color: Colors.grey,
+            thickness: 1,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Total Harga",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                  Text(
-                    FormatCurrency.intToStringCurrency(totalPrice),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryColor,
+                    Text(
+                      FormatCurrency.intToStringCurrency(totalPrice),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primaryColor,
+                      ),
                     ),
-                  )
-                ],
-              ),
-              GestureDetector(
-                onTap: () async {
-                  final internetConnection = await hasInternetAccess();
-                  if (!internetConnection) {
-                    Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
-                    return;
-                  }
-                  if (tenant.isOnline == false) {
-                    Fluttertoast.showToast(
+                  ],
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    final internetConnection = await hasInternetAccess();
+                    if (!internetConnection) {
+                      Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                      return;
+                    }
+
+                    if (selectedTenant.isOnline == false) {
+                      Fluttertoast.showToast(
                         msg: 'Tenant Tutup',
                         backgroundColor: AppColors.errorColor,
-                        textColor: AppColors.whiteColor);
-                    return;
-                  }
-                  ;
-                  await cartProvider.setCurrentTenant(tenant, null);
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    Navigator.push(
-                      context,
-                      CustomPageBuilder(
-                        page: CartPage(
-                          tenantId: cartProvider.selectedCartTenant!.tenantId,
+                        textColor: AppColors.whiteColor,
+                      );
+                      return;
+                    }
+
+                    // set tenant yang sedang dipilih
+                    await cartProvider.setCurrentTenant(selectedTenant, null);
+
+                    // arahkan ke halaman CartPage tenant terkait
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      Navigator.push(
+                        context,
+                        CustomPageBuilder(
+                          page: CartPage(
+                            tenantId: selectedTenant.id.toString(),
+                          ),
                         ),
+                      );
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: selectedTenant.isOnline == false
+                          ? AppColors.blackColor200
+                          : AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      selectedTenant.isOnline == false
+                          ? "Tenant Tutup"
+                          : "Pesan Sekarang",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
-                    );
-                  });
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: tenant.isOnline == false
-                        ? AppColors.blackColor200
-                        : AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    tenant.isOnline == false
-                        ? "Tenant Tutup"
-                        : "Pesan Sekarang",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
-    );
-  });
+        ],
+      );
+    },
+  );
 }

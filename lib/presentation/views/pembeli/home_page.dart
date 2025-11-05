@@ -28,6 +28,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/review_provider.dart';
+import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
@@ -207,6 +208,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
     final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
     final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
+    final tenantProvider = Provider.of<TenantProvider>(context, listen: false);
 
     final user = authProvider.user;
     _scrollController.addListener(_scrollListener);
@@ -220,6 +222,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         .then((listTenant) {
       final yourTenant = listTenant
           .firstWhereOrNull((tenant) => tenant.emailPemilik == user.email);
+      tenantProvider.setListTenant(listTenant);
       if (yourTenant != null) {
         kasirProvider.setTenant(yourTenant);
       }

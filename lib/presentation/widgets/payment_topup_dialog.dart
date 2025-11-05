@@ -113,7 +113,7 @@ class PaymentTopupDialog {
         ? topUpProvider.lastCopiedPaymentMethod
         : 'DANA/GoPay/ShopeePay';
     final message = Uri.encodeComponent(
-      "Verifikasi Topup Coin \n\nNominal: *Rp $nominal* \nEmail: *$email* \n\nSaya telah melakukan pembayaran via $paymentMethod. Mohon untuk memverifikasi. \n\nBerikut bukti pembayaran saya:\n_[Bukti bayar]_",
+      "Verifikasi Topup Koin \n\nNominal: *Rp $nominal* \nEmail: *$email* \n\nSaya telah melakukan pembayaran via $paymentMethod. Mohon untuk memverifikasi. \n\nBerikut bukti pembayaran saya:\n_[Bukti bayar]_",
     );
     final whatsappUrl =
         Uri.parse('https://wa.me/${topUpProvider.noKonfirmasi}?text=$message');

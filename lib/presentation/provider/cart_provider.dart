@@ -56,13 +56,13 @@ class CartProvider extends ChangeNotifier {
 
   TenantModel? _currentTenant;
   TenantModel? get currentTenant => _currentTenant;
-  CartPerTenant? selectedCartTenant;
-  CartPerTenant get cartTenant => selectedCartTenant!;
+  List<CartPerTenant> selectedCartTenant = [];
+  List<CartPerTenant> get cartTenant => selectedCartTenant;
 
   // A private list to store the items in the cart.
   List<CartMenuModel> _cartMenu = <CartMenuModel>[];
 
-  // A public getter to access the list of cart items.
+  // // A public getter to access the list of cart items.
   List<CartMenuModel> get cart => _cartMenu;
 
   // A public list to store available rooms.
@@ -86,8 +86,47 @@ class CartProvider extends ChangeNotifier {
   String catatanLokasi = '';
   String jumlahItem = '0';
 
+  int get selectedTenantDeliveryCost {
+    int total = 0;
+    if (selectedCartTenant.isEmpty) return 0;
+    for (var tenant in selectedCartTenant) {
+      total += tenant.cartMenuList!.fold(
+        0,
+        (sum, menu) => sum + (menu.menuPrice * menu.count),
+      );
+    }
+
+    return total;
+  }
+
   void setSelectedCartTenant(CartPerTenant cart) {
-    selectedCartTenant = cart;
+    print("selectedCartTenant before $selectedCartTenant");
+
+    // cari index tenant dengan tenantId yang sama
+    final existingIndex = selectedCartTenant
+        .indexWhere((element) => element.tenantId == cart.tenantId);
+
+    if (existingIndex != -1) {
+      // kalau sudah ada, update datanya
+      selectedCartTenant.removeAt(existingIndex);
+      print("Updated tenant dengan ID ${cart.tenantId}");
+    } else {
+      if (selectedCartTenant.length >= 2) {
+        Fluttertoast.showToast(
+            msg: "Maksimal 2 Tenant",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: AppColors.warningColor,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        return;
+      }
+      selectedCartTenant.add(cart);
+      print("Menambahkan tenant baru dengan ID ${cart.tenantId}");
+    }
+
+    print("selectedCartTenant after $selectedCartTenant");
     notifyListeners();
   }
 
@@ -162,7 +201,7 @@ class CartProvider extends ChangeNotifier {
 
     print('setCurrentTenant ${tenant.toString()}');
 
-    _cartMenu = cartList;
+    _cartMenu = _tenantCarts[tenant.id.toString()]?.cartMenuList ?? [];
     if (cart != null) {
       await CartLocalDataSource().saveTenantCartToLocal(CartPerTenant(
         tenantId: _currentTenant!.id.toString(),
@@ -180,57 +219,85 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<bool> syncCartWithServer(String token) async {
-    final List<CartMenuModel> updatedCart = [];
     bool isRemoved = false;
     bool hasChanged = false;
 
-    for (var item in _cartMenu) {
-      final latestMenu = await PublicRemoteDataSource()
-          .getTenantFoodsById(item.menuId.toString(), token);
+    // Tentukan list tenant yang akan disinkronkan
+    final tenantsToSync = selectedCartTenant.isNotEmpty
+        ? List<CartPerTenant>.from(selectedCartTenant)
+        : [
+            CartPerTenant(
+              tenantId: _currentTenant!.id.toString(),
+              tenantName: _currentTenant!.namaTenant,
+              tenantGambar: _currentTenant!.namaGambar ?? '',
+              cartMenuList: _cartMenu,
+            )
+          ];
 
-      if (latestMenu == null) continue;
+    for (var tenant in tenantsToSync) {
+      final updatedCart = <CartMenuModel>[];
 
-      if (latestMenu.isReady == 0) {
-        isRemoved = true;
-        hasChanged = true;
+      for (var item in tenant.cartMenuList ?? []) {
+        final latestMenu = await PublicRemoteDataSource()
+            .getTenantFoodsById(item.menuId.toString(), token);
+
+        if (latestMenu == null) continue;
+
+        if (latestMenu.isReady == 0) {
+          isRemoved = true;
+          hasChanged = true;
+          continue;
+        }
+
+        if (latestMenu.harga != item.menuPrice) {
+          item.menuPrice = latestMenu.harga;
+          hasChanged = true;
+        }
+
+        updatedCart.add(item);
+      }
+
+      if (isRemoved) {
+        Fluttertoast.showToast(
+          msg: "Menghapus item di cart karena menu sudah tidak tersedia",
+          backgroundColor: AppColors.errorColor,
+          textColor: Colors.white,
+        );
+      }
+
+      // Kalau updatedCart kosong → hapus dari selectedCartTenant dan _tenantCarts
+      if (updatedCart.isEmpty) {
+        selectedCartTenant.removeWhere((t) => t.tenantId == tenant.tenantId);
+        _tenantCarts.remove(tenant.tenantId);
+        if (_cartMenu.any((item) => item.tenantId == tenant.tenantId)) {
+          print('clear cart menu');
+          _cartMenu = [];
+        }
+
+        await CartLocalDataSource().clearCart(tenant.tenantId);
         continue;
       }
 
-      if (latestMenu.harga != item.menuPrice) {
-        item.menuPrice = latestMenu.harga;
-        hasChanged = true;
+      // Update tenant yang masih punya menu
+      final updatedTenant = CartPerTenant(
+        tenantId: tenant.tenantId,
+        tenantName: tenant.tenantName,
+        tenantGambar: tenant.tenantGambar,
+        cartMenuList: updatedCart,
+      );
+
+      _tenantCarts[tenant.tenantId] = updatedTenant;
+
+      final index =
+          selectedCartTenant.indexWhere((t) => t.tenantId == tenant.tenantId);
+      if (index != -1) {
+        selectedCartTenant[index] = updatedTenant;
       }
 
-      updatedCart.add(item);
+      await CartLocalDataSource().saveTenantCartToLocal(updatedTenant);
     }
 
-    if (isRemoved) {
-      Fluttertoast.showToast(
-          msg: "Menghapus item di cart karena menu sudah tidak tersedia",
-          backgroundColor: AppColors.errorColor,
-          textColor: Colors.white);
-    }
-
-    final beforeSync = _cartMenu.length;
-    _cartMenu = updatedCart;
-    print('updatedCart ${updatedCart}');
-
-    _tenantCarts[_currentTenant!.id.toString()] = CartPerTenant(
-      tenantId: _currentTenant!.id.toString(),
-      tenantName: _currentTenant!.namaTenant,
-      tenantGambar: _currentTenant!.namaGambar ?? '',
-      cartMenuList: _cartMenu,
-    );
-    selectedCartTenant = _tenantCarts[_currentTenant!.id.toString()];
     notifyListeners();
-
-    await CartLocalDataSource().saveTenantCartToLocal(CartPerTenant(
-      tenantId: _currentTenant!.id.toString(),
-      tenantGambar: currentTenant!.namaGambar ?? '',
-      tenantName: currentTenant!.namaTenant,
-      cartMenuList: _cartMenu,
-    ));
-
     return hasChanged;
   }
 
@@ -274,10 +341,13 @@ class CartProvider extends ChangeNotifier {
 
     // Ambil cart menu list untuk tenant ini
     print('tenantId iki loh cak ${tenantId}');
-    final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
+    final currentTenantId = tenantId;
     final existingCartPerTenant = _tenantCarts[currentTenantId];
     final listMenu =
         List<CartMenuModel>.from(existingCartPerTenant?.cartMenuList ?? []);
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == currentTenantId,
+    );
     print(
         'existingCartPerTenant iki loh cak ${existingCartPerTenant?.cartMenuList}');
 
@@ -307,8 +377,9 @@ class CartProvider extends ChangeNotifier {
       ongkir =
           ongkir - (totalItemCount - 10) * (biayaExtra == 0 ? 500 : biayaExtra);
     }
-
-    _cartMenu = listMenu;
+    if (_currentTenant!.id.toString() == currentTenantId) {
+      _cartMenu = listMenu;
+    }
 
     final totalItem =
         _cartMenu.fold<int>(0, (total, item) => total + item.count);
@@ -316,8 +387,8 @@ class CartProvider extends ChangeNotifier {
       ongkir = (totalItem - 10) * (biayaExtra == 0 ? 500 : biayaExtra) + ongkir;
     }
 
-    if (selectedCartTenant?.tenantId == currentTenantId) {
-      selectedCartTenant = _tenantCarts[currentTenantId];
+    if (indexSelectedCart != -1) {
+      selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
     }
     await CartLocalDataSource()
         .saveTenantCartToLocal(_tenantCarts[currentTenantId]!);
@@ -330,10 +401,20 @@ class CartProvider extends ChangeNotifier {
     required String tenantId,
     required int index,
   }) async {
-    final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
+    final currentTenantId = tenantId;
     final existingCartPerTenant = _tenantCarts[currentTenantId];
     final listMenu =
         List<CartMenuModel>.from(existingCartPerTenant?.cartMenuList ?? []);
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == currentTenantId,
+    );
+    print("cartItem iki loh cak ${cartItem}");
+
+    if (index < 0 || index >= listMenu.length) {
+      print(
+          "⚠️ Index $index tidak valid untuk listMenu panjang ${listMenu.length}");
+      return;
+    }
     final duplicateIndex = listMenu.indexWhere((item) =>
         item.menuId == cartItem.menuId &&
         item.catatan == cartItem.catatan &&
@@ -371,9 +452,11 @@ class CartProvider extends ChangeNotifier {
           textColor: Colors.white);
     }
 
-    _cartMenu = listMenu;
-    if (selectedCartTenant?.tenantId == currentTenantId) {
-      selectedCartTenant = _tenantCarts[currentTenantId];
+    if (_currentTenant!.id.toString() == currentTenantId) {
+      _cartMenu = listMenu;
+    }
+    if (indexSelectedCart != -1) {
+      selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
     }
     final totalItem =
         _cartMenu.fold<int>(0, (total, item) => total + item.count);
@@ -552,8 +635,9 @@ class CartProvider extends ChangeNotifier {
   void addCartModelToCart({
     required CartMenuModel cartItem,
     required String tenantId,
+    required TenantModel tenant,
   }) async {
-    final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
+    final currentTenantId = tenantId;
     final existingCartPerTenant = _tenantCarts[currentTenantId];
     final listMenu =
         List<CartMenuModel>.from(existingCartPerTenant?.cartMenuList ?? []);
@@ -569,19 +653,25 @@ class CartProvider extends ChangeNotifier {
           cartItem.copyWith(count: cartItem.count + listMenu[index].count);
     }
 
-    _tenantCarts[currentTenantId] =
-        _tenantCarts[currentTenantId]?.copyWith(cartMenuList: listMenu) ??
-            CartPerTenant(
-              tenantId: currentTenantId,
-              cartMenuList: listMenu,
-              tenantName: existingCartPerTenant?.tenantName ?? '',
-              tenantGambar: existingCartPerTenant?.tenantGambar ?? '',
-            );
+    _tenantCarts[currentTenantId] = _tenantCarts[currentTenantId]
+            ?.copyWith(cartMenuList: listMenu) ??
+        CartPerTenant(
+          tenantId: currentTenantId,
+          cartMenuList: listMenu,
+          tenantName: existingCartPerTenant?.tenantName ?? tenant.namaTenant,
+          tenantGambar:
+              existingCartPerTenant?.tenantGambar ?? tenant.namaGambar ?? '',
+        );
 
-    _cartMenu = listMenu;
+    if (_currentTenant!.id.toString() == currentTenantId) {
+      _cartMenu = listMenu;
+    }
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == currentTenantId,
+    );
 
-    if (selectedCartTenant?.tenantId == currentTenantId) {
-      selectedCartTenant = _tenantCarts[currentTenantId];
+    if (index != -1) {
+      selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
     }
 
     await CartLocalDataSource()
@@ -592,7 +682,8 @@ class CartProvider extends ChangeNotifier {
   Future<void> removeItemFromTenantCart(
       String tenantId, int menuId, BuildContext context,
       {String? catatan, int? indexCart}) async {
-    final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
+    print("tenantId iki loh${tenantId}");
+    final currentTenantId = tenantId;
 
     final tenantCart = _tenantCarts[currentTenantId];
     if (tenantCart == null) return;
@@ -607,6 +698,9 @@ class CartProvider extends ChangeNotifier {
     if (index == -1) return;
 
     final currentItem = menuList[index];
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == currentTenantId,
+    );
     if (currentItem.count > 1) {
       menuList[index] = currentItem.copyWith(count: currentItem.count - 1);
     } else {
@@ -625,13 +719,15 @@ class CartProvider extends ChangeNotifier {
 
     if (menuList.isEmpty) {
       _tenantCarts.remove(currentTenantId);
-      selectedCartTenant = null;
+      if (indexSelectedCart != -1) {
+        selectedCartTenant.removeAt(indexSelectedCart);
+      }
       await CartLocalDataSource().clearCart(currentTenantId);
     } else {
       _tenantCarts[currentTenantId] =
           tenantCart.copyWith(cartMenuList: menuList);
-      if (selectedCartTenant?.tenantId == currentTenantId) {
-        selectedCartTenant = _tenantCarts[currentTenantId];
+      if (indexSelectedCart != -1) {
+        selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
       }
       await CartLocalDataSource()
           .saveTenantCartToLocal(_tenantCarts[currentTenantId]!);
@@ -651,6 +747,9 @@ class CartProvider extends ChangeNotifier {
 
   Future<void> clearItemFromCart(String tenantId, int indexCart) async {
     final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == currentTenantId,
+    );
 
     final tenantCart = _tenantCarts[currentTenantId];
     if (tenantCart == null) return;
@@ -664,15 +763,15 @@ class CartProvider extends ChangeNotifier {
     if (menuList.isEmpty) {
       _tenantCarts.remove(currentTenantId);
       await CartLocalDataSource().clearCart(currentTenantId);
-      if (selectedCartTenant?.tenantId == currentTenantId) {
-        selectedCartTenant = null;
+      if (indexSelectedCart != -1) {
+        selectedCartTenant.removeAt(indexSelectedCart);
       }
     } else {
       _tenantCarts[currentTenantId] =
           tenantCart.copyWith(cartMenuList: menuList);
 
-      if (selectedCartTenant?.tenantId == currentTenantId) {
-        selectedCartTenant = _tenantCarts[currentTenantId];
+      if (indexSelectedCart != -1) {
+        selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
       }
 
       await CartLocalDataSource()
@@ -704,6 +803,9 @@ class CartProvider extends ChangeNotifier {
 
   Future<bool> clearItemByMenuIdFromCart(String tenantId, int menuId) async {
     final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == currentTenantId,
+    );
 
     final tenantCart = _tenantCarts[currentTenantId];
     if (tenantCart == null) return false;
@@ -725,8 +827,8 @@ class CartProvider extends ChangeNotifier {
       _tenantCarts[currentTenantId] =
           tenantCart.copyWith(cartMenuList: updatedMenuList);
 
-      if (selectedCartTenant?.tenantId == currentTenantId) {
-        selectedCartTenant = _tenantCarts[currentTenantId];
+      if (indexSelectedCart != -1) {
+        selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
       }
 
       await CartLocalDataSource()
@@ -741,20 +843,37 @@ class CartProvider extends ChangeNotifier {
     return true;
   }
 
-  void clearCart(bool clearLocal) async {
+  Future<void> clearCart(bool clearLocal) async {
     final tenantId = _currentTenant?.id.toString();
     _currentTenant = null;
     ongkir = 0;
     _priority = 0;
+    roomId = null;
 
     print('clear cart $clearLocal');
-    roomId = null;
-    selectedCartTenant = null;
 
-    if (clearLocal == true && _tenantCarts.isNotEmpty && tenantId != null) {
-      _tenantCarts.remove(tenantId);
-      _cartMenu = _tenantCarts[tenantId]?.cartMenuList ?? [];
-      await CartLocalDataSource().clearCart(tenantId);
+    print("selectedCartTenant nama $selectedCartTenant");
+
+    // Jika ada selectedCartTenant → hapus semua tenant di situ
+    if (selectedCartTenant.isNotEmpty && clearLocal) {
+      print("selectedCartTenant $selectedCartTenant");
+      for (var tenant in selectedCartTenant) {
+        print("tenant.tenantId ${tenant.tenantId}");
+        _tenantCarts.remove(tenant.tenantId);
+        await CartLocalDataSource().clearCart(tenant.tenantId);
+      }
+
+      selectedCartTenant.clear();
+      _cartMenu = [];
+    } else {
+      // Flow biasa
+      selectedCartTenant = [];
+
+      if (clearLocal == true && _tenantCarts.isNotEmpty && tenantId != null) {
+        _tenantCarts.remove(tenantId);
+        _cartMenu = _tenantCarts[tenantId]?.cartMenuList ?? [];
+        await CartLocalDataSource().clearCart(tenantId);
+      }
     }
 
     notifyListeners();
@@ -817,6 +936,9 @@ class CartProvider extends ChangeNotifier {
   }) async {
     final tenantCart = _tenantCarts[tenantId];
     if (tenantCart == null) return;
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == tenantId,
+    );
 
     final updatedCartMenuList = tenantCart.cartMenuList!.map((item) {
       if (item.menuId == menuId) {
@@ -834,8 +956,8 @@ class CartProvider extends ChangeNotifier {
       _cartMenu = updatedCartMenuList;
     }
 
-    if (selectedCartTenant?.tenantId == tenantId) {
-      selectedCartTenant = updatedTenantCart;
+    if (indexSelectedCart != -1) {
+      selectedCartTenant[indexSelectedCart] = _tenantCarts[tenantId]!;
     }
 
     // Simpan ke local storage
@@ -848,13 +970,19 @@ class CartProvider extends ChangeNotifier {
   Future<OrderModel?> createTransaction(
       BuildContext context, String token, String paymentMethod) async {
     int total = getTotalItemCount();
+    final cartFinal = selectedCartTenant.length > 0
+        ? selectedCartTenant
+            .map((tenantCart) => tenantCart.cartMenuList ?? [])
+            .expand((menuList) => menuList)
+            .toList()
+        : _cartMenu;
     print('total $total');
     print('paymentMethod $paymentMethod');
 
     final hasCartChanged = await syncCartWithServer(token);
     print('totalItemCount $totalItemCount');
     final result = TransactionRemoteDataSource()
-        .createTransaction(token, toJson(_cartMenu, paymentMethod));
+        .createTransaction(token, toJson(cartFinal, paymentMethod));
 
     if (hasCartChanged || total != totalItemCount) {
       if (cart.isEmpty) {
@@ -1022,6 +1150,9 @@ class CartProvider extends ChangeNotifier {
     required int count,
   }) async {
     final currentTenantId = _currentTenant?.id.toString() ?? tenantId;
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == currentTenantId,
+    );
 
     final tenantCart = _tenantCarts[currentTenantId];
     if (tenantCart == null) return;
@@ -1054,8 +1185,8 @@ class CartProvider extends ChangeNotifier {
       ongkir = (totalItem - 10) * (biayaExtra == 0 ? 500 : biayaExtra) + ongkir;
     }
 
-    if (selectedCartTenant?.tenantId == currentTenantId) {
-      selectedCartTenant = updatedTenantCart;
+    if (indexSelectedCart != -1) {
+      selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
     }
 
     await CartLocalDataSource().saveTenantCartToLocal(updatedTenantCart);

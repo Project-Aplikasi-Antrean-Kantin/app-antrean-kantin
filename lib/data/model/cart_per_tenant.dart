@@ -36,6 +36,6 @@ class CartPerTenant {
 
   @override
   String toString() {
-    return 'CartPerTenant(tenantId: $tenantId, tenantName: $tenantName, tenantGambar: $tenantGambar, cartMenuList: $cartMenuList)';
+    return 'CartPerTenant(tenantName: $tenantName)';
   }
 }

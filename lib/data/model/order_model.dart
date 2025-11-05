@@ -15,12 +15,19 @@ class OrderModel {
     this.snap,
     // required this.orderId,
   });
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    final transaksiData = json["data"]["transaksi"];
 
-  factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel(
-        status: json["status"],
-        messages: json["messages"],
-        pesanan: Pesanan.fromJson(json["data"]["transaksi"]),
-        snap: json["snap"] != null ? Snap.fromJson(json["snap"]) : null,
-        // orderId: json["order_id"],
-      );
+    // Cek apakah transaksi berupa list atau object tunggal
+    final pesanan = (transaksiData is List && transaksiData.isNotEmpty)
+        ? Pesanan.fromJson(transaksiData[0])
+        : Pesanan.fromJson(transaksiData);
+
+    return OrderModel(
+      status: json["status"],
+      messages: json["messages"],
+      pesanan: pesanan,
+      snap: json["snap"] != null ? Snap.fromJson(json["snap"]) : null,
+    );
+  }
 }

@@ -797,6 +797,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                     ),
                     ...pesananPembeli.map(
                       (item) => PesananItemWidget(
+                        isTenant: widget.label == 'Jual' ? true : false,
                         pesanan: item,
                         tolakPesanan: () {},
                         terimaPesanan: () {},
