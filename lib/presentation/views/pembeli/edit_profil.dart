@@ -82,11 +82,9 @@ class _EditProfilState extends State<EditProfil> {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
-      debugPrint('Original image path: ${pickedImage.path}');
       final tempDir = await getTemporaryDirectory();
       final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempPath = '${tempDir.path}/$tempFileName';
-      debugPrint('Target path for compressed image: $tempPath');
 
       try {
         final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -97,10 +95,8 @@ class _EditProfilState extends State<EditProfil> {
           minHeight: 1024,
         );
         if (compressedImage != null) {
-          debugPrint('Compressed image path: ${compressedImage.path}');
           selectedImagePath = compressedImage.path;
           int imageSizeKB = await _getImageSize(selectedImagePath!);
-          debugPrint('Compressed image size: $imageSizeKB KB');
           if (imageSizeKB > 2048) {
             showDialog(
               context: context,
@@ -119,7 +115,6 @@ class _EditProfilState extends State<EditProfil> {
 
           setState(() {});
         } else {
-          debugPrint('Compression returned null');
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -151,11 +146,9 @@ class _EditProfilState extends State<EditProfil> {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
-      debugPrint('Original image path (from camera): ${pickedImage.path}');
       final tempDir = await getTemporaryDirectory();
       final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempPath = '${tempDir.path}/$tempFileName';
-      debugPrint('Target path for compressed image: $tempPath');
 
       try {
         final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -166,10 +159,8 @@ class _EditProfilState extends State<EditProfil> {
           minHeight: 1024,
         );
         if (compressedImage != null) {
-          debugPrint('Compressed image path: ${compressedImage.path}');
           selectedImagePath = compressedImage.path;
           int imageSizeKB = await _getImageSize(selectedImagePath!);
-          debugPrint('Compressed image size: $imageSizeKB KB');
           if (imageSizeKB > 2048) {
             showDialog(
               context: context,
@@ -187,7 +178,6 @@ class _EditProfilState extends State<EditProfil> {
           Navigator.pop(context);
           setState(() {});
         } else {
-          debugPrint('Compression returned null');
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -248,7 +238,6 @@ class _EditProfilState extends State<EditProfil> {
     AuthRemoteDataSource()
         .updateProfileUser(authProvider.user.token, data)
         .then((value) {
-      debugPrint('value setelah edit $value');
       if (value) {
         Navigator.of(context).pop();
         Fluttertoast.showToast(
@@ -611,7 +600,6 @@ class _EditProfilState extends State<EditProfil> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              print('cek');
                               if (selectedImagePath != null ||
                                   authProvider.user.gambar != null) {
                                 selectedImagePath = null;
@@ -619,7 +607,6 @@ class _EditProfilState extends State<EditProfil> {
                                 Navigator.pop(context);
 
                                 setState(() {});
-                                print('Gambar berhasil dihapus');
                               }
                             },
                             child: Container(

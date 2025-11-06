@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
+import 'package:testgetdata/data/model/transaksi_detail_model.dart';
 import 'package:testgetdata/data/remote/driver_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
@@ -28,10 +29,14 @@ import 'package:testgetdata/utils/has_internet_access.dart';
 class DeliveryCard extends StatefulWidget {
   final VoidCallback onSuccess;
   final Pesanan pesanan;
+  final int ongkir;
+  final List<ListTransaksiDetail> listTransaksiDetail;
   final DeliveryStatus status;
   final String userToken;
 
   const DeliveryCard({
+    required this.ongkir,
+    required this.listTransaksiDetail,
     Key? key,
     required this.onSuccess,
     required this.pesanan,
@@ -100,12 +105,17 @@ class _DeliveryCardState extends State<DeliveryCard> {
     final totalItemMenu = widget.pesanan.listTransaksiDetail
         .map((item) => item.jumlah)
         .fold(0, (prev, jumlah) => prev + jumlah);
-    final tenantName = widget.pesanan.listTransaksiDetail.isNotEmpty &&
-            widget.pesanan.listTransaksiDetail[0].menus?.tenants?.namaTenant !=
-                null
-        ? capitalizeFirstLetter(
-            widget.pesanan.listTransaksiDetail[0].menus!.tenants!.namaTenant)
-        : 'Unknown Tenant';
+    final groupedByTenant = <String, List<dynamic>>{};
+
+// Kelompokkan berdasarkan tenant name
+    for (var detail in widget.listTransaksiDetail) {
+      final tenantName =
+          (detail.menus?.tenants?.namaTenant ?? 'Unknown Tenant').trim().isEmpty
+              ? 'Unknown Tenant'
+              : capitalizeFirstLetter(detail.menus!.tenants!.namaTenant!);
+
+      groupedByTenant.putIfAbsent(tenantName, () => []).add(detail);
+    }
 
     final screenSize = MediaQuery.of(context).size;
     final isThereNewChat =
@@ -247,50 +257,71 @@ class _DeliveryCardState extends State<DeliveryCard> {
             ),
           ),
           DashedDivider(color: AppColors.blackColor100, height: 2),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Tenant',
-                        style:
-                            GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                    ConstrainedBox(
-                      constraints:
-                          BoxConstraints(maxWidth: screenSize.width * 0.4),
-                      child: Text(
-                        tenantName,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        style: GoogleFonts.poppins(
-                            fontWeight: semibold,
-                            color: AppColors.primaryColor),
-                      ),
-                    )
-                  ],
-                ),
-                Text('Detail Pesanan',
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600, fontSize: 12)),
-              ],
-            ),
-          ),
-          ...widget.pesanan.listTransaksiDetail
-              .map((item) => Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: PesananItemWidget(
-                      isTenant: false,
-                      withPadding: false,
-                      pesanan: item,
-                      tolakPesanan: () {},
-                      terimaPesanan: () {},
+          // Widget utama
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: groupedByTenant.entries.map((entry) {
+              final tenantName = entry.key;
+              final items = entry.value;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header tenant
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Tenant',
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600)),
+                        ConstrainedBox(
+                          constraints:
+                              BoxConstraints(maxWidth: screenSize.width * 0.4),
+                          child: Text(
+                            tenantName,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: GoogleFonts.poppins(
+                              fontWeight: semibold,
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ))
-              .toList(),
+                  ),
+
+                  // Subheader
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Detail Pesanan',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+
+                  // Daftar item dari tenant ini
+                  ...items.map((item) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: PesananItemWidget(
+                          isTenant: false,
+                          withPadding: false,
+                          pesanan: item,
+                          tolakPesanan: () {},
+                          terimaPesanan: () {},
+                        ),
+                      )),
+                ],
+              );
+            }).toList(),
+          ),
+
           DashedDivider(color: AppColors.blackColor100, height: 2),
           _buildCostSection(widget.pesanan, totalItemMenu,
               widget.status == DeliveryStatus.siapDiantar),
@@ -667,7 +698,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
                 ),
               ),
               Text(
-                FormatCurrency.intToStringCurrency(pesanan.ongkosKirim),
+                FormatCurrency.intToStringCurrency(widget.ongkir),
                 style: GoogleFonts.poppins(
                   color: AppColors.blackColor,
                   fontSize: 16,

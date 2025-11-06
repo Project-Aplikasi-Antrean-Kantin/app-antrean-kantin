@@ -103,12 +103,10 @@ class _CheckoutQrisState extends State<CheckoutQris>
   Future<void> checkTimeDifference() async {
     final savedTime = widget.pesanan.expiredQris;
     final count = 900;
-    print('savedTime $savedTime');
     if (savedTime == null) return;
 
     final now = DateTime.now();
-    print('now $now');
-    print('savedTime $savedTime');
+
     final secondsDiff = savedTime.difference(now).inSeconds;
     if (secondsDiff <= 0) {
       // waktu sudah habis

@@ -294,7 +294,6 @@ class _CashierTransactionItemWidgetState
                   final printerProvider =
                       Provider.of<PrinterProvider>(context, listen: false);
                   if (printerProvider.selectedPrinter == null) {
-                    print(user.menu.map((element) => element.url).toList());
                     Navigator.pushAndRemoveUntil(
                       context,
                       CustomPageBuilder(

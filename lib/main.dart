@@ -99,7 +99,6 @@ class _MyAppState extends State<MyApp> {
     // 2️⃣ link yang diterima ketika aplikasi sudah berjalan
     _linkSub = appLinks.uriLinkStream.listen(
       _handleUri,
-      onError: (err) => debugPrint('Deep link error: $err'),
     );
   }
 
@@ -114,10 +113,6 @@ class _MyAppState extends State<MyApp> {
 
     // query: ?email=...
     final email = uri.queryParameters['email'];
-
-    debugPrint('Deep link  ➜  $uri');
-    debugPrint('  token = $token');
-    debugPrint('  email = $email');
 
     if (token != null && email != null) {
       // tunggu navigator siap, lalu ganti seluruh stack
@@ -146,24 +141,19 @@ class _MyAppState extends State<MyApp> {
           '${MasbroConstants.baseUrl}/verify-email/$userId/$hash?$query',
         );
 
-        debugPrint('Verifying email via: $verifyUrl');
-
         SchedulerBinding.instance.addPostFrameCallback((_) async {
           try {
             final response = await http.get(verifyUrl);
-            print("response code ${response.statusCode}");
 
             if (response.statusCode == 200) {
               // Cek konten HTML jika tidak ada JSON
 
-              debugPrint('✅ Email verified successfully');
               Fluttertoast.showToast(
                 msg: 'Email berhasil diverifikasi',
                 backgroundColor: AppColors.successColor,
                 textColor: Colors.white,
               );
             } else {
-              debugPrint('❌ Verification failed: ${response.body}');
               Fluttertoast.showToast(
                 msg: 'Verifikasi gagal, silakan coba lagi',
                 backgroundColor: AppColors.errorColor,
@@ -171,7 +161,6 @@ class _MyAppState extends State<MyApp> {
               );
             }
           } catch (e) {
-            debugPrint('❌ Verification error: $e');
             Fluttertoast.showToast(
               msg: 'Terjadi kesalahan jaringan',
               backgroundColor: AppColors.errorColor,

@@ -33,8 +33,6 @@ class DeliveryProvider with ChangeNotifier {
       final pesanan =
           await DriverDataSource().getOrderDelivery(token, status.value);
       _pesanan[status] = pesanan.pesanan ?? [];
-      print('Fetched orders: ${_pesanan[status]}');
-      print('Result error: ${pesanan.error}');
 
       if (pesanan.error != null) {
         _errorMessage = pesanan.error;

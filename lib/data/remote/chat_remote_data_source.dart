@@ -7,8 +7,6 @@ import 'package:testgetdata/data/model/chat.dart';
 class ChatRemoteDataSource {
   Future<Chat> sendMessage(
       String token, String message, String chatType, String id) async {
-    print("token: $token, message: $message, chatType: $chatType, id: $id");
-    print("${MasbroConstants.url}/transaksi/$id/chat");
     try {
       final result = await http.post(
           Uri.parse("${MasbroConstants.url}/transaksi/$id/chat"),
@@ -19,10 +17,8 @@ class ChatRemoteDataSource {
           body: jsonEncode({"message": message, "chat_type": chatType}));
 
       final json = jsonDecode(result.body);
-      print(json);
 
       if (result.statusCode == 200) {
-        print("berhasil ini loh $json");
         final chat = Chat.fromJson(json["data"]);
         return chat;
       } else if (result.statusCode == 400) {
@@ -45,9 +41,6 @@ class ChatRemoteDataSource {
           "Content-Type": "application/json"
         },
       );
-
-      print("Status code: ${result.statusCode}");
-      print("Body: ${result.body}");
 
       if (result.statusCode == 200) {
         final List<dynamic> data = jsonDecode(result.body);

@@ -54,8 +54,8 @@ class PesananItemWidget extends StatelessWidget {
                   Text(
                     capitalizeFirstLetter(pesanan.namaMenu),
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+                    softWrap: isTenant ? true : false,
+                    maxLines: isTenant ? 99 : 1,
                   ),
                   if (isTenant)
                     Container(

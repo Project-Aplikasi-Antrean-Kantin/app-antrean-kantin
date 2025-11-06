@@ -38,8 +38,6 @@ class OrderProvider with ChangeNotifier {
         allOrders.addAll(orders);
       }
       _pesanan[status] = allOrders;
-      print("status: ${status.rawValues}");
-      print('pesanan masuk: ${_pesanan[status]}');
     } catch (e) {
       errorMessage = 'Gagal memuat pesanan: $e';
     } finally {
@@ -78,7 +76,6 @@ class OrderProvider with ChangeNotifier {
           _pesanan[OrderStatus.pesananDiproses]!.remove(pesanan);
           _pesanan[OrderStatus.pesananSiapDiambil]!.add(pesanan);
         } else if (status == 'selesai') {
-          print('pesanan selesai ${_pesanan[OrderStatus.pesananSiapDiambil]}');
           _pesanan[OrderStatus.pesananSiapDiambil]!.remove(pesanan);
         }
       } else {
@@ -87,7 +84,6 @@ class OrderProvider with ChangeNotifier {
       return success.success;
     } catch (e) {
       errorUpdate = e.toString();
-      debugPrint('Error updating order: $e');
       notifyListeners();
       return false;
     } finally {
@@ -124,7 +120,6 @@ class OrderProvider with ChangeNotifier {
       return success.success;
     } catch (e) {
       errorUpdate = e.toString();
-      debugPrint('Error updating order: $e');
       notifyListeners();
       return false;
     } finally {

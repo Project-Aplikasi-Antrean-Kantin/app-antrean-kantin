@@ -20,7 +20,6 @@ class DriverDataSource {
           'Accept': 'application/json',
         },
       );
-      print(response.statusCode);
 
       if (response.statusCode == 200) {
         final jsonData =
@@ -66,8 +65,6 @@ class DriverDataSource {
 
     // Ubah ke http.Response biar bisa akses body
     final response = await http.Response.fromStream(streamedResponse);
-    print("Response status code: ${response.statusCode}");
-    print("Response body: ${response.body}");
 
     if (response.statusCode == 200) {
       final jsonBody = jsonDecode(response.body);
@@ -90,9 +87,6 @@ class DriverDataSource {
       headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
       body: {'status': "$status"},
     );
-    print({"status code update pesanan": response.statusCode});
-    print({"body update pesanan": response.body});
-    print({"data update pesanan": jsonDecode(response.body)['data']});
 
     if (response.statusCode == 200) {
       return (

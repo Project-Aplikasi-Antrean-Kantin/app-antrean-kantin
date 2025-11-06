@@ -48,8 +48,6 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
           ),
           child: Consumer<CartProvider>(
             builder: (context, cartProvider, _) {
-              print('cartProvider.cart.length: ${cartProvider.cart.length}');
-              print("selectedTenant: ${cartProvider.selectedCartTenant}");
               return ConstrainedBox(
                 constraints: BoxConstraints(
                     maxHeight: isWidthLargerThanHeight
@@ -386,7 +384,6 @@ Widget buildBottomSheetCartList(
   return Consumer3<CartProvider, AuthProvider, KasirProvider>(builder:
       (innerContext, cartProvider, authProvider, kasirProvider, child) {
     final listCart = cartProvider.cart;
-    print('cek listCart iki loh cak ${listCart}');
     if (listCart.isEmpty) return Container();
     final totalPrice =
         listCart.map((e) => e.menuPrice * e.count).reduce((a, b) => a + b);

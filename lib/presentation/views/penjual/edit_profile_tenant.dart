@@ -91,11 +91,9 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
-      debugPrint('Original image path (from camera): ${pickedImage.path}');
       final tempDir = await getTemporaryDirectory();
       final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempPath = '${tempDir.path}/$tempFileName';
-      debugPrint('Target path for compressed image: $tempPath');
 
       try {
         final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -106,10 +104,8 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
           minHeight: 1024,
         );
         if (compressedImage != null) {
-          debugPrint('Compressed image path: ${compressedImage.path}');
           selectedImagePath = compressedImage.path;
           int imageSizeKB = await _getImageSize(selectedImagePath!);
-          debugPrint('Compressed image size: $imageSizeKB KB');
           if (imageSizeKB > 2048) {
             showDialog(
               context: context,
@@ -126,7 +122,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
           }
           setState(() {});
         } else {
-          debugPrint('Compression returned null');
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -159,11 +154,9 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage == null) return;
 
-    debugPrint('Original image path: ${pickedImage.path}');
     final tempDir = await getTemporaryDirectory();
     final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
     final tempPath = '${tempDir.path}/$tempFileName';
-    debugPrint('Target path for compressed image: $tempPath');
 
     try {
       final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -175,16 +168,13 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
       );
 
       if (compressedImage == null) {
-        debugPrint('Compression returned null');
         _showErrorDialog(
             'Gagal!', 'Gagal mengompresi gambar. Silakan coba lagi.');
         return;
       }
 
-      debugPrint('Compressed image path: ${compressedImage.path}');
       selectedImagePath = compressedImage.path;
       final imageSizeKB = await _getImageSize(selectedImagePath!);
-      debugPrint('Compressed image size: $imageSizeKB KB');
 
       if (imageSizeKB > 2048) {
         _showErrorDialog(
@@ -214,7 +204,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
   }
 
   void _saveProfile(TenantProvider tenantProvider, AuthProvider authProvider) {
-    print('save profile ${selectedCloseTime} ${selectedOpenTime}');
     if (namaTenantController.text.isEmpty ||
         nomorKavlingController.text.isEmpty) {
       _showErrorDialog(
@@ -499,7 +488,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
                                 selectedImagePath = null;
                                 authProvider.user.gambar = null;
                                 setState(() {});
-                                print('Gambar berhasil dihapus');
                               }
                             },
                             child: Container(

@@ -187,7 +187,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (topUpProvider.topUp != null) {
       final kodeBayar = topUpProvider.topUp!.kodeBayar;
       if (kodeBayar.contains('https:')) {
-        print('midtransId ${topUpProvider.topUp?.midtransId}');
         await topUpProvider.getTopUpQris(
             user.token, topUpProvider.topUp!.midtransId!);
       } else {
@@ -303,7 +302,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _handleNavigation(Widget page) {
-    print('cek');
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -494,7 +492,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   final jsonCurrentVa =
                                       prefs.getString('current_va');
                                   TopUpModel? currentVa;
-                                  print('jsonCurrentVa $jsonCurrentVa');
                                   final internetConnection =
                                       await hasInternetAccess();
                                   if (!internetConnection) {
@@ -514,15 +511,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                       currentVa = TopUpModel.fromJson(
                                           decoded); // ini TopUpModel
                                     }
-
-                                    print('Kode Bayar: ${currentVa.kodeBayar}');
-                                    print('Nominal: ${currentVa.nominal}');
-                                    print('current_va ${currentVa}');
-                                    print(
-                                        'Akhir Bayar: ${currentVa.akhirBayar}');
-                                  } else {
-                                    print(
-                                        'current_va belum tersedia di SharedPreferences.');
                                   }
 
                                   if (jsonCurrentVa != null &&
@@ -641,18 +629,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             }
                           });
 
-                          print('Sebelum Sort:');
-                          fullTenant.forEach((e) =>
-                              print('${e.namaTenant}: ${e.transaksiBerhasil}'));
-
                           fullTenant.sort((a, b) {
                             return (b.transaksiBerhasil ?? 0)
                                 .compareTo(a.transaksiBerhasil ?? 0);
                           });
-
-                          // print('Setelah Sort:');
-                          // fullTenant.forEach((e) =>
-                          //     print('${e.namaTenant}: ${e.transaksiBerhasil}'));
 
                           foundTenant = fullTenant;
                           isFirstLoad = false;

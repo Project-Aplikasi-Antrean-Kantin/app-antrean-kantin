@@ -13,9 +13,6 @@ class OrderTenantRemoteDataSource {
       headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
     ).timeout(const Duration(seconds: 10));
 
-    debugPrint("Status Code: ${response.statusCode}");
-    debugPrint("Response body: ${response.body}");
-
     if (response.statusCode == 200) {
       final dynamic jsonData = jsonDecode(response.body)['data'];
       List<dynamic> pesananList = jsonData is Map<String, dynamic>
@@ -49,7 +46,6 @@ class OrderTenantRemoteDataSource {
       ).timeout(const Duration(seconds: 10));
 
       final json = jsonDecode(response.body);
-      print('iki responsenya ${response.body}');
       if (response.statusCode == 200) {
         return (success: true, error: null);
       } else {

@@ -41,7 +41,6 @@ class _FormOperationalState extends State<FormOperational> {
           .fetchTenantData(context.read<AuthProvider>().user.token)
           .then((_) {
         final tenantData = tenantProvider.tenant;
-        print('tenantData: $tenantData');
         setState(() {
           selectedOpenTime = tenantData?.jamBuka ?? '00:00:00';
           selectedCloseTime = tenantData?.jamTutup ?? '00:00:00';
@@ -256,7 +255,6 @@ class _FormOperationalState extends State<FormOperational> {
   }
 
   void _saveProfile(TenantProvider tenantProvider, AuthProvider authProvider) {
-    print('save profile ${selectedCloseTime} ${selectedOpenTime}');
     if (selectedCloseTime == '00:00:00' || selectedOpenTime == '00:00:00') {
       Fluttertoast.showToast(
           msg: "Tolong isi dengan benar",

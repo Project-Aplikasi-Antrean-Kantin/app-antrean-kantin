@@ -58,7 +58,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Total pesanan (${cartProvider.totalItemCount} menu)",
+                    "Total pesanan (${cartProvider.totalItemCountSelected} item)",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       color: AppColors.textColorBlack,
@@ -68,7 +68,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                     children: [
                       Text(
                         FormatCurrency.intToStringCurrency(
-                          cartProvider.deliveryCost,
+                          cartProvider.selectedTenantDeliveryCost,
                         ),
                         style: GoogleFonts.poppins(
                           fontSize: 14,

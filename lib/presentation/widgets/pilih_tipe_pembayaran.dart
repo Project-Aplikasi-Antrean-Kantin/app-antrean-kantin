@@ -65,9 +65,7 @@ class PilihTipePembayaran extends StatelessWidget {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
-    final total = cartProvider.selectedCartTenant.isNotEmpty
-        ? cartProvider.selectedTenantDeliveryCost
-        : cartProvider.getTotal();
+    final total = cartProvider.getTotal();
 
     return Semantics(
       label: selectedPaymentMethod == null
@@ -201,11 +199,6 @@ class _PaymentOptionBottomSheetState extends State<_PaymentOptionBottomSheet> {
             ),
             const SizedBox(height: 16),
             ...availableMethods.map((method) {
-              final iconPath = PilihTipePembayaran
-                  ._paymentOptions[method]!['icon'] as String;
-
-              print(iconPath);
-
               return Column(
                 children: [
                   const SizedBox(height: 12),

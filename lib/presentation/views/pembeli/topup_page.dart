@@ -211,8 +211,6 @@ class _TopupPageState extends State<TopupPage> {
                 }
                 if (selectedValue != null && _selectedNominal != null) {
                   await topUpProvider.getDataTopUp(authProvider.user.token);
-                  print(
-                      "aktifVa: ${topUpProvider.aktifVa}, aktifQris: ${topUpProvider.aktifQris}");
                   if (selectedValue == 'VA Mandiri' &&
                       topUpProvider.aktifVa == '0') {
                     setState(() {

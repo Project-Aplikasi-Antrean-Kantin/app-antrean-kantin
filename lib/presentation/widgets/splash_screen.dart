@@ -75,11 +75,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future authCheck() async {
-    debugPrint("MASUK TOKEN AUTH");
-
     final token = await tokenManager.getToken();
-    final role = await tokenManager.getRoles();
-    log("role user: $role");
 
     if (!mounted) return;
 
@@ -102,17 +98,14 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     if (token != null) {
-      debugPrint("TOKEN TERSEDIA");
       final result = await authProvider.authWithToken(
         errorCallback: (error) {
           CustomSnackBar(message: error.toString(), status: error.toString());
         },
       );
-      print("result: $result");
       if (!mounted) return;
 
       if (result.success) {
-        log("Sukses Masuk, Token Tersedia");
         if (widget.isFromNotification == true) {
           if (result.user!.role.length == 1) {
             Navigator.pushReplacement(

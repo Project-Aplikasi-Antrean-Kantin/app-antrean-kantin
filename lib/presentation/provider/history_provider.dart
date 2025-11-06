@@ -45,13 +45,10 @@ class HistoryProvider with ChangeNotifier {
   Future<void> fetchHistory(
       BuildContext context, UserModel user, String role, bool isInitialFetch,
       {bool forceRefresh = false}) async {
-    print(
-        "ngefetch cak _alreadyAllFetchedByRole[role] ${_alreadyAllFetchedByRole[role]}");
     // Skip jika sedang loading dan bukan force refresh
     if (_isLoadingByRole[role] == true &&
         !forceRefresh &&
         _loadMoreDataByRole[role] == true) {
-      print("skip");
       return;
     }
 
@@ -78,7 +75,6 @@ class HistoryProvider with ChangeNotifier {
 
     _errorMessageByRole[role] = null;
     notifyListeners();
-    print('role: $role, currentPage: $_currentPageByRole[role]');
     final currentPage = _currentPageByRole[role] ?? 1;
 
     try {
@@ -146,7 +142,6 @@ class HistoryProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     availableChatList.remove(transaksiId);
     final availableChat = availableChatList.join(',');
-    print('availableChat: $availableChat');
     await prefs.setString('available_chat', availableChat);
     notifyListeners();
   }
@@ -161,7 +156,6 @@ class HistoryProvider with ChangeNotifier {
         : availableChat.split(',').map(int.parse).toList();
     unreadMessagesList =
         unread.isEmpty ? [] : unread.split(',').map(int.parse).toList();
-    print('Saved unreadwkwk: ${prefs.getString('unread')}');
     notifyListeners();
   }
 

@@ -19,18 +19,17 @@ class AuthRemoteDataSource {
         body: jsonEncode({"name": nama, "email": email, "password": password}),
         headers: {"content-type": "application/json"},
       );
-      // print(response.body);
       final json = jsonDecode(response.body);
       String message = json['message'].toString();
 
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('last_send_verify_email', DateTime.now().toString());
+        await prefs.setString(
+            'last_send_verify_email', DateTime.now().toString());
         return true;
       } else if (response.statusCode == 401) {
         throw ApiException(status: json['status'], message: message);
       }
-      print(json);
       throw ApiException(status: json['status'], message: message);
     } catch (e) {
       rethrow;
@@ -66,7 +65,6 @@ class AuthRemoteDataSource {
   }
 
   Future<bool> sendEmailForgetPassword(String email) async {
-    print('email woi $email');
     try {
       final response = await http.post(
         Uri.parse("${MasbroConstants.url}/forgot-password"),
@@ -77,17 +75,11 @@ class AuthRemoteDataSource {
         body: jsonEncode({"email": email}),
       );
 
-      print(response.statusCode);
-      print("response body: '${response.body}'");
-
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('last_send_reset_password', DateTime.now().toString());
-        if (response.body.isNotEmpty) {
-          final json = jsonDecode(response.body);
-          String message = json['message'].toString();
-          print("message dari server: $message");
-        }
+        await prefs.setString(
+            'last_send_reset_password', DateTime.now().toString());
+
         return true;
       } else {
         if (response.body.isNotEmpty) {
@@ -127,21 +119,10 @@ class AuthRemoteDataSource {
         }),
       );
 
-      print(response.statusCode);
-      print("response body: '${response.body}'");
-
       if (response.statusCode == 200) {
-        if (response.body.isNotEmpty) {
-          final json = jsonDecode(response.body);
-          String message = json['message'].toString();
-          print("message dari server: $message");
-        }
         return true;
       } else {
         if (response.body.isNotEmpty) {
-          final json = jsonDecode(response.body);
-          print("Error caught: cek status code ${json['message']}");
-
           throw ApiException(
               status: 'error',
               message: 'Waktu reset habis, silakan kirim ulang email.');
@@ -171,12 +152,9 @@ class AuthRemoteDataSource {
 
       final json = jsonDecode(response.body);
       String message = json['message'].toString();
-      print('message: ${response.statusCode}');
       if (response.statusCode == 200) {
         UserModel user = UserModel.fromJson(json['data']);
-        if (user.isBlank!) {
-          print(user.menu.toString());
-        }
+
         return user;
       } else if (response.statusCode == 400) {
         throw ApiException(status: json['status'], message: message);
@@ -222,7 +200,6 @@ class AuthRemoteDataSource {
     String token,
     Map<String, dynamic> data,
   ) async {
-    print('data cok ngentod luwes $data');
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('${MasbroConstants.url}/update-user'),
@@ -256,9 +233,6 @@ class AuthRemoteDataSource {
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: $responseBody');
-
       if (response.statusCode == 200) {
         return true;
       } else {
@@ -271,34 +245,6 @@ class AuthRemoteDataSource {
     }
   }
 
-  // Future<UserModel> login(String email, String password, String token) async {
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse("${MasbroConstants.url}/login"),
-  //       body:
-  //           jsonEncode({"email": email, "password": password, "token": token}),
-  //       headers: {"content-type": "application/json"},
-  //     );
-
-  //     final json = jsonDecode(response.body);
-  //     String message = json['message'].toString();
-
-  //     if (response.statusCode == 200) {
-  //       UserModel user = UserModel.fromJson(json['data']);
-  //       if (user.isBlank!) {
-  //         print(user.menu.toString());
-  //       }
-  //       return user;
-  //     } else if (response.statusCode == 401) {
-  //       throw ApiException(status: json['status'], message: message);
-  //     }
-  //     print(json);
-  //     throw ApiException(status: json['status'], message: message);
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
-
   Future<UserModel> loginWithToken(String token) async {
     var url = '${MasbroConstants.url}/auth';
     var headers = {
@@ -308,11 +254,8 @@ class AuthRemoteDataSource {
 
     final response = await http.get(Uri.parse(url), headers: headers);
 
-    print(response.body);
-
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body)['data'];
-      print('data iki cok $data');
       UserModel user = UserModel.fromJson(data);
       return user;
     } else {
@@ -330,11 +273,8 @@ class AuthRemoteDataSource {
 
     final response = await http.get(Uri.parse(url), headers: headers);
 
-    print(response.body);
-
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body)['data'];
-      print('data iki cok $data');
       UserModel user = UserModel.fromJson(data);
       return user;
     } else {
@@ -346,7 +286,6 @@ class AuthRemoteDataSource {
   Future<bool> logout(String token) async {
     final fcmToken = await FirebaseMessaging.instance.getToken();
     final prefs = await SharedPreferences.getInstance();
-    print("Token fcm: " + fcmToken.toString());
     try {
       final response =
           await http.post(Uri.parse("${MasbroConstants.url}/logout"),
@@ -355,7 +294,6 @@ class AuthRemoteDataSource {
                 "Authorization": "Bearer $token",
               },
               body: jsonEncode({'fcm_token': fcmToken}));
-      // print(response.body);
       final json = jsonDecode(response.body);
       String message = json['message'].toString();
       if (response.statusCode == 200) {
@@ -364,7 +302,6 @@ class AuthRemoteDataSource {
       } else if (response.statusCode == 401) {
         throw ApiException(status: json['status'], message: message);
       }
-      print(json);
       throw ApiException(status: json['status'], message: message);
     } catch (e) {
       rethrow;

@@ -8,8 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('[BG Handler] Message received: ${message.notification!.title}');
-
   await Firebase.initializeApp();
 
   await NotificationService.showNotification(message, true);
@@ -24,11 +22,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     final transaksiId = int.tryParse(transaksiIdStr);
 
     if (transaksiId == null) {
-      print('⚠️ transaksiId tidak valid: $transaksiIdStr');
       return;
     }
-
-    print('pesan baru ngentin $transaksiId');
 
     String newUnread;
     if (unreadMessages != null) {
@@ -48,10 +43,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       newUnread = transaksiId.toString();
     }
 
-    print("new unread: $newUnread");
     await sharedPreferences.setString('unread', newUnread);
     await sharedPreferences.setString('available_chat', newUnread);
-    print("Saved unread: ${sharedPreferences.getString('unread')}");
   }
 
   if (message.notification?.title?.contains('Pesanan Selesai') ?? false) {
@@ -65,10 +58,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     final transaksiId = int.tryParse(transaksiIdStr);
 
     if (transaksiId == null) {
-      print('⚠️ transaksiId tidak valid: $transaksiIdStr');
       return;
     }
-    print('pesan baru ngentin $transaksiId');
 
     if (unreadMessages != null) {
       final List<int> unreadMessagesList = unreadMessages
@@ -107,7 +98,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (message.notification?.title?.contains('Tenant Sibuk') ?? false) {
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.reload();
-    print("tenant sibuk");
     sharedPreferences.setString("tenant_sibuk", "true");
   }
 
@@ -123,8 +113,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await sharedPreferences.reload();
     sharedPreferences.remove("current_va");
   }
-
-  print('[BG Handler] Notification processed');
 }
 
 class NotificationService {
@@ -202,17 +190,11 @@ class NotificationService {
       provisional: true,
       sound: true,
     );
-    print('User granted permission: ${settings.authorizationStatus}');
 
     // Get and print FCM token
     String? fcmToken = await messaging.getToken();
-    print('FCM Token: $fcmToken');
 
-    messaging.onTokenRefresh.listen((newToken) {
-      print('FCM Token Refreshed: $newToken');
-    }).onError((err) {
-      print('Error getting FCM token: $err');
-    });
+    messaging.onTokenRefresh.listen((newToken) {}).onError((err) {});
 
     // Disable foreground notification presentation by Firebase
     await messaging.setForegroundNotificationPresentationOptions(
@@ -300,18 +282,10 @@ class NotificationService {
     // final String? channelKey = data['channel_id'];
 
     // Debug logging
-    print('=== NOTIFICATION DEBUG ===');
-    print('Message ID: ${message.messageId}');
-    print('Raw data: ${message.notification?.android?.toMap()}');
-    print('Extracted title: "$title"');
-    print('Extracted body: "$body"');
-    // print('Extracted channel: "$channelKey"');
-    print('========================');
 
     // Validation: Skip notification if both title and body are empty/null
     if ((title == null || title.trim().isEmpty) &&
         (body == null || body.trim().isEmpty)) {
-      log('❌ Notification cancelled: both title and body are empty');
       return;
     }
 
@@ -322,8 +296,6 @@ class NotificationService {
     final String finalBody =
         (body != null && body.trim().isNotEmpty) ? body.trim() : '';
 
-    print('Final notification - Title: "$finalTitle", Body: "$finalBody"');
-
     // Select channel based on title
     String channelKey = 'fcm_fallback_notification_channel';
     if (finalTitle.toLowerCase().contains('pesanan masuk')) {
@@ -332,10 +304,7 @@ class NotificationService {
       channelKey = 'driver_fdlb_channel';
     }
 
-    print('Using channel: $channelKey');
-
     final isAllowed = await AwesomeNotifications().isNotificationAllowed();
-    print('isAllowed: $isAllowed');
     if (isAllowed) {
       if (isBackground) {
         await AwesomeNotifications().createNotification(
@@ -366,7 +335,6 @@ class NotificationService {
           ),
         );
       }
-      print('✅ Notification shown with Awesome Notifications');
     } else {
       // Fallback to flutter_local_notifications
       final androidDetails = _getLocalNotificationDetails(channelKey);
@@ -379,7 +347,6 @@ class NotificationService {
         platformDetails,
         payload: finalBody,
       );
-      print('✅ Notification shown with Flutter Local Notifications');
     }
 
     // Show notification using Awesome Notifications

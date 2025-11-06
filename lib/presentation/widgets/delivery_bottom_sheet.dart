@@ -44,11 +44,9 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
-      debugPrint('Original image path: ${pickedImage.path}');
       final tempDir = await getTemporaryDirectory();
       final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempPath = '${tempDir.path}/$tempFileName';
-      debugPrint('Target path for compressed image: $tempPath');
 
       try {
         final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -59,10 +57,8 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
           minHeight: 1024,
         );
         if (compressedImage != null) {
-          debugPrint('Compressed image path: ${compressedImage.path}');
           selectedImagePath = compressedImage.path;
           int imageSizeKB = await _getImageSize(selectedImagePath!);
-          debugPrint('Compressed image size: $imageSizeKB KB');
           if (imageSizeKB > 2048) {
             showDialog(
               context: context,
@@ -82,7 +78,6 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
 
           setState(() {});
         } else {
-          debugPrint('Compression returned null');
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -115,11 +110,9 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
-      debugPrint('Original image path (from camera): ${pickedImage.path}');
       final tempDir = await getTemporaryDirectory();
       final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempPath = '${tempDir.path}/$tempFileName';
-      debugPrint('Target path for compressed image: $tempPath');
 
       try {
         final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -130,10 +123,8 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
           minHeight: 1024,
         );
         if (compressedImage != null) {
-          debugPrint('Compressed image path: ${compressedImage.path}');
           selectedImagePath = compressedImage.path;
           int imageSizeKB = await _getImageSize(selectedImagePath!);
-          debugPrint('Compressed image size: $imageSizeKB KB');
           if (imageSizeKB > 2048) {
             showDialog(
               context: context,
@@ -152,7 +143,6 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
 
           setState(() {});
         } else {
-          debugPrint('Compression returned null');
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -497,7 +487,6 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              print('cek');
                               if (selectedImagePath != null) {
                                 selectedImagePath = null;
                                 widget.onImageSelected(
@@ -505,7 +494,6 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
 
                                 Navigator.pop(context);
                                 setState(() {});
-                                print('Gambar berhasil dihapus');
                               }
                             },
                             child: Container(

@@ -101,7 +101,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     setState(() {
       _isLoading = true;
     });
-    print('email iki cak ${_emailController.text}');
     if (!validateInputs()) {
       setState(() {
         _isLoading = false;

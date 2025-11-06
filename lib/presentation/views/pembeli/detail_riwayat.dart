@@ -70,110 +70,17 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   int _cooldownSeconds = 30; // lama cooldown (detik)
   Timer? _timer;
   final _flutterThermalPrinterPlugin = FlutterThermalPrinter.instance;
-  // StreamSubscription<List<Printer>>? _devicesStreamSubscription;
-  // StreamSubscription<bool>? _bluetoothConnection;
+
   bool isBleTurnedOn = false;
   bool isLoadingBluetooth = false;
   bool _isPrinting = false;
-
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   if (state == AppLifecycleState.resumed) {
-  //     startScan(Provider.of<PrinterProvider>(context, listen: false));
-  //   }
-  // }
-
-  // void startScan(PrinterProvider printerProvider) async {
-  //   setState(() {
-  //     isLoadingBluetooth = true;
-  //   });
-
-  //   _devicesStreamSubscription?.cancel();
-  //   _bluetoothConnection?.cancel();
-  //   print('Mulai scan printer BLE...');
-
-  //   // === Request Permission ===
-  //   if (await Permission.bluetoothScan.request().isGranted &&
-  //       await Permission.bluetoothConnect.request().isGranted &&
-  //       await Permission.locationWhenInUse.request().isGranted) {
-  //     // Dengarkan status BLE (nyala/mati)
-  //     _bluetoothConnection = _flutterThermalPrinterPlugin.isBleTurnedOnStream
-  //         .listen((event) async {
-  //       print("isBleTurnedOnStream: $event");
-
-  //       if (!mounted) return;
-  //       setState(() {
-  //         isBleTurnedOn = event;
-  //       });
-
-  //       if (event == true) {
-  //         // ✅ Kalau Bluetooth udah nyala, baru mulai scan
-  //         try {
-  //           await _flutterThermalPrinterPlugin
-  //               .getPrinters(connectionTypes: [ConnectionType.BLE]);
-
-  //           _devicesStreamSubscription = _flutterThermalPrinterPlugin
-  //               .devicesStream
-  //               .listen((List<Printer> event) {
-  //             print("Ditemukan ${event.length} perangkat:");
-  //             for (var d in event) {
-  //               print("- ${d.name} (${d.address})");
-  //             }
-  //             printerProvider.setPrinters(event);
-  //           });
-  //         } catch (e) {
-  //           Fluttertoast.showToast(msg: e.toString());
-  //         } finally {
-  //           if (mounted) {
-  //             setState(() {
-  //               isLoadingBluetooth = false;
-  //             });
-  //           }
-  //         }
-  //       } else {
-  //         // 🚫 Bluetooth belum nyala
-  //         if (mounted) {
-  //           Fluttertoast.showToast(
-  //             msg: "Bluetooth belum aktif, mohon nyalakan dulu...",
-  //           );
-  //         }
-
-  //         // Opsional: buka dialog atau auto aktifkan
-  //         await _flutterThermalPrinterPlugin.turnOnBluetooth();
-  //       }
-  //     });
-  //   } else {
-  //     debugPrint('Bluetooth permission not granted');
-  //     setState(() {
-  //       isLoadingBluetooth = false;
-  //     });
-  //   }
-  // }
-
-  // /// 🛑 Hentikan scan
-  // void stopScan() {
-  //   _flutterThermalPrinterPlugin.stopScan();
-  // }
-
-  /// 🧾 Fungsi untuk generate data struk (ESC/POS)
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // final printerProvider =
-      //     Provider.of<PrinterProvider>(context, listen: false);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      // _bluetoothConnection = _flutterThermalPrinterPlugin.isBleTurnedOnStream
-      //     .listen((event) async {
-      //   print("isBleTurnedOnStream: $event");
 
-      //   if (!mounted) return;
-      //   setState(() {
-      //     isBleTurnedOn = event;
-      //   });
-      // });
-      print(
-          'widget.label: ${widget.label} authProvider.user.role: ${authProvider.user.role}');
       if (widget.label.toLowerCase() == 'jual' &&
           authProvider.user.role.contains('tenant')) {
         // startScan(printerProvider);
@@ -395,11 +302,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                       'pesanan_ditolak' &&
                   historyProvider.selectedPesanan!.status != 'refund_selesai' &&
                   historyProvider.selectedPesanan!.status != 'gagal_bayar';
-              print(
-                historyProvider.unreadMessagesList.contains(
-                  historyProvider.selectedPesanan!.id,
-                ),
-              );
+
               final canChatTenant = (historyProvider.availableChatList.contains(
                         historyProvider.selectedPesanan!.id,
                       ) &&
@@ -444,9 +347,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   width: screenWidth - 48, // ini dia kuncinya!
                   child: FloatingActionButton.extended(
                     onPressed: () async {
-                      print("cek");
                       final connectivityResult = await hasInternetAccess();
-                      print("yahaha");
                       if (!connectivityResult) {
                         Fluttertoast.showToast(
                           msg: "Tidak ada koneksi internet",
@@ -553,9 +454,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                     width: screenWidth - 48, // ini dia kuncinya!
                     child: FloatingActionButton.extended(
                       onPressed: () async {
-                        print("cek");
                         final connectivityResult = await hasInternetAccess();
-                        print("yahaha");
                         if (!connectivityResult) {
                           Fluttertoast.showToast(
                             msg: "Tidak ada koneksi internet",
@@ -1077,9 +976,6 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                                     Provider.of<PrinterProvider>(context,
                                         listen: false);
                                 if (printerProvider.selectedPrinter == null) {
-                                  print(user.menu
-                                      .map((element) => element.url)
-                                      .toList());
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     CustomPageBuilder(

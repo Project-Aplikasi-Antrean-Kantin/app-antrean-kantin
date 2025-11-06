@@ -8,27 +8,6 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/income_model.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 
-// Future<bool> addMenuKelola(String auth, String data) async {
-//   print(data);
-//   final response = await http.post(
-//     Uri.parse('${MasbroConstants.url}/tenant/menu'),
-//     headers: {
-//       'Authorization': "Bearer $auth",
-//       'Accept': 'application/json',
-//       HttpHeaders.contentTypeHeader: 'application/json'
-//     },
-//     body: (data),
-//   );
-//   print(response.body);
-//   if (response.statusCode == 200) {
-//     final jsonData = jsonDecode(response.body)['data'] as Map<String, dynamic>;
-//     return true;
-//   } else {
-//     print(response.statusCode);
-//     return false;
-//     // throw Exception('Data cant be load');
-//   }
-// }
 class TenantRemoteDataSource {
   Future<bool> createMenuTenant(String auth, Map<String, dynamic> data) async {
     var request = http.MultipartRequest(
@@ -44,7 +23,6 @@ class TenantRemoteDataSource {
         if (value != null) {
           File file = File(value);
           List<int> fileBytes = file.readAsBytesSync();
-          print('panjang file : ${fileBytes.length}');
           request.files.add(await http.MultipartFile.fromBytes(
               'gambar', fileBytes,
               filename: value));
@@ -55,18 +33,15 @@ class TenantRemoteDataSource {
     });
 
     final response = await request.send();
-    print(response.statusCode);
     if (response.statusCode == 200) {
       return true;
     } else {
-      print(response.statusCode);
       return false;
     }
   }
 
   Future<Income> getIncome(String token, String url) async {
     try {
-      print("${MasbroConstants.url}/$url");
       final response = await http.get(
         Uri.parse("${MasbroConstants.url}/$url"),
         headers: {
@@ -74,13 +49,11 @@ class TenantRemoteDataSource {
           'Accept': 'application/json'
         },
       );
-      print(response.body);
       if (response.statusCode == 200) {
         return Income.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
         // Log untuk unauthorized access
-        print(
-            "Unauthorized: You do not have access to fetch this data. Please check your token.");
+
         throw Exception('Unauthorized Access');
       } else {
         // Log untuk error lainnya
@@ -89,8 +62,7 @@ class TenantRemoteDataSource {
       }
     } catch (e) {
       // Log untuk error yang tidak terduga
-      print("Error in fetchData: $e");
-      print("An error occurred: $e");
+
       throw Exception('Failed to fetch data');
     }
   }
@@ -110,8 +82,7 @@ class TenantRemoteDataSource {
             jsonDecode(response.body)["data"]["tenant"]);
       } else if (response.statusCode == 401) {
         // Log untuk unauthorized access
-        print(
-            "Unauthorized: You do not have access to fetch this data. Please check your token.");
+
         throw Exception('Unauthorized Access');
       } else {
         // Log untuk error lainnya
@@ -139,7 +110,6 @@ class TenantRemoteDataSource {
       if (response.statusCode == 200) {
         return true;
       } else {
-        debugPrint('Gagal menghapus menu: ${response.statusCode}');
         return false;
       }
     } catch (e) {
@@ -154,11 +124,9 @@ class TenantRemoteDataSource {
     );
 
     if (response.statusCode == 200) {
-      debugPrint('Menu berhasil dihapus');
       // fetchKatalogTenant(token);
       return true;
     } else {
-      debugPrint('Gagal menghapus menu: ${response.statusCode}');
       throw Exception('Gagal hapus menu');
     }
   }
@@ -174,15 +142,11 @@ class TenantRemoteDataSource {
     });
 
     // Add form fields
-    print(data);
     data.forEach((key, value) async {
-      print(key);
-      print(value);
       if (key == "gambar") {
         if (value != null) {
           File file = File(value);
           List<int> fileBytes = file.readAsBytesSync();
-          print('panjang file : ${fileBytes.length}');
           request.files.add(await http.MultipartFile.fromBytes(
               'gambar', fileBytes,
               filename: 'bere'));
@@ -195,12 +159,9 @@ class TenantRemoteDataSource {
     // Add files
     try {
       final response = await request.send();
-      print(response.statusCode);
       if (response.statusCode == 200) {
-        print(response.statusCode);
         return true;
       } else {
-        print(response.statusCode);
         return false;
       }
     } catch (e) {
@@ -214,7 +175,6 @@ class TenantRemoteDataSource {
       headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
       body: {'isReady': "${status ? 1 : 0}"},
     );
-    print({"status code update pesanan": response.statusCode});
     if (response.statusCode == 200) {
       return true;
     } else {
@@ -281,8 +241,6 @@ class TenantRemoteDataSource {
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        print('profile e tenant: ${response.body}');
-        log(response.body);
         return TenantModel.fromJson(jsonData['tenant']);
       } else {
         throw Exception('Failed to load user data: ${response.statusCode}');
@@ -325,19 +283,13 @@ class TenantRemoteDataSource {
       }
 
       final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
-
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: $responseBody');
 
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Failed to update user: $responseBody');
         return false;
       }
     } catch (e) {
-      print('Error updating user: $e');
       return false;
     }
   }

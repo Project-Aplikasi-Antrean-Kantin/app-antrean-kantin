@@ -73,11 +73,9 @@ class _RiwayatPageState extends State<RiwayatPage>
           final title = message.data['title']?.toString().toLowerCase();
           final body = message.data['body']?.toString().toLowerCase();
           final transaksiId = body?.split(' ')[1].trim();
-          print('transaksiId: $transaksiId');
 
           final isPureNumber = RegExp(r'^\d+$').hasMatch(transaksiId ?? '');
 
-          print('transaksiId: $transaksiId');
           if (title != null &&
               transaksiId != 'pesanan' &&
               title.contains('pesanan') &&
@@ -385,7 +383,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                                                 final daftarPesanan =
                                                     entry.value;
 
-                                                return [
+                                                final List<Widget> widgets = [
                                                   Padding(
                                                     padding: const EdgeInsets
                                                         .symmetric(
@@ -401,14 +399,227 @@ class _RiwayatPageState extends State<RiwayatPage>
                                                       ),
                                                     ),
                                                   ),
-                                                  ...daftarPesanan.map(
-                                                    (pesanan) =>
-                                                        _buildPesananItem(
-                                                            pesanan,
-                                                            context,
-                                                            isLoading),
-                                                  ),
                                                 ];
+
+                                                List<Pesanan> currentGroup = [];
+                                                int?
+                                                    currentTenantId; // 🧠 ubah ke int? (nullable)
+
+                                                for (int i = 0;
+                                                    i < daftarPesanan.length;
+                                                    i++) {
+                                                  final pesanan =
+                                                      daftarPesanan[i];
+                                                  final int? tenantId =
+                                                      pesanan.multitenantId;
+
+                                                  // 🔹 Kalau tenantId sama seperti sebelumnya → tambahkan ke grup
+                                                  if (tenantId != null &&
+                                                      tenantId ==
+                                                          currentTenantId) {
+                                                    currentGroup.add(pesanan);
+                                                  } else {
+                                                    // 🔹 Kalau tenantId beda → render grup sebelumnya dulu
+                                                    if (currentGroup
+                                                        .isNotEmpty) {
+                                                      if (currentGroup.length ==
+                                                          1) {
+                                                        widgets.add(
+                                                            _buildPesananItem(
+                                                                currentGroup
+                                                                    .first,
+                                                                context,
+                                                                isLoading));
+                                                      } else {
+                                                        widgets.add(
+                                                          Container(
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    bottom: 12),
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(12),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: AppColors
+                                                                  .whiteColor100,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12),
+                                                              border: Border.all(
+                                                                  color: AppColors
+                                                                      .blackColor600),
+                                                            ),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Text(
+                                                                      "No. Pesanan Multitenant",
+                                                                      style: GoogleFonts
+                                                                          .poppins(
+                                                                        color: AppColors
+                                                                            .whiteColor900,
+                                                                        fontSize:
+                                                                            14,
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                        height:
+                                                                            1.43,
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              12,
+                                                                          vertical:
+                                                                              4),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        color: AppColors
+                                                                            .whiteColor900,
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(12),
+                                                                      ),
+                                                                      child:
+                                                                          Text(
+                                                                        "MLT-${currentTenantId}",
+                                                                        style: GoogleFonts
+                                                                            .poppins(
+                                                                          color:
+                                                                              AppColors.whiteColor100,
+                                                                          fontSize:
+                                                                              12,
+                                                                          fontWeight:
+                                                                              FontWeight.w600,
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                                ...currentGroup.map((p) =>
+                                                                    _buildPesananItem(
+                                                                        p,
+                                                                        context,
+                                                                        isLoading))
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }
+                                                    }
+
+                                                    // 🔹 Mulai grup baru
+                                                    currentTenantId = tenantId;
+                                                    currentGroup = [pesanan];
+                                                  }
+                                                }
+
+                                                // 🔹 Render grup terakhir setelah loop selesai
+                                                if (currentGroup.isNotEmpty) {
+                                                  if (currentGroup.length ==
+                                                      1) {
+                                                    widgets.add(
+                                                        _buildPesananItem(
+                                                            currentGroup.first,
+                                                            context,
+                                                            isLoading));
+                                                  } else {
+                                                    widgets.add(
+                                                      Container(
+                                                        margin: const EdgeInsets
+                                                            .only(bottom: 12),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: AppColors
+                                                              .whiteColor100,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
+                                                          border: Border.all(
+                                                              color: AppColors
+                                                                  .blackColor600),
+                                                        ),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Text(
+                                                                  "No. Pesanan Multitenant",
+                                                                  style: GoogleFonts
+                                                                      .poppins(
+                                                                    color: AppColors
+                                                                        .whiteColor900,
+                                                                    fontSize:
+                                                                        14,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    height:
+                                                                        1.43,
+                                                                  ),
+                                                                ),
+                                                                Container(
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              12,
+                                                                          vertical:
+                                                                              4),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: AppColors
+                                                                        .whiteColor900,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            12),
+                                                                  ),
+                                                                  child: Text(
+                                                                    "MLT-${currentTenantId}",
+                                                                    style: GoogleFonts
+                                                                        .poppins(
+                                                                      color: AppColors
+                                                                          .whiteColor100,
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                            ...currentGroup.map((p) =>
+                                                                _buildPesananItem(
+                                                                    p,
+                                                                    context,
+                                                                    isLoading))
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+
+                                                return widgets;
                                               }).toList(),
 
                                               // Tambahin skeleton di paling bawah kalau lagi loading
@@ -599,10 +810,6 @@ class _RiwayatPageState extends State<RiwayatPage>
           Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
           return;
         }
-        // prefs.remove("unread").then((_) {
-        //   Fluttertoast.showToast(msg: "Berhasil membaca riwayat");
-        // });
-        // print("Saved unread: ${prefs.getString('unread')}");
         historyProvider.updateSelectedPesanan(pesanan);
         Navigator.of(context).push(
           CustomPageBuilder(
@@ -628,16 +835,13 @@ class _RiwayatPageState extends State<RiwayatPage>
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-            color: AppColors.whiteColor100,
-            borderRadius: BorderRadius.circular(16.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ]),
+          color: AppColors.whiteColor100,
+          borderRadius: BorderRadius.circular(16.0),
+          border: Border.all(
+              color: pesanan.status == "selesai"
+                  ? AppColors.primaryColor
+                  : AppColors.whiteColor900),
+        ),
         child: Column(
           spacing: 8,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -854,10 +1058,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                     !(widget.tabLabel == 'Jual' && pesanan.status == 'diantar'))
                   GestureDetector(
                     onTap: () async {
-                      print("cek");
                       final connectivityResult = await hasInternetAccess();
-                      print("yahaha");
-                      // final prefs = await SharedPreferences.getInstance();
                       final canChatTenant = historyProvider.availableChatList
                               .contains(pesanan.id) &&
                           chatType == 'tenant';

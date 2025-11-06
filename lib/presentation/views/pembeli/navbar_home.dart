@@ -147,7 +147,6 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
         });
       }
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        print("User clicked notif while app in BACKGROUND");
         final title = message.data['title']?.toString().toLowerCase();
 
         if (title != null && title.contains('Chat Baru')) {
@@ -180,7 +179,6 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
       _onMessageSubscription =
           FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         final title = message.data['title']?.toString().toLowerCase();
-        print('title: $title');
         if (title != null && title.contains('chat baru')) {
           final transaksiId =
               int.parse(message.notification!.title!.split(' ').last);
@@ -325,7 +323,6 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
       await prefs.reload(); // ⬅️ wajib ditunggu
       final tenantSibuk = prefs.getString("tenant_sibuk");
       final needReview = prefs.getBool("user_review");
-      print("needReview: $needReview");
       if (tenantSibuk != null) {
         if (!mounted) return;
         showDialog(

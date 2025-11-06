@@ -12,6 +12,7 @@ class Pesanan {
   final String? namaDriver;
   final String? fotoDriver;
   final String? buktiPengantaran;
+  final int? multitenantId;
   String? catatan;
   String? kodePemesanan;
   int? ruanganId;
@@ -42,6 +43,7 @@ class Pesanan {
     this.cashbackAmount,
     this.namaDriver,
     this.fotoDriver,
+    this.multitenantId,
     required this.id,
     this.buktiPengantaran,
     required this.userId,
@@ -78,6 +80,7 @@ class Pesanan {
 
   static Pesanan getDummyPesanan() {
     final gedung = Gedung(
+      ongkirMultitenant: 2000,
       ongkir: 5000,
       id: 5 + 1,
       createdAt: DateTime.now(),
@@ -171,6 +174,7 @@ class Pesanan {
         driverId: json["driver_id"],
         orderId: json["order_id"],
         subTotal: json["sub_total"],
+        multitenantId: json["multitenant_id"],
         gedung: json["gedung"],
         urlQris: json["qr_url"],
         cashbackAmount: json["cashback_amount"],

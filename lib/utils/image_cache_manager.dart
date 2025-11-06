@@ -38,7 +38,6 @@ class ImageCacheManager {
         _memoryCache[url] = file;
         return file;
       } catch (e) {
-        print("File corrupt. Menghapus file cache: $e");
         await file.delete();
         return null;
       }
@@ -48,7 +47,6 @@ class ImageCacheManager {
 
   Future<File> downloadAndSaveImage(String url) async {
     final path = await _getFilePath(url);
-    print("Download URL: ${MasbroConstants.baseUrl}$url");
 
     final response =
         await http.get(Uri.parse('${MasbroConstants.baseUrl}$url'));

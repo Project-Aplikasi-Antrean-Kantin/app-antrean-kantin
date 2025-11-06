@@ -27,16 +27,12 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-      // print('Response status code: ${jsonBody['message'][0]}');
-      // print('Response body: ${jsonBody['data']['transaksi']}');
 
       if (response.statusCode == 201) {
         return OrderModel.fromJson(jsonBody);
       } else if (response.statusCode == 400)
         throw jsonBody['message'][0];
       else {
-        print('Request failed with status: ${response.statusCode}');
-        print('Error response body: ${response.body}');
         throw '${jsonBody['message'][0]}';
       }
     } catch (e) {
@@ -58,8 +54,6 @@ class TransactionRemoteDataSource {
         },
       );
 
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
       if (response.statusCode == 200) {
         return true;
       } else {
@@ -85,16 +79,12 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-      // print('Response status code: ${jsonBody['message'][0]}');
-      print('Response body: ${jsonBody['data']}');
 
       if (response.statusCode == 201) {
         return CashierTransaction.fromJson(jsonBody['data']);
       } else if (response.statusCode == 400)
         throw jsonBody['message'][0];
       else {
-        print('Request failed with status: ${response.statusCode}');
-        print('Error response body: ${response.body}');
         throw '${jsonBody['message'][0]}';
       }
     } catch (e) {
@@ -117,16 +107,12 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-      // print('Response status code: ${jsonBody['message'][0]}');
-      print('Response body update: ${jsonBody['data']}');
 
       if (response.statusCode == 200) {
         return CashierTransaction.fromJson(jsonBody['data']);
       } else if (response.statusCode == 400)
         throw jsonBody['message'][0];
       else {
-        print('Request failed with status: ${response.statusCode}');
-        print('Error response body: ${response.body}');
         throw '${jsonBody['message'][0]}';
       }
     } catch (e) {
@@ -148,8 +134,6 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-      // print('Response status code: ${jsonBody['message'][0]}');
-      print('Response body: ${jsonBody['data']}');
 
       if (response.statusCode == 200) {
         return (jsonBody['data'] as List)
@@ -158,8 +142,6 @@ class TransactionRemoteDataSource {
       } else if (response.statusCode == 400)
         throw jsonBody['message'][0];
       else {
-        print('Request failed with status: ${response.statusCode}');
-        print('Error response body: ${response.body}');
         throw '${jsonBody['message'][0]}';
       }
     } catch (e) {
@@ -180,19 +162,12 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-      // print('Response status code: ${jsonBody['message'][0]}');
-      // print('Response body: ${jsonBody['data']['transaksi']}');
-
-      print('Response status code voucher: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        print('sukses claim');
         return Voucher.fromJson(jsonBody['data']);
       } else if (response.statusCode == 400)
         throw jsonBody['message'];
       else {
-        print('Request failed with status: ${response.statusCode}');
-        print('Error response body: ${response.body}');
         throw '${jsonBody['message']}';
       }
     } catch (e) {
@@ -207,11 +182,8 @@ class TransactionRemoteDataSource {
       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
     );
 
-    print('Response status code voucher: ${response.statusCode}');
-
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body)['data'] as List<dynamic>;
-      print('Voucher data: $jsonData');
       return jsonData.map((e) => Voucher.fromJson(e)).toList();
     } else {
       throw Exception(
@@ -228,7 +200,6 @@ class TransactionRemoteDataSource {
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body)['data'] as List<dynamic>;
-      print('Cashback data: $jsonData');
       return jsonData.map((e) => Cashback.fromJson(e)).toList();
     } else {
       throw Exception(
@@ -272,18 +243,14 @@ class TransactionRemoteDataSource {
 
   Future<({int currentPage, List<Pesanan>? listPesanan})> getHistory(
       BuildContext context, String auth, String role, int page) async {
-    print("${MasbroConstants.url}/order/$role?page=$page&per_page=5");
     final response = await http.get(
       Uri.parse('${MasbroConstants.url}/order/$role?page=$page&per_page=5'),
       headers: {'Authorization': "Bearer $auth", 'Accept': 'application/json'},
     );
 
-    debugPrint("Status Code: ${response.statusCode}");
-
     if (response.statusCode == 200) {
       final jsonData =
           jsonDecode(response.body)['data']['data'] as List<dynamic>;
-      debugPrint("iki respon e bro: $jsonData");
       return (
         currentPage: jsonDecode(response.body)['data']['current_page'] as int,
         listPesanan: jsonData.map((e) => Pesanan.fromJson(e)).toList()
@@ -297,14 +264,11 @@ class TransactionRemoteDataSource {
       return Future.error(
           "Unauthorized"); // atau bisa return Future.error("Unauthorized");
     } else {
-      debugPrint("Error: ${response.statusCode}");
       throw Exception('Data can\'t be loaded');
     }
   }
 
   Future<Pesanan> getOrderById(String auth, String id) async {
-    print("id kontol: $id");
-    print("${MasbroConstants.url}/order/user/$id");
     try {
       final response = await http.get(
         Uri.parse('${MasbroConstants.url}/order/user/$id'),
@@ -314,10 +278,7 @@ class TransactionRemoteDataSource {
         },
       );
       // final jsonBody = jsonDecode(response.body);
-      print("Response status code: ${response.statusCode}");
       if (response.statusCode == 200) {
-        // print(
-        //     "Response body: ${(jsonBody['data']['transaksi']['metode_pembayaran'])}");
         return Pesanan.fromJson(jsonDecode(response.body)["data"]["transaksi"]);
       } else {
         throw Exception('Data cant be load ${response.body}');

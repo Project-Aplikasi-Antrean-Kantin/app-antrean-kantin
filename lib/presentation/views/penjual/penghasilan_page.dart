@@ -109,8 +109,6 @@ class _PenghasilanPageState extends State<PenghasilanPage> {
                         (sum, trx) => sum + trx.pendapatanBersih,
                       );
 
-                      print("$label => Total pendapatan: $totalPendapatan");
-
                       return _buildPendapatan(
                           context, totalPendapatan, label, keteranganWaktu);
                     }

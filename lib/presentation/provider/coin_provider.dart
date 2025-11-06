@@ -21,9 +21,8 @@ class CoinProvider extends ChangeNotifier {
       final fetchedData = await CoinRemoteDataSource().getCoinAmount(token);
 
       // Log nilai saldo_koin yang diterima dari API
-      debugPrint('Fetched Saldo Koin: ${fetchedData!.saldoKoin}');
 
-      saldoKoin = fetchedData.saldoKoin; // Default ke 0 jika null
+      saldoKoin = fetchedData!.saldoKoin; // Default ke 0 jika null
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching saldo koin: $e');

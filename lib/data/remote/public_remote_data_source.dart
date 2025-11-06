@@ -19,11 +19,9 @@ class PublicRemoteDataSource {
 
     final json = jsonDecode(response.body);
     String message = json['message'].toString();
-    print('message dari server: ${json['data']}');
 
     if (response.statusCode == 200) {
       final jsonData = json['data']['tenants'] as List<dynamic>;
-      print(jsonData);
       return jsonData.map((e) => TenantModel.fromJson(e)).toList();
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       // Jika token expired atau tidak valid, alihkan ke halaman login
@@ -34,7 +32,6 @@ class PublicRemoteDataSource {
 
       throw Exception('Unauthorized access: $message');
     } else {
-      print(response.statusCode);
       throw ApiException(status: json['status'], message: message);
     }
   }
@@ -126,10 +123,6 @@ class PublicRemoteDataSource {
   Future<TenantModel> getTenantFoods(
       BuildContext context, String uri, String token) async {
     try {
-      print("Starting request to fetch tenant foods...");
-      print("Request URI: $uri");
-      print("Using token: $token");
-
       final response = await http.get(
         Uri.parse(uri),
         headers: {
@@ -138,15 +131,10 @@ class PublicRemoteDataSource {
         },
       );
 
-      print("HTTP response received. Status code: ${response.statusCode}");
-
       if (response.statusCode == 200) {
-        print("Request successful.");
         return TenantModel.fromJson(
             jsonDecode(response.body)["data"]["tenant"]);
       } else if (response.statusCode == 401) {
-        print("Unauthorized: Invalid token or access denied.");
-
         // Navigasi ke login page
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.of(context)
@@ -155,8 +143,6 @@ class PublicRemoteDataSource {
 
         throw Exception('Unauthorized Access');
       } else {
-        print("Failed to load data. Status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
         throw Exception('Data can\'t be loaded');
       }
     } catch (e) {
@@ -167,7 +153,6 @@ class PublicRemoteDataSource {
 
   Future<TenantFoods> getTenantFoodsById(String menuId, String token) async {
     try {
-      debugPrint('Fetching tenant foods for menu ID: $menuId');
       final response = await http.get(
         Uri.parse('${MasbroConstants.url}/menus/$menuId'),
         headers: {
@@ -176,7 +161,6 @@ class PublicRemoteDataSource {
         },
       );
       final json = jsonDecode(response.body);
-      debugPrint('API Response: $json');
       return TenantFoods.fromJson(json['data']['menu']);
     } catch (e) {
       debugPrint('$e');
@@ -192,8 +176,6 @@ class PublicRemoteDataSource {
           'Content-Type': 'application/json',
         },
       );
-
-      debugPrint('Raw API Response: ${response.body}'); // Tambahkan log
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
@@ -225,7 +207,6 @@ class PublicRemoteDataSource {
 
       final json = jsonDecode(response.body);
       final data = json['data'];
-      print('data nih bos:${data['jumlah_driver'] > 0}');
 
       return data['jumlah_driver'];
     } catch (e) {

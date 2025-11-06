@@ -26,7 +26,6 @@ class TopUpModel {
 
   factory TopUpModel.fromJsonQris(Map<String, dynamic> json) {
     final status = json['status_bayar'] == 'settlement' ? '1' : '0';
-    print('json $json');
 
     return TopUpModel(
       midtransId: json['midtrans_request_id'].toString(),

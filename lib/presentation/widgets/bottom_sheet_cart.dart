@@ -46,8 +46,6 @@ void validateCart(
 
     // 🔥 Hapus semua menu di tenant ini kalau pemilik tenant = user login
     if (tenant.emailPemilik == authProvider.user.email) {
-      print(
-          "Menghapus semua cart dari tenant milik user: ${tenant.namaTenant}");
       tenantsToClear.add(tenantId);
       return true;
     }
@@ -192,7 +190,6 @@ Future<void> showBottomSheetCart(BuildContext context,
                                 print(
                                     "tenant: $tenant, cartProvider.tenantCarts: ${cartProvider.tenantCarts}");
                                 if (tenant == null) return [Container()];
-                                int totalHarga = 0;
 
                                 if (cartPerTenant.cartMenuList!.isEmpty) {
                                   return [
@@ -346,8 +343,7 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                 .map((item) {
                                               print(
                                                   'link gambar ${item.menuGambar}');
-                                              totalHarga +=
-                                                  item.menuPrice * item.count;
+
                                               return Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment

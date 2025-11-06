@@ -44,7 +44,6 @@ class _TenantButtonState extends State<TenantButton> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print('isBusyNotInterruptYet: ${widget.isBusyNotInterruptYet}');
     isInterrupted = widget.isBusyNotInterruptYet;
 
     _onMessageSubscription =

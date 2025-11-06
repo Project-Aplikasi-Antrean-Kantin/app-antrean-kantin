@@ -72,8 +72,6 @@ class _KodeVaPageState extends State<KodeVaPage> {
     final count = widget.currentVa.kodeBayar.contains('https') ? 900 : 3600;
 
     final now = DateTime.now();
-    print('now $now');
-    print('savedTime $savedTime');
     final secondsDiff = savedTime.difference(now).inSeconds;
     if (secondsDiff <= 0) {
       // waktu sudah habis
@@ -339,8 +337,6 @@ class _KodeVaPageState extends State<KodeVaPage> {
                             msg: "Waktu telah habis, silahkan ganti nominal");
                         return;
                       }
-                      print(
-                          "widget.currentVa.kodeBayar: ${widget.currentVa.kodeBayar}");
                       final url = "${widget.currentVa.kodeBayar}";
 
                       final response = await http.get(Uri.parse(url));

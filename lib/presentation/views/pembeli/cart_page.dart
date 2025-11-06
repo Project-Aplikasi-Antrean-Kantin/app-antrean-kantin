@@ -281,14 +281,13 @@ class _CartPageState extends State<CartPage> {
   ) async {
     cartProvider.setTransactionStatus(
         isLoading: true, isTransactionCompleted: true);
-    int total = cartProvider.totalItemCount;
+    int total = cartProvider.totalItemCountSelected;
     final historyProvider =
         Provider.of<HistoryProvider>(context, listen: false);
 
     final result = await cartProvider.createTransaction(
         context, user.token, paymentMethod.name);
     if (result?.status == 'success') {
-      print('Transaction successful ${result?.pesanan}');
       historyProvider.updateSelectedPesanan(result!.pesanan);
 
       await cartProvider.clearCart(true).then((_) {
@@ -296,9 +295,6 @@ class _CartPageState extends State<CartPage> {
             context, cartProvider, result.pesanan, user, historyProvider);
       });
     } else {
-      print(
-        'Transaction failed ${result?.messages}',
-      );
       cartProvider.setTransactionStatus(isTransactionCompleted: false);
     }
 
@@ -417,7 +413,6 @@ class _CartPageState extends State<CartPage> {
 
   void _handleCoinCartByNotification(
       CoinProvider coinProvider, UserModel user) {
-    print("Handling top-up notification at ${DateTime.now()}");
     coinProvider.getCoinAmount(user.token);
     _lastFetch = DateTime.now();
   }
@@ -461,7 +456,15 @@ class _CartPageState extends State<CartPage> {
                     cartProvider.selectedCartTenant.isNotEmpty;
 
                 // final isKasirProviderActive = kasirProvider.cart.isNotEmpty;
-                print('cartProvider ${cartProvider.cart}');
+                if (cartProvider.totalItemCountSelected == 0 && !_hasPopped) {
+                  _hasPopped = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  });
+                  return const SizedBox();
+                }
 
                 if (cartProvider.isFetchingActiveDriver == true ||
                     cartProvider.isFetchingVoucher == true ||
@@ -632,7 +635,9 @@ class _CartPageState extends State<CartPage> {
                               final roomSelected = _roomList.firstWhere(
                                   (element) => element.id == option);
                               cartProvider.getOngkir(
-                                  user.token, roomSelected.gedung.ongkir);
+                                  user.token,
+                                  roomSelected.gedung.ongkir,
+                                  roomSelected.gedung.ongkirMultitenant);
                             },
                           ),
                           Padding(
@@ -728,7 +733,7 @@ class _CartPageState extends State<CartPage> {
                                               Text(
                                                 cartProvider.roomId == null
                                                     ? '-'
-                                                    : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir + 3000 + (cartProvider.totalItemCount > 10 ? (cartProvider.totalItemCount - 10) * 500 : 0)}',
+                                                    : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir + 3000 + (cartProvider.totalItemCountSelected > 10 ? (cartProvider.totalItemCountSelected - 10) * 500 : 0) + (cartProvider.selectedCartTenant.length >= 2 ? _roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkirMultitenant : 0)}',
                                                 style: GoogleFonts.poppins(
                                                     color: AppColors.blackColor,
                                                     fontWeight:
@@ -807,7 +812,7 @@ class _CartPageState extends State<CartPage> {
                                             Text(
                                               cartProvider.roomId == null
                                                   ? '-'
-                                                  : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir}',
+                                                  : '${_roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkir + (cartProvider.totalItemCountSelected > 10 ? (cartProvider.totalItemCountSelected - 10) * 500 : 0) + (cartProvider.selectedCartTenant.length >= 2 ? _roomList.firstWhere((element) => element.id == cartProvider.roomId).gedung.ongkirMultitenant : 0)}',
                                               style: GoogleFonts.poppins(
                                                   color: AppColors.blackColor,
                                                   fontWeight: FontWeight.w600),
@@ -889,9 +894,6 @@ class _CartPageState extends State<CartPage> {
                                   final voucher =
                                       cartProvider.selectedVoucher ??
                                           cartProvider.recommendedVoucher;
-                                  print('voucher $voucher');
-                                  print(
-                                      'selected voucher ${cartProvider.selectedVoucher}');
 
                                   if (voucher == null) {
                                     // misal kasih snackbar / balik ke halaman sebelumnya
@@ -1141,35 +1143,35 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
       ),
-      bottomNavigationBar: context.watch<CartProvider>().totalItemCount > 0 ||
-              context.watch<CartProvider>().selectedCartTenant.length > 0
-          ? SafeArea(
-              child: Consumer<CoinProvider>(
-                builder: (context, coinProvider, _) {
-                  return BottomNavigationCartPayment(
-                    cartProvider: cartProvider,
-                    kasirProvider: kasirProvider,
-                    coinProvider: coinProvider,
-                    user: user,
-                    saldoCoin: coinProvider.saldoKoin,
-                    selectedPaymentMethod: _selectedPaymentMethod,
-                    onPaymentMethodSelected: (method) =>
-                        setState(() => _selectedPaymentMethod = method),
-                    onConfirmOrder: () => _showConfirmOrderBottomSheet(
-                      context,
-                      kasirProvider,
-                      cartProvider,
-                      coinProvider,
-                      user,
-                      _selectedPaymentMethod!,
-                      coinProvider.saldoKoin,
-                    ),
-                    onIncompleteData: _showIncompleteLocationDialog,
-                  );
-                },
-              ),
-            )
-          : null,
+      bottomNavigationBar:
+          context.watch<CartProvider>().totalItemCountSelected > 0
+              ? SafeArea(
+                  child: Consumer<CoinProvider>(
+                    builder: (context, coinProvider, _) {
+                      return BottomNavigationCartPayment(
+                        cartProvider: cartProvider,
+                        kasirProvider: kasirProvider,
+                        coinProvider: coinProvider,
+                        user: user,
+                        saldoCoin: coinProvider.saldoKoin,
+                        selectedPaymentMethod: _selectedPaymentMethod,
+                        onPaymentMethodSelected: (method) =>
+                            setState(() => _selectedPaymentMethod = method),
+                        onConfirmOrder: () => _showConfirmOrderBottomSheet(
+                          context,
+                          kasirProvider,
+                          cartProvider,
+                          coinProvider,
+                          user,
+                          _selectedPaymentMethod!,
+                          coinProvider.saldoKoin,
+                        ),
+                        onIncompleteData: _showIncompleteLocationDialog,
+                      );
+                    },
+                  ),
+                )
+              : null,
     );
   }
 

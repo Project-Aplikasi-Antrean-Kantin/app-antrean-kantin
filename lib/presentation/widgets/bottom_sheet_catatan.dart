@@ -79,27 +79,9 @@ Future bottomSheetCatatan(BuildContext context, String catatan, String title) {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     // Lakukan sesuatu dengan catatan yang dimasukkan
-                //     String catatan = _textEditingController.text;
-                //     print('Catatan: $catatan');
-                //     // Tutup BottomSheet
-                //     Navigator.pop(context, catatan);
-                //   },
-                //   child: Text(
-                //     'Konfirmasi',
-                //     style: TextStyle(
-                //       fontSize: 14,
-                //       fontWeight: semibold,
-                //       color: AppColors.textColorBlack,
-                //     ),
-                //   ),
-                // ),
                 GestureDetector(
                   onTap: () {
                     String catatan = _textEditingController.text;
-                    print('Catatan: $catatan');
                     // Tutup BottomSheet
                     Navigator.pop(context, catatan);
                   },

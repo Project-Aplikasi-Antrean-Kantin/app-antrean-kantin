@@ -233,7 +233,6 @@ class _PesananTenantState extends State<PesananTenant>
                     controller: _tabController,
                     onTap: (index) {
                       final status = OrderStatus.values[index];
-                      print("status cuk: ${status.rawValues}");
                       orderProvider.fetchOrders(context, user.token, status);
                     },
                     overlayColor: WidgetStateProperty.all(Colors.transparent),
@@ -308,8 +307,7 @@ class _PesananTenantState extends State<PesananTenant>
             physics: const NeverScrollableScrollPhysics(),
             children: OrderStatus.values.map((status) {
               final pesanan = orderProvider.getPesananByStatus(status);
-              print("status: ${status.rawValues}");
-              print("pesanan: $pesanan");
+
               if (orderProvider.isLoading) {
                 return Scaffold(
                   backgroundColor: AppColors.backgroundColor,

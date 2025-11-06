@@ -79,11 +79,9 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
-      debugPrint('Original image path: ${pickedImage.path}');
       final tempDir = await getTemporaryDirectory();
       final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempPath = '${tempDir.path}/$tempFileName';
-      debugPrint('Target path for compressed image: $tempPath');
 
       try {
         final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -94,12 +92,10 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
           minHeight: 1024,
         );
         if (compressedImage != null) {
-          debugPrint('Compressed image path: ${compressedImage.path}');
           setState(() {
             selectedImagePath = compressedImage.path;
           });
         } else {
-          debugPrint('Compression returned null');
           showDialog(
             context: context,
             builder: (context) => CustomAlertDialog(
@@ -208,11 +204,9 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
-      debugPrint('Original image path (from camera): ${pickedImage.path}');
       final tempDir = await getTemporaryDirectory();
       final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempPath = '${tempDir.path}/$tempFileName';
-      debugPrint('Target path for compressed image: $tempPath');
 
       try {
         final compressedImage = await FlutterImageCompress.compressAndGetFile(
@@ -223,10 +217,8 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
           minHeight: 1024,
         );
         if (compressedImage != null) {
-          debugPrint('Compressed image path: ${compressedImage.path}');
           selectedImagePath = compressedImage.path;
           int imageSizeKB = await _getImageSize(selectedImagePath!);
-          debugPrint('Compressed image size: $imageSizeKB KB');
           if (imageSizeKB > 2048) {
             showDialog(
               context: context,
@@ -243,7 +235,6 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
           }
           setState(() {});
         } else {
-          debugPrint('Compression returned null');
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -731,7 +722,6 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
                                 selectedImagePath = null;
                                 authProvider.user.gambar = null;
                                 setState(() {});
-                                print('Gambar berhasil dihapus');
                               }
                             },
                             child: Container(

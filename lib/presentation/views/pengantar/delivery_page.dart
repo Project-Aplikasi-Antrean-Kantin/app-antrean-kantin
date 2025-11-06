@@ -46,8 +46,6 @@ class _PerluPengantaranState extends State<PerluPengantaran>
     _onMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final title = message.data['title']?.toString().toLowerCase();
-      print("title $title");
-      print("title.contains('prioritas') ${title?.contains('prioritas')}");
       if (title == 'ada pesanan siap diantar') {
         _handleNewDeliveryNotification(deliveryProvider, user);
       }
@@ -135,6 +133,10 @@ class _PerluPengantaranState extends State<PerluPengantaran>
                           horizontal: 24, vertical: 8),
                       itemCount: 3,
                       itemBuilder: (context, index) => DeliveryCard(
+                          ongkir: 3000,
+                          listTransaksiDetail: [
+                            Pesanan.getDummyPesanan().listTransaksiDetail.first
+                          ],
                           onSuccess: () {},
                           pesanan: Pesanan.getDummyPesanan(),
                           status: DeliveryStatus.siapDiantar,

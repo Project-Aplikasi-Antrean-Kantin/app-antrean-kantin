@@ -131,7 +131,6 @@ class KatalogMenuTile extends StatelessWidget {
                               msg: "Tidak ada koneksi internet");
                           return;
                         }
-                        debugPrint('Navigasi ke edit menu');
                         Navigator.push(
                           context,
                           CustomPageBuilder(
@@ -182,7 +181,6 @@ class KatalogMenuTile extends StatelessWidget {
                                 msg: "Tidak ada koneksi internet");
                             return;
                           }
-                          debugPrint('Navigasi ke edit menu');
                           //show alert dialog
                           showDialog(
                               context: context,

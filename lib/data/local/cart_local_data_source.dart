@@ -32,7 +32,6 @@ class CartLocalDataSource {
         cartMenuList: cartMenuList,
       );
     } catch (e) {
-      debugPrint('Gagal decode cart_$tenantId: $e');
       return null;
     }
   }
@@ -71,7 +70,6 @@ class CartLocalDataSource {
   }
 
   Future<void> clearCart(String tenantId) async {
-    print('ngeclear cak');
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('cart_$tenantId');
   }

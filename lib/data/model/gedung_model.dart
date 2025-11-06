@@ -4,10 +4,12 @@ class Gedung {
   final DateTime createdAt;
   final DateTime updatedAt;
   final int ongkir;
+  final int ongkirMultitenant;
   final dynamic deletedAt;
 
   Gedung({
     required this.ongkir,
+    required this.ongkirMultitenant,
     required this.id,
     required this.nama,
     required this.createdAt,
@@ -19,6 +21,7 @@ class Gedung {
         id: json["id"],
         nama: json["nama"],
         ongkir: json["ongkir"],
+        ongkirMultitenant: json["ongkir_multitenant"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
         deletedAt: json["deleted_at"],

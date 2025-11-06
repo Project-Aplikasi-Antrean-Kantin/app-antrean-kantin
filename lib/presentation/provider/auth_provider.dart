@@ -23,7 +23,6 @@ class AuthProvider extends ChangeNotifier {
       // tokenManager.putToken(user.token);
       return succes;
     } catch (e) {
-      print(e);
       rethrow;
     }
   }
@@ -33,34 +32,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<bool> login(String email, String password, String token) async {
-  //   try {
-  //     UserModel? user =
-  //         await AuthRemoteDataSource().login(email, password, token);
-  //     _user = user;
-  //     tokenManager.putToken(user.token);
-  //     print(user);
-  //     return true;
-  //   } catch (e) {
-  //     print(e);
-  //     rethrow;
-  //   }
-  // }
-  // Future<bool> login(String email, String password, String token) async {
-  //   try {
-  //     UserModel? user =
-  //         await AuthRemoteDataSource().login(email, password, token);
-  //     _user = user;
-  //     tokenManager.putToken(user.token);
-  //     tokenManager.saveRoles(user.role);
-  //     print(user);
-  //     return true;
-  //   } catch (e) {
-  //     print(e);
-  //     rethrow;
-  //   }
-  // }
-
   Future<String> getCurrentVersion() async {
     try {
       // Ambil data dari PublicRemoteDataSource
@@ -69,7 +40,6 @@ class AuthProvider extends ChangeNotifier {
       // Cari 'version' di settings
       for (var setting in settings) {
         if (setting.nama == 'version') {
-          print('version: ${setting.nilai}');
           return setting.nilai;
         }
       }
@@ -78,7 +48,6 @@ class AuthProvider extends ChangeNotifier {
       return "";
     } catch (e) {
       notifyListeners();
-      debugPrint('Error fetching settings: $e');
       return "";
     }
   }
@@ -87,7 +56,6 @@ class AuthProvider extends ChangeNotifier {
     try {
       final success =
           await AuthRemoteDataSource().sendEmailForgetPassword(email);
-      print('succes loh cak ${success}');
       return success;
     } catch (e) {
       print(e);
@@ -118,7 +86,6 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> resendVerify(String email) async {
     try {
       final success = await AuthRemoteDataSource().resendVerify(email);
-      print('succes loh cak ${success}');
       return success;
     } catch (e) {
       print(e);
@@ -131,7 +98,6 @@ class AuthProvider extends ChangeNotifier {
     try {
       final success = await AuthRemoteDataSource()
           .resetPassword(email, password, confirmPassword, token);
-      print('succes loh cak ${success}');
       return success;
     } catch (e) {
       print(e);
@@ -144,7 +110,6 @@ class AuthProvider extends ChangeNotifier {
       await AuthRemoteDataSource().logout(token);
       _user = null;
       tokenManager.clearTokenAndRole();
-      print("Success Logout");
       return true;
     } catch (e) {
       print(e);
@@ -156,11 +121,9 @@ class AuthProvider extends ChangeNotifier {
     void Function(dynamic)? errorCallback,
   }) async {
     try {
-      log("COKK");
       UserModel result = await AuthRemoteDataSource().loginWithToken(
         (await tokenManager.getToken())!,
       );
-      print('result iki cok $result');
 
       _user = result;
       tokenManager.putToken(result.token);
@@ -176,7 +139,6 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void setImage(String image) {
-    print("image: $image");
     _user?.gambar = image;
     notifyListeners();
   }

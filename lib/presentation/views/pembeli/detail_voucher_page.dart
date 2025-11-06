@@ -42,9 +42,6 @@ class _DetailVoucherPageState extends State<DetailVoucherPage> {
   Widget build(BuildContext context) {
     final cashbackData = voucher?.cashback ?? cashback!;
     final isThereVoucher = voucher != null;
-    print(isThereVoucher);
-    print(voucher);
-    print(cashback);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -66,7 +63,6 @@ class _DetailVoucherPageState extends State<DetailVoucherPage> {
               onPressed: () async {
                 if (isThereVoucher &&
                     cartProvider.selectedVoucher?.id == voucher?.id) {
-                  print('batalkan');
                   cartProvider.removeVoucher();
                   Fluttertoast.showToast(
                       msg: 'Voucher dibatalkan',

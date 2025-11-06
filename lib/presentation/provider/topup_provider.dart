@@ -35,12 +35,10 @@ class TopupProvider extends ChangeNotifier {
           settings.firstWhere((setting) => setting.nama == 'bool_topup');
       final settingManualTransfer =
           settings.firstWhere((setting) => setting.nama == 'manual_transfer');
-      print('settingTopUp: ${settingTopUp.nilai}');
       namaPenerima = "";
       noMandiri = "";
 
       for (var setting in settings) {
-        print('setting nama: ${setting.nama} nilai: ${setting.nilai}');
         if (setting.nama == 'aktif_va') {
           aktifVa = setting.nilai;
           if (setting.nilai == '1') {
@@ -118,7 +116,6 @@ class TopupProvider extends ChangeNotifier {
       noKonfirmasi = '';
       noDgs = '';
       notifyListeners();
-      debugPrint('Error fetching settings: $e');
     }
   }
 
@@ -134,7 +131,6 @@ class TopupProvider extends ChangeNotifier {
       } else {
         topUp = TopUpModel.fromJson(decoded);
       }
-      print('topUp $topUp');
     }
     notifyListeners();
   }
@@ -154,7 +150,6 @@ class TopupProvider extends ChangeNotifier {
     try {
       final success = await TopupRemoteDataSource().createQRIS(token, nominal);
       topUp = success;
-      print('cek apakah success $topUp');
       return true;
     } catch (e) {
       errorMessage = e.toString();
@@ -163,18 +158,13 @@ class TopupProvider extends ChangeNotifier {
   }
 
   Future<bool> getVirtualAccount(String token, String kodeBayar) async {
-    print('token $token, kodeBayar $kodeBayar');
     final prefs = await SharedPreferences.getInstance();
     try {
       final success = await TopupRemoteDataSource().getTopup(token, kodeBayar);
       if (success.status == "1") {
         if (prefs.containsKey('current_va')) {
-          print("✅ current_va ditemukan, akan dihapus...");
           prefs.remove("current_va");
-          print("✅ current_va berhasil dihapus.");
-        } else {
-          print("❌ current_va tidak ditemukan.");
-        }
+        } else {}
       }
       topUp = success;
       return true;
@@ -185,18 +175,13 @@ class TopupProvider extends ChangeNotifier {
   }
 
   Future<bool> getTopUpQris(String token, String kodeMidtrans) async {
-    print('token $token, kodeBayar $kodeMidtrans');
     final prefs = await SharedPreferences.getInstance();
     try {
       final success =
           await TopupRemoteDataSource().getTopUpQris(token, kodeMidtrans);
       if (success.status == "1") {
         if (prefs.containsKey('current_va')) {
-          print("✅ current_va ditemukan, akan dihapus...");
           prefs.remove("current_va");
-          print("✅ current_va berhasil dihapus.");
-        } else {
-          print("❌ current_va tidak ditemukan.");
         }
       }
       topUp = success;
