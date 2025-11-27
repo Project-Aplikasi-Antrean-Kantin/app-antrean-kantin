@@ -20,9 +20,17 @@ class KatalogMenuProvider extends ChangeNotifier {
       errorMessage = null;
     } catch (error) {
       errorMessage = 'Gagal memuat data: $error';
-      debugPrint(errorMessage);
     } finally {
       setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  void updateDataById(TenantFoods newData) {
+    print("newData: $newData");
+    final index = data.indexWhere((food) => food.id == newData.id);
+    if (index != -1) {
+      data[index] = newData;
       notifyListeners();
     }
   }
@@ -44,7 +52,6 @@ class KatalogMenuProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      debugPrint('Error deleting menu: $e');
       throw Exception('Gagal menghapus menu: $e');
     }
   }

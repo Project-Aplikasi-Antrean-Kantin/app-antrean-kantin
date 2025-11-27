@@ -85,7 +85,6 @@ class _RiwayatPageState extends State<RiwayatPage>
             TransactionRemoteDataSource()
                 .getOrderById(authProvider.user.token, transaksiId)
                 .then((pesanan) {
-              historyProvider.updateSelectedPesanan(pesanan);
               historyProvider.updatedPesanan(pesanan, widget.role);
             });
           }
@@ -106,6 +105,8 @@ class _RiwayatPageState extends State<RiwayatPage>
 
   @override
   void dispose() {
+    _scrollController.dispose();
+    _onMessageSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -127,7 +128,6 @@ class _RiwayatPageState extends State<RiwayatPage>
           TransactionRemoteDataSource()
               .getOrderById(authProvider.user.token, pesanan.id.toString())
               .then((pesanan) {
-            historyProvider.updateSelectedPesanan(pesanan);
             historyProvider.updatedPesanan(pesanan, widget.role);
           });
         }
@@ -915,7 +915,7 @@ class _RiwayatPageState extends State<RiwayatPage>
                                     size: 16,
                                     color: getStatusColor(pesanan.status)),
                                 Text(
-                                  getStatus(pesanan.status),
+                                  getStatus(pesanan.status, pesanan),
                                   style: GoogleFonts.poppins(
                                     color: getStatusColor(pesanan.status),
                                     fontSize: 10,
@@ -958,39 +958,8 @@ class _RiwayatPageState extends State<RiwayatPage>
                               fontWeight: FontWeight.w400,
                             ),
                           )
-                          // HugeIcon(
-                          //     icon: getIconByStatus(pesanan.status),
-                          //     color: getStatusColor(pesanan.status)),
                         ],
                       ),
-                      // Row(
-                      //   crossAxisAlignment: CrossAxisAlignment.start,
-                      //   children: [
-                      //     Text(
-                      //       FormatDate.dateTimeToStringDate(pesanan.createdAt),
-                      //       style: GoogleFonts.poppins(
-                      //         color: AppColors.blackColor,
-                      //         fontSize: 12,
-                      //         fontWeight: FontWeight.w400,
-                      //       ),
-                      //     ),
-                      //     const SizedBox(width: 8),
-                      //     // Expanded(
-                      //     //   child: Text(
-                      //     //     getStatus(pesanan.status),
-                      //     //     textAlign: TextAlign.end,
-                      //     //     style: GoogleFonts.poppins(
-                      //     //       color: getStatusColor(pesanan.status),
-                      //     //       fontSize: 12,
-                      //     //       fontWeight: FontWeight.w400,
-                      //     //     ),
-                      //     //     overflow: TextOverflow.ellipsis,
-                      //     //     maxLines: 2,
-                      //     //     softWrap: false,
-                      //     //   ),
-                      //     // ),
-                      //   ],
-                      // ),
                       Wrap(
                         spacing: 8, // Jarak antar item horizontal
                         runSpacing: 4, // Jarak antar baris
@@ -1200,7 +1169,8 @@ class _RiwayatPageState extends State<RiwayatPage>
                               cartProvider.setCurrentTenant(
                                   pesanan
                                       .listTransaksiDetail[0].menus!.tenants!,
-                                  cartMenu);
+                                  cartMenu,
+                                  null);
 
                               Future.delayed(const Duration(milliseconds: 300),
                                   () {
@@ -1273,7 +1243,7 @@ class _RiwayatPageState extends State<RiwayatPage>
     }
   }
 
-  String getStatus(String status) {
+  String getStatus(String status, Pesanan pesanan) {
     switch (status) {
       case 'refund_selesai':
         return 'Refund';
@@ -1288,7 +1258,7 @@ class _RiwayatPageState extends State<RiwayatPage>
       case 'pesanan_diproses':
         return 'Diproses';
       case 'pesanan_masuk':
-        return 'Pesanan Masuk';
+        return pesanan.multitenantId != null ? 'Masuk' : 'Pesanan Masuk';
       case 'diantar':
         return 'Diantar';
       case 'siap_diambil':

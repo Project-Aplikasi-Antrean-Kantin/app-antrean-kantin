@@ -61,14 +61,12 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
     CartMenuModel? item;
+    final tenantId = widget.tenant.id.toString();
+    final tenantCart = cartProvider.tenantCarts[tenantId];
+    final listMenu = tenantCart?.cartMenuList ?? [];
+
     if (widget.cartItem == null) {
       if (widget.addNewItem) {
-        final tenantCart =
-            cartProvider.tenantCarts[widget.tenant.id.toString()];
-
-        // pastikan tenantCart tidak null dulu
-        final listMenu = tenantCart?.cartMenuList ?? [];
-
         if (listMenu.isEmpty) {
           item = cartProvider.cart.firstWhereOrNull((item) =>
               item.menuId == food.id && item.catatan == widget.catatan);
@@ -77,24 +75,27 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
               item.menuId == food.id && item.catatan == widget.catatan);
         }
       } else {
-        item = cartProvider
-            .tenantCarts[widget.tenant.id.toString()]!.cartMenuList!
-            .firstWhereOrNull((item) => item.menuId == food.id);
+        // cek null sebelum akses list
+        item = listMenu.firstWhereOrNull((item) => item.menuId == food.id);
       }
     } else {
-      print('cek doang');
-      indexCart = cartProvider
-          .tenantCarts[widget.tenant.id.toString()]!.cartMenuList!
-          .indexWhere((item) =>
-              item.menuId == food.id && item.catatan == widget.catatan);
-      print('indexCart ${indexCart}');
+      if (tenantCart != null && listMenu.isNotEmpty) {
+        indexCart = listMenu.indexWhere(
+            (item) => item.menuId == food.id && item.catatan == widget.catatan);
+      } else {
+        indexCart = -1; // fallback kalau tenantCart sudah null
+      }
+
       item = widget.cartItem;
     }
+
+// Pastikan item masih valid sebelum pakai
     if (!isInitialized && item != null) {
       count = item.count;
       _textEditingController.text = item.catatan ?? '';
       isInitialized = true;
     }
+
     return WillPopScope(
       onWillPop: () async {
         // Jika count masih 0, maka langsung boleh pop
@@ -405,7 +406,6 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
 
   Widget _buildFloatingActionButton(BuildContext context) {
     return Consumer<CartProvider>(builder: (context, cartProvider, _) {
-      print(widget.tenant.id.toString());
       int totalPrice = 0;
       if (count > 0) {
         totalPrice = food.harga * count;
@@ -449,7 +449,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
 
       // Jika count > 0 → tampilkan tombol tambah/edit pesanan
       return SizedBox(
-        width: MediaQuery.of(context).size.width - 32,
+        width: MediaQuery.of(context).size.width - 40,
         child: FloatingActionButton.extended(
           onPressed: () {
             final menuGambar = food.gambar;
@@ -495,7 +495,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
           },
           backgroundColor: AppColors.primaryColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
           label: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),

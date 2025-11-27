@@ -10,11 +10,13 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_voucher_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 
 class ListPromoPage extends StatefulWidget {
-  const ListPromoPage({super.key});
+  final bool fromProfile;
+  const ListPromoPage({required this.fromProfile, super.key});
 
   @override
   State<ListPromoPage> createState() => _ListPromoPageState();
@@ -31,6 +33,9 @@ class _ListPromoPageState extends State<ListPromoPage> {
         _isInit = true;
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final cartProvider = Provider.of<CartProvider>(context, listen: false);
+        if (widget.fromProfile) {
+          cartProvider.removeVoucher();
+        }
         cartProvider
             .fetchCashback(authProvider.user.token, false)
             .then((listCashback) {
@@ -260,9 +265,26 @@ class _ListPromoPageState extends State<ListPromoPage> {
                           cartProvider.selectedVoucher?.id != data.id))
                     GestureDetector(
                       onTap: () async {
+                        final authProvider =
+                            Provider.of<AuthProvider>(context, listen: false);
+                        if (widget.fromProfile && isVoucher) {
+                          Fluttertoast.showToast(
+                              msg: "Pakai voucher saat checkout");
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            CustomPageBuilder(
+                              page: NavbarHome(
+                                pageIndex: authProvider.user.menu.indexWhere(
+                                    (element) => element.url == '/beranda'),
+                              ),
+                            ),
+                            (route) => false,
+                          );
+                          return;
+                        }
                         try {
                           if (isVoucher) {
-                            if (cartProvider.totalPrice <
+                            if (cartProvider.selectedTenantDeliveryCost <
                                 data.cashback.minimalOrder) {
                               Fluttertoast.showToast(
                                   msg:

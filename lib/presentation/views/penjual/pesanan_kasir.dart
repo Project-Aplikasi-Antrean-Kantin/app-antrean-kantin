@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,6 +8,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
@@ -12,7 +16,11 @@ import 'package:testgetdata/presentation/views/penjual/cashier_transaction_item_
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 
 class PesananKasir extends StatefulWidget {
-  const PesananKasir({super.key});
+  final List<CashierTransaction> data;
+  const PesananKasir({
+    super.key,
+    required this.data,
+  });
 
   @override
   State<PesananKasir> createState() => _PesananKasirState();
@@ -20,16 +28,37 @@ class PesananKasir extends StatefulWidget {
 
 class _PesananKasirState extends State<PesananKasir> {
   final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
+  late StreamSubscription<RemoteMessage> _onCashierSuccess;
 
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
-      kasirProvider.getListCashierTransaction(authProvider.user.token);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      _onCashierSuccess =
+          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        final title = message.data['title']?.toString().toLowerCase();
+        final body = message.data['body']?.toString().toLowerCase();
+        final cashierId = body?.split(' ')[1].trim();
+        print("cashierId: $cashierId title: $title");
+        if (title!.contains('kasir') && cashierId != null) {
+          final cleanId = int.parse(
+            cashierId.replaceAll(RegExp(r'[^0-9]'), ''),
+          );
+          kasirProvider.getCashierTransactionById(
+              authProvider.user.token, cleanId);
+        }
+      });
     });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _onCashierSuccess.cancel();
+    super.dispose();
   }
 
   @override
@@ -62,27 +91,21 @@ class _PesananKasirState extends State<PesananKasir> {
               child: CircularProgressIndicator(),
             );
           }
-          final listPesananDiproses = provider.cashierTransactions
-              .where((transaction) => transaction.status == "pesanan_diproses")
-              .toList();
-          print(
-              "listIdPesananDiproses: ${listPesananDiproses.map((e) => e.id)}");
-          print("listPesananDiproses: ${provider.cashierTransactions}");
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: ListView.separated(
                 separatorBuilder: (context, index) => const SizedBox(
                       height: 12,
                     ),
-                itemCount: listPesananDiproses.length + 1,
+                itemCount: widget.data.length + 1,
                 itemBuilder: (context, index) {
-                  if (index == listPesananDiproses.length)
+                  if (index == widget.data.length)
                     return SizedBox(
                       height: 64,
                     );
                   return CashierTransactionItemWidget(
                     printer: printer,
-                    transaksi: listPesananDiproses[index],
+                    transaksi: widget.data[index],
                     onTerima: () {},
                     onTolak: () {},
                     withPadding: true,

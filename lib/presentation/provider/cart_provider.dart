@@ -86,6 +86,8 @@ class CartProvider extends ChangeNotifier {
   List<SettingsModel> settings = [];
   List<Voucher> listVoucher = [];
   List<Cashback> listCashback = [];
+  final List<TenantModel> _tenantHistory = [];
+
   Voucher? selectedVoucher;
   Voucher? recommendedVoucher;
   Cashback? recommendedCashback;
@@ -112,6 +114,7 @@ class CartProvider extends ChangeNotifier {
     // cari index tenant dengan tenantId yang sama
     final existingIndex = selectedCartTenant
         .indexWhere((element) => element.tenantId == cart.tenantId);
+    final totalItem = totalItemCountSelected;
 
     if (existingIndex != -1) {
       // kalau sudah ada, update datanya
@@ -129,6 +132,30 @@ class CartProvider extends ChangeNotifier {
         return;
       }
       selectedCartTenant.add(cart);
+      if (selectedCartTenant.length >= 2 && ongkir != 0 && roomId != null) {
+        ongkir = ongkir +
+            listRuangan
+                .firstWhere((e) => e.id == roomId!)
+                .gedung
+                .ongkirMultitenant;
+      }
+      if (ongkir != 0 &&
+          totalItemCountSelected > 10 &&
+          roomId != null &&
+          totalItem <= 10) {
+        ongkir = ongkir + (totalItemCountSelected - 10) * biayaExtra;
+      }
+      if (ongkir != 0 &&
+          totalItemCountSelected > 10 &&
+          roomId != null &&
+          totalItem > 10) {
+        ongkir = ongkir + (totalItemCountSelected - totalItem) * biayaExtra;
+      }
+      if (selectedDeliveryOption == 0 &&
+          selectedCartTenant.length == 2 &&
+          totalActiveDriver >= 1) {
+        _selectedDeliveryOption = 1;
+      }
     }
 
     notifyListeners();
@@ -189,39 +216,120 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> setCurrentTenant(
-      TenantModel tenant, List<CartMenuModel>? cart) async {
-    _currentTenant = tenant;
+      TenantModel tenant, List<CartMenuModel>? cart, bool? isYourTenant) async {
+    // Cek apakah tenant ini sudah jadi current sebelumnya
+    _tenantHistory.add(tenant);
 
-    // Load cart dari local hanya jika cart == null
+    _currentTenant = tenant;
+    final indexSelectedCart = selectedCartTenant.indexWhere(
+      (element) => element.tenantId == tenant.id.toString(),
+    );
+
     List<CartMenuModel> cartList;
     if (cart != null) {
       cartList = cart;
-      print('pesen lagi');
     } else {
       final cartPerTenant = await CartLocalDataSource()
           .loadTenantCartFromLocal(tenant.id.toString());
       cartList = cartPerTenant?.cartMenuList ?? [];
     }
-
-    _tenantCarts[tenant.id.toString()] = CartPerTenant(
-      tenantId: tenant.id.toString(),
-      tenantName: tenant.namaTenant,
-      tenantGambar: tenant.namaGambar ?? '',
-      cartMenuList: cartList,
-    );
-
-    print('setCurrentTenant ${tenant.toString()}');
-
-    _cartMenu = _tenantCarts[tenant.id.toString()]?.cartMenuList ?? [];
-    if (cart != null) {
-      await CartLocalDataSource().saveTenantCartToLocal(CartPerTenant(
-        tenantId: _currentTenant!.id.toString(),
-        tenantGambar: currentTenant!.namaGambar ?? '',
-        tenantName: currentTenant!.namaTenant,
+    if (_tenantCarts.length < 5 ||
+        _tenantCarts.containsKey(tenant.id.toString())) {
+      _tenantCarts[tenant.id.toString()] = CartPerTenant(
+        tenantId: tenant.id.toString(),
+        tenantName: tenant.namaTenant,
+        tenantGambar: tenant.namaGambar ?? '',
         cartMenuList: cartList,
-      ));
+      );
+    } else {
+      Fluttertoast.showToast(
+          msg:
+              "Keranjang penuh, jika ingin menambah item silahkan hapus 1 tenant",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: AppColors.warningColor,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
+    if (indexSelectedCart == -1) {
+      if (selectedCartTenant.length >= 2) {
+        Fluttertoast.showToast(
+            msg: "Maksimal 2 Tenant",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: AppColors.warningColor,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        if (isYourTenant != true) {
+          selectedCartTenant.add(_tenantCarts[tenant.id.toString()]!);
+        }
+      }
+    } else {
+      selectedCartTenant[indexSelectedCart] =
+          _tenantCarts[tenant.id.toString()]!;
+    }
+
+    _cartMenu = cartList;
+
+    if (cart != null && _tenantCarts.length < 5) {
+      await CartLocalDataSource().saveTenantCartToLocal(
+        CartPerTenant(
+          tenantId: _currentTenant!.id.toString(),
+          tenantGambar: currentTenant!.namaGambar ?? '',
+          tenantName: currentTenant!.namaTenant,
+          cartMenuList: cartList,
+        ),
+      );
+    }
+
     notifyListeners();
+  }
+
+  void removeSelectedCartTenantByIndex(int index) {
+    final totalItem = totalItemCountSelected;
+    final lengthSelected = selectedCartTenant.length;
+    if (selectedCartTenant.isNotEmpty) {
+      selectedCartTenant.removeAt(index);
+      if (totalItem > 10 &&
+          ongkir != 0 &&
+          lengthSelected > 1 &&
+          totalItemCountSelected <= 10 &&
+          roomId != null) {
+        ongkir = ongkir -
+            (totalItem - 10) * (biayaExtra == 0 ? 500 : biayaExtra) -
+            listRuangan
+                .firstWhere((e) => e.id == roomId)
+                .gedung
+                .ongkirMultitenant;
+      }
+      if (totalItemCountSelected > 10 && ongkir != 0 && roomId != null) {
+        ongkir = ongkir -
+            (totalItem - totalItemCountSelected) *
+                (biayaExtra == 0 ? 500 : biayaExtra) -
+            listRuangan
+                .firstWhere((e) => e.id == roomId)
+                .gedung
+                .ongkirMultitenant;
+      }
+      if (lengthSelected > 1 && totalItem <= 10 && ongkir != 0)
+        ongkir -= listRuangan
+            .firstWhere((e) => e.id == roomId)
+            .gedung
+            .ongkirMultitenant;
+      if (selectedVoucher != null &&
+          selectedTenantDeliveryCost <
+              selectedVoucher!.cashback!.minimalOrder) {
+        selectedVoucher = null;
+        Fluttertoast.showToast(
+            msg: 'Minimal order belum terpenuhi, voucher dihapus',
+            backgroundColor: AppColors.errorColor,
+            textColor: Colors.white);
+      }
+      notifyListeners();
+    }
   }
 
   Future<void> setCartMenu(List<CartMenuModel> cartMenu) async {
@@ -331,6 +439,24 @@ class CartProvider extends ChangeNotifier {
   void getAllCarts() async {
     _tenantCarts = await CartLocalDataSource().loadAllCartsToTenantMap();
     notifyListeners();
+  }
+
+  void popTenant() async {
+    if (_tenantHistory.isNotEmpty) {
+      _tenantHistory.removeLast();
+
+      if (_tenantHistory.isNotEmpty) {
+        _currentTenant = _tenantHistory.last;
+        final previousCart = _tenantCarts[_currentTenant!.id.toString()];
+        _cartMenu = previousCart?.cartMenuList ?? [];
+      } else {
+        _currentTenant = null;
+        _cartMenu = [];
+        selectedCartTenant = [];
+      }
+
+      notifyListeners();
+    }
   }
 
   void addItemToCart({
@@ -455,16 +581,6 @@ class CartProvider extends ChangeNotifier {
           (totalItemCountSelected - 10) * (biayaExtra == 0 ? 500 : biayaExtra);
     }
 
-    if (selectedVoucher != null &&
-        listMenu.fold<int>(0, (sum, item) => sum + item.menuPrice) <
-            selectedVoucher!.cashback!.minimalOrder) {
-      selectedVoucher = null;
-      Fluttertoast.showToast(
-          msg: 'Minimal order belum terpenuhi, voucher dihapus',
-          backgroundColor: AppColors.errorColor,
-          textColor: Colors.white);
-    }
-
     if (_currentTenant!.id.toString() == currentTenantId) {
       _cartMenu = listMenu;
     }
@@ -482,6 +598,14 @@ class CartProvider extends ChangeNotifier {
     );
     if (totalItem > 10 && ongkir != 0) {
       ongkir = (totalItem - 10) * (biayaExtra == 0 ? 500 : biayaExtra) + ongkir;
+    }
+    if (selectedVoucher != null &&
+        selectedTenantDeliveryCost < selectedVoucher!.cashback.minimalOrder) {
+      selectedVoucher = null;
+      Fluttertoast.showToast(
+          msg: 'Minimal order belum terpenuhi, voucher dihapus',
+          backgroundColor: AppColors.errorColor,
+          textColor: Colors.white);
     }
 
     await CartLocalDataSource()
@@ -523,11 +647,12 @@ class CartProvider extends ChangeNotifier {
     final isThereRecommended = listVoucher
             .where((element) =>
                 element.qty > 0 &&
-                element.cashback.minimalOrder <= deliveryCost)
+                element.cashback.minimalOrder <= selectedTenantDeliveryCost)
             .isNotEmpty &&
         listCashback
             .where((element) =>
-                element.value > 0 && element.minimalOrder <= deliveryCost)
+                element.value > 0 &&
+                element.minimalOrder <= selectedTenantDeliveryCost)
             .isNotEmpty;
     if (isThereRecommended) {
       return true;
@@ -655,6 +780,21 @@ class CartProvider extends ChangeNotifier {
     required String tenantId,
     required TenantModel tenant,
   }) async {
+    print("tenants: ${_tenantCarts.length}");
+    print("tenantId: $tenantId");
+    print("contains: ${_tenantCarts.containsKey(tenantId)}");
+    print("list keys: ${_tenantCarts.keys}");
+    if (_tenantCarts.length >= 5 && !_tenantCarts.containsKey(tenantId)) {
+      Fluttertoast.showToast(
+          msg:
+              "Keranjang penuh, jika ingin menambah item silahkan hapus 1 tenant",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: AppColors.warningColor,
+          textColor: Colors.white);
+
+      return;
+    }
     final currentTenantId = tenantId;
     final existingCartPerTenant = _tenantCarts[currentTenantId];
     final listMenu =
@@ -688,8 +828,12 @@ class CartProvider extends ChangeNotifier {
       (element) => element.tenantId == currentTenantId,
     );
 
-    if (index != -1) {
+    if (indexSelectedCart != -1) {
+      print('indexSelectedCart: $indexSelectedCart');
+
       selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
+      print(
+          'selectedCartTenant[indexSelectedCart]: ${selectedCartTenant[indexSelectedCart].cartMenuList}');
     }
 
     await CartLocalDataSource()
@@ -701,6 +845,7 @@ class CartProvider extends ChangeNotifier {
       String tenantId, int menuId, BuildContext context,
       {String? catatan, int? indexCart}) async {
     final currentTenantId = tenantId;
+    final lengthSelected = selectedCartTenant.length;
 
     final tenantCart = _tenantCarts[currentTenantId];
     if (tenantCart == null) return;
@@ -724,16 +869,6 @@ class CartProvider extends ChangeNotifier {
       menuList.removeAt(index);
     }
 
-    if (selectedVoucher != null &&
-        menuList.fold<int>(0, (sum, item) => sum + item.menuPrice) <
-            selectedVoucher!.cashback!.minimalOrder) {
-      selectedVoucher = null;
-      Fluttertoast.showToast(
-          msg: 'Minimal order belum terpenuhi, voucher dihapus',
-          backgroundColor: AppColors.errorColor,
-          textColor: Colors.white);
-    }
-
     if (menuList.isEmpty) {
       _tenantCarts.remove(currentTenantId);
       if (indexSelectedCart != -1) {
@@ -749,10 +884,24 @@ class CartProvider extends ChangeNotifier {
       await CartLocalDataSource()
           .saveTenantCartToLocal(_tenantCarts[currentTenantId]!);
     }
+    if (selectedVoucher != null &&
+        selectedTenantDeliveryCost < selectedVoucher!.cashback!.minimalOrder) {
+      selectedVoucher = null;
+      Fluttertoast.showToast(
+          msg: 'Minimal order belum terpenuhi, voucher dihapus',
+          backgroundColor: AppColors.errorColor,
+          textColor: Colors.white);
+    }
 
     if (ongkir != 0 && totalItemCountSelected >= 10) {
       ongkir = ongkir - (biayaExtra == 0 ? 500 : biayaExtra);
     }
+
+    if (lengthSelected > 1 && menuList.isEmpty && ongkir != 0)
+      ongkir -= listRuangan
+          .firstWhere((e) => e.id == roomId)
+          .gedung
+          .ongkirMultitenant;
 
     if (_currentTenant?.id.toString() == currentTenantId) {
       _cartMenu = _tenantCarts[currentTenantId]?.cartMenuList ?? [];
@@ -1091,6 +1240,11 @@ class CartProvider extends ChangeNotifier {
   // Fetches room data from the server
   Future<void> getRoom(String token) async {
     listRuangan = await TransactionRemoteDataSource().getRoomData(token);
+  }
+
+  void setListRuangan(List<Ruangan> ruangan) {
+    listRuangan = ruangan;
+    notifyListeners();
   }
 
   // Validates the cart based on delivery and room selection

@@ -48,18 +48,36 @@ class CartLocalDataSource {
       if (raw != null) {
         try {
           final decoded = jsonDecode(raw);
-          final cartMenuList = (decoded['cartMenuList'] as List<dynamic>)
-              .map((e) => CartMenuModel.fromJson(e))
-              .toList();
 
-          final tenantId = decoded['tenantId'];
+          // Ambil tenantId dari key cart_xxx
+          final tenantIdFromKey = key.replaceFirst('cart_', '');
 
-          result[tenantId] = CartPerTenant(
-            tenantId: tenantId,
+          // Decode list
+          final List<dynamic> rawList = decoded['cartMenuList'] ?? [];
+
+          final cartMenuList = rawList.map((e) {
+            final item = CartMenuModel.fromJson(e);
+
+            // 🔥 Jika tenantId kosong / null → update dengan tenantId dari key
+            if (item.tenantId.isEmpty) {
+              return item.copyWith(tenantId: tenantIdFromKey);
+            }
+
+            return item;
+          }).toList();
+
+          // Build CartPerTenant
+          final cart = CartPerTenant(
+            tenantId: tenantIdFromKey,
             tenantName: decoded['tenantName'],
             tenantGambar: decoded['tenantGambar'],
             cartMenuList: cartMenuList,
           );
+
+          result[tenantIdFromKey] = cart;
+
+          // 🔥 Simpan kembali agar tenantId yang baru terupdate permanen
+          await prefs.setString(key, jsonEncode(cart.toJson()));
         } catch (e) {
           debugPrint('Gagal decode cart untuk key: $key. Error: $e');
         }

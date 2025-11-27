@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -51,6 +52,9 @@ class _MenuTenantState extends State<MenuTenant> {
   final TextEditingController _searchController = TextEditingController();
   bool isScrolledEnough = false;
   List<TenantFoods>? _filteredFoods;
+  final FocusNode _focusNode = FocusNode();
+
+  late ValueNotifier<Color> _iconColorNotifier;
   TenantModel?
       _currentTenant; // simpan TenantModel supaya tidak perlu dari snapshot terus
 
@@ -62,9 +66,21 @@ class _MenuTenantState extends State<MenuTenant> {
   void initState() {
     super.initState();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final user = authProvider.user;
     final now = DateTime.now();
     bool isTenantBusy = false;
+
+    _iconColorNotifier = ValueNotifier<Color>(Colors.grey);
+
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _iconColorNotifier.value = AppColors.primaryColor;
+      } else {
+        _iconColorNotifier.value = Colors.grey;
+      }
+      setState(() {}); // untuk update border container
+    });
 
     _futureTenantFoods = PublicRemoteDataSource()
         .getTenantFoods(context, widget.url, user.token)
@@ -74,20 +90,32 @@ class _MenuTenantState extends State<MenuTenant> {
       }
 
       print("tenantData cak iki slur ${tenantData}");
+
       print("widget.cart cak iki slur ${widget.cart}");
-      if (widget.cart != null) {
-        Provider.of<CartProvider>(context, listen: false)
-            .setCurrentTenant(tenantData, widget.cart);
+      if (tenantData.emailPemilik == user.email) {
+        cartProvider.setCurrentTenant(tenantData, widget.cart, true);
       } else {
-        Provider.of<CartProvider>(context, listen: false)
-            .setCurrentTenant(tenantData, null);
+        if (widget.cart != null) {
+          cartProvider.setCurrentTenant(tenantData, widget.cart, null);
+        } else {
+          cartProvider.setCurrentTenant(tenantData, null, null);
+        }
       }
+
       _currentTenant = tenantData;
       _filteredFoods = tenantData.tenantFoods; // inisialisasi awal
       return tenantData;
     });
 
     _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _iconColorNotifier.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _filterFoodsBySearch(String query) {
@@ -149,7 +177,8 @@ class _MenuTenantState extends State<MenuTenant> {
       BuildContext context, TenantModel tenant, CartProvider cartProvider) {
     return WillPopScope(
       onWillPop: () async {
-        cartProvider.clearCart(false); // langsung clear
+        // cartProvider.clearCart(false); // langsung clear
+        cartProvider.popTenant();
         FocusScope.of(context).unfocus();
         return true;
       },
@@ -222,19 +251,19 @@ class _MenuTenantState extends State<MenuTenant> {
         // Tombol Back
         GestureDetector(
           onTap: () {
-            cartProvider.clearCart(false);
+            cartProvider.popTenant();
             Navigator.pop(context);
           },
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
+              color: AppColors.whiteColor,
               borderRadius: BorderRadius.circular(16),
             ),
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(12),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowLeft02,
-              color: Colors.white,
-              size: 24,
+              color: AppColors.whiteColor900,
+              size: 20,
             ),
           ),
         ),
@@ -247,33 +276,57 @@ class _MenuTenantState extends State<MenuTenant> {
                 sizeFactor: animation, axis: Axis.horizontal, child: child),
             child: _isSearchMode
                 ? Container(
-                    key: ValueKey('searchField'),
-                    margin: EdgeInsets.only(left: 16),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    height: 44,
+                    key: const ValueKey('searchField'),
+                    margin: const EdgeInsets.only(left: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        width: 1,
+                        color: _focusNode.hasFocus
+                            ? AppColors.primaryColor
+                            : AppColors.backgroundColor,
+                      ),
                     ),
                     child: TextField(
                       controller: _searchController,
+                      focusNode: _focusNode,
                       autofocus: true,
                       onChanged: (value) {
-                        _filterFoodsBySearch(value);
+                        _filterFoodsBySearch(value); // tetap jalan
                       },
                       decoration: InputDecoration(
-                        hintText: "Cari...",
+                        border: InputBorder.none,
+
+                        // 🔥 prefixIcon berubah warna ikut focus
+                        prefixIcon: ValueListenableBuilder<Color>(
+                          valueListenable: _iconColorNotifier,
+                          builder: (context, color, child) {
+                            return Icon(
+                              Iconsax.search_normal_1_copy,
+                              size: 20,
+                              color: color,
+                            );
+                          },
+                        ),
+
+                        hintText: "Lagi pengen makan apa?",
                         hintStyle: GoogleFonts.poppins(
                           color: Colors.grey.withOpacity(0.7),
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
-                        border: InputBorder.none,
+
+                        // 🔥 tombol clear
                         suffixIcon: IconButton(
-                          icon: Icon(Icons.close),
+                          icon: const Icon(Icons.close),
                           onPressed: () {
                             setState(() {
                               _isSearchMode = false;
                               _filteredFoods = _currentTenant!.tenantFoods!;
                               _searchController.clear();
+                              FocusScope.of(context).unfocus();
                             });
                           },
                         ),
@@ -289,14 +342,14 @@ class _MenuTenantState extends State<MenuTenant> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
+                        color: AppColors.whiteColor,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(12),
                       child: HugeIcon(
                         icon: HugeIcons.strokeRoundedSearch01,
-                        color: Colors.white,
-                        size: 24,
+                        color: AppColors.whiteColor900,
+                        size: 20,
                       ),
                     ),
                   ),
@@ -383,7 +436,7 @@ class _MenuTenantState extends State<MenuTenant> {
         Row(
           children: [
             HugeIcon(
-              icon: HugeIcons.strokeRoundedTimeSetting03,
+              icon: Iconsax.clock,
               color: tenant.isOnline == true
                   ? tenant.busyUntil != null
                       ? AppColors.warningColor
@@ -443,9 +496,7 @@ class _MenuTenantState extends State<MenuTenant> {
         ),
         Row(
           children: [
-            HugeIcon(
-                icon: HugeIcons.strokeRoundedShoppingBasket01,
-                color: AppColors.secondaryColor),
+            HugeIcon(icon: Iconsax.bag_tick, color: AppColors.secondaryColor),
             const SizedBox(width: 4),
             Text(
               tenant.transaksiBerhasil.toString(),
@@ -529,6 +580,8 @@ class _MenuTenantState extends State<MenuTenant> {
               width: MediaQuery.of(context).size.width - 40,
               child: FloatingActionButton(
                 onPressed: () async {
+                  print(
+                      "total item: ${cartProvider.currentTenant!.namaTenant}");
                   bool isThereUnavailableMenu =
                       await cartProvider.removeUnavailableMenusFromCart(
                           cartProvider.currentTenant!.id.toString(),
@@ -564,12 +617,12 @@ class _MenuTenantState extends State<MenuTenant> {
                     return;
                   }
                   showBottomSheetCart(context, tenantProvider.tenants!,
-                      cartProvider.tenantCarts);
+                      cartProvider.tenantCarts, false);
                   // Navigator.push(context, _buildCartPageRoute());
                 },
                 backgroundColor: AppColors.primaryColor,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: _buildCartButtonContent(cartProvider),
               ),
@@ -584,9 +637,7 @@ class _MenuTenantState extends State<MenuTenant> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const HugeIcon(
-              icon: HugeIcons.strokeRoundedShoppingCartAdd02,
-              color: Colors.white),
+          const HugeIcon(icon: Iconsax.bag, color: Colors.white),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

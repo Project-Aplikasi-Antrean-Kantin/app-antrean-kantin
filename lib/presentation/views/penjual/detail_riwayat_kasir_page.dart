@@ -16,6 +16,7 @@ import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
@@ -99,6 +100,17 @@ class _DetailRiwayatKasirPageState extends State<DetailRiwayatKasirPage> {
                   }
                   return;
                 }
+                if (transaction.status == "pending") {
+                  Navigator.push(
+                    context,
+                    CustomPageBuilder(
+                      page: CheckoutQris(
+                        cashierTransaction: widget.transaction,
+                      ),
+                    ),
+                  );
+                  return;
+                }
 
                 setState(() => isLoading = true);
                 try {
@@ -132,7 +144,9 @@ class _DetailRiwayatKasirPageState extends State<DetailRiwayatKasirPage> {
                               fontWeight: FontWeight.w600,
                             ))
                         : Text(
-                            'Selesai',
+                            transaction.status == 'pending'
+                                ? 'Bayar'
+                                : 'Selesai',
                             style: GoogleFonts.poppins(
                               color: AppColors.whiteColor,
                               fontSize: 14,
@@ -145,10 +159,13 @@ class _DetailRiwayatKasirPageState extends State<DetailRiwayatKasirPage> {
           backgroundColor: AppColors.backgroundColor,
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
-            leading: HugeIcon(
-              color: AppColors.whiteColor900,
-              icon: HugeIcons.strokeRoundedArrowLeft01,
-              size: 32,
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: HugeIcon(
+                color: AppColors.whiteColor900,
+                icon: HugeIcons.strokeRoundedArrowLeft01,
+                size: 32,
+              ),
             ),
             backgroundColor: AppColors.backgroundColor,
             centerTitle: true,
@@ -200,71 +217,71 @@ class _DetailRiwayatKasirPageState extends State<DetailRiwayatKasirPage> {
                               ],
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () async {
-                              final hasConnection = await hasInternetAccess();
-                              final cartProvider = Provider.of<CartProvider>(
-                                  context,
-                                  listen: false);
-                              final cartMenuList = transaction.toCartMenuList();
-                              if (!hasConnection) {
-                                Fluttertoast.showToast(
-                                    msg: 'Tidak ada koneksi internet');
-                                showNoConnectionBottomSheet(
-                                    context: context, onRetry: () {});
-                                return;
-                              }
+                          // GestureDetector(
+                          //   onTap: () async {
+                          //     final hasConnection = await hasInternetAccess();
+                          //     final cartProvider = Provider.of<CartProvider>(
+                          //         context,
+                          //         listen: false);
+                          //     final cartMenuList = transaction.toCartMenuList();
+                          //     if (!hasConnection) {
+                          //       Fluttertoast.showToast(
+                          //           msg: 'Tidak ada koneksi internet');
+                          //       showNoConnectionBottomSheet(
+                          //           context: context, onRetry: () {});
+                          //       return;
+                          //     }
 
-                              if (transaction.listTransaksiDetail.isEmpty ||
-                                  transaction.listTransaksiDetail[0].menus
-                                          ?.tenants ==
-                                      null) {
-                                return;
-                              }
+                          //     if (transaction.listTransaksiDetail.isEmpty ||
+                          //         transaction.listTransaksiDetail[0].menus
+                          //                 ?.tenants ==
+                          //             null) {
+                          //       return;
+                          //     }
 
-                              cartProvider.setCurrentTenant(
-                                transaction
-                                    .listTransaksiDetail[0].menus!.tenants!,
-                                cartMenuList,
-                              );
+                          //     cartProvider.setCurrentTenant(
+                          //       transaction
+                          //           .listTransaksiDetail[0].menus!.tenants!,
+                          //       cartMenuList,
+                          //     );
 
-                              Navigator.push(
-                                context,
-                                CustomPageBuilder(
-                                  page: MenuTenant(
-                                    url:
-                                        '${MasbroConstants.url}/tenants/${transaction.listTransaksiDetail[0].menus!.tenants!.id}',
-                                    cart: cartMenuList,
-                                    cashierTransactionId:
-                                        transaction.id.toString(),
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: AppColors.infoColor,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Iconsax.message_edit,
-                                      size: 16, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Edit',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
+                          //     Navigator.push(
+                          //       context,
+                          //       CustomPageBuilder(
+                          //         page: MenuTenant(
+                          //           url:
+                          //               '${MasbroConstants.url}/tenants/${transaction.listTransaksiDetail[0].menus!.tenants!.id}',
+                          //           cart: cartMenuList,
+                          //           cashierTransactionId:
+                          //               transaction.id.toString(),
+                          //         ),
+                          //       ),
+                          //     );
+                          //   },
+                          //   child: Container(
+                          //     padding: const EdgeInsets.symmetric(
+                          //         horizontal: 16, vertical: 8),
+                          //     decoration: BoxDecoration(
+                          //       color: AppColors.infoColor,
+                          //       borderRadius: BorderRadius.circular(16),
+                          //     ),
+                          //     child: Row(
+                          //       children: [
+                          //         const Icon(Iconsax.message_edit,
+                          //             size: 16, color: Colors.white),
+                          //         const SizedBox(width: 4),
+                          //         Text(
+                          //           'Edit',
+                          //           style: GoogleFonts.poppins(
+                          //             color: Colors.white,
+                          //             fontSize: 12,
+                          //             fontWeight: FontWeight.w600,
+                          //           ),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // )
                         ],
                       ),
                       Column(

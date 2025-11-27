@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,6 +20,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
@@ -82,11 +84,11 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
                             builder: (context, cartProvider, _) {
                           final activeCart = cartProvider.cart;
                           if (activeCart.isEmpty && Navigator.canPop(context)) {
-                            Future.microtask(() {
-                              if (Navigator.canPop(context)) {
-                                Navigator.pop(context);
-                              }
-                            });
+                            // Future.microtask(() {
+                            //   if (Navigator.canPop(context)) {
+                            //     Navigator.pop(context);
+                            //   }
+                            // });
                             return const SizedBox(); // return widget kosong biar nggak error
                           }
 
@@ -278,6 +280,10 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
                                                 //   ),
                                                 // ),
                                                 child: TextFormField(
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter
+                                                        .digitsOnly,
+                                                  ],
                                                   key: ValueKey(
                                                       activeCart[i].count),
                                                   initialValue: activeCart[i]
@@ -449,13 +455,17 @@ Widget buildBottomSheetCartList(
                   kasirProvider.addCashierTransaction(result);
                   if (Navigator.canPop(context) && fromCashier == true) {
                     Navigator.pop(context);
+                    Navigator.pushReplacement(
+                        context,
+                        CustomPageBuilder(
+                            page: CheckoutQris(
+                          cashierTransaction: result,
+                        )));
                   }
                 }
               } catch (e) {
                 Fluttertoast.showToast(msg: e.toString());
-              } finally {
-                cartProvider.clearCartOnly();
-              }
+              } finally {}
               Fluttertoast.showToast(msg: "Transaksi berhasil dicatat");
             },
             child: Text(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -49,14 +51,15 @@ class KatalogMenuTile extends StatelessWidget {
               //   fit: BoxFit.cover,
               // ),
             ),
-            height: 104,
-            width: 104,
+            height: 96,
+            width: 96,
             margin: const EdgeInsets.only(right: 15),
             child: item.isReady == 1
                 ? ClipRRect(
                     borderRadius: BorderRadiusGeometry.circular(10),
                     child: ImageByUrl(
-                        key: ValueKey(item.id),
+                        key: ValueKey(
+                            item.id.toString() + item.gambar.toString()),
                         url: item.gambar,
                         fit: BoxFit.cover))
                 : ColorFiltered(
@@ -148,25 +151,21 @@ class KatalogMenuTile extends StatelessWidget {
                       },
                       child: Container(
                         padding:
-                            EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             color: AppColors.infoColor),
                         child: Row(
+                          spacing: 8,
                           mainAxisSize: MainAxisSize.min,
-                          spacing: 4,
                           children: [
-                            HugeIcon(
-                                icon: HugeIcons.strokeRoundedEdit02,
-                                size: 14,
-                                color: AppColors.whiteColor100),
-                            Text(
-                              'Edit',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.whiteColor100,
-                              ),
-                            ),
+                            Icon(Iconsax.message_edit,
+                                size: 16, color: AppColors.whiteColor),
+                            Text("Edit",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: AppColors.whiteColor,
+                                )),
                           ],
                         ),
                       ),
@@ -211,7 +210,7 @@ class KatalogMenuTile extends StatelessWidget {
                         },
                         child: Container(
                           padding:
-                              EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                              EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               color: AppColors.errorColor),
@@ -220,8 +219,8 @@ class KatalogMenuTile extends StatelessWidget {
                             spacing: 4,
                             children: [
                               HugeIcon(
-                                  icon: HugeIcons.strokeRoundedDelete03,
-                                  size: 14,
+                                  icon: Iconsax.trash,
+                                  size: 16,
                                   color: AppColors.warningColor100),
                               Text(
                                 'Hapus',

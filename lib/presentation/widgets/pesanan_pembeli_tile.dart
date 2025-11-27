@@ -55,6 +55,7 @@ class PesananItemWidget extends StatelessWidget {
                     capitalizeFirstLetter(pesanan.namaMenu),
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     softWrap: isTenant ? true : false,
+                    overflow: TextOverflow.ellipsis,
                     maxLines: isTenant ? 99 : 1,
                   ),
                   if (isTenant)
@@ -196,12 +197,15 @@ class PesananItemWidget extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${pesanan.namaMenu}',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: AppColors.blackColor),
+                        Flexible(
+                          child: Text(
+                            '${pesanan.namaMenu}',
+                            softWrap: true,
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: AppColors.blackColor),
+                          ),
                         ),
                         Text(FormatCurrency.intToStringCurrency(pesanan.harga),
                             style: GoogleFonts.poppins(
@@ -220,6 +224,7 @@ class PesananItemWidget extends StatelessWidget {
                           children: [
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               spacing: 8,
                               children: [
                                 ClipRRect(
@@ -233,8 +238,7 @@ class PesananItemWidget extends StatelessWidget {
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width / 2,
+                                Flexible(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -268,8 +272,7 @@ class PesananItemWidget extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                Expanded(
-                                    child: Column(
+                                Column(
                                   spacing: 8,
                                   children: [
                                     Text(
@@ -301,7 +304,7 @@ class PesananItemWidget extends StatelessWidget {
                                       ),
                                     ),
                                   ],
-                                ))
+                                )
                               ],
                             ),
                             SizedBox(height: 60)

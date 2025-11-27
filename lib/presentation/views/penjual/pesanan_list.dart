@@ -59,7 +59,7 @@ class _PesananListState extends State<PesananList> {
       color: AppColors.primaryColor,
       child: Container(
         margin: EdgeInsets.only(top: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           spacing: 16,
           children: [

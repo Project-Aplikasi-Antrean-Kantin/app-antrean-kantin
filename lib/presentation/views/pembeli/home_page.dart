@@ -34,7 +34,9 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/kode_va_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/koin_info_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
+import 'package:testgetdata/presentation/views/penjual/pesanan_tenant.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/widgets/card_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
@@ -346,28 +348,73 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: Scaffold(
           floatingActionButton: Consumer<CartProvider>(
             builder: (context, cartProvider, child) {
-              return InkWell(
-                onTap: () {
-                  if (fullTenant.isNotEmpty) {
-                    showBottomSheetCart(
-                        context, fullTenant, cartProvider.tenantCarts);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Data tenant belum dimuat')),
-                    );
-                  }
-                },
-                child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.circular(20),
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // == FAB TAMBAHAN UNTUK ROLE TENANT ==
+
+                  // == FAB KERANJANG YANG SUDAH ADA ==
+                  InkWell(
+                    onTap: () {
+                      if (fullTenant.isNotEmpty) {
+                        showBottomSheetCart(
+                          context,
+                          fullTenant,
+                          cartProvider.tenantCarts,
+                          false,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Data tenant belum dimuat'),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: HugeIcon(
+                        icon: Iconsax.bag,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                     ),
-                    child: HugeIcon(
-                      icon: HugeIcons.strokeRoundedShoppingBasket03,
-                      color: Colors.white,
-                      size: 28,
-                    )),
+                  ),
+                  if (user.role.contains('tenant'))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            CustomPageBuilder(
+                              page: NavbarHome(
+                                pageIndex: user.menu.indexWhere(
+                                    (element) => element.url == '/pesanan'),
+                              ),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: HugeIcon(
+                            icon: Iconsax.receipt_add, // iconsax receipt add
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),

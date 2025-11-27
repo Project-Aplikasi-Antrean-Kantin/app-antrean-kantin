@@ -41,6 +41,32 @@ class TransactionRemoteDataSource {
     }
   }
 
+  Future<CashierTransaction> getCashierTransactionById(
+      String auth, int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${MasbroConstants.url}/tenant/kasir/riwayat/$id'),
+        headers: {
+          'Authorization': "Bearer $auth",
+          'Accept': 'application/json',
+        },
+      );
+
+      final jsonBody = jsonDecode(response.body);
+      print("data cashier ${jsonBody['data']}");
+
+      if (response.statusCode == 200) {
+        return CashierTransaction.fromJson(jsonBody['data']);
+      } else if (response.statusCode == 400)
+        throw jsonBody['message'];
+      else {
+        throw '${jsonBody['message']}';
+      }
+    } catch (e) {
+      throw (e.toString());
+    }
+  }
+
   Future<bool> updateStatusCashierTransaction(
       String auth, String newStatus, String id) async {
     try {
@@ -57,11 +83,10 @@ class TransactionRemoteDataSource {
       if (response.statusCode == 200) {
         return true;
       } else {
-        return false;
+        throw '${jsonDecode(response.body)['message']}';
       }
     } catch (e) {
-      print('An error occurred: $e');
-      return false;
+      throw ('$e');
     }
   }
 
@@ -111,9 +136,9 @@ class TransactionRemoteDataSource {
       if (response.statusCode == 200) {
         return CashierTransaction.fromJson(jsonBody['data']);
       } else if (response.statusCode == 400)
-        throw jsonBody['message'][0];
+        throw jsonBody['message'];
       else {
-        throw '${jsonBody['message'][0]}';
+        throw '${jsonBody['message']}';
       }
     } catch (e) {
       print('An error occurred: $e');
@@ -134,7 +159,7 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-
+      print("data cashier ${jsonBody['data']}");
       if (response.statusCode == 200) {
         return (jsonBody['data'] as List)
             .map((e) => CashierTransaction.fromJson(e))

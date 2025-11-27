@@ -12,6 +12,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_kasir.dart';
@@ -21,33 +22,39 @@ import 'package:testgetdata/presentation/views/penjual/pesanan_list.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 
 class PesananTenant extends StatefulWidget {
-  const PesananTenant({Key? key}) : super(key: key);
+  final int? selectedActivity;
+  const PesananTenant({Key? key, this.selectedActivity}) : super(key: key);
 
   @override
   State<PesananTenant> createState() => _PesananTenantState();
 }
 
 class _PesananTenantState extends State<PesananTenant>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   DateTime? _lastFetch;
   final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   StreamSubscription<RemoteMessage>? _onMessageTimeOutSubscription;
+  StreamSubscription<RemoteMessage>? _onCashierSuccess;
   // StreamSubscription<List<Printer>>? _devicesStreamSubscription;
-  int selectedActivity = 0;
+  late int selectedActivity;
   late PageController _pageController;
   late TabController _tabController;
+  late TabController _tabControllerCashier;
 
   @override
   void initState() {
     super.initState();
+    selectedActivity = widget.selectedActivity ?? 0;
     _pageController = PageController(initialPage: selectedActivity);
     _tabController =
         TabController(length: OrderStatus.values.length, vsync: this);
+    _tabControllerCashier = TabController(length: 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+      final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
       // final printerProvider =
       //     Provider.of<PrinterProvider>(context, listen: false);
       final user = authProvider.user;
@@ -59,12 +66,37 @@ class _PesananTenantState extends State<PesananTenant>
           orderProvider.fetchOrders(context, user.token, status),
       ]);
 
+      kasirProvider.getListCashierTransaction(user.token);
+
       // Listen for foreground notifications
       _onMessageSubscription =
           FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         final title = message.data['title']?.toString().toLowerCase();
         if (title == 'pesanan masuk') {
           _handleNewOrderNotification(orderProvider, user);
+        }
+      });
+
+      _onCashierSuccess =
+          FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        final title = message.data['title']?.toString().toLowerCase();
+        final body = message.data['body']?.toString().toLowerCase();
+        final cashierId = body?.split(' ')[1].trim();
+
+        if (title!.contains('kasir') && cashierId != null) {
+          final cleanId = int.parse(
+            cashierId.replaceAll(RegExp(r'[^0-9]'), ''),
+          );
+
+          // Ambil data transaksi dari provider
+          final data = await kasirProvider.getCashierTransactionById(
+            authProvider.user.token,
+            cleanId,
+          );
+
+          if (data != null && context.mounted) {
+            showPaymentSuccessDialog(context, data.total);
+          }
         }
       });
 
@@ -75,6 +107,92 @@ class _PesananTenantState extends State<PesananTenant>
           _handleNewOrderNotification(orderProvider, user);
         }
       });
+    });
+  }
+
+  void showPaymentSuccessDialog(BuildContext context, int total) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: "Success",
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation1, animation2) {
+        return const SizedBox.shrink();
+      },
+      transitionBuilder: (context, anim, _, __) {
+        return Transform.scale(
+          scale: anim.value,
+          child: Opacity(
+            opacity: anim.value,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                margin: const EdgeInsets.symmetric(horizontal: 40),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Icon sukses (tanpa package)
+                    Container(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: Colors.green,
+                        size: 50,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      "Pembayaran Berhasil!",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      "Sebesar Rp $total",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    // Auto close setelah 2 detik
+    Future.delayed(const Duration(seconds: 2), () {
+      if (context.mounted) Navigator.pop(context);
     });
   }
 
@@ -97,6 +215,7 @@ class _PesananTenantState extends State<PesananTenant>
     _onMessageTimeOutSubscription?.cancel();
     _onMessageSubscription?.cancel();
     _tabController.dispose();
+    _onCashierSuccess?.cancel();
 
     // _devicesStreamSubscription?.cancel();
     printer.stopScan();
@@ -184,11 +303,6 @@ class _PesananTenantState extends State<PesananTenant>
                       child: GestureDetector(
                         onTap: () {
                           setState(() => selectedActivity = 1);
-                          // WidgetsBinding.instance.addPostFrameCallback((_) {
-                          //   final tabController =
-                          //       DefaultTabController.of(context);
-                          //   tabController.animateTo(0);
-                          // });
                           _pageController.animateToPage(
                             1,
                             duration: const Duration(milliseconds: 300),
@@ -261,36 +375,26 @@ class _PesananTenantState extends State<PesananTenant>
                             ))
                         .toList(),
                   )
-                : DefaultTabController(
-                    initialIndex: 0, // Start at "Masuk" tab
-                    length: 1,
-                    child: TabBar(
-                      overlayColor: WidgetStateProperty.all(Colors.transparent),
-                      indicatorColor: AppColors.primaryColor,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicator: UnderlineTabIndicator(
-                        borderSide: BorderSide(
-                          color: AppColors.primaryColor,
-                          width: 2,
-                        ),
+                : TabBar(
+                    controller: _tabControllerCashier,
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                    indicatorColor: AppColors.primaryColor,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: UnderlineTabIndicator(
+                      borderSide: BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 2,
                       ),
-                      labelColor: AppColors.primaryColor,
-                      labelStyle: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: medium,
-                      ),
-                      tabs: [
-                        Tab(
-                          child: Text(
-                            'Diproses',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        )
-                      ],
                     ),
+                    labelColor: AppColors.primaryColor,
+                    labelStyle: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: medium,
+                    ),
+                    tabs: [
+                      Tab(child: Text('Pending')),
+                      Tab(child: Text('Diproses')),
+                    ],
                   ),
           ),
         ),
@@ -487,7 +591,33 @@ class _PesananTenantState extends State<PesananTenant>
               );
             }).toList(),
           ),
-          PesananKasir()
+          Consumer<KasirProvider>(builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final listDiproses = provider.cashierTransactions
+                .where((t) => t.status == "pesanan_diproses")
+                .toList();
+
+            final listPending = provider.cashierTransactions
+                .where((t) => t.status == "pending")
+                .toList();
+
+            return TabBarView(
+              controller: _tabControllerCashier,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                /// ---------------- TAB DIPROSES ----------------
+                PesananKasir(data: listPending),
+                PesananKasir(
+                  data: listDiproses,
+                ),
+
+                /// ---------------- TAB PENDING ----------------
+              ],
+            );
+          })
         ],
       ),
     );

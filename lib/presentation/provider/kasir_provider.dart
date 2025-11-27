@@ -31,6 +31,21 @@ class KasirProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<CashierTransaction> getCashierTransactionById(
+      String token, int id) async {
+    try {
+      final result = await TransactionRemoteDataSource()
+          .getCashierTransactionById(token, id);
+      updateCashierTransactionList(result);
+      print("result bang ini : $result");
+      return result;
+    } catch (e) {
+      throw (e.toString());
+    } finally {
+      notifyListeners();
+    }
+  }
+
   void updateCashierTransactionState(CashierTransaction updatedTransaction) {
     int index = cashierTransactions
         .indexWhere((element) => element.id == updatedTransaction.id);
@@ -80,6 +95,14 @@ class KasirProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateCashierTransactionList(CashierTransaction cashierTransaction) {
+    int index = cashierTransactions
+        .indexWhere((element) => element.id == cashierTransaction.id);
+    if (index == -1) return;
+    cashierTransactions[index] = cashierTransaction;
+    notifyListeners();
+  }
+
   Future<void> updateStatusCashierTransaction(
       String auth, String newStatus, int id) async {
     try {
@@ -98,7 +121,7 @@ class KasirProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print(e);
+      throw (e.toString());
     }
   }
 

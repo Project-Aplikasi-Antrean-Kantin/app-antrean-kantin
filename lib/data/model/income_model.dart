@@ -46,8 +46,11 @@ class Income {
     transaksiList.sort((a, b) => a.tanggal.compareTo(b.tanggal));
 
     if (selectedSort == "Minggu") {
-      // Ambil tanggal terakhir (atau bisa pertama, tergantung kebutuhan)
-      final tanggal = transaksiList.last.tanggal;
+      DateTime tanggal;
+
+      // Parse tanggal dari label (format: dd-MM-yyyy)
+      tanggal = DateFormat("dd-MM-yyyy").parse(transaksiList.first.label);
+
       return DateFormat("dd MMM yyyy", "id_ID").format(tanggal);
     }
 

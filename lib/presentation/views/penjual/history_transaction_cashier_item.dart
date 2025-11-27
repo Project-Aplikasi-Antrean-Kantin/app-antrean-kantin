@@ -13,6 +13,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/penjual/detail_riwayat_kasir_page.dart';
@@ -192,65 +193,46 @@ class _HistoryTransactionCashierItemState
 
             // ---------- Action Buttons ----------
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                GestureDetector(
-                  onTap: () async {
-                    final hasConnection = await hasInternetAccess();
-                    if (!hasConnection) {
-                      Fluttertoast.showToast(msg: 'Tidak ada koneksi internet');
-                      showNoConnectionBottomSheet(
-                          context: context, onRetry: () {});
-                      return;
-                    }
-
-                    if (transaction.listTransaksiDetail.isEmpty ||
-                        transaction.listTransaksiDetail[0].menus?.tenants ==
-                            null) {
-                      return;
-                    }
-
-                    cartProvider.setCurrentTenant(
-                      transaction.listTransaksiDetail[0].menus!.tenants!,
-                      cartMenuList,
-                    );
-
-                    Navigator.push(
-                      context,
-                      CustomPageBuilder(
-                        page: MenuTenant(
-                          url:
-                              '${MasbroConstants.url}/tenants/${transaction.listTransaksiDetail[0].menus!.tenants!.id}',
-                          cart: cartMenuList,
-                          cashierTransactionId: transaction.id.toString(),
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.infoColor,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Iconsax.message_edit,
-                            size: 16, color: Colors.white),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Edit',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                if (widget.transaction.status == "pending")
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        CustomPageBuilder(
+                          page: CheckoutQris(
+                            cashierTransaction: widget.transaction,
                           ),
                         ),
-                      ],
+                      );
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 3,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.infoColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Iconsax.receipt,
+                              size: 16, color: Colors.white),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Bayar',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
                 // Tombol selesai (kalau status pesanan_diproses)
                 if (transaction.status == "pesanan_diproses")

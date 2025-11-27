@@ -38,9 +38,11 @@ class Pesanan {
   final DateTime createdAt;
   int? cashbackAmount;
   int? isPriority;
+  int? totalQris;
 
   Pesanan({
     this.cashbackAmount,
+    this.totalQris,
     this.namaDriver,
     this.fotoDriver,
     this.multitenantId,
@@ -75,7 +77,7 @@ class Pesanan {
   });
   @override
   String toString() {
-    return 'PesananModel(kodePemesanan: $kodePemesanan)';
+    return 'PesananModel(kodePemesanan: $kodePemesanan, Status: $status DriverId: $driverId)';
   }
 
   static Pesanan getDummyPesanan() {
@@ -164,6 +166,7 @@ class Pesanan {
         userId: json["user_id"],
         status: json["status"],
         catatan: json["catatan"],
+        totalQris: json["grand_total"],
         kodePemesanan: json["kode_pemesanan"],
         ruanganId: json["ruangan_id"],
         total: json["total"],
@@ -194,6 +197,76 @@ class Pesanan {
         createdAt: DateTime.parse(json["updated_at"]).toLocal(),
         // ruangan: Ruangan.fromJson(json["ruangan"]),
       );
+
+  Pesanan copyWith({
+    int? id,
+    int? userId,
+    String? status,
+    String? namaDriver,
+    String? fotoDriver,
+    String? buktiPengantaran,
+    int? multitenantId,
+    String? catatan,
+    String? kodePemesanan,
+    int? ruanganId,
+    int? total,
+    int? ongkosKirim,
+    int? biayaLayanan,
+    int? isAntar,
+    String? metodePembayaran,
+    int? driverId,
+    String? orderId,
+    int? subTotal,
+    String? gedung,
+    String? namaRuangan,
+    int? biayaAdmin,
+    List<ListTransaksiDetail>? listTransaksiDetail,
+    Ruangan? ruangan,
+    String? namaPembeli,
+    String? phone,
+    String? catatanPenolakan,
+    String? catatanLokasi,
+    String? urlQris,
+    DateTime? expiredQris,
+    DateTime? createdAt,
+    int? cashbackAmount,
+    int? isPriority,
+  }) {
+    return Pesanan(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      status: status ?? this.status,
+      namaDriver: namaDriver ?? this.namaDriver,
+      fotoDriver: fotoDriver ?? this.fotoDriver,
+      buktiPengantaran: buktiPengantaran ?? this.buktiPengantaran,
+      multitenantId: multitenantId ?? this.multitenantId,
+      catatan: catatan ?? this.catatan,
+      kodePemesanan: kodePemesanan ?? this.kodePemesanan,
+      ruanganId: ruanganId ?? this.ruanganId,
+      total: total ?? this.total,
+      ongkosKirim: ongkosKirim ?? this.ongkosKirim,
+      biayaLayanan: biayaLayanan ?? this.biayaLayanan,
+      isAntar: isAntar ?? this.isAntar,
+      metodePembayaran: metodePembayaran ?? this.metodePembayaran,
+      driverId: driverId ?? this.driverId,
+      orderId: orderId ?? this.orderId,
+      subTotal: subTotal ?? this.subTotal,
+      gedung: gedung ?? this.gedung,
+      namaRuangan: namaRuangan ?? this.namaRuangan,
+      biayaAdmin: biayaAdmin ?? this.biayaAdmin,
+      listTransaksiDetail: listTransaksiDetail ?? this.listTransaksiDetail,
+      ruangan: ruangan ?? this.ruangan,
+      namaPembeli: namaPembeli ?? this.namaPembeli,
+      phone: phone ?? this.phone,
+      catatanPenolakan: catatanPenolakan ?? this.catatanPenolakan,
+      catatanLokasi: catatanLokasi ?? this.catatanLokasi,
+      urlQris: urlQris ?? this.urlQris,
+      expiredQris: expiredQris ?? this.expiredQris,
+      createdAt: createdAt ?? this.createdAt,
+      cashbackAmount: cashbackAmount ?? this.cashbackAmount,
+      isPriority: isPriority ?? this.isPriority,
+    );
+  }
 }
 
 extension PesananToCartExtension on Pesanan {

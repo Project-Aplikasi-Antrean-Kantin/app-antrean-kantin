@@ -18,7 +18,6 @@ class RiwayatPageAsRole extends StatefulWidget {
 
 class _RiwayatPageAsRoleState extends State<RiwayatPageAsRole>
     with TickerProviderStateMixin {
-  late TabController _tabController;
   late PageController _pageController;
   int selectedActivity = 0;
 
@@ -31,7 +30,6 @@ class _RiwayatPageAsRoleState extends State<RiwayatPageAsRole>
   @override
   void dispose() {
     _pageController.dispose();
-    _tabController.dispose();
     super.dispose();
   }
 

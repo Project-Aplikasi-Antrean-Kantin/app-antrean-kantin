@@ -70,7 +70,7 @@ class _DetailVoucherPageState extends State<DetailVoucherPage> {
                       textColor: Colors.white);
                 } else if (isThereVoucher &&
                     cartProvider.selectedVoucher?.id != voucher?.id) {
-                  if (cartProvider.totalPrice <
+                  if (cartProvider.selectedTenantDeliveryCost <
                       voucher!.cashback.minimalOrder) {
                     Fluttertoast.showToast(
                         msg:

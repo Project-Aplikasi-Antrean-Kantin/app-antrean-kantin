@@ -25,7 +25,13 @@ class IncomeTransaksi {
       harga: json['harga'],
       pendapatanBersih: json['pendapatan_bersih'],
       tanggal: formatter.parse(json['tanggal']), // parsing custom format
-      label: json['label'],
+      label: json["label_tanggal"] ?? json['label'],
     );
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'label: $label, harga: $harga, pendapatanBersih: $pendapatanBersih, tanggal: $tanggal';
   }
 }

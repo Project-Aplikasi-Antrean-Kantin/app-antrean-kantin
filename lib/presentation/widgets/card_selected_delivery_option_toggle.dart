@@ -65,7 +65,17 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
                 ),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => cartProvider.setDeliveryOption(0),
+                    onPressed: () {
+                      if (cartProvider.selectedCartTenant.length >= 2) {
+                        Fluttertoast.showToast(
+                            backgroundColor: AppColors.warningColor,
+                            textColor: Colors.white,
+                            msg:
+                                "Multitenant hanya mendukung layanan pesan antar");
+                        return;
+                      }
+                      cartProvider.setDeliveryOption(0);
+                    },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: AppColors.primaryColor),
                       padding: EdgeInsets.all(16),

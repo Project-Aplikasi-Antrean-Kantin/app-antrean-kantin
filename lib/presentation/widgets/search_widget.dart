@@ -1,179 +1,3 @@
-// import 'package:flutter/cupertino.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-
-// class SearchWidget extends StatelessWidget {
-//   final ValueChanged<String> onChanged;
-//   final String tittle;
-//   final double paddingHorizontal;
-//   TextEditingController? controller; // Tambahkan TextEditingController
-//   FocusNode? focusNode; // Tambahkan FocusNode
-
-//   SearchWidget({
-//     Key? key,
-//     required this.onChanged,
-//     required this.tittle,
-//     required this.paddingHorizontal,
-//     this.controller, // Tambahkan TextEditingController
-//     this.focusNode, // Tambahkan FocusNode
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
-//       child: TextFormField(
-//         cursorColor: Colors.grey,
-//         textAlign: TextAlign.start,
-//         textAlignVertical: TextAlignVertical.center,
-//         onChanged: onChanged,
-//         focusNode: focusNode, // Gunakan FocusNode
-//         controller: controller, // Gunakan TextEditingController
-//         decoration: InputDecoration(
-//           contentPadding: const EdgeInsets.symmetric(
-//             vertical: 10,
-//           ),
-//           prefixIcon: const Icon(
-//             Icons.search,
-//             color: Colors.grey,
-//           ),
-//           hintText: tittle,
-//           hintStyle: GoogleFonts.poppins(
-//             color: Colors.grey,
-//           ),
-//           focusedBorder: OutlineInputBorder(
-//             borderSide: const BorderSide(
-//               color: Color.fromARGB(255, 75, 75, 75),
-//               width: 1.5,
-//             ),
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//           enabledBorder: OutlineInputBorder(
-//             borderSide: const BorderSide(
-//               color: Colors.grey,
-//               width: 1,
-//             ),
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// import 'package:flutter/cupertino.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:testgetdata/views/theme.dart';
-
-// class SearchWidget extends StatefulWidget {
-//   final ValueChanged<String> onChanged;
-//   final String tittle;
-//   final double paddingHorizontal;
-//   final double paddingVertical;
-//   TextEditingController? controller;
-//   FocusNode? focusNode;
-
-//   SearchWidget({
-//     Key? key,
-//     required this.onChanged,
-//     required this.tittle,
-//     required this.paddingHorizontal,
-//     required this.paddingVertical,
-//     this.controller,
-//     this.focusNode,
-//   }) : super(key: key);
-
-//   @override
-//   _SearchWidgetState createState() => _SearchWidgetState();
-// }
-
-// class _SearchWidgetState extends State<SearchWidget> {
-//   late FocusNode _focusNode;
-//   late ValueNotifier<Color> _iconColorNotifier;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _focusNode = widget.focusNode ?? FocusNode();
-//     _iconColorNotifier = ValueNotifier<Color>(Colors.grey);
-
-//     _focusNode.addListener(() {
-//       if (_focusNode.hasFocus) {
-//         _iconColorNotifier.value = primaryColor;
-//       } else {
-//         _iconColorNotifier.value = Colors.grey;
-//       }
-//     });
-//   }
-
-//   @override
-//   void dispose() {
-//     _focusNode.dispose();
-//     _iconColorNotifier.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(
-//         horizontal: widget.paddingHorizontal,
-//         vertical: widget.paddingVertical,
-//       ),
-//       child: TextFormField(
-//         style: GoogleFonts.poppins(
-//           color: textColorBlack,
-//           fontSize: 15,
-//         ),
-//         cursorColor: Colors.grey,
-//         textAlign: TextAlign.start,
-//         textAlignVertical: TextAlignVertical.center,
-//         onChanged: widget.onChanged,
-//         focusNode: _focusNode,
-//         controller: widget.controller,
-//         decoration: InputDecoration(
-//           contentPadding: const EdgeInsets.symmetric(vertical: 10),
-//           prefixIcon: ValueListenableBuilder<Color>(
-//             valueListenable: _iconColorNotifier,
-//             builder: (context, color, child) {
-//               return Icon(
-//                 Icons.search,
-//                 color: color,
-//               );
-//             },
-//           ),
-//           hintText: widget.tittle,
-//           hintStyle: GoogleFonts.poppins(
-//             color: Colors.grey,
-//             fontSize: 14,
-//           ),
-//           filled: true,
-//           fillColor: Colors.white,
-//           focusedBorder: OutlineInputBorder(
-//             borderSide: const BorderSide(
-//               color: Colors.grey,
-//               width: 0.2,
-//             ),
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//           enabledBorder: OutlineInputBorder(
-//             // borderSide: BorderSide.none,
-//             borderSide: const BorderSide(
-//               color: Colors.grey,
-//               width: 0.2,
-//             ),
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//           border: OutlineInputBorder(
-//             borderSide: BorderSide.none,
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -207,21 +31,29 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   late FocusNode _focusNode;
+  late TextEditingController _controller;
   late ValueNotifier<Color> _iconColorNotifier;
 
   @override
   void initState() {
     super.initState();
+
     _focusNode = widget.focusNode ?? FocusNode();
+    _controller = widget.controller ?? TextEditingController();
     _iconColorNotifier = ValueNotifier<Color>(Colors.grey);
 
+    // Listener untuk warna icon
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         _iconColorNotifier.value = AppColors.primaryColor;
       } else {
         _iconColorNotifier.value = Colors.grey;
       }
+      setState(() {}); // update border
     });
+
+    // Listener untuk tombol silang
+    _controller.addListener(() => setState(() {}));
   }
 
   @override
@@ -241,33 +73,50 @@ class _SearchWidgetState extends State<SearchWidget> {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            width: 0.3,
-            color: AppColors.containerColorGrey,
+            width: 1,
+            color: _focusNode.hasFocus
+                ? AppColors.primaryColor
+                : AppColors.backgroundColor,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: TextFormField(
+          controller: _controller,
+          focusNode: _focusNode,
           style: GoogleFonts.poppins(
             color: AppColors.textColorBlack,
             fontSize: 12,
           ),
           cursorColor: Colors.grey,
-          textAlign: TextAlign.start,
-          textAlignVertical: TextAlignVertical.center,
           onChanged: widget.onChanged,
-          focusNode: _focusNode,
-          controller: widget.controller,
           decoration: InputDecoration(
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+
+            // 🔍 ICON SEARCH
             prefixIcon: ValueListenableBuilder<Color>(
               valueListenable: _iconColorNotifier,
               builder: (context, color, child) {
                 return HugeIcon(
-                    icon: HugeIcons.strokeRoundedSearch01,
-                    color: AppColors.lineColorBlack);
+                    icon: HugeIcons.strokeRoundedSearch01, color: color);
               },
             ),
+
+            // ❌ TOMBOL CLEAR
+            suffixIcon: _controller.text.isNotEmpty
+                ? GestureDetector(
+                    onTap: () {
+                      _controller.clear();
+                      widget.onChanged("");
+                      setState(() {});
+                    },
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.grey,
+                    ),
+                  )
+                : null,
+
             hintText: widget.tittle,
             hintStyle: GoogleFonts.poppins(
               color: Colors.grey.withOpacity(0.7),
@@ -275,7 +124,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             ),
             filled: true,
             fillColor: Colors.white,
-            focusedBorder: OutlineInputBorder(
+            border: OutlineInputBorder(
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(20),
             ),
@@ -283,7 +132,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(20),
             ),
-            border: OutlineInputBorder(
+            focusedBorder: OutlineInputBorder(
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(20),
             ),

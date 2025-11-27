@@ -1,10 +1,13 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -84,8 +87,11 @@ void validateCart(
   }
 }
 
-Future<void> showBottomSheetCart(BuildContext context,
-    List<TenantModel> tenants, Map<String, CartPerTenant> cart) {
+Future<void> showBottomSheetCart(
+    BuildContext context,
+    List<TenantModel> tenants,
+    Map<String, CartPerTenant> cart,
+    bool fromCartPage) {
   print(cart);
   validateCart(cart, tenants, context);
 
@@ -128,13 +134,75 @@ Future<void> showBottomSheetCart(BuildContext context,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Keranjang',
-                      style: GoogleFonts.poppins(
-                        color: const Color(0xFF0152BB),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        height: 1.50,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: cartProvider.tenantCarts.length >= 1
+                            ? MainAxisAlignment.spaceBetween
+                            : MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              textAlign: cartProvider.tenantCarts.length >= 1
+                                  ? TextAlign.start
+                                  : TextAlign.center,
+                              'Keranjang',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.primaryColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                height: 1.50,
+                              ),
+                            ),
+                          ),
+                          if (cartProvider.tenantCarts.length >= 1)
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    ' ${cartProvider.selectedCartTenant.length > 0 ? cartProvider.selectedCartTenant.length : cartProvider.tenantCarts.length} Tenant ${cartProvider.selectedCartTenant.length > 0 ? 'terpilih' : ''}',
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.primaryColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.50,
+                                    ),
+                                  ),
+                                  if (cartProvider.tenantCarts.length == 5 &&
+                                      cartProvider.selectedCartTenant.length ==
+                                          0)
+                                    Text(
+                                      textAlign: TextAlign.end,
+                                      ' Keranjang mencapai batas maksimal',
+                                      softWrap: true,
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.warningColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.50,
+                                      ),
+                                    ),
+                                  if (cartProvider.selectedCartTenant.length ==
+                                      2)
+                                    Text(
+                                      textAlign: TextAlign.end,
+                                      'Multi tenant mencapai batas maksimal',
+                                      softWrap: true,
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.warningColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.50,
+                                      ),
+                                    )
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -221,28 +289,90 @@ Future<void> showBottomSheetCart(BuildContext context,
                                               child: Row(
                                                 spacing: 8,
                                                 children: [
-                                                  InkWell(
+                                                  GestureDetector(
                                                     onTap: () {
-                                                      cartProvider
-                                                          .setSelectedCartTenant(
-                                                              cartPerTenant);
+                                                      if (!fromCartPage) {
+                                                        cartProvider
+                                                            .setSelectedCartTenant(
+                                                                cartPerTenant);
+                                                      } else {
+                                                        if (cartProvider
+                                                                    .totalActiveDriver ==
+                                                                0 &&
+                                                            cartProvider
+                                                                    .selectedCartTenant
+                                                                    .indexWhere(
+                                                                        (element) =>
+                                                                            element.tenantId ==
+                                                                            tenantId) ==
+                                                                -1) {
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "Driver tidak tersedia, tidak bisa multi tenant",
+                                                              toastLength: Toast
+                                                                  .LENGTH_SHORT,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .CENTER,
+                                                              backgroundColor:
+                                                                  AppColors
+                                                                      .errorColor,
+                                                              textColor:
+                                                                  Colors.white);
+                                                        } else {
+                                                          if (tenant
+                                                              .isOnline!) {
+                                                            cartProvider
+                                                                .setSelectedCartTenant(
+                                                                    cartPerTenant);
+                                                          } else {
+                                                            Fluttertoast.showToast(
+                                                                msg:
+                                                                    "Tenant tutup",
+                                                                toastLength: Toast
+                                                                    .LENGTH_SHORT,
+                                                                gravity:
+                                                                    ToastGravity
+                                                                        .CENTER,
+                                                                backgroundColor:
+                                                                    AppColors
+                                                                        .errorColor,
+                                                                textColor:
+                                                                    Colors
+                                                                        .white);
+                                                          }
+                                                        }
+                                                      }
+                                                      if (fromCartPage &&
+                                                          cartProvider
+                                                                  .selectedCartTenant
+                                                                  .length ==
+                                                              0) {
+                                                        {
+                                                          if (Navigator.canPop(
+                                                              context))
+                                                            Navigator.pop(
+                                                                context);
+                                                        }
+                                                      }
                                                     },
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
                                                     child: Container(
                                                       width: 24,
                                                       height: 24,
                                                       decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(4),
                                                         border: Border.all(
                                                           color: cartProvider
                                                                   .selectedCartTenant
-                                                                  .any((tenant) =>
-                                                                      tenant
-                                                                          .tenantId ==
-                                                                      cartPerTenant
-                                                                          .tenantId)
+                                                                  .any(
+                                                            (tenant) =>
+                                                                tenant
+                                                                    .tenantId ==
+                                                                cartPerTenant
+                                                                    .tenantId,
+                                                          )
                                                               ? AppColors
                                                                   .primaryColor
                                                               : Colors.grey,
@@ -250,25 +380,22 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                         ),
                                                       ),
                                                       child: Center(
-                                                        child: Container(
-                                                          width: 12,
-                                                          height: 12,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            color: cartProvider
-                                                                    .selectedCartTenant
-                                                                    .any((tenant) =>
-                                                                        tenant
-                                                                            .tenantId ==
-                                                                        cartPerTenant
-                                                                            .tenantId)
-                                                                ? AppColors
-                                                                    .primaryColor
-                                                                : Colors
-                                                                    .transparent,
-                                                          ),
+                                                        child: Icon(
+                                                          Icons.check,
+                                                          size: 18,
+                                                          color: cartProvider
+                                                                  .selectedCartTenant
+                                                                  .any(
+                                                            (tenant) =>
+                                                                tenant
+                                                                    .tenantId ==
+                                                                cartPerTenant
+                                                                    .tenantId,
+                                                          )
+                                                              ? AppColors
+                                                                  .primaryColor
+                                                              : Colors
+                                                                  .transparent,
                                                         ),
                                                       ),
                                                     ),
@@ -420,15 +547,15 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                               GestureDetector(
                                                                 onTap:
                                                                     () async {
-                                                                  final internetConnection =
-                                                                      await hasInternetAccess();
-                                                                  if (!internetConnection) {
-                                                                    Fluttertoast
-                                                                        .showToast(
-                                                                            msg:
-                                                                                "Tidak ada koneksi internet");
-                                                                    return;
-                                                                  }
+                                                                  // final internetConnection =
+                                                                  //     await hasInternetAccess();
+                                                                  // if (!internetConnection) {
+                                                                  //   Fluttertoast
+                                                                  //       .showToast(
+                                                                  //           msg:
+                                                                  //               "Tidak ada koneksi internet");
+                                                                  //   return;
+                                                                  // }
                                                                   Navigator.push(
                                                                       context,
                                                                       CustomPageBuilder(
@@ -438,12 +565,42 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                                               catatan: item.catatan,
                                                                               tenant: tenant)));
                                                                 },
-                                                                child: Text(
-                                                                  'Edit',
-                                                                  style: GoogleFonts
-                                                                      .poppins(
-                                                                          color:
-                                                                              AppColors.primaryColor),
+                                                                child:
+                                                                    Container(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          8,
+                                                                      vertical:
+                                                                          4),
+                                                                  decoration: BoxDecoration(
+                                                                      color: AppColors
+                                                                          .infoColor,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8)),
+                                                                  child: Row(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    spacing: 4,
+                                                                    children: [
+                                                                      Icon(
+                                                                        Iconsax
+                                                                            .edit,
+                                                                        size:
+                                                                            16,
+                                                                        color: AppColors
+                                                                            .whiteColor,
+                                                                      ),
+                                                                      Text(
+                                                                        'Edit',
+                                                                        style: GoogleFonts.poppins(
+                                                                            color:
+                                                                                AppColors.whiteColor),
+                                                                      ),
+                                                                    ],
+                                                                  ),
                                                                 ),
                                                               )
                                                             ],
@@ -512,6 +669,10 @@ Future<void> showBottomSheetCart(BuildContext context,
                                                                 child: Center(
                                                                   child:
                                                                       TextFormField(
+                                                                    inputFormatters: [
+                                                                      FilteringTextInputFormatter
+                                                                          .digitsOnly,
+                                                                    ],
                                                                     key: ValueKey(
                                                                         item.count),
                                                                     initialValue: item
@@ -617,7 +778,8 @@ Future<void> showBottomSheetCart(BuildContext context,
                               }).toList(),
                             ),
                           ),
-                    buildBottomSheetCartList(context, tenants),
+                    if (!fromCartPage)
+                      buildBottomSheetCartList(context, tenants),
                   ],
                 ),
               );
@@ -650,12 +812,14 @@ Widget buildBottomSheetCartList(
           .fold<int>(0, (a, b) => a + b);
 
       // ambil tenant pertama yang sesuai dengan salah satu tenant di selectedCartTenant
-      final selectedTenant = tenants.firstWhereOrNull(
-        (tenant) => cartProvider.selectedCartTenant
-            .any((e) => e.tenantId == tenant.id.toString()),
-      );
+      final selectedTenants = tenants.where((tenant) {
+        return cartProvider.selectedCartTenant
+            .any((cart) => cart.tenantId == tenant.id.toString());
+      }).toList();
 
-      if (selectedTenant == null) return const SizedBox.shrink();
+      if (selectedTenants.isEmpty) return const SizedBox.shrink();
+
+      final hasClosedTenant = selectedTenants.any((t) => t.isOnline == false);
 
       return Column(
         children: [
@@ -690,12 +854,13 @@ Widget buildBottomSheetCartList(
                 GestureDetector(
                   onTap: () async {
                     final internetConnection = await hasInternetAccess();
+
                     if (!internetConnection) {
                       Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
                       return;
                     }
 
-                    if (selectedTenant.isOnline == false) {
+                    if (hasClosedTenant) {
                       Fluttertoast.showToast(
                         msg: 'Tenant Tutup',
                         backgroundColor: AppColors.errorColor,
@@ -703,9 +868,16 @@ Widget buildBottomSheetCartList(
                       );
                       return;
                     }
-
-                    // set tenant yang sedang dipilih
-                    await cartProvider.setCurrentTenant(selectedTenant, null);
+                    if (cartProvider.totalActiveDriver == 0 &&
+                        cartProvider.selectedCartTenant.length > 2) {
+                      Fluttertoast.showToast(
+                        msg:
+                            'Driver tidak tersedia, Mullti tenant hanya mendukung pesan antar',
+                        backgroundColor: AppColors.errorColor,
+                        textColor: AppColors.whiteColor,
+                      );
+                      return;
+                    }
 
                     // arahkan ke halaman CartPage tenant terkait
                     Future.delayed(const Duration(milliseconds: 300), () {
@@ -713,7 +885,7 @@ Widget buildBottomSheetCartList(
                         context,
                         CustomPageBuilder(
                           page: CartPage(
-                            tenantId: selectedTenant.id.toString(),
+                            tenantId: selectedTenants.first.id.toString(),
                           ),
                         ),
                       );
@@ -723,15 +895,13 @@ Widget buildBottomSheetCartList(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: selectedTenant.isOnline == false
+                      color: hasClosedTenant
                           ? AppColors.blackColor200
                           : AppColors.primaryColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      selectedTenant.isOnline == false
-                          ? "Tenant Tutup"
-                          : "Pesan Sekarang",
+                      hasClosedTenant ? "Tenant Tutup" : "Pesan Sekarang",
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 14,

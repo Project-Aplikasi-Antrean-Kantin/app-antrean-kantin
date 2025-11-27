@@ -11,6 +11,8 @@ class CashierTransaction {
   DateTime updatedAt;
   List<ListTransaksiDetail> listTransaksiDetail;
   String status;
+  String? urlQris;
+  DateTime? expiredQris;
 
   CashierTransaction({
     required this.status,
@@ -22,6 +24,8 @@ class CashierTransaction {
     required this.createdAt,
     required this.updatedAt,
     required this.listTransaksiDetail,
+    this.urlQris,
+    this.expiredQris,
   });
 
   @override
@@ -40,6 +44,8 @@ class CashierTransaction {
     DateTime? updatedAt,
     List<ListTransaksiDetail>? listTransaksiDetail,
     String? status,
+    String? urlQris,
+    DateTime? expiredQris,
   }) =>
       CashierTransaction(
         status: status ?? this.status,
@@ -51,21 +57,34 @@ class CashierTransaction {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         listTransaksiDetail: listTransaksiDetail ?? this.listTransaksiDetail,
+        urlQris: urlQris ?? this.urlQris,
+        expiredQris: expiredQris ?? this.expiredQris,
       );
 
-  factory CashierTransaction.fromJson(Map<String, dynamic> json) =>
-      CashierTransaction(
-        status: json["status"],
-        kodePemesanan: json["kode_pemesanan"],
-        orderTenant: json["order_tenant"],
-        id: json["id"],
-        userId: json["user_id"],
-        total: json["total"],
-        createdAt: DateTime.parse(json["created_at"]).toLocal(),
-        updatedAt: DateTime.parse(json["updated_at"]).toLocal(),
-        listTransaksiDetail: List<ListTransaksiDetail>.from(
-            json["details"].map((x) => ListTransaksiDetail.fromJson(x))),
-      );
+  factory CashierTransaction.fromJson(Map<String, dynamic> json) {
+    return CashierTransaction(
+      status: json["status"],
+      kodePemesanan: json["kode_pemesanan"],
+      orderTenant: json["order_tenant"],
+      id: json["id"],
+      userId: json["user_id"],
+      total: json["total"],
+      createdAt: DateTime.parse(json["created_at"]).toLocal(),
+      updatedAt: DateTime.parse(json["updated_at"]).toLocal(),
+
+      // aman walaupun null
+      urlQris: json["qr_url"] as String?,
+
+      // parse date hanya kalau tidak null
+      expiredQris: json["expiry"] != null && json["expiry"] != ""
+          ? DateTime.parse(json["expiry"]).toLocal()
+          : null,
+
+      listTransaksiDetail: List<ListTransaksiDetail>.from(
+        json["details"].map((x) => ListTransaksiDetail.fromJson(x)),
+      ),
+    );
+  }
 }
 
 extension CashierTransactionToCartExtension on CashierTransaction {

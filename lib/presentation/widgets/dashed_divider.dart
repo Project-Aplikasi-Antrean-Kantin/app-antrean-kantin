@@ -49,11 +49,15 @@ class _DashedLinePainter extends CustomPainter {
 
     double startX = 0;
     while (startX < size.width) {
+      final endX =
+          (startX + dashWidth).clamp(0.0, size.width.toDouble()).toDouble();
+
       canvas.drawLine(
         Offset(startX, 0),
-        Offset(startX + dashWidth, 0),
+        Offset(endX, 0),
         paint,
       );
+
       startX += dashWidth + dashSpace;
     }
   }

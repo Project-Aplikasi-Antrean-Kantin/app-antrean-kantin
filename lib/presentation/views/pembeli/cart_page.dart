@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -9,7 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
+import 'package:testgetdata/data/model/cart_per_tenant.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
@@ -26,6 +29,7 @@ import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_voucher_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/list_promo_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/add_more_items_button.dart';
@@ -401,6 +405,7 @@ class _CartPageState extends State<CartPage> {
       TransactionRemoteDataSource().getRoomData(user.token).then((value) {
         if (!mounted) return; // ⛑️ Cegah crash jika widget sudah dispose
         setState(() {
+          cartProvider.setListRuangan(value);
           _roomList = value;
           if (cartProvider.roomId != null &&
               !value.any((ruangan) => ruangan.id == cartProvider.roomId)) {
@@ -520,7 +525,12 @@ class _CartPageState extends State<CartPage> {
                                 builder: (context, cartProvider, _) {
                               if (isMultiTenant) {
                                 // render banyak tenant
-                                return ListView.builder(
+                                return ListView.separated(
+                                  separatorBuilder: (context, index) =>
+                                      DashedDivider(
+                                    color: AppColors.blackColor100,
+                                    height: 2,
+                                  ),
                                   itemCount:
                                       cartProvider.selectedCartTenant.length,
                                   shrinkWrap: true,
@@ -533,28 +543,21 @@ class _CartPageState extends State<CartPage> {
 
                                     return _buildTenantCartSection(
                                       context,
-                                      tenantCart.tenantName,
+                                      tenantCart,
                                       menuList,
                                       cartProvider,
+                                      index,
                                     );
                                   },
                                 );
-                              } else {
-                                // render single tenant seperti sebelumnya
-                                return _buildTenantCartSection(
-                                  context,
-                                  cartProvider.currentTenant?.namaTenant ?? '',
-                                  cartProvider.cart,
-                                  cartProvider,
-                                );
                               }
+                              return Container();
                             }),
                             DashedDivider(
                               color: AppColors.blackColor100,
-                              dashWidth: 2,
-                              dashSpace: 2,
+                              height: 2,
                             ),
-                            AddMoreItemsButton(widget.tenantId),
+                            AddMoreItemsButton(),
                           ],
                         ),
                       ),
@@ -997,7 +1000,8 @@ class _CartPageState extends State<CartPage> {
                                               } else if (cartProvider
                                                       .recommendedVoucher !=
                                                   null) {
-                                                if (cartProvider.totalPrice <
+                                                if (cartProvider
+                                                        .selectedTenantDeliveryCost <
                                                     cartProvider
                                                         .recommendedVoucher!
                                                         .cashback
@@ -1063,7 +1067,10 @@ class _CartPageState extends State<CartPage> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CustomPageBuilder(page: ListPromoPage()),
+                                    CustomPageBuilder(
+                                        page: ListPromoPage(
+                                      fromProfile: false,
+                                    )),
                                   );
                                 },
                                 child: Row(
@@ -1238,7 +1245,7 @@ class _CartPageState extends State<CartPage> {
                     children: [
                       HugeIcon(
                           size: 16,
-                          icon: HugeIcons.strokeRoundedEdit02,
+                          icon: Iconsax.edit,
                           color: AppColors.whiteColor),
                       Text('Edit',
                           style: GoogleFonts.poppins(
@@ -1324,6 +1331,9 @@ class _CartPageState extends State<CartPage> {
                     child: TextFormField(
                       key: ValueKey(item.count),
                       initialValue: item.count.toString(),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       decoration: const InputDecoration(
@@ -1390,9 +1400,10 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildTenantCartSection(
     BuildContext context,
-    String tenantName,
+    CartPerTenant tenant,
     List<CartMenuModel> menuList,
     CartProvider cartProvider,
+    int index,
   ) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -1401,13 +1412,43 @@ class _CartPageState extends State<CartPage> {
         spacing: 12,
         children: [
           // 🏪 Nama Tenant
-          Text(
-            tenantName,
-            style: GoogleFonts.poppins(
-              color: AppColors.blackColor,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                tenant.tenantName,
+                style: GoogleFonts.poppins(
+                  color: AppColors.blackColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+              GestureDetector(
+                onTap: () =>
+                    cartProvider.removeSelectedCartTenantByIndex(index),
+                child: Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.errorColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    spacing: 4,
+                    children: [
+                      Icon(Iconsax.trash,
+                          size: 16, color: AppColors.whiteColor),
+                      Text(
+                        'Hapus',
+                        style: GoogleFonts.poppins(
+                            color: AppColors.whiteColor, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
           ),
 
           // 🍔 Daftar Menu Tenant Ini
@@ -1444,6 +1485,57 @@ class _CartPageState extends State<CartPage> {
               ),
             ],
           ),
+          DashedDivider(
+              height: 1, dashWidth: 4, color: AppColors.blackColor100),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Mau tambah",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: AppColors.blackColor,
+                    ),
+                  ),
+                  Text(
+                    "Pesanan?",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: AppColors.blackColor,
+                      fontWeight: regular,
+                    ),
+                  ),
+                ],
+              ),
+              PrimaryButton(
+                borderRadius: 16,
+                elevation: 0,
+                color: AppColors.primaryColor,
+                borderColor: AppColors.primaryColor,
+                width: 128,
+                height: 50,
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      CustomPageBuilder(
+                          page: MenuTenant(
+                              url:
+                                  '${MasbroConstants.url}/tenants/${tenant.tenantId.toString()}')));
+                },
+                child: Text(
+                  'Tambah',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: AppColors.textColorwhite,
+                    fontWeight: semibold,
+                  ),
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );

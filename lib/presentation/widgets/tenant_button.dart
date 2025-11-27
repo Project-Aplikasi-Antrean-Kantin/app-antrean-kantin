@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
@@ -94,9 +95,7 @@ class _TenantButtonState extends State<TenantButton> {
                   ),
                   padding: const EdgeInsets.all(16),
                   child: HugeIcon(
-                    icon: widget.yourTenant?.busyUntil != null
-                        ? HugeIcons.strokeRoundedAlertDiamond
-                        : HugeIcons.strokeRoundedTimeSetting03,
+                    icon: Iconsax.lamp_on,
                     color: widget.yourTenant?.isOnline == true
                         ? widget.yourTenant?.busyUntil != null
                             ? AppColors.warningColor
@@ -160,7 +159,7 @@ class _TenantButtonState extends State<TenantButton> {
                           onTap: _hidePopover,
                           child: HugeIcon(
                               size: 24,
-                              icon: HugeIcons.strokeRoundedCancelCircle,
+                              icon: Iconsax.lamp_on,
                               color: widget.yourTenant?.isOnline == true
                                   ? widget.yourTenant?.busyUntil != null
                                       ? AppColors.warningColor.withOpacity(0.5)
@@ -262,9 +261,7 @@ class _TenantButtonState extends State<TenantButton> {
           ),
           padding: const EdgeInsets.all(16),
           child: HugeIcon(
-            icon: widget.yourTenant?.busyUntil != null
-                ? HugeIcons.strokeRoundedAlertDiamond
-                : HugeIcons.strokeRoundedTimeSetting03,
+            icon: Iconsax.lamp_on,
             color: widget.yourTenant?.isOnline == true
                 ? widget.yourTenant?.busyUntil != null
                     ? AppColors.warningColor

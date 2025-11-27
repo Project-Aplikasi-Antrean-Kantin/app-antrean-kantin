@@ -41,7 +41,7 @@ void showBottomSheetUseVoucher(
                       margin: EdgeInsets.symmetric(
                           vertical: screenSize.height * 0.01),
                       child: Image.asset(
-                        'assets/images/megaphone.png',
+                        'assets/images/voucher-lurus.png',
                         width: 200,
                         height: 200,
                         fit: BoxFit.contain,

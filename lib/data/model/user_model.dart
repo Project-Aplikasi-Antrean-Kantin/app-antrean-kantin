@@ -2,6 +2,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/fitur_model.dart';
 
 class UserModel {
+  final int id;
   final String nama;
   final String email;
   final String token;
@@ -13,6 +14,7 @@ class UserModel {
   bool? isOnline;
 
   UserModel({
+    required this.id,
     required this.nama,
     required this.email,
     required this.token,
@@ -25,6 +27,7 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+        id: json["id"],
         nama: json["nama"],
         email: json["email"],
         token: json["token"],

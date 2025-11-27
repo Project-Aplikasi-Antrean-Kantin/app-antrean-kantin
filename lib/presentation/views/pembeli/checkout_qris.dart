@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,12 +14,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/constants.dart';
+import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/top_up_model.dart';
 import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
@@ -31,8 +34,9 @@ import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class CheckoutQris extends StatefulWidget {
-  final Pesanan pesanan;
-  const CheckoutQris({super.key, required this.pesanan});
+  final Pesanan? pesanan;
+  final CashierTransaction? cashierTransaction;
+  const CheckoutQris({super.key, this.pesanan, this.cashierTransaction});
 
   @override
   State<CheckoutQris> createState() => _CheckoutQrisState();
@@ -42,6 +46,7 @@ class _CheckoutQrisState extends State<CheckoutQris>
     with WidgetsBindingObserver {
   Timer? _timer;
   int _secondsRemaining = 0;
+  StreamSubscription<RemoteMessage>? _onCashierSuccess;
 
   String formatDuration(int seconds) {
     final duration = Duration(seconds: seconds);
@@ -67,6 +72,23 @@ class _CheckoutQrisState extends State<CheckoutQris>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      cartProvider.clearCartOnly();
+      _onCashierSuccess =
+          FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        final title = message.data['title']?.toString().toLowerCase();
+        final body = message.data['body']?.toString().toLowerCase();
+        final cashierId = body?.split(' ')[1].trim();
+
+        if (title!.contains('kasir') && cashierId != null) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+            Fluttertoast.showToast(msg: 'Pesanan selesai');
+          }
+        }
+      });
+    });
 
     checkTimeDifference();
   }
@@ -74,7 +96,6 @@ class _CheckoutQrisState extends State<CheckoutQris>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-
     _timer?.cancel();
     super.dispose();
   }
@@ -87,7 +108,7 @@ class _CheckoutQrisState extends State<CheckoutQris>
         Provider.of<HistoryProvider>(context, listen: false);
     final user = Provider.of<AuthProvider>(context, listen: false).user;
     final pesanan = widget.pesanan;
-    if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed && pesanan != null) {
       TransactionRemoteDataSource()
           .getOrderById(user.token, pesanan.id.toString())
           .then((pesanan) {
@@ -101,26 +122,50 @@ class _CheckoutQrisState extends State<CheckoutQris>
   }
 
   Future<void> checkTimeDifference() async {
-    final savedTime = widget.pesanan.expiredQris;
-    final count = 900;
-    if (savedTime == null) return;
+    if (widget.pesanan != null) {
+      final savedTime = widget.pesanan!.expiredQris;
+      final count = 900;
+      if (savedTime == null) return;
 
-    final now = DateTime.now();
+      final now = DateTime.now();
 
-    final secondsDiff = savedTime.difference(now).inSeconds;
-    if (secondsDiff <= 0) {
-      // waktu sudah habis
-      _secondsRemaining = 0;
-    } else if (secondsDiff > count) {
-      _secondsRemaining = count;
+      final secondsDiff = savedTime.difference(now).inSeconds;
+      if (secondsDiff <= 0) {
+        // waktu sudah habis
+        _secondsRemaining = 0;
+      } else if (secondsDiff > count) {
+        _secondsRemaining = count;
+      } else {
+        _secondsRemaining = secondsDiff;
+      }
+      startCountdown();
     } else {
-      _secondsRemaining = secondsDiff;
+      final savedTime = widget.cashierTransaction!.expiredQris;
+      final count = 900;
+      if (savedTime == null) return;
+
+      final now = DateTime.now();
+
+      final secondsDiff = savedTime.difference(now).inSeconds;
+      if (secondsDiff <= 0) {
+        // waktu sudah habis
+        _secondsRemaining = 0;
+      } else if (secondsDiff > count) {
+        _secondsRemaining = count;
+      } else {
+        _secondsRemaining = secondsDiff;
+      }
+      startCountdown();
     }
-    startCountdown();
   }
 
   @override
   Widget build(BuildContext context) {
+    final total =
+        widget.pesanan?.totalQris ?? widget.cashierTransaction?.total ?? 0;
+
+    final biayaAdmin = widget.pesanan?.biayaAdmin ?? 0;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -152,7 +197,7 @@ class _CheckoutQrisState extends State<CheckoutQris>
           : SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24),
-                child: _buildQrisPayment(),
+                child: _buildQrisPayment(total - biayaAdmin),
               ),
             ),
     );
@@ -199,6 +244,10 @@ class _CheckoutQrisState extends State<CheckoutQris>
                   );
                   return;
                 }
+                if (widget.cashierTransaction != null) {
+                  Navigator.pop(context);
+                  return;
+                }
                 if (historyProvider.selectedPesanan!.listTransaksiDetail[0]
                         .menus?.tenants ==
                     null) return;
@@ -206,10 +255,10 @@ class _CheckoutQrisState extends State<CheckoutQris>
                     historyProvider.selectedPesanan!.toCartMenuList();
 
                 cartProvider.setCurrentTenant(
-                  historyProvider
-                      .selectedPesanan!.listTransaksiDetail[0].menus!.tenants!,
-                  cartMenu,
-                );
+                    historyProvider.selectedPesanan!.listTransaksiDetail[0]
+                        .menus!.tenants!,
+                    cartMenu,
+                    null);
                 Navigator.pop(context);
                 Future.delayed(const Duration(milliseconds: 300), () {
                   Navigator.push(
@@ -247,7 +296,7 @@ class _CheckoutQrisState extends State<CheckoutQris>
     ));
   }
 
-  Widget _buildQrisPayment() {
+  Widget _buildQrisPayment(int nominal) {
     return Center(
       child: Column(
         children: [
@@ -282,19 +331,23 @@ class _CheckoutQrisState extends State<CheckoutQris>
                           _rowText('Metode Bayar:', 'QRIS'),
                           DashedDivider(
                               height: 1.5, color: AppColors.blackColor100),
-                          _rowText(
-                              'Nominal:',
-                              FormatCurrency.intToStringCoin(
-                                  widget.pesanan.total)),
-                          _rowText(
-                              'Admin:',
-                              FormatCurrency.intToStringCoin(
-                                  widget.pesanan.biayaAdmin ?? 0)),
-                          _rowText(
-                              'Total:',
-                              FormatCurrency.intToStringCoin(
-                                  widget.pesanan.total +
-                                      (widget.pesanan.biayaAdmin ?? 0))),
+                          _rowText('Nominal:',
+                              FormatCurrency.intToStringCoin(nominal)),
+                          if (widget.pesanan != null)
+                            _rowText(
+                                'Admin:',
+                                FormatCurrency.intToStringCoin(
+                                    widget.pesanan?.biayaAdmin ?? 0)),
+                          if (widget.pesanan != null)
+                            _rowText(
+                                'Total:',
+                                FormatCurrency.intToStringCoin(widget
+                                        .pesanan?.totalQris ??
+                                    widget.cashierTransaction?.total ??
+                                    0 +
+                                        (widget.pesanan != null
+                                            ? widget.pesanan?.biayaAdmin ?? 0
+                                            : 0))),
                           DashedDivider(
                               height: 1.5, color: AppColors.blackColor100),
                           Center(
@@ -307,7 +360,9 @@ class _CheckoutQrisState extends State<CheckoutQris>
                               children: [
                                 if (_secondsRemaining > 0)
                                   Image.network(
-                                    widget.pesanan.urlQris ?? '',
+                                    widget.pesanan?.urlQris ??
+                                        widget.cashierTransaction?.urlQris ??
+                                        '',
                                     width: 200,
                                     height: 200,
                                     loadingBuilder:
@@ -345,56 +400,58 @@ class _CheckoutQrisState extends State<CheckoutQris>
           SizedBox(
             height: 64,
           ),
-          Row(spacing: 8, children: [
-            Expanded(
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        backgroundColor: AppColors.primaryColor700,
-                        padding: EdgeInsets.all(16)),
-                    child: Text('Unduh',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.whiteColor,
-                          fontWeight: FontWeight.w600,
-                        )),
-                    onPressed: () async {
-                      if (_secondsRemaining <= 0) {
-                        Fluttertoast.showToast(
-                            msg: "Waktu telah habis, silahkan ganti nominal");
-                        return;
-                      }
-                      print(
-                          "widget.currentVa.kodeBayar: ${widget.pesanan.urlQris}");
-                      final url = "${widget.pesanan.urlQris}";
+          if (widget.pesanan != null)
+            Row(spacing: 8, children: [
+              Expanded(
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          backgroundColor: AppColors.primaryColor700,
+                          padding: EdgeInsets.all(16)),
+                      child: Text('Unduh',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.whiteColor,
+                            fontWeight: FontWeight.w600,
+                          )),
+                      onPressed: () async {
+                        if (_secondsRemaining <= 0) {
+                          Fluttertoast.showToast(
+                              msg: "Waktu telah habis, silahkan ganti nominal");
+                          return;
+                        }
 
-                      final response = await http.get(Uri.parse(url));
+                        final url =
+                            "${widget.pesanan?.urlQris ?? widget.cashierTransaction?.urlQris}";
 
-                      if (response.statusCode == 200) {
-                        String imageName = "top_up_foodlab_qris";
+                        final response = await http.get(Uri.parse(url));
 
-                        await SaverGallery.saveImage(
-                          Uint8List.fromList(response.bodyBytes),
-                          quality: 60,
-                          fileName: imageName,
-                          androidRelativePath: "Pictures/foodlab/images",
-                          skipIfExists: false,
-                        );
+                        if (response.statusCode == 200) {
+                          final imageName =
+                              "top_up_foodlab_qris_${DateTime.now().millisecondsSinceEpoch}.png";
 
-                        Fluttertoast.showToast(
-                          msg: "Berhasil disimpan",
-                          backgroundColor: AppColors.successColor,
-                          textColor: AppColors.whiteColor,
-                        );
-                      } else {
-                        Fluttertoast.showToast(
-                          msg: "Gagal disimpan, silahkan coba lagi",
-                          backgroundColor: AppColors.errorColor,
-                          textColor: AppColors.whiteColor,
-                        );
-                      }
-                    })),
-          ])
+                          await SaverGallery.saveImage(
+                            Uint8List.fromList(response.bodyBytes),
+                            quality: 60,
+                            fileName: imageName,
+                            androidRelativePath: "Pictures/foodlab/images",
+                            skipIfExists: false,
+                          );
+
+                          Fluttertoast.showToast(
+                            msg: "Berhasil disimpan",
+                            backgroundColor: AppColors.successColor,
+                            textColor: AppColors.whiteColor,
+                          );
+                        } else {
+                          Fluttertoast.showToast(
+                            msg: "Gagal disimpan, silahkan coba lagi",
+                            backgroundColor: AppColors.errorColor,
+                            textColor: AppColors.whiteColor,
+                          );
+                        }
+                      })),
+            ])
         ],
       ),
     );

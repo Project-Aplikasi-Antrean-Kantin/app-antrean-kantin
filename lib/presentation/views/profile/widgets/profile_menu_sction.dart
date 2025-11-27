@@ -20,6 +20,7 @@ import 'package:testgetdata/presentation/provider/delivery_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
+import 'package:testgetdata/presentation/views/pembeli/list_promo_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_rekening.dart';
@@ -398,6 +399,19 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
                 user: widget.user,
                 context: context,
               );
+            },
+          ),
+          ProfileMenuItem(
+            icon: Iconsax.discount_shape_copy,
+            title: 'List Voucher',
+            showIconArrow: false,
+            onTap: () async {
+              Navigator.push(
+                  context,
+                  CustomPageBuilder(
+                      page: ListPromoPage(
+                    fromProfile: true,
+                  )));
             },
           ),
           ProfileMenuItem(

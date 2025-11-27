@@ -75,7 +75,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     return sizeInBytes ~/ 1024; // Convert bytes to KB
   }
 
-  Future<void> _getImageFromGallery() async {
+  Future<void> _getImageFromGallery(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
@@ -95,6 +95,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
           setState(() {
             selectedImagePath = compressedImage.path;
           });
+          Navigator.pop(context);
         } else {
           showDialog(
             context: context,
@@ -119,7 +120,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     }
   }
 
-  Future<void> _saveForm(UserModel user) async {
+  Future<void> _saveForm(UserModel user, BuildContext context) async {
     String message = '';
     if (namaMenuController.text.isEmpty) {
       message = 'Nama menu belum diisi.';
@@ -166,12 +167,16 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
 
     try {
       final source = TenantRemoteDataSource();
+      final provider = Provider.of<KatalogMenuProvider>(context, listen: false);
       final success = widget.initialData == null
           ? await source.createMenuTenant(user.token, dataCreate)
           : await source.updateMenuTenant(
               user.token, dataEdit, widget.initialData!.id);
 
-      if (success) {
+      if (success != null) {
+        if (widget.initialData != null) {
+          provider.updateDataById(success);
+        }
         Navigator.of(context).pop(true);
       } else {
         showDialog(
@@ -200,7 +205,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
     }
   }
 
-  Future<void> _getImageFromCamera() async {
+  Future<void> _getImageFromCamera(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
@@ -234,6 +239,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
             selectedImagePath = null;
           }
           setState(() {});
+          Navigator.pop(context);
         } else {
           showDialog(
             context: context,
@@ -585,7 +591,8 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : () => _saveForm(user),
+                    onPressed:
+                        isLoading ? null : () => _saveForm(user, context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent, // tidak ada shadow
@@ -659,7 +666,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              _getImageFromCamera();
+                              _getImageFromCamera(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -688,7 +695,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              _getImageFromGallery();
+                              _getImageFromGallery(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(

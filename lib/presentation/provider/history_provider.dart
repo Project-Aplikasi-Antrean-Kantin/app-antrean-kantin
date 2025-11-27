@@ -211,6 +211,11 @@ class HistoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearSelectedPesanan() {
+    selectedPesanan = null;
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _activeRequests.clear();

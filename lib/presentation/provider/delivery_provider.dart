@@ -49,63 +49,126 @@ class DeliveryProvider with ChangeNotifier {
   }
 
   Future<({bool success, String? error})> updateOrder(
+    int userId,
     String newStatus,
     String token,
     int id,
+    DeliveryStatus deliveryStatus,
     Pesanan pesanan, {
-    String? buktiPath, // ⬅️ path gambar opsional
+    String? buktiPath, // opsional: bukti foto
   }) async {
+    print("cek");
     if (_isLoading) return (success: false, error: 'Masih memuat...');
     _isLoading = true;
     notifyListeners();
 
     try {
-      ({Pesanan? pesanan, bool success}) success;
+      ({Pesanan? pesanan, bool success}) response;
 
-      // Kalau ada bukti foto -> panggil API khusus multipart upload
+      // ⬇️ Pilih API sesuai ada/tidaknya bukti foto
       if (buktiPath != null) {
-        success = await DriverDataSource().updateOrderWithProof(
+        response = await DriverDataSource().updateOrderWithProof(
           newStatus,
           token,
           id,
           buktiPath,
         );
       } else {
-        success = await DriverDataSource().updateOrderDelivery(
+        response = await DriverDataSource().updateOrderDelivery(
           newStatus,
           token,
           id,
         );
       }
 
-      if (success.success) {
-        if (newStatus == 'diantar') {
-          if (pesanan.status == 'siap_diantar') {
-            _pesanan[DeliveryStatus.siapDiantar]!
-                .removeWhere((element) => element.id == id);
-            _pesanan[DeliveryStatus.diantar]!.add(success.pesanan!);
-          } else {
-            if (pesanan.driverId == null) {
-              _pesanan[DeliveryStatus.siapDiantar]!
-                  .removeWhere((element) => element.id == id);
-              _pesanan[DeliveryStatus.siapDiantar]!.add(success.pesanan!);
+      if (response.success) {
+        // 🔹 Ambil semua pesanan dengan multitenantId yang sama
+        List<Pesanan> affectedOrders = [];
+
+        if (pesanan.multitenantId != null) {
+          affectedOrders = _pesanan.values
+              .expand((list) => list)
+              .where((p) => p.multitenantId == pesanan.multitenantId)
+              .toList();
+        } else {
+          affectedOrders = [pesanan];
+        }
+        print("affectedOrders: $affectedOrders");
+
+        for (final order in affectedOrders) {
+          final orderId = order.id;
+          print("response pesanan: ${response.pesanan}");
+          final pesananCopy = order.copyWith(driverId: userId);
+          print("orderId: $orderId, pesanan: $order");
+          print("_pesanan: ${_pesanan[DeliveryStatus.siapDiantar]}");
+          if (newStatus == 'diantar') {
+            // Kasus dari siap_diantar → diantar
+            if ((order.status == 'siap_diantar' ||
+                (order.multitenantId != null &&
+                    (order.status == 'pesanan_diproses')))) {
+              if (deliveryStatus == DeliveryStatus.siapDiantar) {
+                _pesanan[DeliveryStatus.siapDiantar]!
+                    .removeWhere((e) => e.id == orderId);
+              } else {
+                _pesanan[DeliveryStatus.diantar]!
+                    .removeWhere((e) => e.id == orderId);
+              }
+              if (order.status == 'pesanan_diproses') {
+                if (response.pesanan!.id == orderId) {
+                  _pesanan[DeliveryStatus.diantar]!
+                      .add(pesananCopy.copyWith(status: "diantar"));
+                } else {
+                  _pesanan[DeliveryStatus.diantar]!.add(pesananCopy);
+                }
+              } else {
+                _pesanan[DeliveryStatus.diantar]!.add(
+                    pesananCopy.copyWith(status: response.pesanan!.status));
+              }
             } else {
-              _pesanan[DeliveryStatus.siapDiantar]!
-                  .removeWhere((element) => element.id == id);
-              _pesanan[DeliveryStatus.diantar]!.add(success.pesanan!);
+              if (order.driverId == null) {
+                _pesanan[DeliveryStatus.siapDiantar]!
+                    .removeWhere((e) => e.id == orderId);
+                _pesanan[DeliveryStatus.siapDiantar]!.add(pesananCopy);
+              } else {
+                if (affectedOrders.length == 1) {
+                  _pesanan[DeliveryStatus.siapDiantar]!
+                      .removeWhere((e) => e.id == orderId);
+                  _pesanan[DeliveryStatus.diantar]!.add(response.pesanan!);
+                } else {
+                  if (order.status != 'diantar') {
+                    _pesanan[DeliveryStatus.siapDiantar]!
+                        .removeWhere((e) => e.id == orderId);
+                    _pesanan[DeliveryStatus.diantar]!.add(pesananCopy);
+                  }
+                }
+              }
+            }
+          } else if (newStatus == 'selesai') {
+            _pesanan[DeliveryStatus.diantar]!
+                .removeWhere((e) => e.id == orderId);
+          } else if (newStatus == 'pesanan_diproses') {
+            if ((order.multitenantId != null &&
+                    order.isPriority == 1 &&
+                    order.id == pesanan.id) ||
+                order.multitenantId == null) {
+              if (deliveryStatus == DeliveryStatus.siapDiantar) {
+                _pesanan[DeliveryStatus.siapDiantar]!
+                    .removeWhere((e) => e.id == orderId);
+
+                _pesanan[DeliveryStatus.siapDiantar]!
+                    .add(pesananCopy.copyWith(status: "pesanan_diproses"));
+              } else {
+                _pesanan[DeliveryStatus.diantar]!
+                    .removeWhere((e) => e.id == orderId);
+                _pesanan[DeliveryStatus.diantar]!
+                    .add(pesananCopy.copyWith(status: "pesanan_diproses"));
+              }
             }
           }
-        } else if (newStatus == 'selesai') {
-          _pesanan[DeliveryStatus.diantar]!
-              .removeWhere((element) => element.id == id);
-        } else if (newStatus == 'pesanan_diproses') {
-          _pesanan[DeliveryStatus.siapDiantar]!
-              .removeWhere((element) => element.id == id);
-          _pesanan[DeliveryStatus.siapDiantar]!.add(success.pesanan!);
         }
       }
 
-      return (success: success.success, error: null);
+      return (success: response.success, error: null);
     } catch (e) {
       String error = 'Terjadi kesalahan';
       if (e is CustomHttpException && e.statusCode == 403) {

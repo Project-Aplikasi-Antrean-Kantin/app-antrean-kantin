@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -210,6 +211,10 @@ class _MenuTileState extends State<MenuTile> {
                                               //   ),
                                               // ),
                                               child: TextFormField(
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly,
+                                                ],
                                                 key: ValueKey(cartProvider.cart
                                                     .firstWhere((cart) =>
                                                         cart.menuId ==
@@ -469,6 +474,15 @@ class _MenuTileState extends State<MenuTile> {
                     child: Column(
                       spacing: 16,
                       children: [
+                        Center(
+                            child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppColors.blackColor300,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        )),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -646,10 +660,10 @@ class _MenuTileState extends State<MenuTile> {
                         padding: EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: SizedBox(
-                          width: MediaQuery.of(context).size.width - 20,
+                          width: MediaQuery.of(context).size.width - 100,
                           child: Center(
                             child: Text(
                               'Tambah Lagi',

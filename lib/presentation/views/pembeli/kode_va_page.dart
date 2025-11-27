@@ -342,7 +342,8 @@ class _KodeVaPageState extends State<KodeVaPage> {
                       final response = await http.get(Uri.parse(url));
 
                       if (response.statusCode == 200) {
-                        String imageName = "top_up_foodlab_qris";
+                        String imageName =
+                            "top_up_foodlab_qris_${DateTime.now().millisecondsSinceEpoch}";
 
                         await SaverGallery.saveImage(
                           Uint8List.fromList(response.bodyBytes),

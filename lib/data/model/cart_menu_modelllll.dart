@@ -41,11 +41,12 @@ class CartMenuModel {
   CartMenuModel copyWith({
     int? menuId,
     String? name,
+    String? tenantId,
     int? count,
     String? catatan,
   }) {
     return CartMenuModel(
-      tenantId: this.tenantId,
+      tenantId: tenantId ?? this.tenantId,
       kategoriId: this.kategoriId,
       isReady: this.isReady,
       menuPrice: this.menuPrice,

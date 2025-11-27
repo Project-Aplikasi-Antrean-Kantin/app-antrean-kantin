@@ -78,7 +78,7 @@ class _EditProfilState extends State<EditProfil> {
     super.dispose();
   }
 
-  Future<void> _getImageFromGallery() async {
+  Future<void> _getImageFromGallery(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
@@ -142,7 +142,7 @@ class _EditProfilState extends State<EditProfil> {
     }
   }
 
-  Future<void> _getImageFromCamera() async {
+  Future<void> _getImageFromCamera(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
@@ -542,7 +542,7 @@ class _EditProfilState extends State<EditProfil> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              _getImageFromCamera();
+                              _getImageFromCamera(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -571,7 +571,7 @@ class _EditProfilState extends State<EditProfil> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              _getImageFromGallery();
+                              _getImageFromGallery(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(

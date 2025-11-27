@@ -4,7 +4,7 @@ import 'package:testgetdata/data/model/review_selection.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 
 class ReviewProvider extends ChangeNotifier {
-  int selectedRating = 1;
+  int selectedRating = 7;
   List<ReviewSelection> reviewSelection = [];
   List<ReviewSelection> selectedReviewSelection = [];
   bool isSubmitting = false;

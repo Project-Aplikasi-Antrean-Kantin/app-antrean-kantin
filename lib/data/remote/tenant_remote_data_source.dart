@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/income_model.dart';
+import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 
 class TenantRemoteDataSource {
-  Future<bool> createMenuTenant(String auth, Map<String, dynamic> data) async {
+  Future<TenantFoods?> createMenuTenant(
+      String auth, Map<String, dynamic> data) async {
     var request = http.MultipartRequest(
         'POST', Uri.parse('${MasbroConstants.url}/tenant/menu'));
     request.headers.addAll({
@@ -31,12 +33,20 @@ class TenantRemoteDataSource {
         request.fields[key] = value.toString();
       }
     });
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        debugPrint("responseBody ${responseBody}");
+        final data = jsonDecode(responseBody);
+        debugPrint("data ${data}");
 
-    final response = await request.send();
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
+        return TenantFoods.fromJson(data["data"]["menu"]);
+      } else {
+        throw Exception('Failed to create menu');
+      }
+    } catch (e) {
+      throw (e.toString());
     }
   }
 
@@ -131,7 +141,7 @@ class TenantRemoteDataSource {
     }
   }
 
-  Future<bool> updateMenuTenant(
+  Future<TenantFoods?> updateMenuTenant(
       String auth, Map<String, dynamic> data, int id) async {
     var request = http.MultipartRequest(
         'POST', Uri.parse('${MasbroConstants.url}/tenant/menu/$id'));
@@ -160,12 +170,17 @@ class TenantRemoteDataSource {
     try {
       final response = await request.send();
       if (response.statusCode == 200) {
-        return true;
+        final responseBody = await response.stream.bytesToString();
+        debugPrint("responseBody ${responseBody}");
+        final data = jsonDecode(responseBody);
+        debugPrint("data ${data['data']['menu']}");
+
+        return TenantFoods.fromJson(data["data"]["menu"]);
       } else {
-        return false;
+        throw ("Gagal update menu");
       }
     } catch (e) {
-      return false;
+      throw (e.toString());
     }
   }
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -13,6 +15,7 @@ import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
@@ -53,7 +56,7 @@ class _CashierTransactionItemWidgetState
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 24),
+      margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.blackColor),
         color: AppColors.backgroundColor,
@@ -69,7 +72,8 @@ class _CashierTransactionItemWidgetState
                 alignment: Alignment.centerRight,
                 child: Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.warningColor),
+                    border: Border.all(
+                        color: getStatusColor(widget.transaksi.status)),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -77,11 +81,13 @@ class _CashierTransactionItemWidgetState
                     spacing: 4,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Iconsax.repeat,
-                          size: 16, color: AppColors.warningColor),
-                      Text("Diproses",
+                      HugeIcon(
+                          icon: getIconByStatus(widget.transaksi.status),
+                          size: 16,
+                          color: getStatusColor(widget.transaksi.status)),
+                      Text(getStatus(widget.transaksi.status),
                           style: GoogleFonts.poppins(
-                            color: AppColors.warningColor,
+                            color: getStatusColor(widget.transaksi.status),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           )),
@@ -192,94 +198,134 @@ class _CashierTransactionItemWidgetState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               spacing: 8,
               children: [
-                GestureDetector(
-                  onTap: () async {
-                    final cartProvider =
-                        Provider.of<CartProvider>(context, listen: false);
-                    final cartMenuList = widget.transaksi.toCartMenuList();
-                    final connectivityResult = await hasInternetAccess();
-                    if (!connectivityResult) {
-                      Fluttertoast.showToast(
-                        msg: 'Tidak ada koneksi internet',
-                      );
-                      showNoConnectionBottomSheet(
-                          context: context, onRetry: () {});
-                      return;
-                    }
-                    if (widget
-                            .transaksi.listTransaksiDetail[0].menus?.tenants ==
-                        null) return;
-                    cartProvider.setCurrentTenant(
-                        widget.transaksi.listTransaksiDetail[0].menus!.tenants!,
-                        cartMenuList);
+                // if (widget.transaksi.status != "pending")
+                //   GestureDetector(
+                //     onTap: () async {
+                //       final cartProvider =
+                //           Provider.of<CartProvider>(context, listen: false);
+                //       final cartMenuList = widget.transaksi.toCartMenuList();
+                //       final connectivityResult = await hasInternetAccess();
+                //       if (!connectivityResult) {
+                //         Fluttertoast.showToast(
+                //           msg: 'Tidak ada koneksi internet',
+                //         );
+                //         showNoConnectionBottomSheet(
+                //             context: context, onRetry: () {});
+                //         return;
+                //       }
+                //       if (widget.transaksi.listTransaksiDetail[0].menus
+                //               ?.tenants ==
+                //           null) return;
+                //       cartProvider.setCurrentTenant(
+                //           widget
+                //               .transaksi.listTransaksiDetail[0].menus!.tenants!,
+                //           cartMenuList);
 
-                    Navigator.push(
-                      context,
-                      CustomPageBuilder(
-                        page: MenuTenant(
-                          url:
-                              '${MasbroConstants.url}/tenants/${widget.transaksi.listTransaksiDetail[0].menus!.tenants!.id.toString()}',
-                          cart: cartMenuList,
-                          cashierTransactionId: widget.transaksi.id.toString(),
+                //       Navigator.push(
+                //         context,
+                //         CustomPageBuilder(
+                //           page: MenuTenant(
+                //             url:
+                //                 '${MasbroConstants.url}/tenants/${widget.transaksi.listTransaksiDetail[0].menus!.tenants!.id.toString()}',
+                //             cart: cartMenuList,
+                //             cashierTransactionId:
+                //                 widget.transaksi.id.toString(),
+                //           ),
+                //         ),
+                //       );
+                //     },
+                //     child: Container(
+                //       padding:
+                //           EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                //       decoration: BoxDecoration(
+                //           borderRadius: BorderRadius.circular(16),
+                //           color: AppColors.infoColor),
+                //       child: Row(
+                //         spacing: 8,
+                //         mainAxisSize: MainAxisSize.min,
+                //         children: [
+                //           Icon(Iconsax.message_edit,
+                //               size: 16, color: AppColors.whiteColor),
+                //           Text("Edit",
+                //               style: GoogleFonts.poppins(
+                //                 fontSize: 12,
+                //                 color: AppColors.whiteColor,
+                //               )),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                if (widget.transaksi.status == "pending")
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        CustomPageBuilder(
+                          page: CheckoutQris(
+                            cashierTransaction: widget.transaksi,
+                          ),
                         ),
+                      );
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 3,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: AppColors.infoColor),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 8,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Iconsax.receipt,
+                              size: 20, color: AppColors.whiteColor),
+                          Text("Bayar",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: AppColors.whiteColor,
+                              )),
+                        ],
                       ),
-                    );
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: AppColors.infoColor),
-                    child: Row(
-                      spacing: 8,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Iconsax.message_edit,
-                            size: 16, color: AppColors.whiteColor),
-                        Text("Edit",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: AppColors.whiteColor,
-                            )),
-                      ],
                     ),
                   ),
-                ),
-                PrimaryButton(
-                    width: MediaQuery.of(context).size.width / 3,
-                    paddingVertical: 8,
-                    isEnabled: !isLoading,
-                    isLoading: isLoading,
-                    onPressed: () async {
-                      final kasirProvider =
-                          Provider.of<KasirProvider>(context, listen: false);
-                      final authProvider =
-                          Provider.of<AuthProvider>(context, listen: false);
-                      setState(() {
-                        isLoading = true;
-                      });
-                      try {
-                        await kasirProvider.updateStatusCashierTransaction(
-                            authProvider.user.token,
-                            "selesai",
-                            widget.transaksi.id);
-                        Fluttertoast.showToast(msg: "Selesai");
-                      } catch (e) {
-                        Fluttertoast.showToast(msg: "Gagal");
-                      } finally {
+                if (widget.transaksi.status != "pending")
+                  PrimaryButton(
+                      width: MediaQuery.of(context).size.width / 3,
+                      paddingVertical: 8,
+                      isEnabled: !isLoading,
+                      isLoading: isLoading,
+                      onPressed: () async {
+                        final kasirProvider =
+                            Provider.of<KasirProvider>(context, listen: false);
+                        final authProvider =
+                            Provider.of<AuthProvider>(context, listen: false);
                         setState(() {
-                          isLoading = false;
+                          isLoading = true;
                         });
-                      }
-                    },
-                    borderRadius: 12,
-                    child: Text(
-                      "Selesai",
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.whiteColor,
-                      ),
-                    ))
+                        try {
+                          await kasirProvider.updateStatusCashierTransaction(
+                              authProvider.user.token,
+                              "selesai",
+                              widget.transaksi.id);
+                          Fluttertoast.showToast(msg: "Selesai");
+                        } catch (e) {
+                          Fluttertoast.showToast(msg: "${e.toString()}");
+                        } finally {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        }
+                      },
+                      borderRadius: 12,
+                      child: Text(
+                        "Selesai",
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.whiteColor,
+                        ),
+                      ))
               ],
             ),
           ),
@@ -470,12 +516,15 @@ class _CashierTransactionItemWidgetState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${pesanan.namaMenu}',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: AppColors.blackColor),
+                        Flexible(
+                          child: Text(
+                            '${pesanan.namaMenu}',
+                            softWrap: true,
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: AppColors.blackColor),
+                          ),
                         ),
                         Text(FormatCurrency.intToStringCurrency(pesanan.harga),
                             style: GoogleFonts.poppins(
@@ -621,5 +670,81 @@ class _CashierTransactionItemWidgetState
             ]),
           );
         });
+  }
+
+  String getStatus(String status) {
+    switch (status) {
+      case 'refund_selesai':
+        return 'Refund';
+      case 'gagal_bayar':
+        return 'Gagal Bayar';
+      case 'pending':
+        return 'Pending';
+      case 'selesai':
+        return 'Selesai';
+      case 'pesanan_ditolak':
+        return 'Ditolak';
+      case 'pesanan_diproses':
+        return 'Diproses';
+      case 'pesanan_masuk':
+        return 'Pesanan Masuk';
+      case 'diantar':
+        return 'Diantar';
+      case 'siap_diambil':
+        return 'Siap Diambil';
+      case 'siap_diantar':
+        return 'Siap Diantar';
+      default:
+        return '';
+    }
+  }
+
+  IconData getIconByStatus(String status) {
+    switch (status) {
+      case 'pesanan_masuk':
+        return Iconsax.login_1_copy;
+      case 'pesanan_diproses':
+        return Iconsax.repeat;
+      case 'siap_diantar':
+        return Iconsax.reserve;
+      case 'siap_diambil':
+        return Iconsax.flag_2;
+      case 'diantar':
+        return Iconsax.routing;
+      case 'selesai':
+        return Iconsax.tick_circle;
+      case 'gagal_bayar':
+        return Iconsax.money_remove;
+      case 'refund_selesai':
+        return Iconsax.directbox_send;
+      case 'pending':
+        return HugeIcons.strokeRoundedLoading03;
+      default:
+        return HugeIcons.strokeRoundedArrowReloadVertical;
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'pesanan_masuk':
+        return AppColors.warningColor400;
+      case 'pesanan_diproses':
+        return AppColors.warningColor;
+      case 'siap_diambil':
+        return AppColors.secondaryColor;
+      case 'siap_diantar':
+        return AppColors.primaryColor300;
+
+      case 'selesai':
+        return AppColors.successColor;
+      case 'pending':
+        return AppColors.whiteColor600;
+      case 'gagal_bayar':
+        return AppColors.errorColor;
+      case 'refund_selesai':
+        return AppColors.blackColor;
+      default:
+        return AppColors.primaryColor;
+    }
   }
 }

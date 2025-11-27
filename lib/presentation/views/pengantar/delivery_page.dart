@@ -38,10 +38,10 @@ class _PerluPengantaranState extends State<PerluPengantaran>
         Provider.of<DeliveryProvider>(context, listen: false);
     final user = authProvider.user;
 
-    Future.wait([
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       for (var status in DeliveryStatus.values)
-        deliveryProvider.fetchOrders(user.token, status),
-    ]);
+        deliveryProvider.fetchOrders(user.token, status);
+    });
 
     _onMessageSubscription =
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -133,10 +133,11 @@ class _PerluPengantaranState extends State<PerluPengantaran>
                           horizontal: 24, vertical: 8),
                       itemCount: 3,
                       itemBuilder: (context, index) => DeliveryCard(
+                          lengthListPesanan: 1,
+                          userId: index,
+                          index: 0,
+                          isMultiple: false,
                           ongkir: 3000,
-                          listTransaksiDetail: [
-                            Pesanan.getDummyPesanan().listTransaksiDetail.first
-                          ],
                           onSuccess: () {},
                           pesanan: Pesanan.getDummyPesanan(),
                           status: DeliveryStatus.siapDiantar,

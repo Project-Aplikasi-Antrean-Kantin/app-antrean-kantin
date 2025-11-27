@@ -568,7 +568,7 @@ class ShimmerCard extends StatelessWidget {
                       gambar: "gambar",
                       isReady: 0,
                       deskripsi: "",
-                      harga: 2),
+                      harga: 30000),
                   tenantName: "f",
                   isTenantMenu: true,
                   enableNotes: true,

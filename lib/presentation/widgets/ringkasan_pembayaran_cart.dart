@@ -88,7 +88,7 @@ class RingkasanPembayaranCart extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Biaya pengantaran ${cartProvider.ongkir == 0 ? "" : cartProvider.totalItemCount > 10 ? "(${(cartProvider.totalItemCount - 10) * cartProvider.biayaExtra} + ${cartProvider.ongkir - ((cartProvider.totalItemCount - 10) * cartProvider.biayaExtra)})" : ""}",
+                      "Biaya pengantaran ${cartProvider.ongkir == 0 ? "" : cartProvider.totalItemCountSelected > 10 ? "(${(cartProvider.totalItemCountSelected - 10) * cartProvider.biayaExtra} + ${cartProvider.ongkir - ((cartProvider.totalItemCountSelected - 10) * cartProvider.biayaExtra)})" : ""}",
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: AppColors.textColorBlack,
@@ -239,12 +239,12 @@ class RingkasanPembayaranCart extends StatelessWidget {
                     Text(
                       FormatCurrency.intToStringCurrency(
                         (cartProvider.selectedVoucher!.cashback.value *
-                                        cartProvider.deliveryCost)
+                                        cartProvider.selectedTenantDeliveryCost)
                                     .floor() <
                                 cartProvider
                                     .selectedVoucher!.cashback.maxCashback
                             ? (cartProvider.selectedVoucher!.cashback.value *
-                                    cartProvider.deliveryCost)
+                                    cartProvider.selectedTenantDeliveryCost)
                                 .floor()
                             : cartProvider
                                 .selectedVoucher!.cashback.maxCashback,

@@ -74,12 +74,14 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   bool isBleTurnedOn = false;
   bool isLoadingBluetooth = false;
   bool _isPrinting = false;
+  late HistoryProvider historyProvider;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      historyProvider = Provider.of<HistoryProvider>(context, listen: false);
 
       if (widget.label.toLowerCase() == 'jual' &&
           authProvider.user.role.contains('tenant')) {
@@ -96,9 +98,15 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
         RemoteMessage message,
       ) {
         final title = message.data['title']?.toString().toLowerCase();
+        final transaksiId = message.data['body']?.split(' ')[1].trim();
+        final historyProvider =
+            Provider.of<HistoryProvider>(context, listen: false);
+
         if (title != null &&
             title.contains('pesanan') &&
-            !title.contains('diantar')) {
+            !title.contains('diantar') &&
+            transaksiId != null &&
+            historyProvider.selectedPesanan!.id.toString() == transaksiId) {
           _refreshData();
         }
       });
@@ -109,10 +117,10 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   void dispose() {
     _timer?.cancel();
     _onMessageSubscription?.cancel();
-    // _devicesStreamSubscription?.cancel();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      historyProvider.clearSelectedPesanan();
+    });
     _flutterThermalPrinterPlugin.stopScan();
-    // _bluetoothConnection?.cancel();
-
     super.dispose();
   }
 
@@ -416,10 +424,10 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                           historyProvider.selectedPesanan!.toCartMenuList();
 
                       cartProvider.setCurrentTenant(
-                        historyProvider.selectedPesanan!.listTransaksiDetail[0]
-                            .menus!.tenants!,
-                        cartMenu,
-                      );
+                          historyProvider.selectedPesanan!
+                              .listTransaksiDetail[0].menus!.tenants!,
+                          cartMenu,
+                          null);
 
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.push(
@@ -504,10 +512,13 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
               FloatingActionButtonLocation.centerFloat,
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
-            leading: HugeIcon(
-              color: AppColors.whiteColor900,
-              icon: HugeIcons.strokeRoundedArrowLeft01,
-              size: 32,
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: HugeIcon(
+                color: AppColors.whiteColor900,
+                icon: HugeIcons.strokeRoundedArrowLeft01,
+                size: 32,
+              ),
             ),
             backgroundColor: AppColors.backgroundColor,
             centerTitle: true,
