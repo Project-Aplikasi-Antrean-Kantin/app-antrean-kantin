@@ -291,13 +291,13 @@ class _CartPageState extends State<CartPage> {
 
     final result = await cartProvider.createTransaction(
         context, user.token, paymentMethod.name);
+
     if (result?.status == 'success') {
       historyProvider.updateSelectedPesanan(result!.pesanan);
 
-      await cartProvider.clearCart(true).then((_) {
-        _navigateToSuccessPage(
-            context, cartProvider, result.pesanan, user, historyProvider);
-      });
+      await cartProvider.clearCart(true);
+      _navigateToSuccessPage(
+          context, cartProvider, result.pesanan, user, historyProvider);
     } else {
       cartProvider.setTransactionStatus(isTransactionCompleted: false);
     }
@@ -906,6 +906,7 @@ class _CartPageState extends State<CartPage> {
                                           context,
                                           CustomPageBuilder(
                                               page: DetailVoucherPage(
+                                            fromProfile: false,
                                             cashback: cartProvider
                                                 .recommendedCashback,
                                           )));
@@ -916,6 +917,7 @@ class _CartPageState extends State<CartPage> {
                                       context,
                                       CustomPageBuilder(
                                           page: DetailVoucherPage(
+                                        fromProfile: false,
                                         voucher: voucher,
                                       )));
                                 },

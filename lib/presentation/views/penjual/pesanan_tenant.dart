@@ -34,8 +34,6 @@ class _PesananTenantState extends State<PesananTenant>
   DateTime? _lastFetch;
   final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
-  StreamSubscription<RemoteMessage>? _onMessageTimeOutSubscription;
-  StreamSubscription<RemoteMessage>? _onCashierSuccess;
   // StreamSubscription<List<Printer>>? _devicesStreamSubscription;
   late int selectedActivity;
   late PageController _pageController;
@@ -69,42 +67,33 @@ class _PesananTenantState extends State<PesananTenant>
       kasirProvider.getListCashierTransaction(user.token);
 
       // Listen for foreground notifications
-      _onMessageSubscription =
-          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        final title = message.data['title']?.toString().toLowerCase();
-        if (title == 'pesanan masuk') {
-          _handleNewOrderNotification(orderProvider, user);
-        }
-      });
-
-      _onCashierSuccess =
+      _onMessageSubscription ??=
           FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
         final title = message.data['title']?.toString().toLowerCase();
         final body = message.data['body']?.toString().toLowerCase();
-        final cashierId = body?.split(' ')[1].trim();
 
-        if (title!.contains('kasir') && cashierId != null) {
-          final cleanId = int.parse(
-            cashierId.replaceAll(RegExp(r'[^0-9]'), ''),
-          );
-
-          // Ambil data transaksi dari provider
-          final data = await kasirProvider.getCashierTransactionById(
-            authProvider.user.token,
-            cleanId,
-          );
-
-          if (data != null && context.mounted) {
-            showPaymentSuccessDialog(context, data.total);
-          }
+        if (title != null && title.contains('pesanan')) {
+          await _handleNewOrderNotification(orderProvider, user);
         }
-      });
 
-      _onMessageTimeOutSubscription =
-          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        final title = message.data['title']?.toString().toLowerCase();
-        if (title == 'pesanan dibatalkan otomatis') {
-          _handleNewOrderNotification(orderProvider, user);
+        if (title != null && title.contains('kasir') && body != null) {
+          final cashierId = body.split(' ')[1].trim();
+
+          if (title.contains('kasir')) {
+            final cleanId = int.parse(
+              cashierId.replaceAll(RegExp(r'[^0-9]'), ''),
+            );
+
+            // Ambil data transaksi dari provider
+            final data = await kasirProvider.getCashierTransactionById(
+              authProvider.user.token,
+              cleanId,
+            );
+
+            if (context.mounted) {
+              showPaymentSuccessDialog(context, data.total);
+            }
+          }
         }
       });
     });
@@ -196,14 +185,16 @@ class _PesananTenantState extends State<PesananTenant>
     });
   }
 
-  void _handleNewOrderNotification(
-      OrderProvider orderProvider, UserModel user) {
+  Future<void> _handleNewOrderNotification(
+      OrderProvider orderProvider, UserModel user) async {
     // Debounce to prevent frequent fetches (e.g., within 5 seconds)
     if (_lastFetch == null ||
         DateTime.now().difference(_lastFetch!).inSeconds > 5) {
       if (mounted) {
-        orderProvider.fetchOrders(
+        await orderProvider.fetchOrders(
             context, user.token, OrderStatus.pesananMasuk);
+        await orderProvider.fetchOrders(
+            context, user.token, OrderStatus.pesananDiproses);
         _lastFetch = DateTime.now();
       }
     }
@@ -212,10 +203,8 @@ class _PesananTenantState extends State<PesananTenant>
   @override
   void dispose() {
     // Cancel Firebase listeners to prevent accessing context after unmount
-    _onMessageTimeOutSubscription?.cancel();
     _onMessageSubscription?.cancel();
     _tabController.dispose();
-    _onCashierSuccess?.cancel();
 
     // _devicesStreamSubscription?.cancel();
     printer.stopScan();

@@ -300,7 +300,8 @@ class NotificationService {
     String channelKey = 'fcm_fallback_notification_channel';
     if (finalTitle.toLowerCase().contains('pesanan masuk')) {
       channelKey = 'tenant_channel';
-    } else if (finalTitle.toLowerCase().contains('ada pesanan siap diantar')) {
+    } else if (finalTitle.toLowerCase().contains('ada pesanan siap diantar') ||
+        finalTitle.toLowerCase().contains('ada pesanan prioritas')) {
       channelKey = 'driver_fdlb_channel';
     }
 

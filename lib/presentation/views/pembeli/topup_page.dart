@@ -55,17 +55,16 @@ class _TopupPageState extends State<TopupPage> {
   @override
   void initState() {
     super.initState();
-    _initializeProviders();
+    // _initializeProviders();
     _setupFirebaseListener();
   }
 
-  void _initializeProviders() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
-    final user = authProvider.user;
-
-    topUpProvider.getDataTopUp(user.token);
-  }
+  // void _initializeProviders() {
+  //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //   // final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
+  //   // final user = authProvider.user;
+  //   // topUpProvider.getDataTopUp(user.token);
+  // }
 
   void _setupFirebaseListener() {
     _onMessageSubscription = FirebaseMessaging.onMessage.listen((message) {
@@ -124,9 +123,6 @@ class _TopupPageState extends State<TopupPage> {
   }
 
   Widget _buildBody(AuthProvider authProvider, TopupProvider topUpProvider) {
-    final manualTopUp = topUpProvider.manualTransfer == "1" ||
-        selectedValue == 'VA Mandiri' ||
-        selectedValue == 'QRIS';
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
@@ -189,12 +185,12 @@ class _TopupPageState extends State<TopupPage> {
             const SizedBox(height: 28),
             PrimaryButton(
               isLoading: isLoading,
-              waitingText: topUpProvider.manualTransfer == "1"
-                  ? 'Pilih Nominal Terlebih Dahulu'
-                  : 'Metode ini tidak tersedia, coba lain waktu',
-              isEnabled: selectedValue != null &&
-                  _selectedNominal != null &&
-                  manualTopUp,
+              waitingText: isLoading
+                  ? 'Tunggu sebentar'
+                  : selectedValue == null
+                      ? 'Pilih Metode Pembayaran'
+                      : 'Pilih Nominal Pembayaran',
+              isEnabled: selectedValue != null && _selectedNominal != null,
               child: Text('Bayar',
                   style: GoogleFonts.poppins(
                     color: selectedValue != null && _selectedNominal != null
@@ -210,66 +206,67 @@ class _TopupPageState extends State<TopupPage> {
                   return;
                 }
                 if (selectedValue != null && _selectedNominal != null) {
-                  await topUpProvider.getDataTopUp(authProvider.user.token);
-                  if (selectedValue == 'VA Mandiri' &&
-                      topUpProvider.aktifVa == '0') {
-                    setState(() {
-                      selectedValue = null;
-                      _selectedNominal = null;
-                    });
-                    Fluttertoast.showToast(
-                      msg: 'Metode VA Mandiri tidak tersedia',
-                      backgroundColor: AppColors.errorColor,
-                      textColor: Colors.white,
-                    );
-                    return;
-                  }
+                  // await topUpProvider.getDataTopUp(authProvider.user.token);
+                  // if (selectedValue == 'VA Mandiri' &&
+                  //     topUpProvider.aktifVa == '0') {
+                  //   setState(() {
+                  //     selectedValue = null;
+                  //     _selectedNominal = null;
+                  //   });
+                  //   Fluttertoast.showToast(
+                  //     msg: 'Metode VA Mandiri tidak tersedia',
+                  //     backgroundColor: AppColors.errorColor,
+                  //     textColor: Colors.white,
+                  //   );
+                  //   return;
+                  // }
 
-                  if (selectedValue == 'QRIS' &&
-                      topUpProvider.aktifQris == '0') {
-                    setState(() {
-                      selectedValue = null;
-                      _selectedNominal = null;
-                    });
-                    Fluttertoast.showToast(
-                      msg: 'Metode QRIS tidak tersedia',
-                      backgroundColor: AppColors.errorColor,
-                      textColor: Colors.white,
-                    );
-                    return;
-                  }
+                  // if (selectedValue == 'QRIS' &&
+                  //     topUpProvider.aktifQris == '0') {
+                  //   setState(() {
+                  //     selectedValue = null;
+                  //     _selectedNominal = null;
+                  //   });
+                  //   Fluttertoast.showToast(
+                  //     msg: 'Metode QRIS tidak tersedia',
+                  //     backgroundColor: AppColors.errorColor,
+                  //     textColor: Colors.white,
+                  //   );
+                  //   return;
+                  // }
 
-                  if (selectedValue == 'VA Mandiri' &&
-                      topUpProvider.aktifVa == '1') {
-                    setState(() {
-                      isLoading = true;
-                    });
-                    try {
-                      final success = await topUpProvider.createVirtualAccount(
-                          authProvider.user.token, _selectedNominal.toString());
-                      if (success && topUpProvider.topUp != null) {
-                        Fluttertoast.showToast(
-                          msg: "Virtual Account berhasil dibuat",
-                          backgroundColor: AppColors.successColor,
-                          textColor: Colors.white,
-                        );
-                        Navigator.pushReplacement(
-                            context,
-                            CustomPageBuilder(
-                                page: KodeVaPage(
-                                    currentVa: topUpProvider.topUp!)));
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(e.toString()),
-                      ));
-                    } finally {
-                      setState(() {
-                        isLoading = false;
-                      });
-                    }
-                  } else if (selectedValue == 'QRIS' &&
-                      topUpProvider.aktifQris == '1') {
+                  // if (selectedValue == 'VA Mandiri' &&
+                  //     topUpProvider.aktifVa == '1') {
+                  //   setState(() {
+                  //     isLoading = true;
+                  //   });
+                  //   try {
+                  //     final success = await topUpProvider.createVirtualAccount(
+                  //         authProvider.user.token, _selectedNominal.toString());
+                  //     if (success && topUpProvider.topUp != null) {
+                  //       Fluttertoast.showToast(
+                  //         msg: "Virtual Account berhasil dibuat",
+                  //         backgroundColor: AppColors.successColor,
+                  //         textColor: Colors.white,
+                  //       );
+                  //       Navigator.pushReplacement(
+                  //           context,
+                  //           CustomPageBuilder(
+                  //               page: KodeVaPage(
+                  //                   currentVa: topUpProvider.topUp!)));
+                  //     }
+                  //   } catch (e) {
+                  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  //       content: Text(e.toString()),
+                  //     ));
+                  //   } finally {
+                  //     setState(() {
+                  //       isLoading = false;
+                  //     });
+                  //   }
+
+                  print("selectedValue: $selectedValue");
+                  if (selectedValue == 'QRIS') {
                     setState(() {
                       isLoading = true;
                     });
@@ -297,22 +294,6 @@ class _TopupPageState extends State<TopupPage> {
                         isLoading = false;
                       });
                     }
-                  } else if (selectedValue != 'QRIS' ||
-                      selectedValue != 'VA Mandiri') {
-                    if (topUpProvider.manualTransfer == "1") {
-                      Navigator.pushReplacement(
-                          context,
-                          CustomPageBuilder(
-                              page: PembayaranTopUp(
-                                  selectedMethod: selectedValue!,
-                                  selectedNominal: _selectedNominal!)));
-                    } else {
-                      Fluttertoast.showToast(
-                          msg:
-                              "Mohon maaf, manual transfer tidak tersedia saat ini",
-                          backgroundColor: AppColors.errorColor,
-                          textColor: Colors.white);
-                    }
                   }
                 }
               },
@@ -325,7 +306,6 @@ class _TopupPageState extends State<TopupPage> {
   }
 
   Widget _buildDropdown(TopupProvider topUpProvider) {
-    if (topUpProvider.paymentMethods.isEmpty) return Container();
     return DropdownButtonHideUnderline(
       child: DropdownButton2<String>(
         iconStyleData: IconStyleData(
@@ -346,19 +326,12 @@ class _TopupPageState extends State<TopupPage> {
             color: AppColors.blackColor400,
           ),
         ),
-        items: topUpProvider.paymentMethods
-            .map((ruangan) => DropdownMenuItem<String>(
-                  value: ruangan,
-                  child: Text(
-                    ruangan,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: AppColors.primaryColor,
-                      fontWeight: regular,
-                    ),
-                  ),
-                ))
-            .toList(),
+        items: const [
+          DropdownMenuItem(
+            value: 'QRIS',
+            child: Text('QRIS'),
+          ),
+        ],
         value: selectedValue,
         onChanged: (value) {
           setState(() {

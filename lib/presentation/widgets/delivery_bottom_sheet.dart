@@ -40,7 +40,7 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
     return (await file.length() / 1024).round();
   }
 
-  Future<void> _getImageFromGallery() async {
+  Future<void> _getImageFromGallery(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
@@ -106,7 +106,7 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
   }
 
   /// Fungsi ambil foto dari kamera + kompres
-  Future<void> _getImageFromCamera() async {
+  Future<void> _getImageFromCamera(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
@@ -139,6 +139,7 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
             );
             selectedImagePath = null;
           }
+          Navigator.pop(context);
           widget.onImageSelected(selectedImagePath); // ⬅️ lempar ke parent
 
           setState(() {});
@@ -429,7 +430,7 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              _getImageFromCamera();
+                              _getImageFromCamera(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -458,7 +459,7 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              _getImageFromGallery();
+                              _getImageFromGallery(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(

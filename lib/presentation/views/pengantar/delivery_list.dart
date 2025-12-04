@@ -1,18 +1,29 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
+import 'package:testgetdata/data/remote/driver_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
+import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_card.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/delivery_bottom_sheet.dart';
+import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
+import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
+import 'package:testgetdata/utils/has_internet_access.dart';
 
 class DeliveryList extends StatefulWidget {
   final TabController? tabController;
@@ -33,6 +44,12 @@ class DeliveryList extends StatefulWidget {
 class _DeliveryListState extends State<DeliveryList> {
   String? deliveryImagePath;
   bool _isLoading = false;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -63,12 +80,13 @@ class _DeliveryListState extends State<DeliveryList> {
         itemBuilder: (context, index) {
           final tenantId = groupedList[index].key;
           final pesananList = groupedList[index].value;
-          print('pesananList: $pesananList');
+          print("pesananList: $pesananList");
 
           // 🔹 Kalau cuma 1 pesanan → tampilkan 1 card biasa
           if (pesananList.length == 1) {
             final pesananItem = pesananList.first;
             return DeliveryCard(
+              showChatOnly: true,
               lengthListPesanan: pesananList.length,
               userId: user.id,
               index: 0,
@@ -201,6 +219,8 @@ class _DeliveryListState extends State<DeliveryList> {
                   physics:
                       const NeverScrollableScrollPhysics(), // biar scroll-nya gak tabrakan
                   itemBuilder: (context, index) => DeliveryCard(
+                    showChatOnly: DeliveryStatus.diantar == widget.status &&
+                        pesananList.first.driverId != null,
                     lengthListPesanan: pesananList.length,
                     userId: user.id,
                     index: index + 1,
@@ -212,11 +232,10 @@ class _DeliveryListState extends State<DeliveryList> {
                     userToken: user.token,
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Column(
                   children: [
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text("Biaya Pengantaran",
                               style: GoogleFonts.poppins(
@@ -233,149 +252,259 @@ class _DeliveryListState extends State<DeliveryList> {
                             ),
                           )
                         ]),
-                    if (pesananList.first.isPriority != 1)
-                      PrimaryButton(
-                        onPressed: () async {
-                          if (widget.status == DeliveryStatus.diantar) {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              builder: (context) {
-                                return StatefulBuilder(
-                                  builder: (context, setModalState) {
-                                    return DeliveryBottomSheet(
-                                      onLoading: _isLoading,
-                                      onImageSelected: (path) {
-                                        if (path != null) {
-                                          setState(() {
-                                            deliveryImagePath = path;
-                                          });
-                                        }
-                                      },
-                                      canSend: true,
-                                      onFinish: () async {
-                                        if (deliveryImagePath == null) {
-                                          Fluttertoast.showToast(
-                                              msg: 'Foto tidak boleh kosong');
-                                          return;
-                                        }
+                    if (pesananList.first.isPriority != 1 &&
+                        widget.status != DeliveryStatus.diantar)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // if (DeliveryStatus.diantar == widget.status)
+                          //   Expanded(
+                          //       child: Row(
+                          //     mainAxisSize: MainAxisSize.min,
+                          //     mainAxisAlignment: MainAxisAlignment.start,
+                          //     children: [
+                          //       Stack(
+                          //         clipBehavior: Clip.none,
+                          //         children: [
+                          //           ElevatedButton(
+                          //             style: ElevatedButton.styleFrom(
+                          //               elevation: 0,
+                          //               backgroundColor:
+                          //                   AppColors.primaryColor100,
+                          //               shape:
+                          //                   const CircleBorder(), // ✅ ini yang bikin benar-benar bundar
 
-                                        setModalState(() {
-                                          _isLoading = true;
-                                        });
-                                        try {
-                                          final result = await deliveryProvider
-                                              .updateOrder(
-                                            user.id,
-                                            'selesai',
-                                            user.token,
-                                            pesananList.first.id,
-                                            widget.status,
-                                            pesananList.first,
-                                            buktiPath: deliveryImagePath,
-                                          );
+                          //               padding: const EdgeInsets.all(
+                          //                   8), // jarak icon dengan border
+                          //             ),
+                          //             onPressed: () async {
+                          //               final connectivityResult =
+                          //                   await hasInternetAccess();
+                          //               if (!connectivityResult) {
+                          //                 Fluttertoast.showToast(
+                          //                     msg:
+                          //                         'Tidak ada koneksi internet');
+                          //                 showNoConnectionBottomSheet(
+                          //                     context: context, onRetry: () {});
+                          //                 return;
+                          //               }
+                          //               historyProvider.removeUnreadMessages(
+                          //                   pesananList.first.id);
 
-                                          if (result.success) {
-                                            Fluttertoast.showToast(
-                                              msg: 'Pesanan selesai 🎉',
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              backgroundColor:
-                                                  AppColors.successColor,
-                                              textColor: Colors.white,
-                                              fontSize: 16.0,
-                                            );
-                                          } else {
-                                            Fluttertoast.showToast(
-                                              msg: result.error ??
-                                                  'ORDER-${pesananList.first.id} telah diantar oleh driver lain',
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              backgroundColor: Colors.red,
-                                              textColor: Colors.white,
-                                              fontSize: 16.0,
-                                            );
-                                          }
-                                          Navigator.pop(
-                                              context); // tutup sheet dulu
-                                          if (mounted) {
-                                            setState(() {
-                                              deliveryImagePath = null;
-                                              _isLoading = false;
+                          //               Navigator.push(
+                          //                 context,
+                          //                 CustomPageBuilder(
+                          //                   page: ChatPage(
+                          //                     pesanan: pesananList.first,
+                          //                     chatType: "driver",
+                          //                   ),
+                          //                 ),
+                          //               );
+                          //             },
+                          //             child: const Icon(
+                          //               Iconsax.message,
+                          //               size: 20,
+                          //               color: AppColors.primaryColor,
+                          //             ),
+                          //           ),
+
+                          //           // bulatan indikator
+                          //           if (isThereNewChat)
+                          //             Positioned(
+                          //               right: 8,
+                          //               top: 4,
+                          //               child: Container(
+                          //                 width: 12,
+                          //                 height: 12,
+                          //                 decoration: BoxDecoration(
+                          //                   color: AppColors.primaryColor,
+                          //                   shape: BoxShape.circle,
+                          //                 ),
+                          //               ),
+                          //             ),
+                          //         ],
+                          //       ),
+                          //       ElevatedButton(
+                          //         style: ElevatedButton.styleFrom(
+                          //           backgroundColor: _isCooldown
+                          //               ? Colors.grey[300]
+                          //               : AppColors.primaryColor100,
+                          //           elevation: 0,
+                          //           shape: const CircleBorder(),
+                          //           padding: const EdgeInsets.all(8),
+                          //         ),
+                          //         onPressed: _isCooldown
+                          //             ? null
+                          //             : () => showBottomSheetPing(
+                          //                 context: context,
+                          //                 onFinish: () async {
+                          //                   await _handlePress(
+                          //                     authProvider.user.token,
+                          //                     pesananList.first,
+                          //                   );
+                          //                 },
+                          //                 canSend:
+                          //                     !_isCooldown), // disable pas cooldown
+                          //         child: SvgPicture.asset(
+                          //           'assets/images/megaphone.svg',
+                          //           color: _isCooldown
+                          //               ? Colors.grey
+                          //               : AppColors.primaryColor,
+                          //           width: 20,
+                          //           height: 20,
+                          //         ),
+                          //       )
+                          //     ],
+                          //   )),
+                          PrimaryButton(
+                            onPressed: () async {
+                              if (widget.status == DeliveryStatus.diantar) {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) {
+                                    return StatefulBuilder(
+                                      builder: (context, setModalState) {
+                                        return DeliveryBottomSheet(
+                                          onLoading: _isLoading,
+                                          onImageSelected: (path) {
+                                            if (path != null) {
+                                              setState(() {
+                                                deliveryImagePath = path;
+                                              });
+                                            }
+                                          },
+                                          canSend: true,
+                                          onFinish: () async {
+                                            if (deliveryImagePath == null) {
+                                              Fluttertoast.showToast(
+                                                  msg:
+                                                      'Foto tidak boleh kosong');
+                                              return;
+                                            }
+
+                                            setModalState(() {
+                                              _isLoading = true;
                                             });
-                                          }
-                                        } catch (e) {
-                                          Fluttertoast.showToast(
-                                              msg: e.toString());
-                                        }
+                                            try {
+                                              final result =
+                                                  await deliveryProvider
+                                                      .updateOrder(
+                                                user.id,
+                                                'selesai',
+                                                user.token,
+                                                pesananList.first.id,
+                                                widget.status,
+                                                pesananList.first,
+                                                buktiPath: deliveryImagePath,
+                                              );
+
+                                              if (result.success) {
+                                                Fluttertoast.showToast(
+                                                  msg: 'Pesanan selesai 🎉',
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  backgroundColor:
+                                                      AppColors.successColor,
+                                                  textColor: Colors.white,
+                                                  fontSize: 16.0,
+                                                );
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                  msg: result.error ??
+                                                      'ORDER-${pesananList.first.id} telah diantar oleh driver lain',
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  backgroundColor: Colors.red,
+                                                  textColor: Colors.white,
+                                                  fontSize: 16.0,
+                                                );
+                                              }
+                                              Navigator.pop(
+                                                  context); // tutup sheet dulu
+                                              if (mounted) {
+                                                setState(() {
+                                                  deliveryImagePath = null;
+                                                  _isLoading = false;
+                                                });
+                                              }
+                                            } catch (e) {
+                                              Fluttertoast.showToast(
+                                                  msg: e.toString());
+                                            }
+                                          },
+                                        );
                                       },
                                     );
                                   },
                                 );
-                              },
-                            );
-                            return;
-                          }
-                          final result = await deliveryProvider.updateOrder(
-                            user.id,
-                            widget.status == DeliveryStatus.siapDiantar
-                                ? 'diantar'
-                                : 'selesai',
-                            user.token,
-                            pesananList.first.id,
-                            widget.status,
-                            pesananList.first,
-                          );
-                          if (pesananList.first.status == 'siap_diantar') {
-                            Fluttertoast.showToast(
-                              msg: result.success
-                                  ? widget.status == DeliveryStatus.siapDiantar
-                                      ? 'Segera antar pesanan!'
-                                      : 'Pesanan selesai 🎉'
-                                  : result.error ??
-                                      'ORDER-${pesananList.first.id} telah diantar oleh driver lain',
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor:
-                                  result.success ? Colors.grey : Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0,
-                            );
-                          } else {
-                            Fluttertoast.showToast(
-                              msg: result.success
-                                  ? 'Segera datang ke tenant! Ini adalah pesanan Prioritas'
-                                  : result.error ??
-                                      'ORDER-${pesananList.first.id} telah diantar oleh driver lain',
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor:
-                                  result.success ? Colors.grey : Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0,
-                            );
-                          }
-                          // if (result.error != null) {
-                          //   await deliveryProvider.fetchOrders(
-                          //       user.token, widget.status);
-                          // }
+                                return;
+                              }
+                              final result = await deliveryProvider.updateOrder(
+                                user.id,
+                                widget.status == DeliveryStatus.siapDiantar
+                                    ? 'diantar'
+                                    : 'selesai',
+                                user.token,
+                                pesananList.first.id,
+                                widget.status,
+                                pesananList.first,
+                              );
+                              if (pesananList.first.status == 'siap_diantar') {
+                                Fluttertoast.showToast(
+                                  msg: result.success
+                                      ? widget.status ==
+                                              DeliveryStatus.siapDiantar
+                                          ? 'Segera antar pesanan!'
+                                          : 'Pesanan selesai 🎉'
+                                      : result.error ??
+                                          'ORDER-${pesananList.first.id} telah diantar oleh driver lain',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  backgroundColor:
+                                      result.success ? Colors.grey : Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0,
+                                );
+                              } else {
+                                Fluttertoast.showToast(
+                                  msg: result.success
+                                      ? 'Segera datang ke tenant! Ini adalah pesanan Prioritas'
+                                      : result.error ??
+                                          'ORDER-${pesananList.first.id} telah diantar oleh driver lain',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  backgroundColor:
+                                      result.success ? Colors.grey : Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0,
+                                );
+                              }
+                              // if (result.error != null) {
+                              //   await deliveryProvider.fetchOrders(
+                              //       user.token, widget.status);
+                              // }
 
-                          if (result.success &&
-                              pesananList.first.status == 'siap_diantar')
-                            widget.tabController?.animateTo(1);
-                        },
-                        child: Text(
-                            widget.status == DeliveryStatus.siapDiantar
-                                ? 'Antar Pesanan'
-                                : 'Selesai',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.whiteColor100,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            )),
-                        width: 120,
-                        borderRadius: 12,
-                        height: 32,
+                              if (result.success &&
+                                  pesananList.first.status == 'siap_diantar')
+                                widget.tabController?.animateTo(1);
+                            },
+                            child: Text(
+                                widget.status == DeliveryStatus.siapDiantar
+                                    ? 'Antar Pesanan'
+                                    : 'Selesai',
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.whiteColor100,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                )),
+                            width: 120,
+                            borderRadius: 12,
+                            height: 32,
+                          ),
+                        ],
                       )
                   ],
                 )

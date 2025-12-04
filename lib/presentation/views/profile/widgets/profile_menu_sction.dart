@@ -203,7 +203,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
             ProfileMenuItem(
               showIconArrow: false,
               status: isOnline,
-              icon: HugeIcons.strokeRoundedShopSign,
+              icon: Iconsax.lamp_on,
               iconColor: isOnline ? Colors.green : Colors.red,
               onChangeToggle: (selectedStatus) async {
                 final success = await widget.authProvider.updateTenantStatus(
@@ -236,7 +236,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               ),
             ),
             ProfileMenuItem(
-              icon: Iconsax.shop_copy,
+              icon: Iconsax.shop,
               title: 'Profil Tenant',
               titleColor: AppColors.blackColor,
               onTap: () async {
@@ -251,7 +251,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               },
             ),
             ProfileMenuItem(
-              icon: Iconsax.menu_board_copy,
+              icon: Iconsax.menu_board,
               title: 'Katalog Menu',
               titleColor: AppColors.blackColor,
               onTap: () async {
@@ -266,7 +266,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               },
             ),
             ProfileMenuItem(
-              icon: Iconsax.clock_copy,
+              icon: Iconsax.clock,
               title: 'Jam Operasional',
               titleColor: AppColors.blackColor,
               onTap: () async {
@@ -281,7 +281,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               },
             ),
             ProfileMenuItem(
-              icon: Iconsax.cards_copy,
+              icon: Iconsax.cards,
               title: 'Rekening Pencairan',
               titleColor: AppColors.blackColor,
               onTap: () async {
@@ -296,7 +296,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               },
             ),
             ProfileMenuItem(
-              icon: HugeIcons.strokeRoundedInvoice04,
+              icon: Iconsax.printer,
               title: 'Mesin Cetak',
               titleColor: AppColors.blackColor,
               onTap: () async {
@@ -328,7 +328,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
             ProfileMenuItem(
               showIconArrow: false,
               status: isOnline,
-              icon: HugeIcons.strokeRoundedMotorbike02,
+              icon: Iconsax.lamp_on,
               onChangeToggle: (selectedStatus) async {
                 final success = await widget.authProvider.updateTenantStatus(
                   widget.user.token,
@@ -370,7 +370,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
           //   onTap: () => showBatteryOptimizationDialog(context),
           // ),
           ProfileMenuItem(
-            icon: Iconsax.call_copy,
+            icon: Iconsax.call,
             title: 'Lapor Admin',
             showIconArrow: false,
             onTap: () async {
@@ -391,7 +391,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
             },
           ),
           ProfileMenuItem(
-            icon: Iconsax.like_1_copy,
+            icon: Iconsax.like_1,
             title: 'Review Aplikasi',
             showIconArrow: false,
             onTap: () async {
@@ -402,7 +402,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
             },
           ),
           ProfileMenuItem(
-            icon: Iconsax.discount_shape_copy,
+            icon: Iconsax.discount_shape,
             title: 'List Voucher',
             showIconArrow: false,
             onTap: () async {
@@ -415,7 +415,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
             },
           ),
           ProfileMenuItem(
-            icon: Iconsax.logout_1_copy,
+            icon: Iconsax.logout_1,
             title: 'Keluar',
             showIconArrow: false,
             onTap: () => _showLogoutDialog(context),

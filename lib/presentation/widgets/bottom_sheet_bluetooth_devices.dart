@@ -357,7 +357,7 @@ Future<List<int>> generateReceiptCashier(CashierTransaction transaksi,
   bytes = [
     ...bytes,
     ...generator.text(
-      transaksi.kodePemesanan,
+      "KASIR-${transaksi.orderTenant < 10 ? "00${transaksi.orderTenant}" : transaksi.orderTenant < 100 ? "0${transaksi.orderTenant}" : transaksi.orderTenant}",
       styles: const PosStyles(
         align: PosAlign.center,
         bold: true,
@@ -386,15 +386,6 @@ Future<List<int>> generateReceiptCashier(CashierTransaction transaksi,
         text:
             '${transaksi.listTransaksiDetail.first.menus!.tenants!.namaTenant}',
         width: 9,
-        styles: const PosStyles(align: PosAlign.right, bold: false),
-      ),
-    ]),
-    ...generator.row([
-      PosColumn(
-          text: 'No. Pesanan', width: 6, styles: const PosStyles(bold: false)),
-      PosColumn(
-        text: 'KASIR-${transaksi.orderTenant}',
-        width: 6,
         styles: const PosStyles(align: PosAlign.right, bold: false),
       ),
     ]),

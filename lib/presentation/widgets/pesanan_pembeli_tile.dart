@@ -224,7 +224,6 @@ class PesananItemWidget extends StatelessWidget {
                           children: [
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               spacing: 8,
                               children: [
                                 ClipRRect(
@@ -238,7 +237,9 @@ class PesananItemWidget extends StatelessWidget {
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-                                Flexible(
+
+                                // COLUMN TENGAH
+                                Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -247,33 +248,30 @@ class PesananItemWidget extends StatelessWidget {
                                         capitalizeFirstLetter(
                                             pesanan.menus!.nama),
                                         style: TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.w600),
+                                          fontSize: 14,
+                                          color: AppColors.blackColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
                                       ),
-                                      pesanan.catatan != '' &&
-                                              pesanan.catatan != null
-                                          ? Text(
-                                              '${pesanan.catatan}',
-                                              style: TextStyle(
-                                                  color:
-                                                      AppColors.blackColor200,
-                                                  fontSize: 12),
-                                            )
-                                          : Text(
-                                              'Catatan Kosong',
-                                              style: TextStyle(
-                                                  color:
-                                                      AppColors.blackColor200,
-                                                  fontSize: 12),
-                                            ),
+                                      Text(
+                                        pesanan.catatan?.isNotEmpty == true
+                                            ? pesanan.catatan!
+                                            : "Catatan Kosong",
+                                        style: TextStyle(
+                                          color: AppColors.blackColor200,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
+
+                                // COLUMN HARGA + JUMLAH
                                 Column(
                                   spacing: 8,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
                                       FormatCurrency.intToStringCurrency(
@@ -291,8 +289,7 @@ class PesananItemWidget extends StatelessWidget {
                                             BorderRadius.circular(100),
                                         color: AppColors.primaryColor,
                                       ),
-                                      alignment: Alignment
-                                          .center, // ini alternatif dari Center()
+                                      alignment: Alignment.center,
                                       child: Text(
                                         '${pesanan.jumlah}',
                                         style: TextStyle(
@@ -300,7 +297,6 @@ class PesananItemWidget extends StatelessWidget {
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
                                         ),
-                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ],

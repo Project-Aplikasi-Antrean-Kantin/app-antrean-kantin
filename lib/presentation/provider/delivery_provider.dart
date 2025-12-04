@@ -30,6 +30,7 @@ class DeliveryProvider with ChangeNotifier {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
+      print("cek status: ${status.value}");
       final pesanan =
           await DriverDataSource().getOrderDelivery(token, status.value);
       _pesanan[status] = pesanan.pesanan ?? [];
@@ -55,9 +56,8 @@ class DeliveryProvider with ChangeNotifier {
     int id,
     DeliveryStatus deliveryStatus,
     Pesanan pesanan, {
-    String? buktiPath, // opsional: bukti foto
+    String? buktiPath,
   }) async {
-    print("cek");
     if (_isLoading) return (success: false, error: 'Masih memuat...');
     _isLoading = true;
     notifyListeners();
@@ -65,7 +65,7 @@ class DeliveryProvider with ChangeNotifier {
     try {
       ({Pesanan? pesanan, bool success}) response;
 
-      // ⬇️ Pilih API sesuai ada/tidaknya bukti foto
+      // API call
       if (buktiPath != null) {
         response = await DriverDataSource().updateOrderWithProof(
           newStatus,
@@ -81,104 +81,122 @@ class DeliveryProvider with ChangeNotifier {
         );
       }
 
-      if (response.success) {
-        // 🔹 Ambil semua pesanan dengan multitenantId yang sama
-        List<Pesanan> affectedOrders = [];
+      if (!response.success) {
+        return (success: false, error: "Gagal update pesanan");
+      }
 
-        if (pesanan.multitenantId != null) {
-          affectedOrders = _pesanan.values
-              .expand((list) => list)
-              .where((p) => p.multitenantId == pesanan.multitenantId)
-              .toList();
+      // ------------------------------------------------------
+      // STEP 1 — Ambil affected orders (multitenant)
+      // ------------------------------------------------------
+      List<Pesanan> affected = [];
+
+      if (pesanan.multitenantId != null) {
+        affected = _pesanan.values
+            .expand((l) => l)
+            .where((p) => p.multitenantId == pesanan.multitenantId)
+            .toList();
+      }
+
+      if (affected.isEmpty) {
+        affected = [pesanan];
+      }
+
+      // === FIX: single berarti multitenantId null ATAU cuma 1 pesanan di group ===
+      final bool isMultiTenantSingle =
+          pesanan.multitenantId == null || affected.length == 1;
+
+      // ------------------------------------------------------
+      // STEP 2A — Hitung finalStatus **sementara** untuk tiap order
+      // ------------------------------------------------------
+
+      // Simpan mapping order.id -> finalStatus sementara
+      final Map<int, String> tempFinalStatus = {};
+      print("affected length: ${affected}");
+
+      for (final order in affected) {
+        String finalStatus = order.status;
+
+        if (isMultiTenantSingle) {
+          finalStatus = newStatus;
         } else {
-          affectedOrders = [pesanan];
-        }
-        print("affectedOrders: $affectedOrders");
-
-        for (final order in affectedOrders) {
-          final orderId = order.id;
-          print("response pesanan: ${response.pesanan}");
-          final pesananCopy = order.copyWith(driverId: userId);
-          print("orderId: $orderId, pesanan: $order");
-          print("_pesanan: ${_pesanan[DeliveryStatus.siapDiantar]}");
+          print("order gokil: ${order}");
           if (newStatus == 'diantar') {
-            // Kasus dari siap_diantar → diantar
-            if ((order.status == 'siap_diantar' ||
-                (order.multitenantId != null &&
-                    (order.status == 'pesanan_diproses')))) {
-              if (deliveryStatus == DeliveryStatus.siapDiantar) {
-                _pesanan[DeliveryStatus.siapDiantar]!
-                    .removeWhere((e) => e.id == orderId);
+            if (order.driverId == null) {
+              if (order.status == 'siap_diantar') {
+                finalStatus = 'diantar';
               } else {
-                _pesanan[DeliveryStatus.diantar]!
-                    .removeWhere((e) => e.id == orderId);
-              }
-              if (order.status == 'pesanan_diproses') {
-                if (response.pesanan!.id == orderId) {
-                  _pesanan[DeliveryStatus.diantar]!
-                      .add(pesananCopy.copyWith(status: "diantar"));
-                } else {
-                  _pesanan[DeliveryStatus.diantar]!.add(pesananCopy);
-                }
-              } else {
-                _pesanan[DeliveryStatus.diantar]!.add(
-                    pesananCopy.copyWith(status: response.pesanan!.status));
+                finalStatus = order.status; // hanya set driver
               }
             } else {
-              if (order.driverId == null) {
-                _pesanan[DeliveryStatus.siapDiantar]!
-                    .removeWhere((e) => e.id == orderId);
-                _pesanan[DeliveryStatus.siapDiantar]!.add(pesananCopy);
-              } else {
-                if (affectedOrders.length == 1) {
-                  _pesanan[DeliveryStatus.siapDiantar]!
-                      .removeWhere((e) => e.id == orderId);
-                  _pesanan[DeliveryStatus.diantar]!.add(response.pesanan!);
-                } else {
-                  if (order.status != 'diantar') {
-                    _pesanan[DeliveryStatus.siapDiantar]!
-                        .removeWhere((e) => e.id == orderId);
-                    _pesanan[DeliveryStatus.diantar]!.add(pesananCopy);
-                  }
-                }
-              }
+              finalStatus = (order.id == id) ? 'diantar' : order.status;
+            }
+          } else if (newStatus == 'pesanan_diproses') {
+            if (order.status == 'diantar') {
+              print("cihuy wkwk");
+              finalStatus = 'diantar';
+            } else {
+              finalStatus = 'pesanan_diproses';
             }
           } else if (newStatus == 'selesai') {
-            _pesanan[DeliveryStatus.diantar]!
-                .removeWhere((e) => e.id == orderId);
-          } else if (newStatus == 'pesanan_diproses') {
-            if ((order.multitenantId != null &&
-                    order.isPriority == 1 &&
-                    order.id == pesanan.id) ||
-                order.multitenantId == null) {
-              if (deliveryStatus == DeliveryStatus.siapDiantar) {
-                _pesanan[DeliveryStatus.siapDiantar]!
-                    .removeWhere((e) => e.id == orderId);
-
-                _pesanan[DeliveryStatus.siapDiantar]!
-                    .add(pesananCopy.copyWith(status: "pesanan_diproses"));
-              } else {
-                _pesanan[DeliveryStatus.diantar]!
-                    .removeWhere((e) => e.id == orderId);
-                _pesanan[DeliveryStatus.diantar]!
-                    .add(pesananCopy.copyWith(status: "pesanan_diproses"));
-              }
-            }
+            finalStatus = 'selesai';
           }
+        }
+
+        tempFinalStatus[order.id] = finalStatus;
+      }
+
+      // ------------------------------------------------------
+      // STEP 2B — Hitung groupHasDiantar berdasarkan FINAL STATUS
+      // ------------------------------------------------------
+
+      final bool groupHasDiantar =
+          tempFinalStatus.values.any((s) => s == 'diantar');
+      print("groupHasDiantar: $groupHasDiantar");
+      print("tempFinalStatus: $tempFinalStatus");
+      // ------------------------------------------------------
+      // STEP 3 — Apply perubahan berdasarkan final group state
+      // ------------------------------------------------------
+
+      for (final order in affected) {
+        final String finalStatus = tempFinalStatus[order.id]!;
+
+        DeliveryStatus finalTab;
+
+        if (isMultiTenantSingle) {
+          finalTab = (finalStatus == 'diantar')
+              ? DeliveryStatus.diantar
+              : DeliveryStatus.siapDiantar;
+        } else {
+          finalTab = groupHasDiantar
+              ? DeliveryStatus.diantar
+              : DeliveryStatus.siapDiantar;
+        }
+
+        _pesanan[DeliveryStatus.siapDiantar]!
+            .removeWhere((e) => e.id == order.id);
+        _pesanan[DeliveryStatus.diantar]!.removeWhere((e) => e.id == order.id);
+
+        // tambahkan final
+        final updated = order.copyWith(
+          driverId: userId,
+          status: pesanan.id == order.id ? finalStatus : order.status,
+        );
+
+        if (finalStatus != 'selesai') {
+          _pesanan[finalTab]!.add(updated);
         }
       }
 
-      return (success: response.success, error: null);
+      return (success: true, error: null);
     } catch (e) {
-      String error = 'Terjadi kesalahan';
+      String err = 'Terjadi kesalahan';
       if (e is CustomHttpException && e.statusCode == 403) {
-        print('Error message: ${e.message}');
-        error = e.message;
+        err = e.message;
       } else {
-        error = 'Error: $e';
+        err = 'Error: $e';
       }
-      print('Error updating order: $error');
-      return (success: false, error: error);
+
+      return (success: false, error: err);
     } finally {
       _isLoading = false;
       notifyListeners();

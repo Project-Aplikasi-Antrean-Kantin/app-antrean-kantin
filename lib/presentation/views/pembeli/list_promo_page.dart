@@ -83,8 +83,11 @@ class _ListPromoPageState extends State<ListPromoPage> {
                             color: AppColors.primaryColor,
                           ),
                         ),
-                        _buildVoucherOrCashback(cartProvider.selectedVoucher!,
-                            cartProvider, authProvider.user.token),
+                        _buildVoucherOrCashback(
+                            cartProvider.selectedVoucher!,
+                            cartProvider,
+                            authProvider.user.token,
+                            widget.fromProfile),
                       ],
                     );
                   } else {
@@ -117,7 +120,10 @@ class _ListPromoPageState extends State<ListPromoPage> {
                         ),
                         ...filteredVouchers
                             .map((voucher) => _buildVoucherOrCashback(
-                                voucher, cartProvider, authProvider.user.token))
+                                voucher,
+                                cartProvider,
+                                authProvider.user.token,
+                                widget.fromProfile))
                             .toList(),
                       ]);
                 },
@@ -147,12 +153,9 @@ class _ListPromoPageState extends State<ListPromoPage> {
                           color: AppColors.primaryColor,
                         ),
                       ),
-                      ...filteredCashbacks
-                          .map((cashback) => _buildVoucherOrCashback(
-                                cashback,
-                                cartProvider,
-                                authProvider.user.token,
-                              )),
+                      ...filteredCashbacks.map((cashback) =>
+                          _buildVoucherOrCashback(cashback, cartProvider,
+                              authProvider.user.token, widget.fromProfile)),
                     ],
                   );
                 },
@@ -165,7 +168,7 @@ class _ListPromoPageState extends State<ListPromoPage> {
   }
 
   Widget _buildVoucherOrCashback(
-      dynamic data, CartProvider cartProvider, String token) {
+      dynamic data, CartProvider cartProvider, String token, bool fromProfile) {
     // cek apakah data itu Voucher atau Cashback
     Cashback cashback;
     int? qty;
@@ -189,6 +192,7 @@ class _ListPromoPageState extends State<ListPromoPage> {
             context,
             CustomPageBuilder(
               page: DetailVoucherPage(
+                fromProfile: fromProfile,
                 voucher: data as Voucher,
               ),
             ),
@@ -198,6 +202,7 @@ class _ListPromoPageState extends State<ListPromoPage> {
             context,
             CustomPageBuilder(
               page: DetailVoucherPage(
+                fromProfile: fromProfile,
                 cashback: data as Cashback,
               ),
             ),

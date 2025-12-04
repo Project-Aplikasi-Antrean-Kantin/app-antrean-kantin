@@ -233,6 +233,27 @@ class CartProvider extends ChangeNotifier {
           .loadTenantCartFromLocal(tenant.id.toString());
       cartList = cartPerTenant?.cartMenuList ?? [];
     }
+    // if (indexSelectedCart == -1) {
+    //   if (selectedCartTenant.length >= 2) {
+    //     print("selectedCartTenant: ${selectedCartTenant}");
+    //     Fluttertoast.showToast(
+    //         msg: "Maksimal 2 Tenant",
+    //         toastLength: Toast.LENGTH_LONG,
+    //         gravity: ToastGravity.CENTER,
+    //         timeInSecForIosWeb: 1,
+    //         backgroundColor: AppColors.warningColor,
+    //         textColor: Colors.white,
+    //         fontSize: 16.0);
+    //   } else {
+    //     if (isYourTenant != true &&
+    //         _tenantCarts.containsKey(tenant.id.toString())) {
+    //       selectedCartTenant.add(_tenantCarts[tenant.id.toString()]!);
+    //     }
+    //   }
+    // } else {
+    //   selectedCartTenant[indexSelectedCart] =
+    //       _tenantCarts[tenant.id.toString()]!;
+    // }
     if (_tenantCarts.length < 5 ||
         _tenantCarts.containsKey(tenant.id.toString())) {
       _tenantCarts[tenant.id.toString()] = CartPerTenant(
@@ -251,25 +272,6 @@ class CartProvider extends ChangeNotifier {
           backgroundColor: AppColors.warningColor,
           textColor: Colors.white,
           fontSize: 16.0);
-    }
-    if (indexSelectedCart == -1) {
-      if (selectedCartTenant.length >= 2) {
-        Fluttertoast.showToast(
-            msg: "Maksimal 2 Tenant",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: AppColors.warningColor,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      } else {
-        if (isYourTenant != true) {
-          selectedCartTenant.add(_tenantCarts[tenant.id.toString()]!);
-        }
-      }
-    } else {
-      selectedCartTenant[indexSelectedCart] =
-          _tenantCarts[tenant.id.toString()]!;
     }
 
     _cartMenu = cartList;
@@ -1022,7 +1024,8 @@ class CartProvider extends ChangeNotifier {
         await CartLocalDataSource().clearCart(tenant.tenantId);
       }
 
-      selectedCartTenant.clear();
+      selectedCartTenant = [];
+
       _cartMenu = [];
     } else {
       // Flow biasa

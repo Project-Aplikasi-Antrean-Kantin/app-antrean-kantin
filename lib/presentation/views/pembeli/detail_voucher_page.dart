@@ -9,13 +9,17 @@ import 'package:testgetdata/data/model/voucher_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 
 class DetailVoucherPage extends StatefulWidget {
   final Voucher? voucher;
   final Cashback? cashback;
+  final bool fromProfile;
 
   const DetailVoucherPage({
+    required this.fromProfile,
     super.key,
     this.voucher,
     this.cashback,
@@ -61,6 +65,19 @@ class _DetailVoucherPageState extends State<DetailVoucherPage> {
             width: MediaQuery.of(context).size.width - 48, // ini dia kuncinya!
             child: FloatingActionButton.extended(
               onPressed: () async {
+                if (widget.fromProfile) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    CustomPageBuilder(
+                      page: NavbarHome(
+                        pageIndex: authProvider.user.menu
+                            .indexWhere((element) => element.url == '/beranda'),
+                      ),
+                    ),
+                    (route) => false,
+                  );
+                  return;
+                }
                 if (isThereVoucher &&
                     cartProvider.selectedVoucher?.id == voucher?.id) {
                   cartProvider.removeVoucher();

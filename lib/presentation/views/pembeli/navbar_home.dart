@@ -42,6 +42,7 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
   bool showBottomSheet = false;
   bool showPopUpBusy = false;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  static bool _listenerRegistered = false;
 
   @override
   void initState() {
@@ -146,165 +147,140 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
           }
         });
       }
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        final title = message.data['title']?.toString().toLowerCase();
+      if (!_listenerRegistered) {
+        _listenerRegistered = true;
 
-        if (title != null && title.contains('Chat Baru')) {
-          if (user.role.length == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => NavbarHome(
-                      pageIndex: user.menu
-                          .indexWhere((element) => element.url == '/riwayat'))),
-            );
-          } else if (user.role.contains('masbro')) {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => NavbarHome(
-                        pageIndex: user.menu.indexWhere(
-                            (element) => element.url == '/pengantaran'))));
-          } else if (user.role.contains('tenant')) {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => NavbarHome(
-                        pageIndex: user.menu.indexWhere(
-                            (element) => element.url == '/pesanan'))));
-          }
-        }
-      });
+        _onMessageSubscription =
+            FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          print("title: ${message.data['title']}");
+          final title = message.data['title']?.toString().toLowerCase();
+          if (title != null && title.contains('chat baru')) {
+            final transaksiId =
+                int.parse(message.notification!.title!.split(' ').last);
 
-      _onMessageSubscription =
-          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        final title = message.data['title']?.toString().toLowerCase();
-        if (title != null && title.contains('chat baru')) {
-          final transaksiId =
-              int.parse(message.notification!.title!.split(' ').last);
-
-          historyProvider.saveUnreadMessages(transaksiId).then((_) {
-            historyProvider.loadUnreadMessages();
-          });
-        }
-        if (title != null && title.contains('pesanan selesai')) {
-          final transaksiId =
-              int.parse(message.notification!.body!.split(' ')[1]);
-
-          historyProvider.removeAvailableChat(transaksiId);
-          historyProvider.removeUnreadMessages(transaksiId).then((_) {
-            historyProvider.loadUnreadMessages();
-          });
-          PublicRemoteDataSource()
-              .isNeededReview(user.token)
-              .then((bool value) {
-            if (value) {
-              showBottomSheetReview(context: context, user: user);
-            }
-            ;
-          });
-        }
-        if (title != null && title.contains('top-up berhasil')) {
-          final prefs = SharedPreferences.getInstance().then((prefs) {
-            if (prefs.getString('current_va') != null)
-              prefs.remove('current_va');
-          });
-        }
-        if (title != null && title.contains('tidak sibuk')) {
-          final prefs = SharedPreferences.getInstance().then((prefs) {
-            if (prefs.getString('tenant_sibuk') != null)
-              prefs.remove('tenant_sibuk');
-          });
-        }
-        if (title != null && title.contains('tenant sibuk')) {
-          final prefs = SharedPreferences.getInstance().then((prefs) {
-            prefs.setString('tenant_sibuk', 'true');
-
-            setState(() {
-              showPopUpBusy = true;
+            historyProvider.saveUnreadMessages(transaksiId).then((_) {
+              historyProvider.loadUnreadMessages();
             });
+          }
+          if (title != null && title.contains('pesanan selesai')) {
+            final transaksiId =
+                int.parse(message.notification!.body!.split(' ')[1]);
 
-            // ⬇️ langsung munculkan dialog
-            showDialog(
-              context: context,
-              barrierDismissible: true,
-              barrierColor: AppColors.primaryColor100.withOpacity(0.5),
-              builder: (context) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  backgroundColor: Colors.transparent,
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                        color: AppColors.whiteColor,
-                        borderRadius: BorderRadius.circular(20)),
-                    child: Column(
-                      spacing: 8,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Tenant Sibuk',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.warningColor,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () => Navigator.pop(context),
-                                child: HugeIcon(
-                                    size: 24,
-                                    icon: HugeIcons.strokeRoundedCancelCircle,
-                                    color: AppColors.warningColor
-                                        .withOpacity(0.5)),
-                              )
-                            ]),
-                        Text(
-                          'Tenant sedang sibuk, tekan siap untuk mengubah statu menjadi buka kembali dalam 3 menit.',
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: PrimaryButton(
-                              height: 32,
-                              borderRadius: 16,
-                              color: AppColors.warningColor,
-                              child: Text("Siap",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              width: 96,
-                              onPressed: () async {
-                                final statusTenant =
-                                    await TenantRemoteDataSource()
-                                        .updateBusy(user.token);
-                                if (statusTenant) {
-                                  prefs.remove("tenant_sibuk");
+            historyProvider.removeAvailableChat(transaksiId);
+            historyProvider.removeUnreadMessages(transaksiId).then((_) {
+              historyProvider.loadUnreadMessages();
+            });
+            PublicRemoteDataSource()
+                .isNeededReview(user.token)
+                .then((bool value) {
+              if (value) {
+                showBottomSheetReview(context: context, user: user);
+              }
+              ;
+            });
+          }
+          if (title != null && title.contains('top-up berhasil')) {
+            final prefs = SharedPreferences.getInstance().then((prefs) {
+              if (prefs.getString('current_va') != null)
+                prefs.remove('current_va');
+            });
+          }
+          if (title != null && title.contains('tidak sibuk')) {
+            final prefs = SharedPreferences.getInstance().then((prefs) {
+              if (prefs.getString('tenant_sibuk') != null)
+                prefs.remove('tenant_sibuk');
+            });
+          }
+          if (title != null && title.contains('tenant sibuk')) {
+            final prefs = SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('tenant_sibuk', 'true');
 
-                                  Fluttertoast.showToast(
-                                      msg:
-                                          "Dalam 3 menit status tenantmu akan menjadi Buka",
-                                      backgroundColor: AppColors.successColor,
-                                      textColor: Colors.white);
-                                }
-                                Navigator.of(context).pop();
-                              }),
-                        )
-                      ],
+              setState(() {
+                showPopUpBusy = true;
+              });
+
+              // ⬇️ langsung munculkan dialog
+              showDialog(
+                context: context,
+                barrierDismissible: true,
+                barrierColor: AppColors.primaryColor100.withOpacity(0.5),
+                builder: (context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  ),
-                );
-              },
-            );
-          });
-        }
-      });
+                    backgroundColor: Colors.transparent,
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Column(
+                        spacing: 8,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Tenant Sibuk',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.warningColor,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: HugeIcon(
+                                      size: 24,
+                                      icon: HugeIcons.strokeRoundedCancelCircle,
+                                      color: AppColors.warningColor
+                                          .withOpacity(0.5)),
+                                )
+                              ]),
+                          Text(
+                            'Tenant sedang sibuk, tekan siap untuk mengubah statu menjadi buka kembali dalam 3 menit.',
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: PrimaryButton(
+                                height: 32,
+                                borderRadius: 16,
+                                color: AppColors.warningColor,
+                                child: Text("Siap",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    )),
+                                width: 96,
+                                onPressed: () async {
+                                  final statusTenant =
+                                      await TenantRemoteDataSource()
+                                          .updateBusy(user.token);
+                                  if (statusTenant) {
+                                    prefs.remove("tenant_sibuk");
+
+                                    Fluttertoast.showToast(
+                                        msg:
+                                            "Dalam 3 menit status tenantmu akan menjadi Buka",
+                                        backgroundColor: AppColors.successColor,
+                                        textColor: Colors.white);
+                                  }
+                                  Navigator.of(context).pop();
+                                }),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            });
+          }
+        });
+      }
     });
   }
 

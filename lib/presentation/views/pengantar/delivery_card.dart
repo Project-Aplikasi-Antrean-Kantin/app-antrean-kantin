@@ -35,6 +35,7 @@ class DeliveryCard extends StatefulWidget {
   final DeliveryStatus status;
   final String userToken;
   final bool isMultiple;
+  final bool showChatOnly;
   final int index;
   final int userId;
 
@@ -43,6 +44,7 @@ class DeliveryCard extends StatefulWidget {
     required this.userId,
     required this.index,
     required this.ongkir,
+    required this.showChatOnly,
     Key? key,
     required this.onSuccess,
     required this.pesanan,
@@ -382,7 +384,8 @@ class _DeliveryCardState extends State<DeliveryCard> {
               widget.status == DeliveryStatus.siapDiantar),
           if (widget.pesanan.multitenantId == null ||
               widget.pesanan.isPriority == 1 ||
-              widget.lengthListPesanan == 1)
+              widget.lengthListPesanan == 1 ||
+              widget.showChatOnly)
             Consumer<DeliveryProvider>(
               builder: (context, deliveryProvider, child) => Padding(
                 padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
@@ -564,9 +567,12 @@ class _DeliveryCardState extends State<DeliveryCard> {
                             widget.onSuccess();
                         },
                       ),
-                    if ((widget.pesanan.status == 'pesanan_masuk' ||
-                            widget.pesanan.status == 'pesanan_diproses') &&
-                        widget.pesanan.driverId != null)
+                    if ((widget.pesanan.status == 'pesanan_masuk' &&
+                                widget.pesanan.isPriority == 1 ||
+                            widget.pesanan.status == 'pesanan_diproses' &&
+                                widget.pesanan.isPriority == 1) &&
+                        widget.pesanan.driverId != null &&
+                        widget.pesanan.isPriority == 1)
                       PrimaryButton(
                         isLoading: _isLoading, // Use local loading state
                         elevation: 0,
@@ -611,8 +617,8 @@ class _DeliveryCardState extends State<DeliveryCard> {
                           }
                         },
                       ),
-                    if (widget.status == DeliveryStatus.diantar &&
-                        widget.pesanan.status == 'diantar')
+                    if ((widget.status == DeliveryStatus.diantar &&
+                        widget.pesanan.status == 'diantar'))
                       PrimaryButton(
                         isLoading: _isLoading, // Use local loading state
                         elevation: 0,

@@ -74,7 +74,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool isLoadingTenant = true;
 
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
-  StreamSubscription<RemoteMessage>? _onMessageTopupSuccessSubscription;
 
   // Tambahkan variabel untuk overlay
   // final _scrollController = ScrollController();
@@ -256,11 +255,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (title == 'refund berhasil') {
         _handleCoinByNotification(coinProvider, user);
       }
-    });
-
-    _onMessageTopupSuccessSubscription =
-        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final title = message.data['title']?.toString().toLowerCase();
       if (title == 'top-up berhasil' || title!.contains('cashback berhasil')) {
         _handleCoinByNotification(coinProvider, user);
       }
@@ -297,7 +291,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
-    _onMessageTopupSuccessSubscription?.cancel();
     _onMessageSubscription?.cancel();
 
     super.dispose();

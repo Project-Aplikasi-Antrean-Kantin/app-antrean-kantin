@@ -122,6 +122,7 @@ class _CheckoutQrisState extends State<CheckoutQris>
   }
 
   Future<void> checkTimeDifference() async {
+    // print("widget.pesanan.expiredQris: ${widget.pesanan?.expiredQris}");
     if (widget.pesanan != null) {
       final savedTime = widget.pesanan!.expiredQris;
       final count = 900;

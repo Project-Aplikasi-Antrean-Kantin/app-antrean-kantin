@@ -44,22 +44,21 @@ class _PerluPengantaranState extends State<PerluPengantaran>
     });
 
     _onMessageSubscription =
-        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final title = message.data['title']?.toString().toLowerCase();
-      if (title == 'ada pesanan siap diantar') {
-        _handleNewDeliveryNotification(deliveryProvider, user);
-      }
-      if (title != null && title.contains('prioritas')) {
-        _handleNewDeliveryNotification(deliveryProvider, user);
+      if (title != null && title.contains('pesanan')) {
+        await _handleNewDeliveryNotification(deliveryProvider, user);
       }
     });
   }
 
-  void _handleNewDeliveryNotification(
-      DeliveryProvider deliveryProvider, UserModel user) {
+  Future<void> _handleNewDeliveryNotification(
+      DeliveryProvider deliveryProvider, UserModel user) async {
     // Debounce to prevent frequent fetches (e.g., within 5 seconds)
     if (mounted) {
-      deliveryProvider.fetchOrders(user.token, DeliveryStatus.siapDiantar);
+      await deliveryProvider.fetchOrders(
+          user.token, DeliveryStatus.siapDiantar);
+      await deliveryProvider.fetchOrders(user.token, DeliveryStatus.diantar);
       _lastFetch = DateTime.now();
     }
   }
@@ -133,6 +132,7 @@ class _PerluPengantaranState extends State<PerluPengantaran>
                           horizontal: 24, vertical: 8),
                       itemCount: 3,
                       itemBuilder: (context, index) => DeliveryCard(
+                          showChatOnly: true,
                           lengthListPesanan: 1,
                           userId: index,
                           index: 0,

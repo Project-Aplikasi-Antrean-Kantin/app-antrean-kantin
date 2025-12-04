@@ -87,7 +87,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
     return sizeInBytes ~/ 1024; // Convert bytes to KB
   }
 
-  Future<void> _getImageFromCamera() async {
+  Future<void> _getImageFromCamera(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
@@ -120,6 +120,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
             );
             selectedImagePath = null;
           }
+          Navigator.pop(context);
           setState(() {});
         } else {
           showDialog(
@@ -149,7 +150,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
     }
   }
 
-  Future<void> _getImageFromGallery() async {
+  Future<void> _getImageFromGallery(BuildContext context) async {
     final pickedImage =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage == null) return;
@@ -183,7 +184,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
         );
         selectedImagePath = null;
       }
-
+      Navigator.pop(context);
       setState(() {});
     } catch (e) {
       debugPrint('Compression error: $e');
@@ -425,7 +426,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              _getImageFromCamera();
+                              _getImageFromCamera(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -454,7 +455,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              _getImageFromGallery();
+                              _getImageFromGallery(context);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
