@@ -516,7 +516,7 @@ class CartProvider extends ChangeNotifier {
       selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
     }
 
-    if (_currentTenant!.id.toString() == currentTenantId) {
+    if (_currentTenant?.id.toString() == currentTenantId) {
       _cartMenu = listMenu;
     }
 
@@ -583,7 +583,7 @@ class CartProvider extends ChangeNotifier {
           (totalItemCountSelected - 10) * (biayaExtra == 0 ? 500 : biayaExtra);
     }
 
-    if (_currentTenant!.id.toString() == currentTenantId) {
+    if (_currentTenant?.id.toString() == currentTenantId) {
       _cartMenu = listMenu;
     }
     if (indexSelectedCart != -1) {
@@ -823,7 +823,7 @@ class CartProvider extends ChangeNotifier {
               existingCartPerTenant?.tenantGambar ?? tenant.namaGambar ?? '',
         );
 
-    if (_currentTenant!.id.toString() == currentTenantId) {
+    if (_currentTenant?.id.toString() == currentTenantId) {
       _cartMenu = listMenu;
     }
     final indexSelectedCart = selectedCartTenant.indexWhere(
@@ -918,7 +918,7 @@ class CartProvider extends ChangeNotifier {
       (element) => element.tenantId == currentTenantId,
     );
 
-    final tenantCart = _tenantCarts[currentTenantId];
+    final tenantCart = _tenantCarts[tenantId];
     if (tenantCart == null) return;
 
     final menuList = tenantCart.cartMenuList ?? [];
@@ -928,25 +928,24 @@ class CartProvider extends ChangeNotifier {
     }
 
     if (menuList.isEmpty) {
-      _tenantCarts.remove(currentTenantId);
-      await CartLocalDataSource().clearCart(currentTenantId);
+      _tenantCarts.remove(tenantId);
+      await CartLocalDataSource().clearCart(tenantId);
       if (indexSelectedCart != -1) {
         selectedCartTenant.removeAt(indexSelectedCart);
       }
     } else {
-      _tenantCarts[currentTenantId] =
-          tenantCart.copyWith(cartMenuList: menuList);
+      _tenantCarts[tenantId] = tenantCart.copyWith(cartMenuList: menuList);
 
       if (indexSelectedCart != -1) {
-        selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
+        selectedCartTenant[indexSelectedCart] = _tenantCarts[tenantId]!;
       }
 
       await CartLocalDataSource()
-          .saveTenantCartToLocal(_tenantCarts[currentTenantId]!);
+          .saveTenantCartToLocal(_tenantCarts[tenantId]!);
     }
 
-    if (_currentTenant?.id.toString() == currentTenantId) {
-      _cartMenu = _tenantCarts[currentTenantId]?.cartMenuList ?? [];
+    if (_currentTenant?.id.toString() == tenantId) {
+      _cartMenu = _tenantCarts[tenantId]?.cartMenuList ?? [];
     }
 
     notifyListeners();

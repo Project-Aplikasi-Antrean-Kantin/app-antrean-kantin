@@ -1520,7 +1520,7 @@ class _CartPageState extends State<CartPage> {
                 width: 128,
                 height: 50,
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                       context,
                       CustomPageBuilder(
                           page: MenuTenant(

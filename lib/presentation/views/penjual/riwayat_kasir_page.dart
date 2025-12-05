@@ -46,6 +46,33 @@ class _RiwayatKasirPageState extends State<RiwayatKasirPage> {
     });
   }
 
+  Map<DateTime, List<CashierTransaction>> groupTransactionsByDate(
+    List<CashierTransaction> list,
+  ) {
+    // normalize ke yyyy-mm-dd (supaya jam tidak bikin beda)
+    DateTime toDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+
+    final Map<DateTime, List<CashierTransaction>> grouped = {};
+
+    for (var trx in list) {
+      final dateKey = toDate(trx.createdAt);
+
+      if (!grouped.containsKey(dateKey)) {
+        grouped[dateKey] = [];
+      }
+
+      grouped[dateKey]!.add(trx);
+    }
+
+    // sort tiap grup berdasarkan orderTenant ASC
+    grouped.forEach((key, value) {
+      value.sort((a, b) => a.orderTenant.compareTo(b.orderTenant));
+    });
+
+    return grouped;
+  }
+
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,48 +80,69 @@ class _RiwayatKasirPageState extends State<RiwayatKasirPage> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primaryColor,
         onPressed: () {
-          print("click catat transaksi");
           final kasirProvider =
               Provider.of<KasirProvider>(context, listen: false);
-
           if (kasirProvider.tenant == null) return;
+
           Navigator.push(
-              context,
-              CustomPageBuilder(
-                  page: MenuTenant(
-                      fromCashier: true,
-                      url:
-                          "${MasbroConstants.url}/tenants/${kasirProvider.tenant?.id.toString()}")));
+            context,
+            CustomPageBuilder(
+              page: MenuTenant(
+                fromCashier: true,
+                url:
+                    "${MasbroConstants.url}/tenants/${kasirProvider.tenant?.id}",
+              ),
+            ),
+          );
         },
-        label: Text("Catat Transaksi",
-            style: GoogleFonts.poppins(color: Colors.white)),
+        label: Text(
+          "Catat Transaksi",
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
         icon: const Icon(Iconsax.add_copy, color: Colors.white),
       ),
       body: Consumer<KasirProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
+
+          final grouped = groupTransactionsByDate(provider.cashierTransactions);
+
+          final dates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
+
+          // Flatten: jadikan list berisi header + items
+          final List<_ListItem> items = [];
+
+          for (var date in dates) {
+            items.add(_ListItem.header(date));
+            for (var trx in grouped[date]!) {
+              items.add(_ListItem.transaction(trx));
+            }
+          }
+
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: ListView.separated(
-              separatorBuilder: (context, index) {
-                return SizedBox(
-                  height: 8,
-                );
-              },
-              itemCount: provider.cashierTransactions.length + 1,
+            padding: const EdgeInsets.all(16),
+            child: ListView.builder(
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                if (index == provider.cashierTransactions.length) {
-                  return SizedBox(
-                    height: 64,
+                final item = items[index];
+
+                if (item.isHeader) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      FormatDate.dateTimeToStringDate(item.date!),
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   );
                 }
-                final transaction = provider.cashierTransactions[index];
+
                 return HistoryTransactionCashierItem(
-                  transaction: transaction,
+                  transaction: item.trx!,
                   printer: printer,
                 );
               },
@@ -104,4 +152,18 @@ class _RiwayatKasirPageState extends State<RiwayatKasirPage> {
       ),
     );
   }
+}
+
+class _ListItem {
+  final DateTime? date;
+  final CashierTransaction? trx;
+  final bool isHeader;
+
+  _ListItem.header(this.date)
+      : trx = null,
+        isHeader = true;
+
+  _ListItem.transaction(this.trx)
+      : date = null,
+        isHeader = false;
 }
