@@ -25,6 +25,7 @@ import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
+import 'package:testgetdata/presentation/widgets/slide_to_confirm.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class DeliveryCard extends StatefulWidget {
@@ -417,15 +418,13 @@ class _DeliveryCardState extends State<DeliveryCard> {
               builder: (context, deliveryProvider, child) => Padding(
                 padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
                 child: Row(
-                  spacing: 8,
-                  mainAxisAlignment: widget.status == DeliveryStatus.siapDiantar
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.center,
+                  // mainAxisAlignment: widget.status == DeliveryStatus.siapDiantar
+                  //     ? MainAxisAlignment.end
+                  //     : MainAxisAlignment.center,
                   children: [
                     if ((widget.status == DeliveryStatus.diantar ||
                         widget.pesanan.driverId != null))
-                      Expanded(
-                          child: Row(
+                      Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -516,7 +515,10 @@ class _DeliveryCardState extends State<DeliveryCard> {
                             ),
                           )
                         ],
-                      )),
+                      ),
+                    if (widget.pesanan.driverId == null &&
+                        widget.status == DeliveryStatus.siapDiantar)
+                      const Spacer(),
                     if (widget.pesanan.status == 'siap_diantar' ||
                         widget.pesanan.driverId == null)
                       PrimaryButton(
@@ -602,54 +604,93 @@ class _DeliveryCardState extends State<DeliveryCard> {
                             widget.pesanan.status == 'pesanan_diproses' &&
                                 widget.pesanan.isPriority == 1) &&
                         widget.pesanan.driverId != null &&
-                        widget.pesanan.isPriority == 1)
-                      PrimaryButton(
-                        key: Key('ubahStatusPesanan${widget.pesanan.id}'),
-                        isLoading: _isLoading, // Use local loading state
-                        elevation: 0,
-                        width: screenSize.width * 0.2,
-                        height: screenSize.height * 0.065,
-                        borderRadius: 20,
-                        child: Text(
-                          widget.pesanan.status == 'pesanan_masuk'
+                        widget.pesanan.isPriority == 1) ...[
+                      Expanded(
+                        child: SlideToConfirm(
+                          fontSize: 12,
+                          onConfirmed: () {
+                            setState(() {
+                              _isLoading = true; // Set local loading state
+                            });
+                            try {
+                              deliveryProvider.updateOrder(
+                                widget.userId,
+                                widget.pesanan.status == 'pesanan_masuk'
+                                    ? 'pesanan_diproses'
+                                    : 'diantar',
+                                widget.userToken,
+                                widget.pesanan.id,
+                                widget.status,
+                                widget.pesanan,
+                              );
+                              if (mounted) {
+                                // Check if the widget is still mounted
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                              Fluttertoast.showToast(msg: 'Success');
+                              if (widget.pesanan.status != 'pesanan_masuk')
+                                widget.onSuccess();
+                            } catch (e) {
+                              Fluttertoast.showToast(msg: e.toString());
+                            }
+                          },
+                          placeholder: widget.pesanan.status == 'pesanan_masuk'
                               ? 'Pesanan Diproses'
                               : 'Ubah ke Antar',
-                          style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12),
                         ),
-                        onLongPress: () {
-                          setState(() {
-                            _isLoading = true; // Set local loading state
-                          });
-                          try {
-                            deliveryProvider.updateOrder(
-                              widget.userId,
-                              widget.pesanan.status == 'pesanan_masuk'
-                                  ? 'pesanan_diproses'
-                                  : 'diantar',
-                              widget.userToken,
-                              widget.pesanan.id,
-                              widget.status,
-                              widget.pesanan,
-                            );
-                            if (mounted) {
-                              // Check if the widget is still mounted
-                              setState(() {
-                                _isLoading = false;
-                              });
-                            }
-                            Fluttertoast.showToast(msg: 'Success');
-                            if (widget.pesanan.status != 'pesanan_masuk')
-                              widget.onSuccess();
-                          } catch (e) {
-                            Fluttertoast.showToast(msg: e.toString());
-                          }
-                        },
                       ),
+                    ],
+                    // PrimaryButton(
+                    //   key: Key('ubahStatusPesanan${widget.pesanan.id}'),
+                    //   isLoading: _isLoading, // Use local loading state
+                    //   elevation: 0,
+                    //   width: screenSize.width * 0.2,
+                    //   height: screenSize.height * 0.065,
+                    //   borderRadius: 20,
+                    //   child: Text(
+                    //     widget.pesanan.status == 'pesanan_masuk'
+                    //         ? 'Pesanan Diproses'
+                    //         : 'Ubah ke Antar',
+                    //     style: GoogleFonts.poppins(
+                    //         color: Colors.white,
+                    //         fontWeight: FontWeight.w600,
+                    //         fontSize: 12),
+                    //   ),
+                    // onLongPress: () {
+                    //   setState(() {
+                    //     _isLoading = true; // Set local loading state
+                    //   });
+                    //   try {
+                    //     deliveryProvider.updateOrder(
+                    //       widget.userId,
+                    //       widget.pesanan.status == 'pesanan_masuk'
+                    //           ? 'pesanan_diproses'
+                    //           : 'diantar',
+                    //       widget.userToken,
+                    //       widget.pesanan.id,
+                    //       widget.status,
+                    //       widget.pesanan,
+                    //     );
+                    //     if (mounted) {
+                    //       // Check if the widget is still mounted
+                    //       setState(() {
+                    //         _isLoading = false;
+                    //       });
+                    //     }
+                    //     Fluttertoast.showToast(msg: 'Success');
+                    //     if (widget.pesanan.status != 'pesanan_masuk')
+                    //       widget.onSuccess();
+                    //   } catch (e) {
+                    //     Fluttertoast.showToast(msg: e.toString());
+                    //   }
+                    // },
+                    // ),
+
                     if ((widget.status == DeliveryStatus.diantar &&
-                        widget.pesanan.status == 'diantar'))
+                        widget.pesanan.status == 'diantar')) ...[
+                      const Spacer(),
                       PrimaryButton(
                         key: Key('diantarPesanan${widget.pesanan.id}'),
                         isLoading: _isLoading, // Use local loading state
@@ -747,6 +788,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
                           );
                         },
                       ),
+                    ]
                   ],
                 ),
               ),

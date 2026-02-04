@@ -7,6 +7,8 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
+import 'package:testgetdata/presentation/widgets/slide_to_confirm.dart';
 import 'package:testgetdata/presentation/widgets/time_picker.dart';
 
 class FormOperational extends StatefulWidget {
@@ -153,6 +155,58 @@ class _FormOperationalState extends State<FormOperational> {
                     onTimeChanged: (newTime) =>
                         handleTimeChanged("close", newTime),
                   ),
+                  SizedBox(height: 16),
+                  PrimaryButton(
+                    borderRadius: 16,
+                    onPressed: () {
+                      handleTimeChanged("open", "09:00:00");
+                      handleTimeChanged("close", "17:00:00");
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Default (09:00 - 17:00)',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  SlideToConfirm(
+                    placeholder: "Tutup seterusnya",
+                    onConfirmed: () {},
+                  ),
+                  PrimaryButton(
+                    borderRadius: 16,
+                    onPressed: () {
+                      handleTimeChanged("open", "00:01:00");
+                      handleTimeChanged("close", "00:02:00");
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Tutup seterusnya (00:01 - 00:02)',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ],
             ),
