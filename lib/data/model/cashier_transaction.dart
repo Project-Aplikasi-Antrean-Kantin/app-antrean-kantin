@@ -11,10 +11,12 @@ class CashierTransaction {
   DateTime updatedAt;
   List<ListTransaksiDetail> listTransaksiDetail;
   String status;
+  String namaPembeli;
   String? urlQris;
   DateTime? expiredQris;
 
   CashierTransaction({
+    required this.namaPembeli,
     required this.status,
     required this.kodePemesanan,
     required this.orderTenant,
@@ -48,6 +50,7 @@ class CashierTransaction {
     DateTime? expiredQris,
   }) =>
       CashierTransaction(
+        namaPembeli: this.namaPembeli,
         status: status ?? this.status,
         kodePemesanan: kodePemesanan ?? this.kodePemesanan,
         orderTenant: orderTenant ?? this.orderTenant,
@@ -63,6 +66,7 @@ class CashierTransaction {
 
   factory CashierTransaction.fromJson(Map<String, dynamic> json) {
     return CashierTransaction(
+      namaPembeli: json["nama_pembeli"] ?? "Tanpa Nama",
       status: json["status"],
       kodePemesanan: json["kode_pemesanan"],
       orderTenant: json["order_tenant"],

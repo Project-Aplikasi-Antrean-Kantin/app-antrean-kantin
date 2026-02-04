@@ -181,7 +181,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           color: Colors.grey[500],
                         ),
                         onPressed: () {
-                          print('cek lur');
                           setState(() {
                             showPassword = !showPassword;
                           });

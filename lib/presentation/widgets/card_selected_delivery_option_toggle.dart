@@ -29,6 +29,7 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
+                    key: const Key('Pesan Antar'),
                     onPressed: cartProvider.isThereActiveDriver
                         ? () => cartProvider.setDeliveryOption(1)
                         : () {
@@ -65,6 +66,7 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
                 ),
                 Expanded(
                   child: OutlinedButton(
+                    key: const Key('Ambil Sendiri'),
                     onPressed: () {
                       // if (cartProvider.selectedCartTenant.length >= 2) {
                       //   Fluttertoast.showToast(

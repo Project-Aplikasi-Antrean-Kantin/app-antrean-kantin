@@ -322,6 +322,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                 return SizedBox(
                   width: screenWidth - 48, // ini dia kuncinya!
                   child: FloatingActionButton.extended(
+                    key: const Key('bayarButton'),
                     onPressed: () async {
                       Navigator.push(
                         context,
@@ -352,6 +353,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
 
               if (widget.label == 'Beli') if (isValidStatus) {
                 return SizedBox(
+                  key: const Key('chatButton'),
                   width: screenWidth - 48, // ini dia kuncinya!
                   child: FloatingActionButton.extended(
                     onPressed: () async {
@@ -407,6 +409,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                 return SizedBox(
                   width: screenWidth - 48, // ini dia kuncinya!
                   child: FloatingActionButton.extended(
+                    key: const Key('pesanLagiButton'),
                     onPressed: () async {
                       final connectivityResult = await hasInternetAccess();
                       if (!connectivityResult) {
@@ -461,6 +464,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                   return SizedBox(
                     width: screenWidth - 48, // ini dia kuncinya!
                     child: FloatingActionButton.extended(
+                      key: const Key('chatButton'),
                       onPressed: () async {
                         final connectivityResult = await hasInternetAccess();
                         if (!connectivityResult) {
@@ -907,6 +911,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
                                         ],
                                       ),
                                       OutlinedButton(
+                                        key: const Key('PingButton'),
                                         style: OutlinedButton.styleFrom(
                                           shape: const CircleBorder(),
                                           side: BorderSide(
@@ -1494,7 +1499,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
             ),
             Text(
               FormatCurrency.intToStringCurrency(
-                pesanan.total - pesanan.ongkosKirim,
+                pesanan.subTotal,
               ),
               style: GoogleFonts.poppins(
                 color: AppColors.textColorBlack,

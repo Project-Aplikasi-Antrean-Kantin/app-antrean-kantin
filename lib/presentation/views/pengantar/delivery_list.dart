@@ -80,12 +80,13 @@ class _DeliveryListState extends State<DeliveryList> {
         itemBuilder: (context, index) {
           final tenantId = groupedList[index].key;
           final pesananList = groupedList[index].value;
-          print("pesananList: $pesananList");
 
           // 🔹 Kalau cuma 1 pesanan → tampilkan 1 card biasa
           if (pesananList.length == 1) {
             final pesananItem = pesananList.first;
             return DeliveryCard(
+              key: ValueKey(
+                  "order-${pesananItem.id}"), // ⬅ Paksa rebuild total saat data berubah
               showChatOnly: true,
               lengthListPesanan: pesananList.length,
               userId: user.id,

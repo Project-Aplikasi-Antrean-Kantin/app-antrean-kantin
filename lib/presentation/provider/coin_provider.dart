@@ -58,7 +58,6 @@ class CoinProvider extends ChangeNotifier {
     try {
       final fetchedData = await CoinRemoteDataSource()
           .getHistoryTransactionCoin(token, currentPage);
-      print("currentPage $currentPage");
 // Gabungin semua data lama + baru
       final combined = [...transactionCoin, ...fetchedData];
 

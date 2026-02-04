@@ -115,8 +115,8 @@ class _PenghasilanPageState extends State<PenghasilanPage> {
                   },
 
                   itemCount: incomeProvider
-                          .selectedIncome!.listIncomeTransaksi.keys.length +
-                      1,
+                          .selectedIncome?.listIncomeTransaksi.keys.length ??
+                      0 + 1,
                   shrinkWrap: true, // <– biar ukurannya ngikut isi
                   physics:
                       const NeverScrollableScrollPhysics(), // <– nonaktifin scroll internal

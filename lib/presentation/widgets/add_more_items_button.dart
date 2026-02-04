@@ -51,6 +51,7 @@ class AddMoreItemsButton extends StatelessWidget {
               ],
             ),
             PrimaryButton(
+              key: Key('addMoreItemsButton'),
               waitingText: "Mencapai Maksimal",
               isEnabled: cartProvider.selectedCartTenant.length < 2,
               borderRadius: 16,

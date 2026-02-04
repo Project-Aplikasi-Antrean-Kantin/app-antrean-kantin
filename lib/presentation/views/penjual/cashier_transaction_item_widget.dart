@@ -151,7 +151,31 @@ class _CashierTransactionItemWidgetState
               ],
             ),
           ),
-
+          DashedDivider(
+            height: 1,
+            color: AppColors.blackColor100,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Pembeli',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.blackColor,
+                  ),
+                ),
+                Text(
+                  "${widget.transaksi.namaPembeli}",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.blackColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
           DashedDivider(
             height: 1,
             color: AppColors.blackColor100,

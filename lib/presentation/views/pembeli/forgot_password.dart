@@ -199,6 +199,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       errorText: emailError,
                     ),
                     PrimaryButton(
+                      key: const Key('sendEmail'),
                       borderRadius: 20,
                       waitingText:
                           'Coba dalam ${formatDuration(_secondsRemaining)}',

@@ -81,68 +81,65 @@ class _BottomNavigationCartPaymentState
     final totalHarga = widget.cartProvider.getTotal();
     final isCoinInsufficient = _isCoinInsufficient(totalHarga);
 
-    return Semantics(
-      label: 'Navigasi pembayaran keranjang',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isCoinInsufficient)
-            _LowCoinWarning(onTopup: () => _navigateToTopup(context)),
-          Container(
-            padding: BottomNavigationCartPayment._padding,
-            decoration: const BoxDecoration(
-              border: Border(
-                  top: BorderSide(
-                      width: BottomNavigationCartPayment._borderWidth,
-                      color: BottomNavigationCartPayment._borderColor)),
-            ),
-            child: Column(
-              children: [
-                PilihTipePembayaran(
-                  isCartActive: widget.cartProvider.cart.isNotEmpty,
-                  selectedPaymentMethod: widget.selectedPaymentMethod,
-                  onPaymentMethodSelected: widget.onPaymentMethodSelected,
-                ),
-                const SizedBox(height: BottomNavigationCartPayment._spacing),
-                BottomNavigationButton(
-                  isCoinInsufficient: isCoinInsufficient,
-                  paymentMethod: widget.selectedPaymentMethod,
-                  isThere10Item: widget.cartProvider.totalItemCount > 10,
-                  isEnabled: !isCoinInsufficient &&
-                      widget.selectedPaymentMethod != null,
-                  color: AppColors.primaryColor,
-                  onTap: widget.cartProvider.isLoading
-                      ? null
-                      : () {
-                          log("room id: ${widget.cartProvider.roomId}");
-                          if (_isDataIncomplete()) {
-                            widget.onIncompleteData();
-                            return;
-                          }
-                          if (widget.cartProvider.showBottomSheetVoucher()) {
-                            showBottomSheetUseVoucher(
-                                context: context,
-                                onFinish: () {
-                                  Navigator.pop(context);
-                                  widget.onConfirmOrder();
-                                },
-                                canSend: true);
-                            return;
-                          }
-                          if (!widget.cartProvider
-                              .isCartValid(widget.cartProvider.roomId)) {
-                            widget.onIncompleteData();
-                            return;
-                          }
-                          widget.onConfirmOrder();
-                        },
-                ),
-              ],
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isCoinInsufficient)
+          _LowCoinWarning(onTopup: () => _navigateToTopup(context)),
+        Container(
+          padding: BottomNavigationCartPayment._padding,
+          decoration: const BoxDecoration(
+            border: Border(
+                top: BorderSide(
+                    width: BottomNavigationCartPayment._borderWidth,
+                    color: BottomNavigationCartPayment._borderColor)),
           ),
-        ],
-      ),
+          child: Column(
+            children: [
+              PilihTipePembayaran(
+                isCartActive: widget.cartProvider.cart.isNotEmpty,
+                selectedPaymentMethod: widget.selectedPaymentMethod,
+                onPaymentMethodSelected: widget.onPaymentMethodSelected,
+              ),
+              const SizedBox(height: BottomNavigationCartPayment._spacing),
+              BottomNavigationButton(
+                isCoinInsufficient: isCoinInsufficient,
+                paymentMethod: widget.selectedPaymentMethod,
+                isThere10Item: widget.cartProvider.totalItemCount > 10,
+                isEnabled:
+                    !isCoinInsufficient && widget.selectedPaymentMethod != null,
+                color: AppColors.primaryColor,
+                onTap: widget.cartProvider.isLoading
+                    ? null
+                    : () {
+                        log("room id: ${widget.cartProvider.roomId}");
+                        if (_isDataIncomplete()) {
+                          widget.onIncompleteData();
+                          return;
+                        }
+                        if (widget.cartProvider.showBottomSheetVoucher()) {
+                          showBottomSheetUseVoucher(
+                              context: context,
+                              onFinish: () {
+                                Navigator.pop(context);
+                                widget.onConfirmOrder();
+                              },
+                              canSend: true);
+                          return;
+                        }
+                        if (!widget.cartProvider
+                            .isCartValid(widget.cartProvider.roomId)) {
+                          widget.onIncompleteData();
+                          return;
+                        }
+                        widget.onConfirmOrder();
+                      },
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

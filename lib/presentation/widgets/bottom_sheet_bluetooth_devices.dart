@@ -337,6 +337,9 @@ Future<List<int>> generateReceiptCashier(CashierTransaction transaksi,
     Printer selectedPrinter, BuildContext context) async {
   final profile = await CapabilityProfile.load();
   final generator = Generator(PaperSize.mm58, profile);
+  final tenantName = transaksi.listTransaksiDetail.isNotEmpty
+      ? transaksi.listTransaksiDetail.first.menus?.tenants?.namaTenant
+      : null;
 
   List<int> bytes = [];
 
@@ -345,8 +348,10 @@ Future<List<int>> generateReceiptCashier(CashierTransaction transaksi,
     ByteData imageByteData =
         await rootBundle.load("assets/images/logo_print.png");
     Uint8List imageBytesUint8List = imageByteData.buffer.asUint8List();
-    img.Image image = img.decodeImage(imageBytesUint8List)!;
-    bytes += generator.image(image);
+    final decodedImage = img.decodeImage(imageBytesUint8List);
+    if (decodedImage != null) {
+      bytes += generator.image(decodedImage);
+    }
 
 // With hide
   } catch (e) {
@@ -372,6 +377,14 @@ Future<List<int>> generateReceiptCashier(CashierTransaction transaksi,
   bytes = [
     ...bytes,
     ...generator.row([
+      PosColumn(text: 'Nama', width: 3, styles: const PosStyles(bold: false)),
+      PosColumn(
+        text: transaksi.namaPembeli,
+        width: 9,
+        styles: const PosStyles(align: PosAlign.right, bold: false),
+      ),
+    ]),
+    ...generator.row([
       PosColumn(
           text: 'Tanggal', width: 3, styles: const PosStyles(bold: false)),
       PosColumn(
@@ -380,15 +393,16 @@ Future<List<int>> generateReceiptCashier(CashierTransaction transaksi,
         styles: const PosStyles(align: PosAlign.right, bold: false),
       ),
     ]),
-    ...generator.row([
-      PosColumn(text: 'Tenant', width: 3, styles: const PosStyles(bold: false)),
-      PosColumn(
-        text:
-            '${transaksi.listTransaksiDetail.first.menus!.tenants!.namaTenant}',
-        width: 9,
-        styles: const PosStyles(align: PosAlign.right, bold: false),
-      ),
-    ]),
+    if (tenantName != null)
+      ...generator.row([
+        PosColumn(
+            text: 'Tenant', width: 3, styles: const PosStyles(bold: false)),
+        PosColumn(
+          text: '${tenantName}',
+          width: 9,
+          styles: const PosStyles(align: PosAlign.right, bold: false),
+        ),
+      ]),
     ...generator.hr(),
   ];
 

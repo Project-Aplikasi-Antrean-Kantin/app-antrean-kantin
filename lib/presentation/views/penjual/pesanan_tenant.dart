@@ -354,6 +354,7 @@ class _PesananTenantState extends State<PesananTenant>
                     ),
                     tabs: OrderStatus.values
                         .map((status) => Tab(
+                              key: Key(status.name),
                               child: Text(
                                 status.label,
                                 style: GoogleFonts.poppins(

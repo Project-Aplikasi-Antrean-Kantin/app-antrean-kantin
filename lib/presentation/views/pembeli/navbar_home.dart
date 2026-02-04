@@ -152,7 +152,6 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
 
         _onMessageSubscription =
             FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-          print("title: ${message.data['title']}");
           final title = message.data['title']?.toString().toLowerCase();
           if (title != null && title.contains('chat baru')) {
             final transaksiId =
@@ -438,6 +437,7 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
           Provider.of<HistoryProvider>(context, listen: true);
       return listFitur.map((e) {
         return BottomNavigationBarItem(
+          key: Key('${e.nama}Menu'),
           icon: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -764,7 +764,6 @@ class _FeaturePageState extends State<FeaturePage> with WidgetsBindingObserver {
 
   void _checkInternetConnection() async {
     final result = await hasInternetAccess();
-    print('Status koneksi: ${result ? 'ada koneksi' : 'tidak ada koneksi'}');
 
     if (!result) {
       showNoConnectionBottomSheet(

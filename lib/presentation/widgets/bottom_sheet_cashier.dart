@@ -23,17 +23,18 @@ import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
+import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
-Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
-    bool isEdit, String? id, bool? fromCashier) {
+Future<void> showBottomSheetCashier(BuildContext parentContext,
+    TenantModel tenant, bool isEdit, String? id, bool? fromCashier) {
   return showModalBottomSheet(
     enableDrag: true,
     backgroundColor: AppColors.backgroundColor,
-    context: context,
+    context: parentContext,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
@@ -45,6 +46,7 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
 
       return SafeArea(
         child: Padding(
+          key: const Key('bottomSheetCashier'),
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
@@ -373,7 +375,8 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
                         }),
                       ),
                     ),
-                    buildBottomSheetCartList(context, isEdit, id, fromCashier),
+                    buildBottomSheetCartList(
+                        context, isEdit, id, fromCashier, parentContext),
                   ],
                 ),
               );
@@ -385,8 +388,87 @@ Future<void> showBottomSheetCashier(BuildContext context, TenantModel tenant,
   );
 }
 
-Widget buildBottomSheetCartList(
-    BuildContext context, bool isEdit, String? id, bool? fromCashier) {
+Future<String?> showInputNameDialog(BuildContext dialogContext) {
+  final controller = TextEditingController();
+
+  return showDialog<String>(
+    context: dialogContext,
+    barrierDismissible: false,
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: AppColors.backgroundColor,
+
+            // 🔥 TITLE DENGAN TOMBOL CLOSE
+            titlePadding: const EdgeInsets.fromLTRB(24, 16, 8, 0),
+            title: Stack(
+              children: [
+                Center(
+                  child: Text(
+                    'Nama Pemesan',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: -12,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.pop(ctx); // ❌ close dialog tanpa value
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            content: CustomTextFormField(
+              withBottomPadding: false,
+              hintText: "Masukkan Nama",
+              controller: controller,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(
+                  RegExp(r"[a-zA-Z\s]"),
+                ),
+              ],
+              onChanged: (_) {
+                setState(() {});
+              },
+            ),
+            actions: [
+              PrimaryButton(
+                borderRadius: 16,
+                waitingText: "Isi nama",
+                isEnabled: controller.text.trim().isNotEmpty,
+                onPressed: () {
+                  final name = controller.text.trim();
+                  if (name.isEmpty) return;
+                  Navigator.pop(ctx, name); // ✅ close + return value
+                },
+                child: Text(
+                  'Pesan Sekarang',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+Widget buildBottomSheetCartList(BuildContext context, bool isEdit, String? id,
+    bool? fromCashier, BuildContext parentContext) {
   return Consumer3<CartProvider, AuthProvider, KasirProvider>(builder:
       (innerContext, cartProvider, authProvider, kasirProvider, child) {
     final listCart = cartProvider.cart;
@@ -427,49 +509,52 @@ Widget buildBottomSheetCartList(
             ],
           ),
           PrimaryButton(
+            key: const Key('submitCashierTransactionButton'),
             width: 120,
             borderRadius: 12,
             isLoading: cartProvider.submittingCashierTransaction,
             onPressed: () async {
-              final internetConnection = await hasInternetAccess();
-              final data = jsonEncode({
-                "menus": cartProvider.cart.map((x) => x.toJson()).toList(),
-              });
-
-              if (!internetConnection) {
-                Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
-                return;
-              }
               try {
-                if (isEdit) {
-                  if (id != null) {
-                    await kasirProvider.updateCashierTransaction(
-                        context, authProvider.user.token, data, id);
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
-                  }
+                final namaPemesan = await showInputNameDialog(context);
+
+                if (namaPemesan == null) return;
+
+                final result = await cartProvider.createCashierTransaction(
+                  context,
+                  authProvider.user.token,
+                  namaPemesan, // 👈 PASS KE API
+                );
+
+                kasirProvider.addCashierTransaction(result);
+
+                // ============================
+                // 3️⃣ TUTUP BOTTOM SHEET
+                // ============================
+                Navigator.pop(context); // context bottom sheet
+
+                if (fromCashier == true) {
+                  Navigator.pushReplacement(
+                    parentContext,
+                    CustomPageBuilder(
+                      page: CheckoutQris(cashierTransaction: result),
+                    ),
+                  );
                 } else {
-                  final result = await cartProvider.createCashierTransaction(
-                      context, authProvider.user.token);
-                  kasirProvider.addCashierTransaction(result);
-                  if (Navigator.canPop(context) && fromCashier == true) {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                        context,
-                        CustomPageBuilder(
-                            page: CheckoutQris(
-                          cashierTransaction: result,
-                        )));
-                  }
+                  Navigator.push(
+                    parentContext,
+                    CustomPageBuilder(
+                      page: CheckoutQris(cashierTransaction: result),
+                    ),
+                  );
                 }
+
+                Fluttertoast.showToast(msg: "Transaksi berhasil dicatat");
               } catch (e) {
                 Fluttertoast.showToast(msg: e.toString());
-              } finally {}
-              Fluttertoast.showToast(msg: "Transaksi berhasil dicatat");
+              }
             },
             child: Text(
-              isEdit ? "Update Transaksi" : "Catat Transaksi",
+              isEdit ? "Update Transaksi" : "Bayar",
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14,

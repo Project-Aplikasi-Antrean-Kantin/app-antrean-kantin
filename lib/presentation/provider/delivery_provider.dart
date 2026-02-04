@@ -30,7 +30,6 @@ class DeliveryProvider with ChangeNotifier {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
-      print("cek status: ${status.value}");
       final pesanan =
           await DriverDataSource().getOrderDelivery(token, status.value);
       _pesanan[status] = pesanan.pesanan ?? [];
@@ -111,15 +110,19 @@ class DeliveryProvider with ChangeNotifier {
 
       // Simpan mapping order.id -> finalStatus sementara
       final Map<int, String> tempFinalStatus = {};
-      print("affected length: ${affected}");
 
       for (final order in affected) {
         String finalStatus = order.status;
 
         if (isMultiTenantSingle) {
-          finalStatus = newStatus;
+          if (order.isPriority == 1 &&
+              newStatus == 'diantar' &&
+              order.driverId == null) {
+            finalStatus = order.status;
+          } else {
+            finalStatus = newStatus;
+          }
         } else {
-          print("order gokil: ${order}");
           if (newStatus == 'diantar') {
             if (order.driverId == null) {
               if (order.status == 'siap_diantar') {
@@ -132,7 +135,6 @@ class DeliveryProvider with ChangeNotifier {
             }
           } else if (newStatus == 'pesanan_diproses') {
             if (order.status == 'diantar') {
-              print("cihuy wkwk");
               finalStatus = 'diantar';
             } else {
               finalStatus = 'pesanan_diproses';
@@ -151,8 +153,7 @@ class DeliveryProvider with ChangeNotifier {
 
       final bool groupHasDiantar =
           tempFinalStatus.values.any((s) => s == 'diantar');
-      print("groupHasDiantar: $groupHasDiantar");
-      print("tempFinalStatus: $tempFinalStatus");
+
       // ------------------------------------------------------
       // STEP 3 — Apply perubahan berdasarkan final group state
       // ------------------------------------------------------

@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 
 class CustomTextFormField extends StatelessWidget {
-  final String label;
+  final String? label;
   final int? maxLine;
   final TextInputType? inputType;
   final String hintText;
@@ -16,6 +16,7 @@ class CustomTextFormField extends StatelessWidget {
   final Color? labelColor;
   final bool obscureText;
   final Widget? suffixIcon;
+  final bool? withBottomPadding;
   final void Function(String)? onChanged;
   final bool boldLabel;
 
@@ -26,7 +27,8 @@ class CustomTextFormField extends StatelessWidget {
 
   const CustomTextFormField({
     Key? key,
-    required this.label,
+    this.withBottomPadding = true,
+    this.label,
     this.maxLine = 1,
     this.inputType,
     required this.hintText,
@@ -50,17 +52,19 @@ class CustomTextFormField extends StatelessWidget {
     final bool hasError = errorText != null && errorText!.isNotEmpty;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontWeight: boldLabel ? FontWeight.bold : FontWeight.w600,
-                fontSize: 15,
-                color: labelColor ?? Colors.grey[800],
+            if (label != null)
+              Text(
+                label ?? '',
+                style: GoogleFonts.poppins(
+                  fontWeight: boldLabel ? FontWeight.bold : FontWeight.w600,
+                  fontSize: 15,
+                  color: labelColor ?? Colors.grey[800],
+                ),
               ),
-            ),
             if (isRequired)
               const Text(
                 ' *',
@@ -152,7 +156,7 @@ class CustomTextFormField extends StatelessWidget {
               ),
             ),
           ),
-        const SizedBox(height: 16),
+        if (withBottomPadding!) const SizedBox(height: 16),
       ],
     );
   }

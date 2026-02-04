@@ -32,6 +32,7 @@ class Pesanan {
   String? namaPembeli;
   String? phone;
   String? catatanPenolakan;
+  String? kodePenolakan;
   String? catatanLokasi;
   String? urlQris;
   DateTime? expiredQris;
@@ -47,6 +48,7 @@ class Pesanan {
     this.fotoDriver,
     this.multitenantId,
     required this.id,
+    this.kodePenolakan,
     this.buktiPengantaran,
     required this.userId,
     required this.status,
@@ -163,6 +165,7 @@ class Pesanan {
         catatanPenolakan: json["catatan_penolakan"],
         catatanLokasi: json['catatan_lokasi_pengantaran'],
         buktiPengantaran: json["bukti_pengantaran"],
+        kodePenolakan: json["verification_code"],
         userId: json["user_id"],
         status: json["status"],
         catatan: json["catatan"],

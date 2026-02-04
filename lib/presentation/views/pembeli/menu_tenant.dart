@@ -34,11 +34,13 @@ class MenuTenant extends StatefulWidget {
   final List<CartMenuModel>? cart;
   final String? cashierTransactionId;
   final bool? fromCashier;
+  final bool? requiredExitCode;
   const MenuTenant(
       {Key? key,
       required this.url,
       this.cart,
       this.cashierTransactionId,
+      this.requiredExitCode = false,
       this.fromCashier = false})
       : super(key: key);
 
@@ -68,8 +70,6 @@ class _MenuTenantState extends State<MenuTenant> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final user = authProvider.user;
-    final now = DateTime.now();
-    bool isTenantBusy = false;
 
     _iconColorNotifier = ValueNotifier<Color>(Colors.grey);
 
@@ -89,9 +89,6 @@ class _MenuTenantState extends State<MenuTenant> {
         showBusyBottomSheet(context: context, onRetry: () {});
       }
 
-      print("tenantData cak iki slur ${tenantData}");
-
-      print("widget.cart cak iki slur ${widget.cart}");
       if (tenantData.emailPemilik == user.email) {
         cartProvider.setCurrentTenant(tenantData, widget.cart, true);
       } else {
@@ -143,33 +140,87 @@ class _MenuTenantState extends State<MenuTenant> {
     }
   }
 
+  Future<bool?> _showExitDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    String secretCode = authProvider.settings
+        .firstWhere((setting) => setting.nama == 'kode_self_service')
+        .nilai; // 🔐 kode didefinisikan langsung
+
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Masukkan Kode'),
+          content: TextField(
+            controller: controller,
+            obscureText: true,
+            decoration: const InputDecoration(
+              hintText: 'Kode keluar',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (controller.text == secretCode) {
+                  Navigator.pop(context, true); // ✅ kode benar
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Kode salah')),
+                  );
+                }
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
     expandedHeight = MediaQuery.of(context).size.height / 3.5;
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: FutureBuilder<TenantModel>(
-        future: _futureTenantFoods,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return SafeArea(
-              child: _buildTenantView(context, snapshot.data!, cartProvider),
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('${snapshot.error}'));
-          }
-          return ShimmerCard(pageType: 'menuTenant');
-        },
-      ),
+    return PopScope(
+      canPop: !widget.requiredExitCode!, // ⛔ cegah back langsung
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
 
-      // ✅ area klik FAB + tombol diperluas
-      floatingActionButton: SafeArea(
-        child: _buildFloatingActionButton(context, cartProvider)!,
+        final result = await _showExitDialog(context);
+        if (result == true) {
+          cartProvider.popTenant();
+          Navigator.of(context).pop(); // ✅ keluar jika kode benar
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: FutureBuilder<TenantModel>(
+          future: _futureTenantFoods,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return SafeArea(
+                child: _buildTenantView(context, snapshot.data!, cartProvider),
+              );
+            } else if (snapshot.hasError) {
+              return Center(child: Text('${snapshot.error}'));
+            }
+            return ShimmerCard(pageType: 'menuTenant');
+          },
+        ),
+        floatingActionButton: SafeArea(
+          child: _buildFloatingActionButton(context, cartProvider)!,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -177,7 +228,9 @@ class _MenuTenantState extends State<MenuTenant> {
       BuildContext context, TenantModel tenant, CartProvider cartProvider) {
     return WillPopScope(
       onWillPop: () async {
-        // cartProvider.clearCart(false); // langsung clear
+        if (widget.requiredExitCode == true) {
+          return true;
+        }
         cartProvider.popTenant();
         FocusScope.of(context).unfocus();
         return true;
@@ -250,7 +303,15 @@ class _MenuTenantState extends State<MenuTenant> {
       children: [
         // Tombol Back
         GestureDetector(
-          onTap: () {
+          onTap: () async {
+            if (widget.requiredExitCode == true) {
+              final result = await _showExitDialog(context);
+              if (result == true) {
+                cartProvider.popTenant();
+                Navigator.pop(context);
+              }
+              return;
+            }
             cartProvider.popTenant();
             Navigator.pop(context);
           },
@@ -433,56 +494,57 @@ class _MenuTenantState extends State<MenuTenant> {
       spacing: 3,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            HugeIcon(
-              icon: Iconsax.clock,
-              color: tenant.isOnline == true
-                  ? tenant.busyUntil != null
-                      ? AppColors.warningColor
-                      : AppColors.successColor
-                  : AppColors.errorColor,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              tenant.isOnline == true
-                  ? tenant.busyUntil != null
-                      ? 'Sibuk'
-                      : 'Buka'
-                  : 'Tutup',
-              style: TextStyle(
-                fontStyle: FontStyle.italic,
+        if (widget.requiredExitCode == false)
+          Row(
+            children: [
+              HugeIcon(
+                icon: Iconsax.clock,
                 color: tenant.isOnline == true
                     ? tenant.busyUntil != null
                         ? AppColors.warningColor
                         : AppColors.successColor
                     : AppColors.errorColor,
               ),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '|',
-              style: TextStyle(
-                color: tenant.isOnline == true
+              const SizedBox(width: 4),
+              Text(
+                tenant.isOnline == true
                     ? tenant.busyUntil != null
-                        ? AppColors.warningColor
-                        : AppColors.successColor
-                    : AppColors.errorColor,
+                        ? 'Sibuk'
+                        : 'Buka'
+                    : 'Tutup',
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  color: tenant.isOnline == true
+                      ? tenant.busyUntil != null
+                          ? AppColors.warningColor
+                          : AppColors.successColor
+                      : AppColors.errorColor,
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '${tenant.jamBuka?.substring(0, 5) ?? '09:30'} - ${tenant.jamTutup?.substring(0, 5) ?? '17:00'}',
-              style: TextStyle(
-                color: tenant.isOnline == true
-                    ? tenant.busyUntil != null
-                        ? AppColors.warningColor
-                        : AppColors.successColor
-                    : AppColors.errorColor,
+              const SizedBox(width: 4),
+              Text(
+                '|',
+                style: TextStyle(
+                  color: tenant.isOnline == true
+                      ? tenant.busyUntil != null
+                          ? AppColors.warningColor
+                          : AppColors.successColor
+                      : AppColors.errorColor,
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: 4),
+              Text(
+                '${tenant.jamBuka?.substring(0, 5) ?? '09:30'} - ${tenant.jamTutup?.substring(0, 5) ?? '17:00'}',
+                style: TextStyle(
+                  color: tenant.isOnline == true
+                      ? tenant.busyUntil != null
+                          ? AppColors.warningColor
+                          : AppColors.successColor
+                      : AppColors.errorColor,
+                ),
+              ),
+            ],
+          ),
         Text(
           tenant.namaTenant,
           softWrap: true,
@@ -579,6 +641,7 @@ class _MenuTenantState extends State<MenuTenant> {
           ? SizedBox(
               width: MediaQuery.of(context).size.width - 40,
               child: FloatingActionButton(
+                key: Key('floatingActionButton${cartProvider.totalItemCount}'),
                 onPressed: () async {
                   print(
                       "total item: ${cartProvider.currentTenant!.namaTenant}");

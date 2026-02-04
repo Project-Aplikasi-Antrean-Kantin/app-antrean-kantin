@@ -28,91 +28,81 @@ class PesananKasir extends StatefulWidget {
 
 class _PesananKasirState extends State<PesananKasir> {
   final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
-  late StreamSubscription<RemoteMessage> _onCashierSuccess;
 
   @override
   void initState() {
     // TODO: implement initState
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      _onCashierSuccess =
-          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        final title = message.data['title']?.toString().toLowerCase();
-        final body = message.data['body']?.toString().toLowerCase();
-        final cashierId = body?.split(' ')[1].trim();
-        print("cashierId: $cashierId title: $title");
-        if (title!.contains('kasir') && cashierId != null) {
-          final cleanId = int.parse(
-            cashierId.replaceAll(RegExp(r'[^0-9]'), ''),
-          );
-          kasirProvider.getCashierTransactionById(
-              authProvider.user.token, cleanId);
-        }
-      });
-    });
+
     super.initState();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    _onCashierSuccess.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.primaryColor,
-        onPressed: () {
-          final kasirProvider =
-              Provider.of<KasirProvider>(context, listen: false);
+    return RefreshIndicator(
+      onRefresh: () async {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final user = authProvider.user;
+        final kasirProvider =
+            Provider.of<KasirProvider>(context, listen: false);
+        kasirProvider.getListCashierTransaction(user.token);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: AppColors.primaryColor,
+          onPressed: () {
+            final kasirProvider =
+                Provider.of<KasirProvider>(context, listen: false);
 
-          if (kasirProvider.tenant == null) return;
-          Navigator.push(
-              context,
-              CustomPageBuilder(
-                  page: MenuTenant(
-                      fromCashier: true,
-                      url:
-                          "${MasbroConstants.url}/tenants/${kasirProvider.tenant!.id.toString()}")));
-        },
-        label: Text("Catat Transaksi",
-            style: GoogleFonts.poppins(color: Colors.white)),
-        icon: Icon(Iconsax.add_copy, color: Colors.white),
-      ),
-      body: Consumer<KasirProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView.separated(
-                separatorBuilder: (context, index) => const SizedBox(
-                      height: 12,
-                    ),
-                itemCount: widget.data.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == widget.data.length)
-                    return SizedBox(
-                      height: 64,
+            if (kasirProvider.tenant == null) return;
+            Navigator.push(
+                context,
+                CustomPageBuilder(
+                    page: MenuTenant(
+                        fromCashier: true,
+                        url:
+                            "${MasbroConstants.url}/tenants/${kasirProvider.tenant!.id.toString()}")));
+          },
+          label: Text("Catat Transaksi",
+              style: GoogleFonts.poppins(color: Colors.white)),
+          icon: Icon(Iconsax.add_copy, color: Colors.white),
+        ),
+        body: Consumer<KasirProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.separated(
+                  separatorBuilder: (context, index) => const SizedBox(
+                        height: 12,
+                      ),
+                  itemCount: widget.data.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == widget.data.length)
+                      return SizedBox(
+                        height: 64,
+                      );
+                    return CashierTransactionItemWidget(
+                      printer: printer,
+                      transaksi: widget.data[index],
+                      onTerima: () {},
+                      onTolak: () {},
+                      withPadding: true,
                     );
-                  return CashierTransactionItemWidget(
-                    printer: printer,
-                    transaksi: widget.data[index],
-                    onTerima: () {},
-                    onTolak: () {},
-                    withPadding: true,
-                  );
-                }),
-          );
-        },
+                  }),
+            );
+          },
+        ),
       ),
     );
   }

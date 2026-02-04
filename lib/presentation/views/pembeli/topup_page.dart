@@ -184,6 +184,7 @@ class _TopupPageState extends State<TopupPage> {
               ),
             const SizedBox(height: 28),
             PrimaryButton(
+              key: const Key('bayarButton'),
               isLoading: isLoading,
               waitingText: isLoading
                   ? 'Tunggu sebentar'
@@ -265,7 +266,6 @@ class _TopupPageState extends State<TopupPage> {
                   //     });
                   //   }
 
-                  print("selectedValue: $selectedValue");
                   if (selectedValue == 'QRIS') {
                     setState(() {
                       isLoading = true;
@@ -307,6 +307,7 @@ class _TopupPageState extends State<TopupPage> {
 
   Widget _buildDropdown(TopupProvider topUpProvider) {
     return DropdownButtonHideUnderline(
+      key: const Key('dropDownButton'),
       child: DropdownButton2<String>(
         iconStyleData: IconStyleData(
             icon: Padding(
@@ -328,6 +329,7 @@ class _TopupPageState extends State<TopupPage> {
         ),
         items: const [
           DropdownMenuItem(
+            key: const Key('qrisDropDown'),
             value: 'QRIS',
             child: Text('QRIS'),
           ),
@@ -394,31 +396,37 @@ class _TopupPageState extends State<TopupPage> {
           itemCount: nominalList.length,
           itemBuilder: (context, index) {
             final isSelected = _selectedNominal == nominalList[index];
-            return GestureDetector(
-              onTap: () =>
-                  setState(() => _selectedNominal = nominalList[index]),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primaryColor.withOpacity(0.1)
-                      : null,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
+            return Semantics(
+              label: "${nominalList[index].toString()}Nominal",
+              button: true,
+              child: GestureDetector(
+                key: Key("${nominalList[index].toString()}Nominal"),
+                onTap: () =>
+                    setState(() => _selectedNominal = nominalList[index]),
+                child: Container(
+                  decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primaryColor
-                        : AppColors.blackColor400,
-                    width: 1,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    FormatCurrency.formatNumber(nominalList[index].toString()),
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
+                        ? AppColors.primaryColor.withOpacity(0.1)
+                        : null,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
                       color: isSelected
                           ? AppColors.primaryColor
                           : AppColors.blackColor400,
-                      fontWeight: isSelected ? semibold : regular,
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      FormatCurrency.formatNumber(
+                          nominalList[index].toString()),
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: isSelected
+                            ? AppColors.primaryColor
+                            : AppColors.blackColor400,
+                        fontWeight: isSelected ? semibold : regular,
+                      ),
                     ),
                   ),
                 ),

@@ -712,11 +712,13 @@ class _RiwayatPageState extends State<RiwayatPage>
     return Skeletonizer(
       enabled: isLoading,
       child: DropdownButtonHideUnderline(
+        key: const Key('dropDownButton'),
         child: DropdownButton2<String>(
           isExpanded: true,
           value: statusList[selectedIndex],
           items: statusList.map((status) {
             return DropdownMenuItem<String>(
+              key: Key("${status}Dropdown"),
               value: status,
               child: Row(
                 children: [
@@ -800,402 +802,361 @@ class _RiwayatPageState extends State<RiwayatPage>
         .fold(0, (prev, jumlah) => prev + jumlah);
     final List<CartMenuModel> cartMenu = pesanan.toCartMenuList();
 
-    return GestureDetector(
-      onTap: () async {
-        if (isLoading) return;
-        isLoading = true;
-        final internetConnection = await hasInternetAccess();
-        // final prefs = await SharedPreferences.getInstance();
-        if (!internetConnection) {
-          Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
-          return;
-        }
-        historyProvider.updateSelectedPesanan(pesanan);
-        Navigator.of(context).push(
-          CustomPageBuilder(
-            page: DetailRiwayat(
-              pesanan: pesanan,
-              label: widget.tabLabel,
-              token: user.token.toString(),
-              refreshData: () {
-                TransactionRemoteDataSource()
-                    .getOrderById(
-                        authProvider.user.token, pesanan.id.toString())
-                    .then((pesanan) {
-                  historyProvider.updateSelectedPesanan(pesanan);
-                  historyProvider.updatedPesanan(pesanan, widget.role);
-                });
-                _lastFetchTime = DateTime.now();
-              },
+    return Semantics(
+      button: true,
+      label: 'Buka pesanan ${pesanan.id}',
+      child: GestureDetector(
+        key: Key("${pesanan.id.toString()}pesananItem"),
+        onTap: () async {
+          if (isLoading) return;
+          isLoading = true;
+          final internetConnection = await hasInternetAccess();
+          // final prefs = await SharedPreferences.getInstance();
+          if (!internetConnection) {
+            Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+            return;
+          }
+          historyProvider.updateSelectedPesanan(pesanan);
+          Navigator.of(context).push(
+            CustomPageBuilder(
+              page: DetailRiwayat(
+                pesanan: pesanan,
+                label: widget.tabLabel,
+                token: user.token.toString(),
+                refreshData: () {
+                  TransactionRemoteDataSource()
+                      .getOrderById(
+                          authProvider.user.token, pesanan.id.toString())
+                      .then((pesanan) {
+                    historyProvider.updateSelectedPesanan(pesanan);
+                    historyProvider.updatedPesanan(pesanan, widget.role);
+                  });
+                  _lastFetchTime = DateTime.now();
+                },
+              ),
             ),
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.whiteColor100,
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(
+                color: pesanan.status == "selesai"
+                    ? AppColors.primaryColor
+                    : AppColors.whiteColor900),
           ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.whiteColor100,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(
-              color: pesanan.status == "selesai"
-                  ? AppColors.primaryColor
-                  : AppColors.whiteColor900),
-        ),
-        child: Column(
-          spacing: 8,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              spacing: 8,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: ImageByUrl(
-                      url: pesanan.listTransaksiDetail.isNotEmpty
-                          ? pesanan.listTransaksiDetail[0].menus?.tenants
-                                  ?.gambar ??
-                              ''
-                          : '',
-                      height: 76,
-                      width: 76,
-                      fit: BoxFit.cover),
-                ),
-                Flexible(
-                  child: Column(
-                    spacing: 4,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: pesanan.isPriority == 1
-                                      ? AppColors.primaryColor
-                                      : Colors.grey),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              spacing: 2,
-                              children: [
-                                if (pesanan.isPriority == 1)
-                                  Icon(Iconsax.flash_1,
-                                      size: 16, color: AppColors.primaryColor),
-                                Text(
-                                  pesanan.isPriority == 1
-                                      ? "Express"
-                                      : "Reguler",
-                                  style: GoogleFonts.poppins(
+          child: Column(
+            spacing: 8,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                spacing: 8,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: ImageByUrl(
+                        url: pesanan.listTransaksiDetail.isNotEmpty
+                            ? pesanan.listTransaksiDetail[0].menus?.tenants
+                                    ?.gambar ??
+                                ''
+                            : '',
+                        height: 76,
+                        width: 76,
+                        fit: BoxFit.cover),
+                  ),
+                  Flexible(
+                    child: Column(
+                      spacing: 4,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                border: Border.all(
                                     color: pesanan.isPriority == 1
                                         ? AppColors.primaryColor
-                                        : Colors.black,
-                                    fontSize: 10,
+                                        : Colors.grey),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                spacing: 2,
+                                children: [
+                                  if (pesanan.isPriority == 1)
+                                    Icon(Iconsax.flash_1,
+                                        size: 16,
+                                        color: AppColors.primaryColor),
+                                  Text(
+                                    pesanan.isPriority == 1
+                                        ? "Express"
+                                        : "Reguler",
+                                    style: GoogleFonts.poppins(
+                                      color: pesanan.isPriority == 1
+                                          ? AppColors.primaryColor
+                                          : Colors.black,
+                                      fontSize: 10,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: getStatusColor(pesanan.status)),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              spacing: 2,
-                              children: [
-                                Icon(getIconByStatus(pesanan.status),
-                                    size: 16,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                border: Border.all(
                                     color: getStatusColor(pesanan.status)),
-                                Text(
-                                  getStatus(pesanan.status, pesanan),
-                                  style: GoogleFonts.poppins(
-                                    color: getStatusColor(pesanan.status),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                spacing: 2,
+                                children: [
+                                  Icon(getIconByStatus(pesanan.status),
+                                      size: 16,
+                                      color: getStatusColor(pesanan.status)),
+                                  Text(
+                                    getStatus(pesanan.status, pesanan),
+                                    style: GoogleFonts.poppins(
+                                      color: getStatusColor(pesanan.status),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
+                                ],
+                              ),
+                            )
+                            // HugeIcon(
+                            //     icon: getIconByStatus(pesanan.status),
+                            //     color: getStatusColor(pesanan.status)),
+                          ],
+                        ),
+                        Row(
+                          spacing: 8,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                pesanan.listTransaksiDetail.isNotEmpty
+                                    ? pesanan.listTransaksiDetail[0].menus
+                                            ?.tenants?.namaTenant ??
+                                        '-'
+                                    : '-',
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  color: AppColors.blackColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              ],
+                              ),
                             ),
-                          )
-                          // HugeIcon(
-                          //     icon: getIconByStatus(pesanan.status),
-                          //     color: getStatusColor(pesanan.status)),
-                        ],
-                      ),
-                      Row(
-                        spacing: 8,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              pesanan.listTransaksiDetail.isNotEmpty
-                                  ? pesanan.listTransaksiDetail[0].menus
-                                          ?.tenants?.namaTenant ??
-                                      '-'
-                                  : '-',
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
+                            Text(
+                              FormatDate.dateTimeToStringDate(
+                                  pesanan.createdAt),
+                              style: GoogleFonts.poppins(
+                                color: AppColors.primaryColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
+                          ],
+                        ),
+                        Wrap(
+                          spacing: 8, // Jarak antar item horizontal
+                          runSpacing: 4, // Jarak antar baris
+                          children: pesanan.listTransaksiDetail
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                            final index = entry.key;
+                            final item = entry.value;
+                            final isLast =
+                                index == pesanan.listTransaksiDetail.length - 1;
+
+                            return Text(
+                              "${item.menus?.nama}${isLast ? '' : ', '}",
                               style: GoogleFonts.poppins(
                                 color: AppColors.blackColor,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                               ),
-                            ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              DashedDivider(height: 1, color: AppColors.blackColor100),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (pesanan.status == 'refund_selesai' ||
+                      pesanan.status == 'selesai' ||
+                      pesanan.status == 'pending' ||
+                      pesanan.status == 'gagal_bayar')
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 4,
+                      children: [
+                        Text(
+                          FormatCurrency.intToStringCurrency(pesanan.total),
+                          style: GoogleFonts.poppins(
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
                           ),
-                          Text(
-                            FormatDate.dateTimeToStringDate(pesanan.createdAt),
-                            style: GoogleFonts.poppins(
-                              color: AppColors.primaryColor,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          )
-                        ],
-                      ),
-                      Wrap(
-                        spacing: 8, // Jarak antar item horizontal
-                        runSpacing: 4, // Jarak antar baris
-                        children: pesanan.listTransaksiDetail
-                            .asMap()
-                            .entries
-                            .map((entry) {
-                          final index = entry.key;
-                          final item = entry.value;
-                          final isLast =
-                              index == pesanan.listTransaksiDetail.length - 1;
-
-                          return Text(
-                            "${item.menus?.nama}${isLast ? '' : ', '}",
-                            style: GoogleFonts.poppins(
-                              color: AppColors.blackColor,
-                              fontSize: 12,
+                        ),
+                        Text(
+                          '${pesanan.listTransaksiDetail.length} Menu',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.blackColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (pesanan.status == 'refund_selesai' ||
+                      pesanan.status == 'selesai' ||
+                      pesanan.status == 'pending' ||
+                      pesanan.status == 'gagal_bayar')
+                    const Spacer(),
+                  if (pesanan.status != 'refund_selesai' &&
+                      pesanan.status != 'selesai' &&
+                      pesanan.status != 'pending' &&
+                      pesanan.status != 'gagal_bayar' &&
+                      !(widget.tabLabel == 'Jual' &&
+                          pesanan.status == 'diantar'))
+                    Semantics(
+                      label: 'Chat',
+                      button: true,
+                      child: GestureDetector(
+                        key: Key('chat${pesanan.id}'),
+                        onTap: () async {
+                          final connectivityResult = await hasInternetAccess();
+                          final canChatTenant = historyProvider
+                                  .availableChatList
+                                  .contains(pesanan.id) &&
+                              chatType == 'tenant';
+                          if (!connectivityResult) {
+                            Fluttertoast.showToast(
+                              msg: 'Tidak ada koneksi internet',
+                            );
+                            showNoConnectionBottomSheet(
+                              context: context,
+                              onRetry: () {},
+                            );
+                            return;
+                          }
+                          if (chatType == 'tenant' &&
+                              widget.tabLabel == 'Beli') {
+                            if (!canChatTenant) {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      "Harus tenant yang melakukan chat terlebih dahulu");
+                              return;
+                            }
+                          }
+                          await historyProvider
+                              .removeUnreadMessages(pesanan.id);
+                          Navigator.push(
+                            context,
+                            CustomPageBuilder(
+                              page: ChatPage(
+                                pesanan: pesanan,
+                                chatType: chatType,
+                              ),
                             ),
                           );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            DashedDivider(height: 1, color: AppColors.blackColor100),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (pesanan.status == 'refund_selesai' ||
-                    pesanan.status == 'selesai' ||
-                    pesanan.status == 'pending' ||
-                    pesanan.status == 'gagal_bayar')
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 4,
-                    children: [
-                      Text(
-                        FormatCurrency.intToStringCurrency(pesanan.total),
-                        style: GoogleFonts.poppins(
-                          color: AppColors.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        '${pesanan.listTransaksiDetail.length} Menu',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.blackColor,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                if (pesanan.status == 'refund_selesai' ||
-                    pesanan.status == 'selesai' ||
-                    pesanan.status == 'pending' ||
-                    pesanan.status == 'gagal_bayar')
-                  const Spacer(),
-                if (pesanan.status != 'refund_selesai' &&
-                    pesanan.status != 'selesai' &&
-                    pesanan.status != 'pending' &&
-                    pesanan.status != 'gagal_bayar' &&
-                    !(widget.tabLabel == 'Jual' && pesanan.status == 'diantar'))
-                  GestureDetector(
-                    onTap: () async {
-                      final connectivityResult = await hasInternetAccess();
-                      final canChatTenant = historyProvider.availableChatList
-                              .contains(pesanan.id) &&
-                          chatType == 'tenant';
-                      if (!connectivityResult) {
-                        Fluttertoast.showToast(
-                          msg: 'Tidak ada koneksi internet',
-                        );
-                        showNoConnectionBottomSheet(
-                          context: context,
-                          onRetry: () {},
-                        );
-                        return;
-                      }
-                      if (chatType == 'tenant' && widget.tabLabel == 'Beli') {
-                        if (!canChatTenant) {
-                          Fluttertoast.showToast(
-                              msg:
-                                  "Harus tenant yang melakukan chat terlebih dahulu");
-                          return;
-                        }
-                      }
-                      await historyProvider.removeUnreadMessages(pesanan.id);
-                      Navigator.push(
-                        context,
-                        CustomPageBuilder(
-                          page: ChatPage(
-                            pesanan: pesanan,
-                            chatType: chatType,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      clipBehavior: Clip
-                          .none, // supaya bulatan bisa keluar dari container
-                      children: [
-                        Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryColor100,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Iconsax.message,
-                                color: AppColors.primaryColor,
+                        },
+                        child: Stack(
+                          clipBehavior: Clip
+                              .none, // supaya bulatan bisa keluar dari container
+                          children: [
+                            Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor100,
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                textAlign: TextAlign.center,
-                                'Chat ${chatType == 'driver' ? widget.tabLabel == 'Antar' ? 'Pembeli' : 'Driver' : widget.tabLabel == 'Jual' ? 'Pembeli' : 'Penjual'}',
-                                style: GoogleFonts.poppins(
-                                  color: AppColors.whiteColor900,
-                                  fontSize: 14,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Iconsax.message,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    textAlign: TextAlign.center,
+                                    'Chat ${chatType == 'driver' ? widget.tabLabel == 'Antar' ? 'Pembeli' : 'Driver' : widget.tabLabel == 'Jual' ? 'Pembeli' : 'Penjual'}',
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.whiteColor900,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isThereNewChat)
+                              Positioned(
+                                right: 4,
+                                top: -2,
+                                child: Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryColor,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
+                          ],
                         ),
-                        if (isThereNewChat)
-                          Positioned(
-                            right: 4,
-                            top: -2,
-                            child: Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
-                                shape: BoxShape.circle,
+                      ),
+                    ),
+                  if (pesanan.status == 'pending' && widget.tabLabel == 'Beli')
+                    Semantics(
+                      label: 'Buka bayar pesanan ${pesanan.id}',
+                      button: true,
+                      child: GestureDetector(
+                        key: Key('bayar${pesanan.id}'),
+                        onTap: () async {
+                          Navigator.push(
+                            context,
+                            CustomPageBuilder(
+                              page: CheckoutQris(
+                                pesanan: pesanan,
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ),
-                if (pesanan.status == 'pending' && widget.tabLabel == 'Beli')
-                  GestureDetector(
-                    onTap: () async {
-                      Navigator.push(
-                        context,
-                        CustomPageBuilder(
-                          page: CheckoutQris(
-                            pesanan: pesanan,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      clipBehavior: Clip
-                          .none, // supaya bulatan bisa keluar dari container
-                      children: [
-                        Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.primaryColor,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            textAlign: TextAlign.center,
-                            'Bayar',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.primaryColor,
-                              fontSize: 14,
-                              fontWeight: semibold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                widget.tabLabel == 'Beli'
-                    ? (pesanan.status == 'selesai' ||
-                            pesanan.status == 'pesanan_ditolak' ||
-                            pesanan.status == 'refund_selesai' ||
-                            pesanan.status == 'gagal_bayar')
-                        ? GestureDetector(
-                            onTap: () async {
-                              final connectivityResult =
-                                  await hasInternetAccess();
-                              if (!connectivityResult) {
-                                Fluttertoast.showToast(
-                                  msg: 'Tidak ada koneksi internet',
-                                );
-                                showNoConnectionBottomSheet(
-                                    context: context, onRetry: () {});
-                                return;
-                              }
-                              if (pesanan
-                                      .listTransaksiDetail[0].menus?.tenants ==
-                                  null) return;
-                              cartProvider.setCurrentTenant(
-                                  pesanan
-                                      .listTransaksiDetail[0].menus!.tenants!,
-                                  cartMenu,
-                                  null);
-
-                              Future.delayed(const Duration(milliseconds: 300),
-                                  () {
-                                Navigator.push(
-                                  context,
-                                  CustomPageBuilder(
-                                    page: MenuTenant(
-                                        url:
-                                            '${MasbroConstants.url}/tenants/${pesanan.listTransaksiDetail[0].menus!.tenants!.id.toString()}',
-                                        cart: cartMenu),
-                                  ),
-                                );
-                              });
-                            },
-                            child: Container(
+                          );
+                        },
+                        child: Stack(
+                          clipBehavior: Clip
+                              .none, // supaya bulatan bisa keluar dari container
+                          children: [
+                            Container(
+                              alignment: Alignment.centerRight,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: AppColors.primaryColor,
                                 ),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                'Pesan Lagi',
+                                textAlign: TextAlign.center,
+                                'Bayar',
                                 style: GoogleFonts.poppins(
                                   color: AppColors.primaryColor,
                                   fontSize: 14,
@@ -1203,12 +1164,79 @@ class _RiwayatPageState extends State<RiwayatPage>
                                 ),
                               ),
                             ),
-                          )
-                        : Container()
-                    : Container(),
-              ],
-            ),
-          ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  widget.tabLabel == 'Beli'
+                      ? (pesanan.status == 'selesai' ||
+                              pesanan.status == 'pesanan_ditolak' ||
+                              pesanan.status == 'refund_selesai' ||
+                              pesanan.status == 'gagal_bayar')
+                          ? Semantics(
+                              label: 'Pesan Lagi',
+                              button: true,
+                              child: GestureDetector(
+                                key: Key('pesanLagi${pesanan.id}'),
+                                onTap: () async {
+                                  final connectivityResult =
+                                      await hasInternetAccess();
+                                  if (!connectivityResult) {
+                                    Fluttertoast.showToast(
+                                      msg: 'Tidak ada koneksi internet',
+                                    );
+                                    showNoConnectionBottomSheet(
+                                        context: context, onRetry: () {});
+                                    return;
+                                  }
+                                  if (pesanan.listTransaksiDetail[0].menus
+                                          ?.tenants ==
+                                      null) return;
+                                  cartProvider.setCurrentTenant(
+                                      pesanan.listTransaksiDetail[0].menus!
+                                          .tenants!,
+                                      cartMenu,
+                                      null);
+
+                                  Future.delayed(
+                                      const Duration(milliseconds: 300), () {
+                                    Navigator.push(
+                                      context,
+                                      CustomPageBuilder(
+                                        page: MenuTenant(
+                                            url:
+                                                '${MasbroConstants.url}/tenants/${pesanan.listTransaksiDetail[0].menus!.tenants!.id.toString()}',
+                                            cart: cartMenu),
+                                      ),
+                                    );
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'Pesan Lagi',
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.primaryColor,
+                                      fontSize: 14,
+                                      fontWeight: semibold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container()
+                      : Container(),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -44,15 +44,15 @@ class _RiwayatPageAsRoleState extends State<RiwayatPageAsRole>
 
     if (user.permission.contains('read order user')) {
       tabViews.add(const RiwayatPage(tabLabel: 'Beli', role: 'user'));
-      tabHeaders.add(const Tab(text: 'Beli'));
+      tabHeaders.add(const Tab(key: Key('Beli'), text: 'Beli'));
     }
     if (user.permission.contains('read order tenant')) {
       tabViews.add(const RiwayatPage(tabLabel: 'Jual', role: 'tenant'));
-      tabHeaders.add(const Tab(text: 'Jual'));
+      tabHeaders.add(const Tab(key: Key('Jual'), text: 'Jual'));
     }
     if (user.permission.contains('read order masbro')) {
       tabViews.add(const RiwayatPage(tabLabel: 'Antar', role: 'masbro'));
-      tabHeaders.add(const Tab(text: 'Antar'));
+      tabHeaders.add(const Tab(key: Key('Antar'), text: 'Antar'));
     }
 
     return DefaultTabController(

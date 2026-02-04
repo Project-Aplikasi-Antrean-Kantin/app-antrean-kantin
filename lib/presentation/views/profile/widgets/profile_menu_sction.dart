@@ -12,16 +12,19 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
+import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
 import 'package:testgetdata/presentation/views/pembeli/list_promo_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_rekening.dart';
 import 'package:testgetdata/presentation/views/penjual/form_operational.dart';
@@ -312,6 +315,28 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
                   return;
                 }
                 showBottomSheetBluetoothDevices(context);
+              },
+            ),
+            ProfileMenuItem(
+              icon: Iconsax.shop,
+              title: 'Self Service',
+              titleColor: AppColors.blackColor,
+              onTap: () async {
+                final kasirProvider =
+                    Provider.of<KasirProvider>(context, listen: false);
+                if (kasirProvider.tenant == null) {
+                  Fluttertoast.showToast(
+                      msg:
+                          "Data tenant belum termuat, silahkan klik beranda terlebih dahulu");
+                  return;
+                }
+                Navigator.push(
+                    context,
+                    CustomPageBuilder(
+                        page: MenuTenant(
+                            requiredExitCode: true,
+                            url:
+                                '${MasbroConstants.url}/tenants/${kasirProvider.tenant!.id.toString()}')));
               },
             )
           ],

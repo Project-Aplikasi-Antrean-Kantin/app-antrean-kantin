@@ -27,7 +27,6 @@ class KatalogMenuProvider extends ChangeNotifier {
   }
 
   void updateDataById(TenantFoods newData) {
-    print("newData: $newData");
     final index = data.indexWhere((food) => food.id == newData.id);
     if (index != -1) {
       data[index] = newData;

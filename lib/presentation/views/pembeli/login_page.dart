@@ -285,6 +285,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   GestureDetector(
+                    key: const Key('forgotPassword'),
                     onTap: () => Navigator.push(
                         context, CustomPageBuilder(page: ForgotPassword())),
                     child: Align(
@@ -298,6 +299,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   PrimaryButton(
+                    key: const Key('loginButton'),
                     isLoading: _isLoading,
                     borderRadius: 20,
                     onPressed: () =>

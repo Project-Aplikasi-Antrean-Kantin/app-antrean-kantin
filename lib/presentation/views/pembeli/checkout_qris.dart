@@ -5,8 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:saver_gallery/saver_gallery.dart';
@@ -28,6 +30,7 @@ import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
+import 'package:testgetdata/presentation/provider/printer_provider.dart';
 
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
@@ -46,6 +49,7 @@ class _CheckoutQrisState extends State<CheckoutQris>
     with WidgetsBindingObserver {
   Timer? _timer;
   int _secondsRemaining = 0;
+  FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
   StreamSubscription<RemoteMessage>? _onCashierSuccess;
 
   String formatDuration(int seconds) {
@@ -74,18 +78,56 @@ class _CheckoutQrisState extends State<CheckoutQris>
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      final printerProvider =
+          Provider.of<PrinterProvider>(context, listen: false);
       cartProvider.clearCartOnly();
       _onCashierSuccess =
           FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
         final title = message.data['title']?.toString().toLowerCase();
         final body = message.data['body']?.toString().toLowerCase();
-        final cashierId = body?.split(' ')[1].trim();
 
-        if (title!.contains('kasir') && cashierId != null) {
+        if (title?.contains('kasir') != true || body == null) return;
+
+        final parts = body.split(' ');
+        if (parts.length < 2) return;
+
+        final cashierId = parts[1].trim();
+
+        try {
+          final printerDevice = printerProvider.selectedPrinter;
+          final transaction = widget.cashierTransaction;
+
+          if (printerDevice == null || transaction == null) return;
+
+          await printer.connect(printerDevice);
+
+          final data = await generateReceiptCashier(
+            transaction,
+            printerDevice,
+            context,
+          );
+
+          await printer.printData(
+            printerDevice,
+            data,
+            longData: true,
+          );
+
+          if (!mounted) return;
+
+          Fluttertoast.showToast(
+            msg: 'Cetak Berhasil',
+            backgroundColor: AppColors.successColor,
+            textColor: AppColors.whiteColor,
+          );
+
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
             Fluttertoast.showToast(msg: 'Pesanan selesai');
           }
+        } catch (e, s) {
+          debugPrint('Print error: $e');
+          debugPrint('$s');
         }
       });
     });
@@ -97,6 +139,8 @@ class _CheckoutQrisState extends State<CheckoutQris>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _onCashierSuccess?.cancel();
+
     super.dispose();
   }
 

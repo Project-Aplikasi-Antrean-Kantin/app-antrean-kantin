@@ -108,6 +108,7 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
             spacing: 8,
             children: [
               DropdownButtonHideUnderline(
+                key: const Key('dropDownButtonRuangan'),
                 child: DropdownButton2<int>(
                   iconStyleData: IconStyleData(
                       icon: Padding(
@@ -127,6 +128,7 @@ class _PilihLokasiRuanganState extends State<PilihLokasiRuangan> {
                   ),
                   items: widget.listRuangan
                       .map((ruangan) => DropdownMenuItem<int>(
+                            key: Key(ruangan.nama.toString()),
                             value: ruangan.id,
                             child: Text(
                               ruangan.namaRuangan.toString(),

@@ -44,22 +44,27 @@ class BottomNavigationButton extends StatelessWidget {
           final validVoucher = cartProvider.selectedVoucher != null &&
               cartProvider.selectedVoucher!.cashback!.minimalOrder >
                   cartProvider.totalPrice;
-          return InkWell(
-            onTap: !isEnabled
-                ? () {
-                    if (isCoinInsufficient) {
-                      Fluttertoast.showToast(msg: 'Koin kamu tidak cukup');
+          return Semantics(
+            label: 'Navigasi pembayaran keranjang',
+            button: true,
+            child: InkWell(
+              key: Key("checkoutButton"),
+              onTap: !isEnabled
+                  ? () {
+                      if (isCoinInsufficient) {
+                        Fluttertoast.showToast(msg: 'Koin kamu tidak cukup');
+                      }
+                      Fluttertoast.showToast(msg: 'Tunggu Sebentar');
                     }
-                    Fluttertoast.showToast(msg: 'Tunggu Sebentar');
-                  }
-                : onTap,
-            child: Center(
-              child: Text(
-                'Pesan sekarang',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: semibold,
+                  : onTap,
+              child: Center(
+                child: Text(
+                  'Pesan sekarang',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: semibold,
+                  ),
                 ),
               ),
             ),

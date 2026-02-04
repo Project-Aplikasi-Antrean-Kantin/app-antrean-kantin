@@ -86,60 +86,67 @@ class PilihTipePembayaran extends StatelessWidget {
                   height: _iconSize,
                 ),
               Expanded(
-                child: GestureDetector(
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    builder: (context) => _PaymentOptionBottomSheet(
-                        selectedMethod: selectedPaymentMethod,
-                        onSelect: onPaymentMethodSelected),
-                  ),
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  selectedPaymentMethod == null
-                                      ? 'Pilih metode bayar'
-                                      : _paymentOptions[selectedPaymentMethod]![
-                                          'label'] as String,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    color: AppColors.textColorBlack,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                if (selectedPaymentMethod != null)
+                child: Semantics(
+                  label: 'Metode pembayaran',
+                  button: true,
+                  child: GestureDetector(
+                    key: const Key('showPaymentMethod'),
+                    onTap: () => showModalBottomSheet(
+                      context: context,
+                      builder: (context) => _PaymentOptionBottomSheet(
+                          selectedMethod: selectedPaymentMethod,
+                          onSelect: onPaymentMethodSelected),
+                    ),
+                    child: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
-                                    _formatTotal(total, selectedPaymentMethod),
+                                    selectedPaymentMethod == null
+                                        ? 'Pilih metode bayar'
+                                        : _paymentOptions[
+                                                selectedPaymentMethod]!['label']
+                                            as String,
                                     style: GoogleFonts.poppins(
-                                      fontWeight: semibold,
+                                      fontSize: 16,
                                       color: AppColors.textColorBlack,
+                                      fontWeight: FontWeight.w600,
                                       height: 1.5,
                                     ),
                                   ),
-                              ],
-                            ),
-                            Expanded(
-                              child: SizedBox(
-                                width: double.infinity,
+                                  if (selectedPaymentMethod != null)
+                                    Text(
+                                      _formatTotal(
+                                          total, selectedPaymentMethod),
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: semibold,
+                                        color: AppColors.textColorBlack,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                ],
                               ),
-                            ),
-                            const HugeIcon(
-                              icon:
-                                  HugeIcons.strokeRoundedMoreHorizontalCircle02,
-                              size: _iconSize,
-                              color: AppColors.blackColor,
-                            ),
-                          ],
-                        ),
-                      ],
+                              Expanded(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                ),
+                              ),
+                              const HugeIcon(
+                                icon: HugeIcons
+                                    .strokeRoundedMoreHorizontalCircle02,
+                                size: _iconSize,
+                                color: AppColors.blackColor,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -202,93 +209,97 @@ class _PaymentOptionBottomSheetState extends State<_PaymentOptionBottomSheet> {
               return Column(
                 children: [
                   const SizedBox(height: 12),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() => _selectedPaymentMethod = method);
-                      widget.onSelect(method);
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                          color: _selectedPaymentMethod == method
-                              ? AppColors.primaryColor100
-                              : AppColors.backgroundColor,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
+                  Semantics(
+                    label: '${method}Metode pembayaran',
+                    child: GestureDetector(
+                      key: Key('${method}PaymentMethod'),
+                      onTap: () {
+                        setState(() => _selectedPaymentMethod = method);
+                        widget.onSelect(method);
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
                             color: _selectedPaymentMethod == method
-                                ? AppColors.primaryColor200
-                                : AppColors.blackColor100,
-                            width: 1.5,
-                          )),
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          Image.asset(
-                            PilihTipePembayaran
-                                ._paymentOptions[method]!['icon']!,
-                            height: 30,
-                          ),
-                          Expanded(
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    PilihTipePembayaran
-                                            ._paymentOptions[method]!['label']
-                                        as String,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textColorBlack,
+                                ? AppColors.primaryColor100
+                                : AppColors.backgroundColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _selectedPaymentMethod == method
+                                  ? AppColors.primaryColor200
+                                  : AppColors.blackColor100,
+                              width: 1.5,
+                            )),
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            Image.asset(
+                              PilihTipePembayaran
+                                  ._paymentOptions[method]!['icon']!,
+                              height: 30,
+                            ),
+                            Expanded(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      PilihTipePembayaran
+                                              ._paymentOptions[method]!['label']
+                                          as String,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textColorBlack,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    PilihTipePembayaran._paymentOptions[
-                                        method]!['description'] as String,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.textColorBlack,
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      PilihTipePembayaran._paymentOptions[
+                                          method]!['description'] as String,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: AppColors.textColorBlack,
+                                      ),
                                     ),
-                                  ),
-                                ]),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              setState(() => _selectedPaymentMethod = method);
-                              widget.onSelect(method);
-                              Navigator.pop(context);
-                            },
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              width: 24,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: _selectedPaymentMethod == method
-                                      ? AppColors.primaryColor
-                                      : Colors.grey,
-                                  width: 2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Container(
-                                  width: 24 / 2,
-                                  height: 24 / 2,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
+                                  ]),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                setState(() => _selectedPaymentMethod = method);
+                                widget.onSelect(method);
+                                Navigator.pop(context);
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
                                     color: _selectedPaymentMethod == method
                                         ? AppColors.primaryColor
-                                        : Colors.transparent,
+                                        : Colors.grey,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Container(
+                                    width: 24 / 2,
+                                    height: 24 / 2,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _selectedPaymentMethod == method
+                                          ? AppColors.primaryColor
+                                          : Colors.transparent,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),

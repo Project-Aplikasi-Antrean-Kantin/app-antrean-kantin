@@ -235,6 +235,7 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                     children: [
                       Expanded(
                         child: PrimaryButton(
+                          key: Key('uploadButton'),
                           color: selectedImagePath != null && !widget.onLoading
                               ? AppColors.primaryColor
                               : Colors.grey,
@@ -357,33 +358,38 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
           bottom: 8,
           right: 8,
           left: 8,
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                if (hasImage) {
-                  selectedImagePath = null;
-                  widget.onImageSelected(null); // ⬅️ lempar ke parent
-                } else {
-                  _buildBottomSheetProfile(context);
-                }
-                widget
-                    .onImageSelected(selectedImagePath); // ⬅️ lempar ke parent
-              });
-            },
-            child: Container(
-              width: double.infinity,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.whiteColor,
-                borderRadius: BorderRadius.circular(hasImage ? 12 : 8),
-              ),
-              child: Text(
-                hasImage ? 'Ubah Gambar' : 'Ambil Gambar',
-                style: GoogleFonts.poppins(
-                  color: AppColors.blackColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
+          child: Semantics(
+            label: 'Pilih Gambar',
+            button: true,
+            child: GestureDetector(
+              key: const Key('pickImage'),
+              onTap: () {
+                setState(() {
+                  if (hasImage) {
+                    selectedImagePath = null;
+                    widget.onImageSelected(null); // ⬅️ lempar ke parent
+                  } else {
+                    _buildBottomSheetProfile(context);
+                  }
+                  widget.onImageSelected(
+                      selectedImagePath); // ⬅️ lempar ke parent
+                });
+              },
+              child: Container(
+                width: double.infinity,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.whiteColor,
+                  borderRadius: BorderRadius.circular(hasImage ? 12 : 8),
+                ),
+                child: Text(
+                  hasImage ? 'Ubah Gambar' : 'Ambil Gambar',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.blackColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),
@@ -428,61 +434,71 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              _getImageFromCamera(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedCamera02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Kamera',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
+                          Semantics(
+                            label: 'Kamera',
+                            button: true,
+                            child: GestureDetector(
+                              key: const Key('camera'),
+                              onTap: () {
+                                _getImageFromCamera(context);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.whiteColor,
+                                  border: BoxBorder.all(
+                                      color: AppColors.blackColor100, width: 1),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  children: [
+                                    HugeIcon(
+                                      icon: HugeIcons.strokeRoundedCamera02,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    Text(
+                                      'Kamera',
+                                      style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              _getImageFromGallery(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedImage02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Galeri',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
+                          Semantics(
+                            label: 'Galeri',
+                            button: true,
+                            child: GestureDetector(
+                              key: const Key('gallery'),
+                              onTap: () {
+                                _getImageFromGallery(context);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.whiteColor,
+                                  border: BoxBorder.all(
+                                      color: AppColors.blackColor100, width: 1),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  children: [
+                                    HugeIcon(
+                                      icon: HugeIcons.strokeRoundedImage02,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    Text(
+                                      'Galeri',
+                                      style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

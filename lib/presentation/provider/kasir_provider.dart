@@ -37,7 +37,6 @@ class KasirProvider extends ChangeNotifier {
       final result = await TransactionRemoteDataSource()
           .getCashierTransactionById(token, id);
       updateCashierTransactionList(result);
-      print("result bang ini : $result");
       return result;
     } catch (e) {
       throw (e.toString());

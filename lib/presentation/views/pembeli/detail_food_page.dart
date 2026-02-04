@@ -288,30 +288,35 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                               .min, // penting agar Row tidak stretch
                           children: [
                             // Tombol -
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    if (count >= 1) count--;
-                                  });
-                                },
-                                child: Ink(
-                                  width: 48,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                      color: AppColors.backgroundColor,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        bottomLeft: Radius.circular(10),
-                                      )),
-                                  child: Center(
-                                    child: Text(
-                                      '-',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.primaryColor,
+                            Semantics(
+                              label: 'Tombol -',
+                              button: true,
+                              child: Material(
+                                key: Key('kurangPesanan'),
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      if (count >= 1) count--;
+                                    });
+                                  },
+                                  child: Ink(
+                                    width: 48,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                        color: AppColors.backgroundColor,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(10),
+                                          bottomLeft: Radius.circular(10),
+                                        )),
+                                    child: Center(
+                                      child: Text(
+                                        '-',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.primaryColor,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -333,7 +338,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                               height: 36,
                               alignment: Alignment.center,
                               child: TextFormField(
-                                key: ValueKey(count),
+                                key: Key("${food.id}${count}Counter"),
                                 initialValue: count.toString(),
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.center,
@@ -356,31 +361,36 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                             ),
 
                             // Tombol +
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    count++;
-                                  });
-                                },
-                                child: Ink(
-                                  width: 48,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.backgroundColor,
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
+                            Semantics(
+                              button: true,
+                              label: 'Tambah',
+                              child: Material(
+                                key: ValueKey('tambahPesanan'),
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      count++;
+                                    });
+                                  },
+                                  child: Ink(
+                                    width: 48,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.backgroundColor,
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(10),
+                                        bottomRight: Radius.circular(10),
+                                      ),
                                     ),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '+',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.primaryColor,
+                                    child: Center(
+                                      child: Text(
+                                        '+',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.primaryColor,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -451,6 +461,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
       return SizedBox(
         width: MediaQuery.of(context).size.width - 40,
         child: FloatingActionButton.extended(
+          key: Key('floatingActionButton'),
           onPressed: () {
             final menuGambar = food.gambar;
             final menuNama = food.nama;

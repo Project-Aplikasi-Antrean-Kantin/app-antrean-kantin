@@ -28,7 +28,6 @@ class _StepProgressState extends State<StepProgress>
   @override
   void initState() {
     super.initState();
-    print("current step: ${widget.currentStep}");
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),

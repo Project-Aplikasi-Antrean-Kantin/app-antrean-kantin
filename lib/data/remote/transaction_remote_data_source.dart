@@ -53,7 +53,6 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-      print("data cashier ${jsonBody['data']}");
 
       if (response.statusCode == 200) {
         return CashierTransaction.fromJson(jsonBody['data']);
@@ -159,7 +158,6 @@ class TransactionRemoteDataSource {
       );
 
       final jsonBody = jsonDecode(response.body);
-      print("data cashier ${jsonBody['data']}");
       if (response.statusCode == 200) {
         return (jsonBody['data'] as List)
             .map((e) => CashierTransaction.fromJson(e))

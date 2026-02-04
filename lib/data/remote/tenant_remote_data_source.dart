@@ -37,9 +37,7 @@ class TenantRemoteDataSource {
       final response = await request.send();
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
-        debugPrint("responseBody ${responseBody}");
         final data = jsonDecode(responseBody);
-        debugPrint("data ${data}");
 
         return TenantFoods.fromJson(data["data"]["menu"]);
       } else {

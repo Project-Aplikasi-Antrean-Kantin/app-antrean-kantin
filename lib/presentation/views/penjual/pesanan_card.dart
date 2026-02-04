@@ -49,6 +49,7 @@ class PesananCardState extends State<PesananCard> {
   bool _isLoading = false;
   bool _isPrinting = false;
   final textEditingController = new TextEditingController();
+  final kodePenolakanController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +190,6 @@ class PesananCardState extends State<PesananCard> {
                     final printerProvider =
                         Provider.of<PrinterProvider>(context, listen: false);
                     if (printerProvider.selectedPrinter == null) {
-                      print(user.menu.map((element) => element.url).toList());
                       Navigator.pushAndRemoveUntil(
                         context,
                         CustomPageBuilder(
@@ -367,8 +367,7 @@ class PesananCardState extends State<PesananCard> {
               ),
             ),
             Text(
-              FormatCurrency.intToStringCurrency(
-                  widget.pesanan.total - widget.pesanan.ongkosKirim),
+              FormatCurrency.intToStringCurrency(widget.pesanan.subTotal),
               style: GoogleFonts.poppins(
                 color: AppColors.blackColor,
                 fontWeight: FontWeight.bold,
@@ -432,6 +431,18 @@ class PesananCardState extends State<PesananCard> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (pesanan.isPriority == 1)
+                    TextFormField(
+                      key: Key('tolakKodePenolakan${pesanan.id}'),
+                      controller: kodePenolakanController,
+                      decoration: const InputDecoration(
+                        hintText: 'Kode Penolakan (tanyakan driver)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        ),
+                      ),
+                      maxLength: 4,
+                    ),
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
@@ -440,6 +451,7 @@ class PesananCardState extends State<PesananCard> {
                     ),
                     height: 124,
                     child: TextField(
+                      key: Key('tolakCatatan${pesanan.id}'),
                       controller: textEditingController,
                       decoration: const InputDecoration(
                         hintText: 'Masukkan catatan...',
@@ -455,6 +467,7 @@ class PesananCardState extends State<PesananCard> {
                       maxLength: 200,
                     ),
                   ),
+
                   SizedBox(height: 40),
                   // ElevatedButton(
                   //   onPressed: () {
@@ -474,6 +487,7 @@ class PesananCardState extends State<PesananCard> {
                   //   ),
                   // ),
                   PrimaryButton(
+                      key: Key('tolakButtonBottomSheet${pesanan.id}'),
                       isLoading: _isLoading,
                       borderRadius: 16,
                       height: 48,
@@ -489,6 +503,19 @@ class PesananCardState extends State<PesananCard> {
                         if (textEditingController.text.isEmpty) {
                           Fluttertoast.showToast(
                               msg: 'Catatan tidak boleh kosong');
+                          return;
+                        }
+                        if (pesanan.isPriority == 1 &&
+                            kodePenolakanController.text.isEmpty) {
+                          Fluttertoast.showToast(
+                              msg: 'Kode penolakan tidak boleh kosong');
+                          return;
+                        }
+                        if (kodePenolakanController.text !=
+                                pesanan.kodePenolakan &&
+                            pesanan.isPriority == 1) {
+                          print("kode penolakan : ${pesanan.kodePenolakan}");
+                          Fluttertoast.showToast(msg: 'Kode penolakan salah');
                           return;
                         }
                         setState(() {
@@ -555,6 +582,7 @@ class PesananCardState extends State<PesananCard> {
           children: [
             Expanded(
               child: PrimaryButton(
+                key: Key('tolakButton${pesanan.id}'),
                 isEnabled: !_isLoading,
                 elevation: 0,
                 color: AppColors.errorColor100,
@@ -576,6 +604,7 @@ class PesananCardState extends State<PesananCard> {
             SizedBox(width: screenSize.width * 0.03),
             Expanded(
               child: PrimaryButton(
+                key: Key('terimaButton${pesanan.id}'),
                 isLoading: _isLoading,
                 elevation: 0,
                 borderRadius: 12,
@@ -637,6 +666,7 @@ class PesananCardState extends State<PesananCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
+                  key: Key('tolakButton${pesanan.id}'),
                   style: OutlinedButton.styleFrom(
                     backgroundColor: AppColors.errorColor100,
                     shape: const CircleBorder(),
@@ -709,6 +739,7 @@ class PesananCardState extends State<PesananCard> {
             )),
             Expanded(
               child: PrimaryButton(
+                key: Key('siapButton${pesanan.id}'),
                 isLoading: _isLoading,
                 elevation: 0,
                 borderRadius: 12,
@@ -775,6 +806,7 @@ class PesananCardState extends State<PesananCard> {
                       clipBehavior: Clip.none,
                       children: [
                         PrimaryButton(
+                          key: Key('chatButton${pesanan.id}'),
                           borderRadius: 12,
                           elevation: 0,
                           color: AppColors.primaryColor100,
@@ -837,6 +869,7 @@ class PesananCardState extends State<PesananCard> {
                   ),
                   Expanded(
                     child: PrimaryButton(
+                      key: Key('selesaiButton${pesanan.id}'),
                       isLoading: _isLoading,
                       elevation: 0,
                       borderRadius: 12,

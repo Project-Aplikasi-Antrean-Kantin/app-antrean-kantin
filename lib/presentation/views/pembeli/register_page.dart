@@ -304,6 +304,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 30),
                       PrimaryButton(
+                        key: const Key('registerButton'),
                         onPressed: () =>
                             isLoading ? null : _handleRegister(authProvider),
                         width: double.infinity,

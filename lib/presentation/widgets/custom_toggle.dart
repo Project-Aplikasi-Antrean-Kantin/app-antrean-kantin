@@ -25,29 +25,35 @@ class CustomToggle extends StatelessWidget {
           Text(label!),
           const SizedBox(width: 10),
         ],
-        GestureDetector(
-          onTap: _toggle,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 56,
-            height: 30,
-            curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: value ? AppColors.primaryColor200 : Colors.grey.shade400,
-            ),
-            child: AnimatedAlign(
+        Semantics(
+          label: 'Toggle Button',
+          button: true,
+          child: GestureDetector(
+            key: const Key('toggleButton'),
+            onTap: _toggle,
+            child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
+              width: 56,
+              height: 30,
               curve: Curves.easeInOut,
-              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color:
-                      value ? AppColors.primaryColor : AppColors.blackColor300,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: value ? AppColors.primaryColor200 : Colors.grey.shade400,
+              ),
+              child: AnimatedAlign(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: value
+                        ? AppColors.primaryColor
+                        : AppColors.blackColor300,
+                  ),
                 ),
               ),
             ),

@@ -332,6 +332,29 @@ class _DetailRiwayatKasirPageState extends State<DetailRiwayatKasirPage> {
                         dashWidth: 16,
                         height: 2,
                       ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Pembeli',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.blackColor,
+                            ),
+                          ),
+                          Text(
+                            "${transaction.namaPembeli}",
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.blackColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      DashedDivider(
+                        color: AppColors.whiteColor600,
+                        dashWidth: 16,
+                        height: 2,
+                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 8,

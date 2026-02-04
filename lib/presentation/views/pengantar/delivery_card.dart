@@ -349,6 +349,33 @@ class _DeliveryCardState extends State<DeliveryCard> {
                   ],
                 ),
               ),
+              if (widget.pesanan.isPriority == 1 &&
+                  widget.pesanan.driverId != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Kode Penolakan",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                          )),
+                      Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text("${widget.pesanan.kodePenolakan}",
+                              style: GoogleFonts.poppins(
+                                color: AppColors.whiteColor100,
+                                fontSize: 12,
+                                fontWeight: bold,
+                              ))),
+                    ],
+                  ),
+                ),
 
               // Subheader
               Padding(
@@ -406,6 +433,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
                             clipBehavior: Clip.none,
                             children: [
                               ElevatedButton(
+                                key: Key('chatButton${widget.pesanan.id}'),
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0,
                                   backgroundColor: AppColors.primaryColor100,
@@ -462,6 +490,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
                             ],
                           ),
                           ElevatedButton(
+                            key: Key('ping${widget.pesanan.id}'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _isCooldown
                                   ? Colors.grey[300]
@@ -491,6 +520,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
                     if (widget.pesanan.status == 'siap_diantar' ||
                         widget.pesanan.driverId == null)
                       PrimaryButton(
+                        key: Key('antarPesanan${widget.pesanan.id}'),
                         isLoading: _isLoading, // Use local loading state
                         elevation: 0,
                         width: screenSize.width * 0.4,
@@ -574,6 +604,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
                         widget.pesanan.driverId != null &&
                         widget.pesanan.isPriority == 1)
                       PrimaryButton(
+                        key: Key('ubahStatusPesanan${widget.pesanan.id}'),
                         isLoading: _isLoading, // Use local loading state
                         elevation: 0,
                         width: screenSize.width * 0.2,
@@ -620,6 +651,7 @@ class _DeliveryCardState extends State<DeliveryCard> {
                     if ((widget.status == DeliveryStatus.diantar &&
                         widget.pesanan.status == 'diantar'))
                       PrimaryButton(
+                        key: Key('diantarPesanan${widget.pesanan.id}'),
                         isLoading: _isLoading, // Use local loading state
                         elevation: 0,
                         width: screenSize.width * 0.3,

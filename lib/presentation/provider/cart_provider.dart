@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -138,6 +139,12 @@ class CartProvider extends ChangeNotifier {
                 .firstWhere((e) => e.id == roomId!)
                 .gedung
                 .ongkirMultitenant;
+      }
+      if (selectedCartTenant.length >= 2 &&
+          ongkir != 0 &&
+          roomId != null &&
+          _priority == 1) {
+        ongkir = ongkir + 1000;
       }
       if (ongkir != 0 &&
           totalItemCountSelected > 10 &&
@@ -321,6 +328,7 @@ class CartProvider extends ChangeNotifier {
             .firstWhere((e) => e.id == roomId)
             .gedung
             .ongkirMultitenant;
+      if (lengthSelected > 1 && _priority == 1 && ongkir != 0) ongkir -= 1000;
       if (selectedVoucher != null &&
           selectedTenantDeliveryCost <
               selectedVoucher!.cashback!.minimalOrder) {
@@ -782,10 +790,6 @@ class CartProvider extends ChangeNotifier {
     required String tenantId,
     required TenantModel tenant,
   }) async {
-    print("tenants: ${_tenantCarts.length}");
-    print("tenantId: $tenantId");
-    print("contains: ${_tenantCarts.containsKey(tenantId)}");
-    print("list keys: ${_tenantCarts.keys}");
     if (_tenantCarts.length >= 5 && !_tenantCarts.containsKey(tenantId)) {
       Fluttertoast.showToast(
           msg:
@@ -831,11 +835,7 @@ class CartProvider extends ChangeNotifier {
     );
 
     if (indexSelectedCart != -1) {
-      print('indexSelectedCart: $indexSelectedCart');
-
       selectedCartTenant[indexSelectedCart] = _tenantCarts[currentTenantId]!;
-      print(
-          'selectedCartTenant[indexSelectedCart]: ${selectedCartTenant[indexSelectedCart].cartMenuList}');
     }
 
     await CartLocalDataSource()
@@ -904,6 +904,8 @@ class CartProvider extends ChangeNotifier {
           .firstWhere((e) => e.id == roomId)
           .gedung
           .ongkirMultitenant;
+    if (lengthSelected > 1 && menuList.isEmpty && ongkir != 0 && _priority == 1)
+      ongkir -= 1000;
 
     if (_currentTenant?.id.toString() == currentTenantId) {
       _cartMenu = _tenantCarts[currentTenantId]?.cartMenuList ?? [];
@@ -1167,21 +1169,27 @@ class CartProvider extends ChangeNotifier {
     return jsonEncode(data);
   }
 
-  String toJsonCashier(List<CartMenuModel> cart) {
+  String toJsonCashier(
+      List<CartMenuModel> cart, String namaPembeli, String? fcmToken) {
     final data = {
       "menus": cart.map((x) => x.toJson()).toList(),
+      "nama_pembeli": namaPembeli,
+      "fcm_token": fcmToken ?? ""
     };
 
     return jsonEncode(data);
   }
 
   Future<CashierTransaction> createCashierTransaction(
-      BuildContext context, String token) async {
+      BuildContext context, String token, String namaPembeli) async {
     submittingCashierTransaction = true;
     notifyListeners();
     try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
       final result = await TransactionRemoteDataSource()
-          .createCashierTransaction(token, toJsonCashier(_cartMenu));
+          .createCashierTransaction(
+              token, toJsonCashier(_cartMenu, namaPembeli, fcmToken));
       return result;
     } catch (e) {
       print(e);
@@ -1210,9 +1218,17 @@ class CartProvider extends ChangeNotifier {
     ;
     _priority = selectedPriority;
     if (selectedPriority == 1) {
-      ongkir += 3000;
+      if (selectedCartTenant.length >= 2) {
+        ongkir += 4000;
+      } else {
+        ongkir += 3000;
+      }
     } else {
-      ongkir -= 3000;
+      if (selectedCartTenant.length >= 2) {
+        ongkir -= 4000;
+      } else {
+        ongkir -= 3000;
+      }
     }
     notifyListeners();
   }
