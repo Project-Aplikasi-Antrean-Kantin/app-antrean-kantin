@@ -13,15 +13,11 @@ class PesananItemWidget extends StatelessWidget {
   final ListTransaksiDetail pesanan;
   final bool withPadding;
   final bool isTenant;
-  final Function() tolakPesanan;
-  final Function() terimaPesanan;
 
   PesananItemWidget({
     Key? key,
     required this.isTenant,
     required this.pesanan,
-    required this.tolakPesanan,
-    required this.terimaPesanan,
     this.withPadding = true,
   }) : super(key: key);
 

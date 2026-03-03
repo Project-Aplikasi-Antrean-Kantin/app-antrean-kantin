@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
-import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 
@@ -24,8 +22,6 @@ class PilihTipePembayaran extends StatelessWidget {
 
   static const _iconSize = 30.0;
   static const _padding = EdgeInsets.symmetric(horizontal: 10);
-  static const _fontSizeTitle = 12.0;
-  static const _fontSizeAmount = 13.0;
   static final Map<PaymentMethod, Map<String, String>> _paymentOptions = {
     PaymentMethod.koin: {
       'label': 'FoodLab Koin',
@@ -39,22 +35,6 @@ class PilihTipePembayaran extends StatelessWidget {
     },
   };
 
-  void _showPaymentOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => _PaymentOptionBottomSheet(
-        selectedMethod: selectedPaymentMethod,
-        onSelect: (method) {
-          onPaymentMethodSelected(method);
-          Navigator.pop(context);
-        },
-      ),
-    );
-  }
-
   String _formatTotal(int total, PaymentMethod? method) {
     return method == PaymentMethod.koin
         ? FormatCurrency.stringCoin(total.toString())
@@ -64,27 +44,23 @@ class PilihTipePembayaran extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
     final total = cartProvider.getTotal();
 
     return Semantics(
-      label: selectedPaymentMethod == null
-          ? 'Pilih metode pembayaran'
-          : 'Metode pembayaran: ${_paymentOptions[selectedPaymentMethod]!['label']}',
+      label:
+          'Metode pembayaran: ${_paymentOptions[selectedPaymentMethod]!['label']}',
       child: GestureDetector(
         // onTap: () => _showPaymentOptions(context),
         child: Container(
-          color: AppColors.backgroundColor,
           padding: _padding,
           child: Row(
             spacing: 8,
             children: [
-              if (selectedPaymentMethod != null)
-                Image.asset(
-                  _paymentOptions[selectedPaymentMethod]!['icon'] as String,
-                  width: _iconSize,
-                  height: _iconSize,
-                ),
+              Image.asset(
+                _paymentOptions[selectedPaymentMethod]!['icon'] as String,
+                width: _iconSize,
+                height: _iconSize,
+              ),
               Expanded(
                 child: Semantics(
                   label: 'Metode pembayaran',
@@ -108,11 +84,8 @@ class PilihTipePembayaran extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    selectedPaymentMethod == null
-                                        ? 'Pilih metode bayar'
-                                        : _paymentOptions[
-                                                selectedPaymentMethod]!['label']
-                                            as String,
+                                    _paymentOptions[selectedPaymentMethod]![
+                                        'label'] as String,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       color: AppColors.textColorBlack,
@@ -120,16 +93,14 @@ class PilihTipePembayaran extends StatelessWidget {
                                       height: 1.5,
                                     ),
                                   ),
-                                  if (selectedPaymentMethod != null)
-                                    Text(
-                                      _formatTotal(
-                                          total, selectedPaymentMethod),
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: semibold,
-                                        color: AppColors.textColorBlack,
-                                        height: 1.5,
-                                      ),
+                                  Text(
+                                    _formatTotal(total, selectedPaymentMethod),
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: semibold,
+                                      color: AppColors.textColorBlack,
+                                      height: 1.5,
                                     ),
+                                  ),
                                 ],
                               ),
                               Expanded(

@@ -25,7 +25,7 @@ import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
-import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
+import 'package:testgetdata/presentation/views/pembeli/detail_riwayat/detail_riwayat.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';

@@ -160,8 +160,6 @@ class PesananCardState extends State<PesananCard> {
             return PesananItemWidget(
               isTenant: true,
               pesanan: item,
-              tolakPesanan: () {},
-              terimaPesanan: () {},
             );
           }).toList(),
           DashedDivider(color: AppColors.blackColor100, height: 2),

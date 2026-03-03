@@ -6,7 +6,7 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';
+import 'package:testgetdata/presentation/views/pembeli/detail_riwayat/detail_riwayat.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 
 class OrderSuccess extends StatelessWidget {

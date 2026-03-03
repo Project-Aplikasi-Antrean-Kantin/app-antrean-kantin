@@ -397,8 +397,6 @@ class _DeliveryCardState extends State<DeliveryCard> {
                       isTenant: false,
                       withPadding: false,
                       pesanan: item,
-                      tolakPesanan: () {},
-                      terimaPesanan: () {},
                     ),
                   )),
             ],
