@@ -156,57 +156,57 @@ class _FormOperationalState extends State<FormOperational> {
                         handleTimeChanged("close", newTime),
                   ),
                   SizedBox(height: 16),
-                  PrimaryButton(
-                    borderRadius: 16,
-                    onPressed: () {
-                      handleTimeChanged("open", "09:00:00");
-                      handleTimeChanged("close", "17:00:00");
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'Default (09:00 - 17:00)',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                  Row(
+                    spacing: 8,
+                    children: [
+                      PrimaryButton(
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        borderRadius: 16,
+                        onPressed: () {
+                          handleTimeChanged("open", "09:00:00");
+                          handleTimeChanged("close", "17:00:00");
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'Default (09:00 - 17:00)',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  SlideToConfirm(
-                    placeholder: "Tutup seterusnya",
-                    onConfirmed: () {},
-                  ),
-                  PrimaryButton(
-                    borderRadius: 16,
-                    onPressed: () {
-                      handleTimeChanged("open", "00:01:00");
-                      handleTimeChanged("close", "00:02:00");
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'Tutup seterusnya (00:01 - 00:02)',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                      PrimaryButton(
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        borderRadius: 16,
+                        onPressed: () {
+                          handleTimeChanged("open", "00:01:00");
+                          handleTimeChanged("close", "00:02:00");
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'Libur (00:01 - 00:02)',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  )
+                      )
+                    ],
+                  ),
                 ],
               ],
             ),

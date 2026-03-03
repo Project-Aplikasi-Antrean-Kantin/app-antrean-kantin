@@ -7,7 +7,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
-import 'package:testgetdata/presentation/widgets/bottom_sheet_cart.dart';
+import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 

@@ -18,7 +18,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/widgets/bottom_sheet_cart.dart';
+import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_cashier.dart';
 import 'package:testgetdata/presentation/widgets/busy_tenant_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/card_tenant.dart';
