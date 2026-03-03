@@ -27,7 +27,7 @@ import 'package:testgetdata/presentation/widgets/menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
-import 'cart_page.dart';
+import 'cart_page/cart_page.dart';
 
 class MenuTenant extends StatefulWidget {
   final String url;

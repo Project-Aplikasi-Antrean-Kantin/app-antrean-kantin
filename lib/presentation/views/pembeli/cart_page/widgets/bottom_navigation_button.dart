@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 
 class BottomNavigationButton extends StatelessWidget {
   final bool isEnabled;
@@ -41,9 +41,6 @@ class BottomNavigationButton extends StatelessWidget {
       ),
       child: Consumer<CartProvider>(
         builder: (context, cartProvider, child) {
-          final validVoucher = cartProvider.selectedVoucher != null &&
-              cartProvider.selectedVoucher!.cashback!.minimalOrder >
-                  cartProvider.totalPrice;
           return Semantics(
             label: 'Navigasi pembayaran keranjang',
             button: true,

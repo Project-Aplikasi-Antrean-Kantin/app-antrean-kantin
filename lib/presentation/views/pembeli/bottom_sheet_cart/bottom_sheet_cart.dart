@@ -7,7 +7,7 @@ import 'package:testgetdata/data/model/cart_per_tenant.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/build_list_cart_per_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/list_cart_per_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/empty_cart.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/footer_bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/header_bottom_sheet_cart.dart';
@@ -124,7 +124,7 @@ Future<void> showBottomSheetCart(
                       const SizedBox(height: 8),
                       isCartBenarBenarKosong
                           ? EmptyCart()
-                          : BuildListCartPerTenant(
+                          : ListCartPerTenant(
                               fromCartPage: fromCartPage,
                               tenants: tenants,
                               cartProvider: cartProvider),

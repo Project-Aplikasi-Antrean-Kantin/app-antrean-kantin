@@ -4,11 +4,11 @@ import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/build_cart_per_tenant.dart';
 
-class BuildListCartPerTenant extends StatelessWidget {
+class ListCartPerTenant extends StatelessWidget {
   final bool fromCartPage;
   final List<TenantModel> tenants;
   final CartProvider cartProvider;
-  const BuildListCartPerTenant(
+  const ListCartPerTenant(
       {super.key,
       required this.fromCartPage,
       required this.tenants,

@@ -7,7 +7,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/summary_price.dart';
-import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';

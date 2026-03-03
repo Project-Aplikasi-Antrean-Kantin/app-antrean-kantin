@@ -8,7 +8,7 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 
 class PilihTipePembayaran extends StatelessWidget {
   final PaymentMethod selectedPaymentMethod;

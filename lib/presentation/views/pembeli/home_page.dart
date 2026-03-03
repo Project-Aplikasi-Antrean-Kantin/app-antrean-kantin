@@ -31,7 +31,7 @@ import 'package:testgetdata/presentation/provider/review_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/kode_va_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/koin_info_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';

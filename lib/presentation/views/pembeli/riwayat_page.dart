@@ -22,7 +22,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
-import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat.dart';

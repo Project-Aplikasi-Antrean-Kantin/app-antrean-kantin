@@ -7,18 +7,16 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
-import 'package:testgetdata/presentation/provider/kasir_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
-import 'package:testgetdata/presentation/widgets/bottom_navigation_button.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/bottom_navigation_button.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
-import 'package:testgetdata/presentation/widgets/pilih_tipe_pembayaran.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/pilih_tipe_pembayaran.dart';
 import 'package:testgetdata/presentation/widgets/show_bottom_sheet_usevoucher.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class BottomNavigationCartPayment extends StatefulWidget {
   final CartProvider cartProvider;
-  final KasirProvider kasirProvider;
   final CoinProvider coinProvider;
   final UserModel user;
   final int saldoCoin;
@@ -31,7 +29,6 @@ class BottomNavigationCartPayment extends StatefulWidget {
   const BottomNavigationCartPayment({
     Key? key,
     required this.cartProvider,
-    required this.kasirProvider,
     required this.coinProvider,
     required this.user,
     required this.saldoCoin,
@@ -107,8 +104,7 @@ class _BottomNavigationCartPaymentState
                 isCoinInsufficient: isCoinInsufficient,
                 paymentMethod: widget.selectedPaymentMethod,
                 isThere10Item: widget.cartProvider.totalItemCount > 10,
-                isEnabled:
-                    !isCoinInsufficient && widget.selectedPaymentMethod != null,
+                isEnabled: !isCoinInsufficient,
                 color: AppColors.primaryColor,
                 onTap: widget.cartProvider.isLoading
                     ? null

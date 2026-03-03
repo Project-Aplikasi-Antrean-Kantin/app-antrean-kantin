@@ -19,7 +19,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/views/pembeli/cart_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';

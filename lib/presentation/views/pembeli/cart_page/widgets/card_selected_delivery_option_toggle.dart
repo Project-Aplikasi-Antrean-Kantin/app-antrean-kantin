@@ -1,19 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
-import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
-import 'package:toggle_switch/toggle_switch.dart';
 
 class CardSelectedDeliveryOptionToggle extends StatelessWidget {
-  final CartProvider cartProvider;
   final double screenWidth;
 
   const CardSelectedDeliveryOptionToggle({
-    required this.cartProvider,
     required this.screenWidth,
     Key? key,
   }) : super(key: key);
