@@ -164,18 +164,20 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
           if (title != null && title.contains('pesanan selesai')) {
             final transaksiId =
                 int.parse(message.notification!.body!.split(' ')[1]);
-
+            final prefs = SharedPreferences.getInstance().then((prefs) {
+              prefs.setBool('user_review', true).then((_) {
+                PublicRemoteDataSource()
+                    .isNeededReview(user.token)
+                    .then((bool value) {
+                  if (value) {
+                    showBottomSheetReview(context: context, user: user);
+                  }
+                });
+              });
+            });
             historyProvider.removeAvailableChat(transaksiId);
             historyProvider.removeUnreadMessages(transaksiId).then((_) {
               historyProvider.loadUnreadMessages();
-            });
-            PublicRemoteDataSource()
-                .isNeededReview(user.token)
-                .then((bool value) {
-              if (value) {
-                showBottomSheetReview(context: context, user: user);
-              }
-              ;
             });
           }
           if (title != null && title.contains('top-up berhasil')) {
@@ -297,7 +299,6 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.reload(); // ⬅️ wajib ditunggu
       final tenantSibuk = prefs.getString("tenant_sibuk");
-      final needReview = prefs.getBool("user_review");
       if (tenantSibuk != null) {
         if (!mounted) return;
         showDialog(
@@ -376,14 +377,6 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
           },
         );
       }
-      // if (needReview != null && needReview) {
-      //   PublicRemoteDataSource().isNeededReview(user.token).then((bool value) {
-      //     if (value) {
-      //       showBottomSheetReview(context: context, user: user);
-      //     }
-      //     ;
-      //   });
-      // }
     }
   }
 

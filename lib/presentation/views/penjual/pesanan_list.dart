@@ -7,7 +7,7 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
-import 'package:testgetdata/presentation/views/penjual/pesanan_card.dart';
+import 'package:testgetdata/presentation/views/penjual/pesanan_card/pesanan_card.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 
 class PesananList extends StatefulWidget {

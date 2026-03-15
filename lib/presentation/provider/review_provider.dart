@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/data/model/review_selection.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 
@@ -37,6 +38,8 @@ class ReviewProvider extends ChangeNotifier {
         ratingMoods,
       );
       Fluttertoast.showToast(msg: response);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('user_review', false);
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
     } finally {

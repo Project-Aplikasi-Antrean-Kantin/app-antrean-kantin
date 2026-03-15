@@ -26,7 +26,6 @@ class Decrement extends StatelessWidget {
             width: width,
             height: height,
             decoration: const BoxDecoration(
-              color: AppColors.backgroundColor,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 bottomLeft: Radius.circular(10),

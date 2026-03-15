@@ -7,13 +7,11 @@ import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
 
 class CardTenant extends StatelessWidget {
   final TenantModel tenant;
   final Color? backgroundColor;
   final List<TenantModel>? fullTenant;
-  final String email;
   final List<TenantModel>? foundTenant;
   final Function(TenantModel tenant)? onNavigate;
 
@@ -24,7 +22,6 @@ class CardTenant extends StatelessWidget {
     this.foundTenant,
     this.onNavigate,
     this.backgroundColor,
-    required this.email,
   });
 
   bool get shouldShowHorizontalList =>

@@ -5,9 +5,8 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
-import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/riwayat_kasir_page.dart';
-import 'package:testgetdata/presentation/views/pembeli/riwayat_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/riwayat_page/riwayat_page.dart';
 
 class RiwayatPageAsRole extends StatefulWidget {
   const RiwayatPageAsRole({Key? key}) : super(key: key);

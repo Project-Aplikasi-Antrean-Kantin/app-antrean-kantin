@@ -25,9 +25,7 @@ import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class TopupPage extends StatefulWidget {
-  final String email;
-
-  const TopupPage({super.key, required this.email});
+  const TopupPage({super.key});
 
   @override
   _TopupPageState createState() => _TopupPageState();

@@ -25,7 +25,6 @@ class Increment extends StatelessWidget {
             width: width,
             height: height,
             decoration: const BoxDecoration(
-              color: AppColors.backgroundColor,
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(10),
                 bottomRight: Radius.circular(10),

@@ -224,7 +224,6 @@ void _navigateToSuccessPage(
         initialRouteAfterOpen: DetailRiwayat(
           fromCartPage: true,
           label: "Beli",
-          token: user.token.toString(),
           pesanan: pesanan,
           refreshData: () {
             TransactionRemoteDataSource()

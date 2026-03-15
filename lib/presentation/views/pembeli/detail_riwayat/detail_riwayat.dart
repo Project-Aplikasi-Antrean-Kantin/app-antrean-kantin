@@ -36,14 +36,12 @@ class DetailRiwayat extends StatefulWidget {
   final Pesanan pesanan;
   final VoidCallback refreshData;
   final bool? fromCartPage;
-  final String token;
   final String label;
 
   const DetailRiwayat({
     this.fromCartPage,
     super.key,
     required this.refreshData,
-    required this.token,
     required this.label,
     required this.pesanan,
   });
@@ -57,8 +55,6 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
   Timer? _timer;
   final _flutterThermalPrinterPlugin = FlutterThermalPrinter.instance;
 
-  bool isBleTurnedOn = false;
-  bool isLoadingBluetooth = false;
   late HistoryProvider historyProvider;
 
   @override

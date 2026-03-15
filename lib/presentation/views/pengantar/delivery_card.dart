@@ -21,6 +21,8 @@ import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/delivery_bottom_sheet.dart';
+import 'package:testgetdata/presentation/widgets/molecules/status_pesanan.dart';
+import 'package:testgetdata/presentation/widgets/molecules/tipe_pesanan.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
@@ -146,43 +148,8 @@ class _DeliveryCardState extends State<DeliveryCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: widget.pesanan.isPriority == 1
-                                  ? AppColors.primaryColor
-                                  : Colors.grey),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 4,
-                          children: [
-                            if (widget.pesanan.isPriority == 1)
-                              Icon(Iconsax.flash_1,
-                                  size: 16, color: AppColors.primaryColor),
-                            Text(
-                              widget.pesanan.isPriority == 1
-                                  ? "Express"
-                                  : "Reguler",
-                              style: GoogleFonts.poppins(
-                                color: widget.pesanan.isPriority == 1
-                                    ? AppColors.primaryColor
-                                    : AppColors.whiteColor800,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    _buildStatus(
-                      widget.pesanan.status,
-                    ),
+                    TipePesanan(isPriority: widget.pesanan.isPriority ?? 0),
+                    StatusPesanan(status: widget.pesanan.status),
                   ],
                 ),
                 SizedBox(
@@ -640,52 +607,6 @@ class _DeliveryCardState extends State<DeliveryCard> {
                         ),
                       ),
                     ],
-                    // PrimaryButton(
-                    //   key: Key('ubahStatusPesanan${widget.pesanan.id}'),
-                    //   isLoading: _isLoading, // Use local loading state
-                    //   elevation: 0,
-                    //   width: screenSize.width * 0.2,
-                    //   height: screenSize.height * 0.065,
-                    //   borderRadius: 20,
-                    //   child: Text(
-                    //     widget.pesanan.status == 'pesanan_masuk'
-                    //         ? 'Pesanan Diproses'
-                    //         : 'Ubah ke Antar',
-                    //     style: GoogleFonts.poppins(
-                    //         color: Colors.white,
-                    //         fontWeight: FontWeight.w600,
-                    //         fontSize: 12),
-                    //   ),
-                    // onLongPress: () {
-                    //   setState(() {
-                    //     _isLoading = true; // Set local loading state
-                    //   });
-                    //   try {
-                    //     deliveryProvider.updateOrder(
-                    //       widget.userId,
-                    //       widget.pesanan.status == 'pesanan_masuk'
-                    //           ? 'pesanan_diproses'
-                    //           : 'diantar',
-                    //       widget.userToken,
-                    //       widget.pesanan.id,
-                    //       widget.status,
-                    //       widget.pesanan,
-                    //     );
-                    //     if (mounted) {
-                    //       // Check if the widget is still mounted
-                    //       setState(() {
-                    //         _isLoading = false;
-                    //       });
-                    //     }
-                    //     Fluttertoast.showToast(msg: 'Success');
-                    //     if (widget.pesanan.status != 'pesanan_masuk')
-                    //       widget.onSuccess();
-                    //   } catch (e) {
-                    //     Fluttertoast.showToast(msg: e.toString());
-                    //   }
-                    // },
-                    // ),
-
                     if ((widget.status == DeliveryStatus.diantar &&
                         widget.pesanan.status == 'diantar')) ...[
                       const Spacer(),
@@ -796,34 +717,6 @@ class _DeliveryCardState extends State<DeliveryCard> {
     );
   }
 
-  Widget _buildStatus(String status) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          border: Border.all(color: getStatusColor(status)),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 4,
-          children: [
-            Icon(getIconByStatus(status),
-                size: 16, color: getStatusColor(status)),
-            Text(
-              capitalizeFirstLetter(status.replaceAll('_', ' ')),
-              style: GoogleFonts.poppins(
-                color: getStatusColor(status),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildCostSection(Pesanan pesanan, int totalItemMenu, bool value) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -857,81 +750,5 @@ class _DeliveryCardState extends State<DeliveryCard> {
         ],
       ),
     );
-  }
-
-  String getStatus(String status) {
-    switch (status) {
-      case 'refund_selesai':
-        return 'Refund';
-      case 'gagal_bayar':
-        return 'Gagal Bayar';
-      case 'pending':
-        return 'Pending';
-      case 'selesai':
-        return 'Selesai';
-      case 'pesanan_ditolak':
-        return 'Ditolak';
-      case 'pesanan_diproses':
-        return 'Diproses';
-      case 'pesanan_masuk':
-        return 'Pesanan Masuk';
-      case 'diantar':
-        return 'Diantar';
-      case 'siap_diambil':
-        return 'Siap Diambil';
-      case 'siap_diantar':
-        return 'Siap Diantar';
-      default:
-        return '';
-    }
-  }
-
-  IconData getIconByStatus(String status) {
-    switch (status) {
-      case 'pesanan_masuk':
-        return Iconsax.login_1_copy;
-      case 'pesanan_diproses':
-        return Iconsax.repeat;
-      case 'siap_diantar':
-        return Iconsax.reserve;
-      case 'siap_diambil':
-        return Iconsax.flag_2;
-      case 'diantar':
-        return Iconsax.routing;
-      case 'selesai':
-        return Iconsax.tick_circle;
-      case 'gagal_bayar':
-        return Iconsax.money_remove;
-      case 'refund_selesai':
-        return Iconsax.directbox_send;
-      case 'pending':
-        return HugeIcons.strokeRoundedLoading03;
-      default:
-        return HugeIcons.strokeRoundedArrowReloadVertical;
-    }
-  }
-
-  Color getStatusColor(String status) {
-    switch (status) {
-      case 'pesanan_masuk':
-        return AppColors.warningColor400;
-      case 'pesanan_diproses':
-        return AppColors.warningColor;
-      case 'siap_diambil':
-        return AppColors.secondaryColor;
-      case 'siap_diantar':
-        return AppColors.primaryColor300;
-
-      case 'selesai':
-        return AppColors.successColor;
-      case 'pending':
-        return AppColors.whiteColor600;
-      case 'gagal_bayar':
-        return AppColors.errorColor;
-      case 'refund_selesai':
-        return AppColors.blackColor;
-      default:
-        return AppColors.primaryColor;
-    }
   }
 }

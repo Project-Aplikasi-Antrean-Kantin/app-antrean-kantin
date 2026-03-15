@@ -42,7 +42,6 @@ class OrderSuccess extends StatelessWidget {
         pageIndex: user.menu.indexWhere((element) => element.url == '/riwayat'),
         initialRouteAfterOpen: DetailRiwayat(
           label: "Beli",
-          token: user.token.toString(),
           pesanan: pesanan,
           refreshData: () {
             historyProvider.fetchHistory(context, user, "user", true);

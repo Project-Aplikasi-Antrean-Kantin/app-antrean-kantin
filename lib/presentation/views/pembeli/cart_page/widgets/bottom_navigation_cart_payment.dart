@@ -69,7 +69,7 @@ class _BottomNavigationCartPaymentState
     }
     Navigator.push(
       context,
-      CustomPageBuilder(page: TopupPage(email: widget.user.email)),
+      CustomPageBuilder(page: TopupPage()),
     );
   }
 

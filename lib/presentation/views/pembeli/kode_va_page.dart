@@ -169,7 +169,7 @@ class _KodeVaPageState extends State<KodeVaPage> {
                 prefs.then((value) => value.remove('current_va'));
                 Navigator.pushReplacement(
                   context,
-                  CustomPageBuilder(page: TopupPage(email: user.email)),
+                  CustomPageBuilder(page: TopupPage()),
                 );
               },
               child: Container(
@@ -316,7 +316,7 @@ class _KodeVaPageState extends State<KodeVaPage> {
                       prefs.then((value) => value.remove('current_va'));
                       Navigator.pushReplacement(
                         context,
-                        CustomPageBuilder(page: TopupPage(email: user.email)),
+                        CustomPageBuilder(page: TopupPage()),
                       );
                     })),
             Expanded(
@@ -431,7 +431,7 @@ class _KodeVaPageState extends State<KodeVaPage> {
                   prefs.then((value) => value.remove('current_va'));
                   Navigator.pushReplacement(
                     context,
-                    CustomPageBuilder(page: TopupPage(email: user.email)),
+                    CustomPageBuilder(page: TopupPage()),
                   );
                 },
                 child: Text(

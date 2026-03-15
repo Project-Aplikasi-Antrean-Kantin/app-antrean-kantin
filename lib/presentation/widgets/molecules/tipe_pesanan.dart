@@ -5,13 +5,14 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 
 class TipePesanan extends StatelessWidget {
   final int isPriority;
-  const TipePesanan({super.key, required this.isPriority});
+  final double size;
+  const TipePesanan({super.key, required this.isPriority, this.size = 16});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: size / 2, vertical: size / 4),
         decoration: BoxDecoration(
           border: Border.all(
               color: isPriority == 1 ? AppColors.primaryColor : Colors.grey),
@@ -19,15 +20,16 @@ class TipePesanan extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          spacing: 4,
+          spacing: size / 4,
           children: [
             if (isPriority == 1)
-              Icon(Iconsax.flash_1, size: 24, color: AppColors.primaryColor),
+              Icon(Iconsax.flash_1,
+                  size: size * 1.5, color: AppColors.primaryColor),
             Text(
               isPriority == 1 ? "Express" : "Reguler",
               style: GoogleFonts.poppins(
                 color: isPriority == 1 ? AppColors.primaryColor : Colors.black,
-                fontSize: 16,
+                fontSize: size,
               ),
             ),
           ],

@@ -3,32 +3,32 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
-import 'package:testgetdata/core/theme/text_theme.dart';
 
 class StatusPesanan extends StatelessWidget {
   final String status;
-  const StatusPesanan({super.key, required this.status});
+  final double size;
+  const StatusPesanan({super.key, this.size = 16, required this.status});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: size / 2, vertical: size / 4),
         decoration: BoxDecoration(
           border: Border.all(color: getStatusColor(status)),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          spacing: 4,
+          spacing: size / 4,
           children: [
             Icon(getIconByStatus(status),
-                size: 24, color: getStatusColor(status)),
+                size: size * 1.5, color: getStatusColor(status)),
             Text(
-              capitalizeFirstLetter(status.replaceAll('_', ' ')),
+              getStatus(status),
               style: GoogleFonts.poppins(
                 color: getStatusColor(status),
-                fontSize: 16,
+                fontSize: size,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -84,6 +84,33 @@ class StatusPesanan extends StatelessWidget {
         return HugeIcons.strokeRoundedLoading03;
       default:
         return HugeIcons.strokeRoundedArrowReloadVertical;
+    }
+  }
+
+  String getStatus(String status) {
+    switch (status) {
+      case 'refund_selesai':
+        return 'Refund';
+      case 'gagal_bayar':
+        return 'Gagal Bayar';
+      case 'pending':
+        return 'Pending';
+      case 'selesai':
+        return 'Selesai';
+      case 'pesanan_ditolak':
+        return 'Ditolak';
+      case 'pesanan_diproses':
+        return 'Diproses';
+      case 'pesanan_masuk':
+        return 'Masuk';
+      case 'diantar':
+        return 'Diantar';
+      case 'siap_diambil':
+        return 'Siap Diambil';
+      case 'siap_diantar':
+        return 'Siap Diantar';
+      default:
+        return '';
     }
   }
 }

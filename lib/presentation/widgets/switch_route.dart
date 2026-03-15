@@ -1,8 +1,8 @@
 // feature_router.dart
 import 'package:flutter/material.dart';
-import 'package:testgetdata/presentation/views/pembeli/home_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/home_page/home_page.dart';
 import 'package:testgetdata/presentation/views/penjual/kasir_page.dart';
-import 'package:testgetdata/presentation/views/pembeli/riwayat_page_as_role.dart';
+import 'package:testgetdata/presentation/views/pembeli/riwayat_page/riwayat_page_as_role.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_page.dart';
 import 'package:testgetdata/presentation/views/penjual/penghasilan_page.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_tenant.dart';
