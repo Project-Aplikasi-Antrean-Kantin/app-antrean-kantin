@@ -1,15 +1,10 @@
-import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
-import 'package:testgetdata/utils/has_internet_access.dart';
 
 void showBottomSheetPing(
-    {required BuildContext context,
-    required VoidCallback onFinish,
-    required bool canSend}) {
+    {required BuildContext context, required VoidCallback onFinish}) {
   final screenSize = MediaQuery.of(context).size;
   final isSmallScreen = screenSize.height < 600;
 
@@ -92,8 +87,7 @@ void showBottomSheetPing(
                         SizedBox(width: screenSize.width * 0.03),
                         Expanded(
                           child: PrimaryButton(
-                            color:
-                                canSend ? AppColors.primaryColor : Colors.grey,
+                            color: AppColors.primaryColor,
                             elevation: 0,
                             height: screenSize.height * 0.06,
                             borderRadius: 100,

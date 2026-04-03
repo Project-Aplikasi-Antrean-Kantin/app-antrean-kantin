@@ -8,7 +8,7 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 

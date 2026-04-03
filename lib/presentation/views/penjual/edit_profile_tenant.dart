@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -14,14 +13,8 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
-import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
-import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
-import 'package:testgetdata/presentation/widgets/image_by_url.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_widget.dart';
-import 'package:testgetdata/presentation/widgets/time_picker.dart';
 
 class EditProfileTenant extends StatefulWidget {
   const EditProfileTenant({Key? key}) : super(key: key);

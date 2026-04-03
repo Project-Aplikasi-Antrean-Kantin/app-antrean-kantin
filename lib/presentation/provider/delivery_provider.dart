@@ -48,6 +48,11 @@ class DeliveryProvider with ChangeNotifier {
     }
   }
 
+  void setIsLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
   Future<({bool success, String? error})> updateOrder(
     int userId,
     String newStatus,

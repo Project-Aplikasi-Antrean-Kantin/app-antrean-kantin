@@ -12,7 +12,7 @@ import 'package:testgetdata/presentation/views/pembeli/forgot_password.dart';
 import 'package:testgetdata/presentation/views/pembeli/open_email.dart';
 import 'package:testgetdata/presentation/views/pembeli/register_page.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
-import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';

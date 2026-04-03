@@ -15,6 +15,7 @@ import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/molecules/counter/counter.dart';
 
 class DetailFoodPage extends StatefulWidget {
   final TenantFoods? food;
@@ -274,132 +275,23 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                         ],
                       ),
                     ),
-                    IntrinsicWidth(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize
-                              .min, // penting agar Row tidak stretch
-                          children: [
-                            // Tombol -
-                            Semantics(
-                              label: 'Tombol -',
-                              button: true,
-                              child: Material(
-                                key: Key('kurangPesanan'),
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      if (count >= 1) count--;
-                                    });
-                                  },
-                                  child: Ink(
-                                    width: 48,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                        color: AppColors.backgroundColor,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10),
-                                        )),
-                                    child: Center(
-                                      child: Text(
-                                        '-',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            // Count
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.symmetric(
-                                  vertical: BorderSide(
-                                    color: AppColors.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                              width: 48,
-                              height: 36,
-                              alignment: Alignment.center,
-                              child: TextFormField(
-                                key: Key("${food.id}${count}Counter"),
-                                initialValue: count.toString(),
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primaryColor,
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    count = int.tryParse(value) ?? 0;
-                                  });
-                                },
-                              ),
-                            ),
-
-                            // Tombol +
-                            Semantics(
-                              button: true,
-                              label: 'Tambah',
-                              child: Material(
-                                key: ValueKey('tambahPesanan'),
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      count++;
-                                    });
-                                  },
-                                  child: Ink(
-                                    width: 48,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.backgroundColor,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(10),
-                                        bottomRight: Radius.circular(10),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '+',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    Counter(
+                      count: count,
+                      onCountChanged: (value) {
+                        setState(() {
+                          count = value;
+                        });
+                      },
+                      onIncrement: () {
+                        setState(() {
+                          count++;
+                        });
+                      },
+                      onDecrement: () {
+                        setState(() {
+                          count--;
+                        });
+                      },
                     ),
                     SizedBox(
                       height: MediaQuery.of(context).size.height / 6,

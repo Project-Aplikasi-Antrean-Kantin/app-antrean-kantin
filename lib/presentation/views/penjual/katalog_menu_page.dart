@@ -6,18 +6,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
-import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
-import 'package:testgetdata/presentation/views/penjual/katalog_menu_form.dart';
-import 'package:testgetdata/presentation/views/penjual/menu_list_page.dart';
+import 'package:testgetdata/presentation/views/penjual/katalog_menu_form/katalog_menu_form.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/katalog_menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class KatalogMenu extends StatefulWidget {

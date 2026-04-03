@@ -1,29 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
-import 'package:testgetdata/data/remote/driver_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
-import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
-import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
-import 'package:testgetdata/presentation/views/pengantar/delivery_card.dart';
-import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/views/pengantar/delivery_card/delivery_card.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/delivery_bottom_sheet.dart';
-import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
-import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
-import 'package:testgetdata/utils/has_internet_access.dart';
 
 class DeliveryList extends StatefulWidget {
   final TabController? tabController;
@@ -78,7 +69,6 @@ class _DeliveryListState extends State<DeliveryList> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: groupedList.length,
         itemBuilder: (context, index) {
-          final tenantId = groupedList[index].key;
           final pesananList = groupedList[index].value;
 
           // 🔹 Kalau cuma 1 pesanan → tampilkan 1 card biasa
@@ -91,7 +81,6 @@ class _DeliveryListState extends State<DeliveryList> {
               lengthListPesanan: pesananList.length,
               userId: user.id,
               index: 0,
-              isMultiple: false,
               ongkir: pesananItem.ongkosKirim,
               onSuccess: () => widget.tabController?.animateTo(1),
               pesanan: pesananItem,
@@ -225,7 +214,6 @@ class _DeliveryListState extends State<DeliveryList> {
                     lengthListPesanan: pesananList.length,
                     userId: user.id,
                     index: index + 1,
-                    isMultiple: true,
                     ongkir: ongkir,
                     onSuccess: () => widget.tabController?.animateTo(1),
                     pesanan: pesananList[index],
@@ -258,105 +246,6 @@ class _DeliveryListState extends State<DeliveryList> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // if (DeliveryStatus.diantar == widget.status)
-                          //   Expanded(
-                          //       child: Row(
-                          //     mainAxisSize: MainAxisSize.min,
-                          //     mainAxisAlignment: MainAxisAlignment.start,
-                          //     children: [
-                          //       Stack(
-                          //         clipBehavior: Clip.none,
-                          //         children: [
-                          //           ElevatedButton(
-                          //             style: ElevatedButton.styleFrom(
-                          //               elevation: 0,
-                          //               backgroundColor:
-                          //                   AppColors.primaryColor100,
-                          //               shape:
-                          //                   const CircleBorder(), // ✅ ini yang bikin benar-benar bundar
-
-                          //               padding: const EdgeInsets.all(
-                          //                   8), // jarak icon dengan border
-                          //             ),
-                          //             onPressed: () async {
-                          //               final connectivityResult =
-                          //                   await hasInternetAccess();
-                          //               if (!connectivityResult) {
-                          //                 Fluttertoast.showToast(
-                          //                     msg:
-                          //                         'Tidak ada koneksi internet');
-                          //                 showNoConnectionBottomSheet(
-                          //                     context: context, onRetry: () {});
-                          //                 return;
-                          //               }
-                          //               historyProvider.removeUnreadMessages(
-                          //                   pesananList.first.id);
-
-                          //               Navigator.push(
-                          //                 context,
-                          //                 CustomPageBuilder(
-                          //                   page: ChatPage(
-                          //                     pesanan: pesananList.first,
-                          //                     chatType: "driver",
-                          //                   ),
-                          //                 ),
-                          //               );
-                          //             },
-                          //             child: const Icon(
-                          //               Iconsax.message,
-                          //               size: 20,
-                          //               color: AppColors.primaryColor,
-                          //             ),
-                          //           ),
-
-                          //           // bulatan indikator
-                          //           if (isThereNewChat)
-                          //             Positioned(
-                          //               right: 8,
-                          //               top: 4,
-                          //               child: Container(
-                          //                 width: 12,
-                          //                 height: 12,
-                          //                 decoration: BoxDecoration(
-                          //                   color: AppColors.primaryColor,
-                          //                   shape: BoxShape.circle,
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //         ],
-                          //       ),
-                          //       ElevatedButton(
-                          //         style: ElevatedButton.styleFrom(
-                          //           backgroundColor: _isCooldown
-                          //               ? Colors.grey[300]
-                          //               : AppColors.primaryColor100,
-                          //           elevation: 0,
-                          //           shape: const CircleBorder(),
-                          //           padding: const EdgeInsets.all(8),
-                          //         ),
-                          //         onPressed: _isCooldown
-                          //             ? null
-                          //             : () => showBottomSheetPing(
-                          //                 context: context,
-                          //                 onFinish: () async {
-                          //                   await _handlePress(
-                          //                     authProvider.user.token,
-                          //                     pesananList.first,
-                          //                   );
-                          //                 },
-                          //                 canSend:
-                          //                     !_isCooldown), // disable pas cooldown
-                          //         child: SvgPicture.asset(
-                          //           'assets/images/megaphone.svg',
-                          //           color: _isCooldown
-                          //               ? Colors.grey
-                          //               : AppColors.primaryColor,
-                          //           width: 20,
-                          //           height: 20,
-                          //         ),
-                          //       )
-                          //     ],
-                          //   )),
                           PrimaryButton(
                             onPressed: () async {
                               if (widget.status == DeliveryStatus.diantar) {

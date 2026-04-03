@@ -9,7 +9,7 @@ import 'package:testgetdata/data/model/voucher_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
-import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 

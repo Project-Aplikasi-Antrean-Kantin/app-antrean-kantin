@@ -34,6 +34,39 @@ class KatalogMenuProvider extends ChangeNotifier {
     }
   }
 
+  Future<TenantFoods?> saveMenu({
+    required String token,
+    required Map<String, dynamic> data,
+    int? id,
+  }) async {
+    setLoading(true);
+    notifyListeners();
+    try {
+      final source = TenantRemoteDataSource();
+
+      final result = id == null
+          ? await source.createMenuTenant(token, data)
+          : await source.updateMenuTenant(token, data, id);
+
+      if (result != null) {
+        if (id != null) {
+          updateDataById(result);
+        } else {
+          this.data.insert(0, result); // optional kalau mau langsung tampil
+        }
+        return result;
+      }
+
+      return null;
+    } catch (e) {
+      errorMessage = 'Gagal menyimpan menu: $e';
+      return null;
+    } finally {
+      setLoading(false);
+      notifyListeners();
+    }
+  }
+
   Future<void> updateStatusReady(int menuId) async {
     final newData = data.firstWhere((food) => food.id == menuId);
     newData.isReady = newData.isReady == 1 ? 0 : 1;

@@ -148,7 +148,6 @@ class _HubungiPembeliState extends State<HubungiPembeli> {
                           : () => showBottomSheetPing(
                                 context: context,
                                 onFinish: _handlePress,
-                                canSend: !_isCooldown,
                               ), // disable pas cooldown
                       child: HugeIcon(
                         icon: HugeIcons.strokeRoundedMegaphone02,

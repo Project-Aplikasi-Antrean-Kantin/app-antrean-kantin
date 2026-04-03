@@ -8,7 +8,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/common/token_manager.dart';
 import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
-import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
+import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';

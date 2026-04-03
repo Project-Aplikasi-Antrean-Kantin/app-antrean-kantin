@@ -10,9 +10,8 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/delivery_provider.dart';
-import 'package:testgetdata/presentation/views/pengantar/delivery_card.dart';
+import 'package:testgetdata/presentation/views/pengantar/delivery_card/delivery_card.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_list.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 
 class PerluPengantaran extends StatefulWidget {
@@ -24,7 +23,6 @@ class PerluPengantaran extends StatefulWidget {
 
 class _PerluPengantaranState extends State<PerluPengantaran>
     with SingleTickerProviderStateMixin {
-  DateTime? _lastFetch;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   TabController? _tabController;
 
@@ -59,7 +57,6 @@ class _PerluPengantaranState extends State<PerluPengantaran>
       await deliveryProvider.fetchOrders(
           user.token, DeliveryStatus.siapDiantar);
       await deliveryProvider.fetchOrders(user.token, DeliveryStatus.diantar);
-      _lastFetch = DateTime.now();
     }
   }
 
@@ -136,7 +133,6 @@ class _PerluPengantaranState extends State<PerluPengantaran>
                           lengthListPesanan: 1,
                           userId: index,
                           index: 0,
-                          isMultiple: false,
                           ongkir: 3000,
                           onSuccess: () {},
                           pesanan: Pesanan.getDummyPesanan(),
