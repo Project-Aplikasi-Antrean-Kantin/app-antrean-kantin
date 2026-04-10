@@ -21,13 +21,11 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_cashier.dart';
 import 'package:testgetdata/presentation/widgets/busy_tenant_bottom_sheet.dart';
-import 'package:testgetdata/presentation/widgets/card_tenant.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 import 'package:testgetdata/presentation/widgets/menu_tile.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
-import 'cart_page.dart';
 
 class MenuTenant extends StatefulWidget {
   final String url;
@@ -720,21 +718,6 @@ class _MenuTenantState extends State<MenuTenant> {
           ),
         ],
       ),
-    );
-  }
-
-  PageRouteBuilder _buildCartPageRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const CartPage(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset(0.0, 0.0);
-        const curve = Curves.easeInOut;
-        final tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        final offsetAnimation = animation.drive(tween);
-        return SlideTransition(position: offsetAnimation, child: child);
-      },
     );
   }
 }

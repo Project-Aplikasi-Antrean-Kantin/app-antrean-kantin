@@ -57,6 +57,7 @@ class FooterBottomSheetCart extends StatelessWidget {
                 children: [
                   SummaryPrice(totalPrice: totalPrice),
                   PrimaryButton(
+                    key: const Key('pesanSekarangButton'),
                     borderRadius: 16,
                     width: MediaQuery.of(context).size.width / 5,
                     onPressed: () async {

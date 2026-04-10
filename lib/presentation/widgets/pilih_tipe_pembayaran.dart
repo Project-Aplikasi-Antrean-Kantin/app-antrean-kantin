@@ -137,11 +137,16 @@ class PilihTipePembayaran extends StatelessWidget {
                                   width: double.infinity,
                                 ),
                               ),
-                              const HugeIcon(
-                                icon: HugeIcons
-                                    .strokeRoundedMoreHorizontalCircle02,
-                                size: _iconSize,
-                                color: AppColors.blackColor,
+                              Semantics(
+                                label: 'Pilih metode pembayaran',
+                                button: true,
+                                child: const HugeIcon(
+                                  key: Key('showMoreOptions'),
+                                  icon: HugeIcons
+                                      .strokeRoundedMoreHorizontalCircle02,
+                                  size: _iconSize,
+                                  color: AppColors.blackColor,
+                                ),
                               ),
                             ],
                           ),
