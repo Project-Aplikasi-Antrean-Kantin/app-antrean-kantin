@@ -64,101 +64,83 @@ class PilihTipePembayaran extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final kasirProvider = Provider.of<KasirProvider>(context, listen: false);
     final total = cartProvider.getTotal();
 
-    return Semantics(
-      label: selectedPaymentMethod == null
-          ? 'Pilih metode pembayaran'
-          : 'Metode pembayaran: ${_paymentOptions[selectedPaymentMethod]!['label']}',
-      child: GestureDetector(
-        // onTap: () => _showPaymentOptions(context),
-        child: Container(
-          color: AppColors.backgroundColor,
-          padding: _padding,
-          child: Row(
-            spacing: 8,
-            children: [
-              if (selectedPaymentMethod != null)
-                Image.asset(
-                  _paymentOptions[selectedPaymentMethod]!['icon'] as String,
-                  width: _iconSize,
-                  height: _iconSize,
-                ),
-              Expanded(
-                child: Semantics(
-                  label: 'Metode pembayaran',
-                  button: true,
-                  child: GestureDetector(
-                    key: const Key('showPaymentMethod'),
-                    onTap: () => showModalBottomSheet(
-                      context: context,
-                      builder: (context) => _PaymentOptionBottomSheet(
-                          selectedMethod: selectedPaymentMethod,
-                          onSelect: onPaymentMethodSelected),
-                    ),
-                    child: Container(
-                      child: Column(
+    return Container(
+      color: AppColors.backgroundColor,
+      padding: _padding,
+      child: Row(
+        spacing: 8,
+        children: [
+          if (selectedPaymentMethod != null)
+            Image.asset(
+              _paymentOptions[selectedPaymentMethod]!['icon'] as String,
+              width: _iconSize,
+              height: _iconSize,
+            ),
+          Expanded(
+            child: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    selectedPaymentMethod == null
-                                        ? 'Pilih metode bayar'
-                                        : _paymentOptions[
-                                                selectedPaymentMethod]!['label']
-                                            as String,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      color: AppColors.textColorBlack,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                  if (selectedPaymentMethod != null)
-                                    Text(
-                                      _formatTotal(
-                                          total, selectedPaymentMethod),
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: semibold,
-                                        color: AppColors.textColorBlack,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              Expanded(
-                                child: SizedBox(
-                                  width: double.infinity,
-                                ),
-                              ),
-                              Semantics(
-                                label: 'Pilih metode pembayaran',
-                                button: true,
-                                child: const HugeIcon(
-                                  key: Key('showMoreOptions'),
-                                  icon: HugeIcons
-                                      .strokeRoundedMoreHorizontalCircle02,
-                                  size: _iconSize,
-                                  color: AppColors.blackColor,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            selectedPaymentMethod == null
+                                ? 'Pilih metode bayar'
+                                : _paymentOptions[selectedPaymentMethod]![
+                                    'label'] as String,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: AppColors.textColorBlack,
+                              fontWeight: FontWeight.w600,
+                              height: 1.5,
+                            ),
                           ),
+                          if (selectedPaymentMethod != null)
+                            Text(
+                              _formatTotal(total, selectedPaymentMethod),
+                              style: GoogleFonts.poppins(
+                                fontWeight: semibold,
+                                color: AppColors.textColorBlack,
+                                height: 1.5,
+                              ),
+                            ),
                         ],
                       ),
-                    ),
+                      Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => showModalBottomSheet(
+                          context: context,
+                          builder: (context) => _PaymentOptionBottomSheet(
+                              selectedMethod: selectedPaymentMethod,
+                              onSelect: onPaymentMethodSelected),
+                        ),
+                        child: Semantics(
+                          identifier: 'showMoreOptions',
+                          child: const HugeIcon(
+                            key: Key('showMoreOptions'),
+                            icon: HugeIcons.strokeRoundedMoreHorizontalCircle02,
+                            size: _iconSize,
+                            color: AppColors.blackColor,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

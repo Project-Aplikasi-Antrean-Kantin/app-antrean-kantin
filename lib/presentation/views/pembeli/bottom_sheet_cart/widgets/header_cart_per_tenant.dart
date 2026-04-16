@@ -30,7 +30,7 @@ class HeaderCartPerTenant extends StatelessWidget {
             spacing: 8,
             children: [
               Semantics(
-                  button: true,
+                  identifier: 'Check Tenant ${tenantName}',
                   child: CheckButton(
                     onCheck: onCheck,
                     onChecked: onChecked,
