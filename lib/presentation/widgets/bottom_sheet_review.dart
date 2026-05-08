@@ -130,9 +130,10 @@ void showBottomSheetReview({
                         spacing: 8,
                         runSpacing: 8,
                         children: List.generate(
-                          reviewProvider.reviewSelection.length,
+                          reviewProvider.reviewSelectionTop.length,
                           (index) {
-                            final item = reviewProvider.reviewSelection[index];
+                            final item =
+                                reviewProvider.reviewSelectionTop[index];
                             return GestureDetector(
                               onTap: () {
                                 reviewProvider.selectReviewSelection(item);
@@ -144,24 +145,22 @@ void showBottomSheetReview({
                                 ),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: reviewProvider
-                                            .selectedReviewSelection
+                                    color: reviewProvider.selectedTop
                                             .contains(item)
                                         ? AppColors.primaryColor
                                         : AppColors.blackColor100,
                                     width: 1,
                                   ),
-                                  color: reviewProvider.selectedReviewSelection
-                                          .contains(item)
-                                      ? AppColors.primaryColor
-                                      : AppColors.whiteColor100,
+                                  color:
+                                      reviewProvider.selectedTop.contains(item)
+                                          ? AppColors.primaryColor
+                                          : AppColors.whiteColor100,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
                                   '${item.name}',
                                   style: GoogleFonts.poppins(
-                                    color: reviewProvider
-                                            .selectedReviewSelection
+                                    color: reviewProvider.selectedTop
                                             .contains(item)
                                         ? Colors.white
                                         : AppColors.blackColor,
@@ -172,8 +171,61 @@ void showBottomSheetReview({
                           },
                         ),
                       ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text("Saat ini Anda beraktivitas di kampus sebagai apa?"),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: List.generate(
+                          reviewProvider.reviewSelectionBottom.length,
+                          (index) {
+                            final item =
+                                reviewProvider.reviewSelectionBottom[index];
+                            return GestureDetector(
+                              onTap: () {
+                                reviewProvider.selectReviewSelection(item);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: reviewProvider.selectedBottom?.id ==
+                                            item.id
+                                        ? AppColors.primaryColor
+                                        : AppColors.blackColor100,
+                                    width: 1,
+                                  ),
+                                  color: reviewProvider.selectedBottom?.id ==
+                                          item.id
+                                      ? AppColors.primaryColor
+                                      : AppColors.whiteColor100,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  '${item.name}',
+                                  style: GoogleFonts.poppins(
+                                    color: reviewProvider.selectedBottom?.id ==
+                                            item.id
+                                        ? Colors.white
+                                        : AppColors.blackColor,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      if (reviewProvider.selectedReviewSelection.isNotEmpty)
+                      if (reviewProvider.selectedBottom != null &&
+                          reviewProvider.selectedTop.isNotEmpty)
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
@@ -201,14 +253,13 @@ void showBottomSheetReview({
                       const SizedBox(height: 8),
                       PrimaryButton(
                         borderRadius: 16,
-                        waitingText:
-                            reviewProvider.selectedReviewSelection.isEmpty
-                                ? "Pilih minimal satu"
-                                : null,
+                        waitingText: reviewProvider.selectedTop.isEmpty
+                            ? "Pilih minimal satu"
+                            : null,
                         isLoading: reviewProvider.isSubmitting,
-                        isEnabled:
-                            reviewProvider.selectedReviewSelection.isNotEmpty &&
-                                !reviewProvider.isSubmitting,
+                        isEnabled: reviewProvider.selectedTop.isNotEmpty &&
+                            !reviewProvider.isSubmitting &&
+                            reviewProvider.selectedBottom != null,
                         child: Text("Kirim",
                             style: GoogleFonts.poppins(color: Colors.white)),
                         onPressed: () async {

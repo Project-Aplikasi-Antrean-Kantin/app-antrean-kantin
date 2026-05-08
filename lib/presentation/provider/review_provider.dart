@@ -6,7 +6,10 @@ import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 class ReviewProvider extends ChangeNotifier {
   int selectedRating = 7;
   List<ReviewSelection> reviewSelection = [];
-  List<ReviewSelection> selectedReviewSelection = [];
+  List<ReviewSelection> reviewSelectionTop = [];
+  List<ReviewSelection> reviewSelectionBottom = [];
+  List<ReviewSelection> selectedTop = [];
+  ReviewSelection? selectedBottom;
   bool isSubmitting = false;
 
   void selectRating(int rating) {
@@ -14,18 +17,32 @@ class ReviewProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectReviewSelection(ReviewSelection reviewSelection) {
-    if (selectedReviewSelection.contains(reviewSelection)) {
-      selectedReviewSelection.remove(reviewSelection);
-    } else {
-      selectedReviewSelection.add(reviewSelection);
+  void selectReviewSelection(ReviewSelection item) {
+    // cek apakah item dari TOP
+    if (reviewSelectionTop.contains(item)) {
+      if (selectedTop.contains(item)) {
+        selectedTop.remove(item);
+      } else {
+        selectedTop.add(item);
+      }
     }
+    // kalau dari BOTTOM (single select)
+    else if (reviewSelectionBottom.contains(item)) {
+      if (selectedBottom == item) {
+        selectedBottom = null; // toggle off
+      } else {
+        selectedBottom = item; // replace
+      }
+    }
+
     notifyListeners();
   }
 
   Future<void> submitReview(String token, String description) async {
-    final List<int> ratingMoods =
-        selectedReviewSelection.map((e) => e.id).toList();
+    final List<int> ratingMoods = [
+      ...selectedTop.map((e) => e.id),
+      if (selectedBottom != null) selectedBottom!.id,
+    ];
     isSubmitting = true;
     notifyListeners();
 
@@ -36,6 +53,8 @@ class ReviewProvider extends ChangeNotifier {
         description,
         ratingMoods,
       );
+      selectedTop = [];
+      selectedBottom = null;
       Fluttertoast.showToast(msg: response);
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
@@ -49,7 +68,17 @@ class ReviewProvider extends ChangeNotifier {
     try {
       final List<ReviewSelection> reviewSelection =
           await PublicRemoteDataSource().getReviewSelection(token);
+
       this.reviewSelection = reviewSelection;
+
+      if (reviewSelection.length >= 3) {
+        reviewSelectionTop = reviewSelection.sublist(0, 3);
+        reviewSelectionBottom = reviewSelection.sublist(3);
+      } else {
+        // kalau datanya kurang dari 3
+        reviewSelectionTop = reviewSelection;
+        reviewSelectionBottom = [];
+      }
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
     }

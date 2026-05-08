@@ -38,6 +38,7 @@ import 'package:testgetdata/presentation/views/pembeli/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/bottom_sheet_cart.dart';
+import 'package:testgetdata/presentation/widgets/bottom_sheet_review.dart';
 import 'package:testgetdata/presentation/widgets/card_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
@@ -215,8 +216,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     authProvider.fetchUserData(user.token);
     cartProvider.getAllCarts();
-    reviewProvider.setReviewSelection(user.token);
-
+    reviewProvider.setReviewSelection(user.token).then((_) {
+      PublicRemoteDataSource().isNeededReview(user.token).then((bool value) {
+        if (value) {
+          showBottomSheetReview(context: context, user: user);
+        }
+      });
+    });
     futureTenant = PublicRemoteDataSource()
         .getTenant(context, url, user.token)
         .then((listTenant) {
