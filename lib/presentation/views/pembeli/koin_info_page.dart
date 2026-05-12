@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -10,7 +8,6 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/coin_transaction_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
-import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';

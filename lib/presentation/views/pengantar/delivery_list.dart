@@ -13,7 +13,7 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_card/delivery_card.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
-import 'package:testgetdata/presentation/widgets/delivery_bottom_sheet.dart';
+import 'package:testgetdata/presentation/views/pengantar/delivery_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class DeliveryList extends StatefulWidget {

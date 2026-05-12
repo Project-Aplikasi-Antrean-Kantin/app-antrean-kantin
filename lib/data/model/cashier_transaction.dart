@@ -9,7 +9,7 @@ class CashierTransaction {
   String kodePemesanan;
   DateTime createdAt;
   DateTime updatedAt;
-  List<ListTransaksiDetail> listTransaksiDetail;
+  List<TransaksiDetail> listTransaksiDetail;
   String status;
   String namaPembeli;
   String? urlQris;
@@ -44,7 +44,7 @@ class CashierTransaction {
     String? kodePemesanan,
     DateTime? createdAt,
     DateTime? updatedAt,
-    List<ListTransaksiDetail>? listTransaksiDetail,
+    List<TransaksiDetail>? listTransaksiDetail,
     String? status,
     String? urlQris,
     DateTime? expiredQris,
@@ -84,8 +84,8 @@ class CashierTransaction {
           ? DateTime.parse(json["expiry"]).toLocal()
           : null,
 
-      listTransaksiDetail: List<ListTransaksiDetail>.from(
-        json["details"].map((x) => ListTransaksiDetail.fromJson(x)),
+      listTransaksiDetail: List<TransaksiDetail>.from(
+        json["details"].map((x) => TransaksiDetail.fromJson(x)),
       ),
     );
   }

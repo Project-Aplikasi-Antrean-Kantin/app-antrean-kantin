@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -15,13 +14,9 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/coin_provider.dart';
 import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
-import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/kode_va_page.dart';
-import 'package:testgetdata/presentation/views/pembeli/pembayaran_top_up.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
-import 'package:testgetdata/presentation/widgets/payment_topup_dialog.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
-import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class TopupPage extends StatefulWidget {
@@ -43,26 +38,15 @@ class _TopupPageState extends State<TopupPage> {
     500000
   ];
   int? _selectedNominal;
-  DateTime? _lastFetch;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   String? selectedValue;
   bool isLoading = false;
 
-  List<String> _paymentMethods =  [
-  ];
   @override
   void initState() {
     super.initState();
-    // _initializeProviders();
     _setupFirebaseListener();
   }
-
-  // void _initializeProviders() {
-  //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
-  //   // final topUpProvider = Provider.of<TopupProvider>(context, listen: false);
-  //   // final user = authProvider.user;
-  //   // topUpProvider.getDataTopUp(user.token);
-  // }
 
   void _setupFirebaseListener() {
     _onMessageSubscription = FirebaseMessaging.onMessage.listen((message) {
@@ -79,7 +63,6 @@ class _TopupPageState extends State<TopupPage> {
       CoinProvider coinProvider, UserModel user) {
     coinProvider.getCoinAmount(user.token);
     coinProvider.getHistoryCoin(user.token, true);
-    _lastFetch = DateTime.now();
   }
 
   @override
@@ -172,9 +155,7 @@ class _TopupPageState extends State<TopupPage> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      (selectedValue != 'VA Mandiri' && selectedValue != 'QRIS')
-                          ? 'Pengisian saldo dengan metode ini hanya dilayani pada jam tertentu dengan durasi 30 menit (09.00, 12.00, 15.00, 18.00)'
-                          : 'Lakukan refresh halaman beranda setelah pembayaran dengan cara scroll ke atas pada halaman beranda!',
+                      'Lakukan refresh halaman beranda setelah pembayaran dengan cara scroll ke atas pada halaman beranda!',
                       style: TextStyle(fontSize: 12),
                     ),
                   ),
@@ -205,65 +186,6 @@ class _TopupPageState extends State<TopupPage> {
                   return;
                 }
                 if (selectedValue != null && _selectedNominal != null) {
-                  // await topUpProvider.getDataTopUp(authProvider.user.token);
-                  // if (selectedValue == 'VA Mandiri' &&
-                  //     topUpProvider.aktifVa == '0') {
-                  //   setState(() {
-                  //     selectedValue = null;
-                  //     _selectedNominal = null;
-                  //   });
-                  //   Fluttertoast.showToast(
-                  //     msg: 'Metode VA Mandiri tidak tersedia',
-                  //     backgroundColor: AppColors.errorColor,
-                  //     textColor: Colors.white,
-                  //   );
-                  //   return;
-                  // }
-
-                  // if (selectedValue == 'QRIS' &&
-                  //     topUpProvider.aktifQris == '0') {
-                  //   setState(() {
-                  //     selectedValue = null;
-                  //     _selectedNominal = null;
-                  //   });
-                  //   Fluttertoast.showToast(
-                  //     msg: 'Metode QRIS tidak tersedia',
-                  //     backgroundColor: AppColors.errorColor,
-                  //     textColor: Colors.white,
-                  //   );
-                  //   return;
-                  // }
-
-                  // if (selectedValue == 'VA Mandiri' &&
-                  //     topUpProvider.aktifVa == '1') {
-                  //   setState(() {
-                  //     isLoading = true;
-                  //   });
-                  //   try {
-                  //     final success = await topUpProvider.createVirtualAccount(
-                  //         authProvider.user.token, _selectedNominal.toString());
-                  //     if (success && topUpProvider.topUp != null) {
-                  //       Fluttertoast.showToast(
-                  //         msg: "Virtual Account berhasil dibuat",
-                  //         backgroundColor: AppColors.successColor,
-                  //         textColor: Colors.white,
-                  //       );
-                  //       Navigator.pushReplacement(
-                  //           context,
-                  //           CustomPageBuilder(
-                  //               page: KodeVaPage(
-                  //                   currentVa: topUpProvider.topUp!)));
-                  //     }
-                  //   } catch (e) {
-                  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  //       content: Text(e.toString()),
-                  //     ));
-                  //   } finally {
-                  //     setState(() {
-                  //       isLoading = false;
-                  //     });
-                  //   }
-
                   if (selectedValue == 'QRIS') {
                     setState(() {
                       isLoading = true;

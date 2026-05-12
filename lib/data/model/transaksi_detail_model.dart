@@ -1,6 +1,6 @@
 import 'package:testgetdata/data/model/tenant_foods.dart';
 
-class ListTransaksiDetail {
+class TransaksiDetail {
   final int id;
   final int transaksiId;
   final int jumlah;
@@ -13,7 +13,7 @@ class ListTransaksiDetail {
   final String kategoriMenu;
   TenantFoods? menus;
 
-  ListTransaksiDetail({
+  TransaksiDetail({
     required this.id,
     required this.transaksiId,
     required this.jumlah,
@@ -28,7 +28,7 @@ class ListTransaksiDetail {
   });
 
   //copy with
-  ListTransaksiDetail copyWith({
+  TransaksiDetail copyWith({
     int? id,
     int? transaksiId,
     int? jumlah,
@@ -41,7 +41,7 @@ class ListTransaksiDetail {
     String? kategoriMenu,
     TenantFoods? menus,
   }) {
-    return ListTransaksiDetail(
+    return TransaksiDetail(
       id: id ?? this.id,
       transaksiId: transaksiId ?? this.transaksiId,
       jumlah: jumlah ?? this.jumlah,
@@ -61,8 +61,8 @@ class ListTransaksiDetail {
     return 'tenantfoods: $menus';
   }
 
-  factory ListTransaksiDetail.fromJson(Map<String, dynamic> json) =>
-      ListTransaksiDetail(
+  factory TransaksiDetail.fromJson(Map<String, dynamic> json) =>
+      TransaksiDetail(
         id: json["id"],
         transaksiId: json["transaksi_id"] ?? json["cashier_id"] ?? 0,
         jumlah: json["jumlah"],

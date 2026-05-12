@@ -104,6 +104,8 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
                 PublicRemoteDataSource()
                     .isNeededReview(user.token)
                     .then((bool value) {
+                  if (!mounted) return; // ✅
+
                   if (value) {
                     showBottomSheetReview(context: context, user: user);
                   }
@@ -213,6 +215,7 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
 
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+
     super.dispose();
   }
 

@@ -1,21 +1,16 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/remote/auth_remote_data_source.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
-import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:testgetdata/presentation/widgets/organisms/image_picker_bottom_sheet/image_picker_bottom_sheet.dart';
 
 class EditProfil extends StatefulWidget {
   const EditProfil({Key? key}) : super(key: key);
@@ -24,15 +19,7 @@ class EditProfil extends StatefulWidget {
   State<EditProfil> createState() => _EditProfilState();
 }
 
-Future<int> _getImageSize(String imagePath) async {
-  File imageFile = File(imagePath);
-  int sizeInBytes = await imageFile.length();
-  int sizeInKB = sizeInBytes ~/ 1024;
-  return sizeInKB;
-}
-
 class _EditProfilState extends State<EditProfil> {
-  late ImagePicker _imagePicker;
   bool isLoading = false;
 
   List<KategoriMenu> kategoriMenu = [
@@ -53,7 +40,6 @@ class _EditProfilState extends State<EditProfil> {
   @override
   void initState() {
     super.initState();
-    _imagePicker = ImagePicker();
     namaUserController = TextEditingController();
     emailUserController = TextEditingController();
     phoneUserController = TextEditingController();
@@ -76,133 +62,6 @@ class _EditProfilState extends State<EditProfil> {
     _namaFocus.dispose();
     _phoneFocus.dispose();
     super.dispose();
-  }
-
-  Future<void> _getImageFromGallery(BuildContext context) async {
-    final pickedImage =
-        await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      final tempDir = await getTemporaryDirectory();
-      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final tempPath = '${tempDir.path}/$tempFileName';
-
-      try {
-        final compressedImage = await FlutterImageCompress.compressAndGetFile(
-          pickedImage.path,
-          tempPath,
-          quality: 70,
-          minWidth: 1024,
-          minHeight: 1024,
-        );
-        if (compressedImage != null) {
-          selectedImagePath = compressedImage.path;
-          int imageSizeKB = await _getImageSize(selectedImagePath!);
-          if (imageSizeKB > 2048) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return CustomAlertDialog(
-                  title: "Peringatan!",
-                  message:
-                      "Gambar yang kamu pilih lebih dari 2MB bahkan setelah kompresi.",
-                  showCancelButton: false,
-                );
-              },
-            );
-            selectedImagePath = null;
-          }
-          Navigator.pop(context);
-
-          setState(() {});
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CustomAlertDialog(
-                title: "Gagal!",
-                message: "Gagal mengompresi gambar. Silakan coba lagi.",
-                showCancelButton: false,
-              );
-            },
-          );
-        }
-      } catch (e) {
-        debugPrint('Compression error: $e');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomAlertDialog(
-              title: "Error!",
-              message: "Terjadi kesalahan saat mengompresi gambar: $e",
-              showCancelButton: false,
-            );
-          },
-        );
-      }
-    }
-  }
-
-  Future<void> _getImageFromCamera(BuildContext context) async {
-    final pickedImage =
-        await _imagePicker.pickImage(source: ImageSource.camera);
-    if (pickedImage != null) {
-      final tempDir = await getTemporaryDirectory();
-      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final tempPath = '${tempDir.path}/$tempFileName';
-
-      try {
-        final compressedImage = await FlutterImageCompress.compressAndGetFile(
-          pickedImage.path,
-          tempPath,
-          quality: 70,
-          minWidth: 1024,
-          minHeight: 1024,
-        );
-        if (compressedImage != null) {
-          selectedImagePath = compressedImage.path;
-          int imageSizeKB = await _getImageSize(selectedImagePath!);
-          if (imageSizeKB > 2048) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return CustomAlertDialog(
-                  title: "Peringatan!",
-                  message:
-                      "Gambar yang kamu ambil lebih dari 2MB bahkan setelah kompresi.",
-                  showCancelButton: false,
-                );
-              },
-            );
-            selectedImagePath = null;
-          }
-          Navigator.pop(context);
-          setState(() {});
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CustomAlertDialog(
-                title: "Gagal!",
-                message: "Gagal mengompresi gambar. Silakan coba lagi.",
-                showCancelButton: false,
-              );
-            },
-          );
-        }
-      } catch (e) {
-        debugPrint('Compression error: $e');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomAlertDialog(
-              title: "Error!",
-              message: "Terjadi kesalahan saat mengompresi gambar: $e",
-              showCancelButton: false,
-            );
-          },
-        );
-      }
-    }
   }
 
   void _submit(AuthProvider authProvider) {
@@ -262,6 +121,45 @@ class _EditProfilState extends State<EditProfil> {
         isLoading = false;
       });
     });
+  }
+
+  Future<void> _openImagePicker() {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ImagePickerBottomSheet(
+          titleBottomSheet: 'Foto Profil',
+          onImageSelected: (path) async {
+            if (path == null) {
+              setState(() {
+                selectedImagePath = null;
+              });
+              return;
+            }
+
+            // optional validasi size
+            final file = File(path);
+            final sizeKB = await file.length() ~/ 1024;
+
+            if (sizeKB > 2048) {
+              showDialog(
+                context: context,
+                builder: (_) => CustomAlertDialog(
+                  title: "Peringatan!",
+                  message: "Gambar lebih dari 2MB",
+                  showCancelButton: false,
+                ),
+              );
+              return;
+            }
+
+            setState(() {
+              selectedImagePath = path;
+            });
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -329,7 +227,7 @@ class _EditProfilState extends State<EditProfil> {
                     ),
                     GestureDetector(
                       onTap: () async {
-                        await _buildBottomSheetProfile(context, authProvider);
+                        await _openImagePicker();
                       },
                       child: Column(
                         spacing: 12,
@@ -502,144 +400,5 @@ class _EditProfilState extends State<EditProfil> {
         ),
       ),
     );
-  }
-
-  Future<void> _buildBottomSheetProfile(
-      BuildContext context, AuthProvider authProvider) {
-    return showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return SafeArea(
-            child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
-                    color: AppColors.whiteColor400,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ]),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 5,
-                  child: Column(
-                    spacing: 16,
-                    children: [
-                      Text(
-                        'Foto Profil',
-                        style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: AppColors.primaryColor,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              _getImageFromCamera(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedCamera02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Kamera',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              _getImageFromGallery(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedImage02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Galeri',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              if (selectedImagePath != null ||
-                                  authProvider.user.gambar != null) {
-                                selectedImagePath = null;
-                                authProvider.removeUserPhoto();
-                                Navigator.pop(context);
-
-                                setState(() {});
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedDelete02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Hapus',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                )),
-          );
-        });
   }
 }

@@ -192,6 +192,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (prefs.getBool("user_review") != null &&
           prefs.getBool("user_review")!) {
         PublicRemoteDataSource().isNeededReview(user.token).then((bool value) {
+          if (!mounted) return;
           if (value) {
             showBottomSheetReview(context: context, user: user);
           }
@@ -199,9 +200,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }
     });
 
-    /// Langkah penting:
-    /// 1. setTopUp() dari SharedPreferences
-    /// 2. Kalau berhasil dan ada kodeBayar, panggil getVirtualAccount()
     topUpProvider.setTopUp().then((_) async {
       if (topUpProvider.topUp != null) {
         final kodeBayar = topUpProvider.topUp!.kodeBayar;

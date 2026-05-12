@@ -112,7 +112,7 @@ class _DetailRiwayatState extends State<DetailRiwayat> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ListTransaksiDetail> pesananPembeli =
+    final List<TransaksiDetail> pesananPembeli =
         widget.pesanan.listTransaksiDetail;
 
     int totalItem = 0;

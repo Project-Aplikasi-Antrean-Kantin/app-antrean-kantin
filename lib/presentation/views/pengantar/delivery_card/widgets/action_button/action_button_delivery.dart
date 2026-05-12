@@ -13,7 +13,7 @@ import 'package:testgetdata/presentation/views/pengantar/delivery_card/widgets/a
 import 'package:testgetdata/presentation/views/pengantar/delivery_card/widgets/action_button/widgets/primary_action_button.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_card/widgets/action_button/widgets/priority_slider.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
-import 'package:testgetdata/presentation/widgets/delivery_bottom_sheet.dart';
+import 'package:testgetdata/presentation/views/pengantar/delivery_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/molecules/chat_ping_action.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
@@ -195,13 +195,15 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
       widget.pesanan,
     );
 
+    // ✅ Tambah mounted check
+    if (!mounted) return;
+
     Fluttertoast.showToast(
       msg: result.success
           ? 'Berhasil'
           : result.error ??
               'ORDER-${widget.pesanan.id} telah diambil driver lain',
     );
-
     if (result.success) widget.onSuccess();
   }
 
@@ -220,7 +222,7 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) {
+      builder: (sheetContext) {
         return DeliveryBottomSheet(
           onLoading: delivery.isLoading,
           onImageSelected: (path) => deliveryImagePath = path,
@@ -241,7 +243,9 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
               buktiPath: deliveryImagePath,
             );
 
-            Navigator.pop(context);
+            if (Navigator.of(sheetContext).canPop()) {
+              Navigator.of(sheetContext).pop();
+            }
 
             Fluttertoast.showToast(
               msg: result.success

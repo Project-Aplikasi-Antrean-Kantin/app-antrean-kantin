@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:hugeicons/hugeicons.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
+import 'package:testgetdata/presentation/widgets/organisms/tenant_info_with_image/tenant_info_with_image.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 
@@ -58,155 +55,14 @@ class CardTenant extends StatelessWidget {
         margin: const EdgeInsets.only(right: 24, left: 24, bottom: 10),
         child: Column(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTenantImage(),
-                const SizedBox(width: 12),
-                Expanded(child: _buildTenantInfo()),
-              ],
+            TenantInfoWithImage(
+              tenant: tenant,
             ),
             if (shouldShowHorizontalList) const SizedBox(height: 10),
             if (shouldShowHorizontalList) _buildHorizontalMenuList()
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTenantImage() {
-    return ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-        child: tenant.isOnline == true
-            ? _buildImageWidget(112, 112, tenant.namaGambar.toString())
-            : ColorFiltered(
-                colorFilter: const ColorFilter.matrix([
-                  0.2126,
-                  0.7152,
-                  0.0722,
-                  0,
-                  0,
-                  0.2126,
-                  0.7152,
-                  0.0722,
-                  0,
-                  0,
-                  0.2126,
-                  0.7152,
-                  0.0722,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  1,
-                  0,
-                ]),
-                child:
-                    _buildImageWidget(112, 112, tenant.namaGambar.toString()),
-              ));
-  }
-
-  Widget _buildImageWidget(double width, double height, String url) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: ImageByUrl(
-        url: url,
-        width: width,
-        fit: BoxFit.cover,
-        height: height,
-      ),
-    );
-  }
-
-  Widget _buildTenantInfo() {
-    return Column(
-      spacing: 3,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-          tenant.namaTenant,
-          style: GoogleFonts.poppins(
-            color: Colors.black87,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Row(
-          children: [
-            HugeIcon(
-              icon: Iconsax.clock,
-              size: 20,
-              color: tenant.isOnline == true
-                  ? tenant.busyUntil != null
-                      ? AppColors.warningColor
-                      : AppColors.successColor
-                  : AppColors.errorColor,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              tenant.isOnline == true
-                  ? tenant.busyUntil != null
-                      ? 'Sibuk'
-                      : 'Buka'
-                  : 'Tutup',
-              style: TextStyle(
-                color: tenant.isOnline == true
-                    ? tenant.busyUntil != null
-                        ? AppColors.warningColor
-                        : AppColors.successColor
-                    : AppColors.errorColor,
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Text('|'),
-            const SizedBox(width: 4),
-            Text(
-              '${tenant.jamBuka?.substring(0, 5) ?? '09:30'} - ${tenant.jamTutup?.substring(0, 5) ?? '17:00'}',
-              style: TextStyle(
-                color: tenant.isOnline == true
-                    ? tenant.busyUntil != null
-                        ? AppColors.warningColor
-                        : AppColors.successColor
-                    : AppColors.errorColor,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            HugeIcon(
-              icon: Iconsax.bag_tick,
-              color: AppColors.secondaryColor,
-              size: 20,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              tenant.transaksiBerhasil.toString(),
-              style: GoogleFonts.poppins(
-                color: AppColors.primaryColor,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Text(
-              'pesanan berhasil',
-              style: TextStyle(color: AppColors.primaryColor, fontSize: 14),
-            )
-          ],
-        ),
-        Text(
-          'Harga mulai dari ${tenant.range}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 
@@ -231,7 +87,15 @@ class CardTenant extends StatelessWidget {
                 children: [
                   if (food.gambar != null && food.gambar!.isNotEmpty)
                     tenant.isOnline == true
-                        ? _buildImageWidget(96, 96, food.gambar!)
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: ImageByUrl(
+                              url: food.gambar!,
+                              width: 96,
+                              fit: BoxFit.cover,
+                              height: 96,
+                            ),
+                          )
                         : ColorFiltered(
                             colorFilter: const ColorFilter.matrix([
                               0.2126,
@@ -255,7 +119,15 @@ class CardTenant extends StatelessWidget {
                               1,
                               0,
                             ]),
-                            child: _buildImageWidget(96, 96, food.gambar!),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: ImageByUrl(
+                                url: food.gambar!,
+                                width: 96,
+                                fit: BoxFit.cover,
+                                height: 96,
+                              ),
+                            ),
                           )
                   else
                     Image.asset(

@@ -24,7 +24,7 @@ import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/pilihan_lokasi_ruangan.dart';
-import 'package:testgetdata/presentation/widgets/ringkasan_pembayaran_cart.dart';
+import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/ringkasan_pembayaran_cart.dart';
 
 enum PaymentMethod { koin, qris }
 

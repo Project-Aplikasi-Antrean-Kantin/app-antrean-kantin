@@ -9,9 +9,9 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
-import 'package:testgetdata/presentation/views/penjual/pesanan_card.dart';
+import 'package:testgetdata/presentation/views/penjual/pesanan_card/pesanan_card.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
-import 'package:testgetdata/presentation/widgets/menu_tile.dart';
+import 'package:testgetdata/presentation/widgets/organisms/menu_tile/menu_tile.dart';
 
 class ShimmerCard extends StatelessWidget {
   final String
@@ -552,6 +552,8 @@ class ShimmerCard extends StatelessWidget {
             (context, index) {
               return Skeletonizer(
                 child: MenuTile(
+                  isOwner: false,
+                  cartItemCount: 0,
                   tenant: TenantModel(
                       transaksiBerhasil: 1,
                       id: 2,
@@ -569,9 +571,6 @@ class ShimmerCard extends StatelessWidget {
                       isReady: 0,
                       deskripsi: "",
                       harga: 30000),
-                  tenantName: "f",
-                  isTenantMenu: true,
-                  enableNotes: true,
                 ),
               );
             },

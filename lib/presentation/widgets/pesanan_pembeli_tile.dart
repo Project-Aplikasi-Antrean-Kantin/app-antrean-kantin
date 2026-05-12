@@ -9,7 +9,7 @@ import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
 
 class PesananItemWidget extends StatelessWidget {
-  final ListTransaksiDetail pesanan;
+  final TransaksiDetail pesanan;
   final bool withPadding;
   final bool isTenant;
 
@@ -174,7 +174,7 @@ class PesananItemWidget extends StatelessWidget {
 
   Future<void> _showDetailPesanan(
     BuildContext context,
-    ListTransaksiDetail pesanan,
+    TransaksiDetail pesanan,
   ) {
     return showModalBottomSheet(
         backgroundColor: AppColors.whiteColor100,

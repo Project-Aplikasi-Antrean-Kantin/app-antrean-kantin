@@ -4,7 +4,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/cart_per_tenant.dart';
-import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 

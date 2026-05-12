@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
-class _PrimaryActionButton extends StatelessWidget {
+class PrimaryActionButton extends StatelessWidget {
   final Size screenSize;
   final bool isLoading;
   final String text;
   final VoidCallback onPressed;
 
-  const _PrimaryActionButton({
+  const PrimaryActionButton({
     required this.screenSize,
     required this.isLoading,
     required this.text,

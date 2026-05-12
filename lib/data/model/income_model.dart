@@ -39,7 +39,7 @@ class Income {
   }
 
   // langsung taruh di model
-  String getLabelBySorInPendapatanSort(String selectedSort, String labelKey) {
+  String getLabelBySortInPendapatanSort(String selectedSort, String labelKey) {
     final transaksiList = listIncomeTransaksi[labelKey];
     if (transaksiList == null || transaksiList.isEmpty) return "";
 

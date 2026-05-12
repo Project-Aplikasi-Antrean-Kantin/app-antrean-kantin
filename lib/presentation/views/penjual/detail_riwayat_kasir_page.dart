@@ -427,7 +427,7 @@ class _DetailRiwayatKasirPageState extends State<DetailRiwayatKasirPage> {
     );
   }
 
-  Widget _buildPesananItem(BuildContext context, ListTransaksiDetail pesanan) {
+  Widget _buildPesananItem(BuildContext context, TransaksiDetail pesanan) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
@@ -528,7 +528,7 @@ class _DetailRiwayatKasirPageState extends State<DetailRiwayatKasirPage> {
 
   Future<void> _showDetailPesanan(
     BuildContext context,
-    ListTransaksiDetail pesanan,
+    TransaksiDetail pesanan,
   ) {
     return showModalBottomSheet(
         backgroundColor: AppColors.whiteColor100,

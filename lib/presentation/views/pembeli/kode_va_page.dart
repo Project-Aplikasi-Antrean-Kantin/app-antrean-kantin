@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,9 +17,9 @@ import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
-
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
-import 'package:testgetdata/presentation/widgets/primary_button.dart';
+import 'package:testgetdata/presentation/widgets/organisms/qris_payment_card/qris_payment_card.dart';
+import 'package:testgetdata/utils/qris_image_saver.dart';
 
 class KodeVaPage extends StatefulWidget {
   final TopUpModel currentVa;
@@ -84,6 +82,8 @@ class _KodeVaPageState extends State<KodeVaPage> {
     startCountdown();
   }
 
+  // Di _QrisPaymentCardState
+
   @override
   Widget build(BuildContext context) {
     final isQris = widget.currentVa.kodeBayar.contains('https');
@@ -126,7 +126,26 @@ class _KodeVaPageState extends State<KodeVaPage> {
           : SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: isQris ? 24 : 12),
-                child: isQris ? _buildQrisPayment() : _buildVaPayment(),
+                child: QrisPaymentCard(
+                  nominal: int.parse(widget.currentVa.nominal),
+                  admin: int.parse(widget.currentVa.biayaAdmin ?? '0'),
+                  total: int.parse(widget.currentVa.nominal) +
+                      int.parse(widget.currentVa.biayaAdmin ?? '0'),
+                  urlQris: widget.currentVa.kodeBayar,
+                  secondsRemaining: _secondsRemaining,
+                  onGantiNominal: () {
+                    final prefs = SharedPreferences.getInstance();
+                    final user = Provider.of<AuthProvider>(
+                      context,
+                      listen: false,
+                    ).user;
+                    prefs.then((value) => value.remove('current_va'));
+                    Navigator.pushReplacement(
+                      context,
+                      CustomPageBuilder(page: TopupPage()),
+                    );
+                  },
+                ),
               ),
             ),
     );
@@ -162,10 +181,6 @@ class _KodeVaPageState extends State<KodeVaPage> {
             GestureDetector(
               onTap: () {
                 final prefs = SharedPreferences.getInstance();
-                final user = Provider.of<AuthProvider>(
-                  context,
-                  listen: false,
-                ).user;
                 prefs.then((value) => value.remove('current_va'));
                 Navigator.pushReplacement(
                   context,
@@ -372,85 +387,6 @@ class _KodeVaPageState extends State<KodeVaPage> {
     );
   }
 
-  Widget _buildVaPayment() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(top: 50),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 8,
-            children: [
-              _rowText(
-                  'Nominal:',
-                  FormatCurrency.intToStringCoin(
-                      int.parse(widget.currentVa.nominal))),
-              Text('No. Virtual Account',
-                  style: GoogleFonts.poppins(color: AppColors.primaryColor200)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(widget.currentVa.kodeBayar,
-                      style: GoogleFonts.poppins(
-                        color: AppColors.primaryColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      )),
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                          ClipboardData(text: widget.currentVa.kodeBayar));
-                      Fluttertoast.showToast(
-                        msg: "Berhasil disalin",
-                        backgroundColor: AppColors.successColor,
-                        textColor: AppColors.whiteColor,
-                      );
-                    },
-                    child: Text(
-                      'Salin',
-                      style: GoogleFonts.poppins(
-                        color: AppColors.primaryColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              _rowText('Sisa waktu:', formatDuration(_secondsRemaining)),
-              PrimaryButton(
-                borderRadius: 20,
-                onPressed: () {
-                  final prefs = SharedPreferences.getInstance();
-                  final user = Provider.of<AuthProvider>(
-                    context,
-                    listen: false,
-                  ).user;
-                  prefs.then((value) => value.remove('current_va'));
-                  Navigator.pushReplacement(
-                    context,
-                    CustomPageBuilder(page: TopupPage()),
-                  );
-                },
-                child: Text(
-                  'Ganti Nominal',
-                  style: GoogleFonts.poppins(
-                    color: AppColors.whiteColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        _caraBayarMandiri(),
-      ],
-    );
-  }
-
   Widget _rowText(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -466,63 +402,6 @@ class _KodeVaPageState extends State<KodeVaPage> {
                 color: AppColors.primaryColor,
                 fontWeight: FontWeight.w600)),
       ],
-    );
-  }
-
-  Widget _caraBayarMandiri() {
-    return Container(
-      margin: const EdgeInsets.only(top: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Cara Isi Saldo Via Bank Mandiri',
-              style: GoogleFonts.poppins(
-                color: AppColors.primaryColor,
-                fontWeight: FontWeight.w700,
-              )),
-          _langkah("Langkah-langkah pembayaran melalui ATM :", [
-            '1. Pilih: Transaksi lainnya',
-            '2. Pilih: Bayar',
-            '3. Pilih: Pendidikan',
-            '4. Pilih Poltek Elka Negeri Sby (10088)',
-            '5. Masukkan nomor Virtual Account',
-            '6. Muncul nama akun FoodLAB dan Jumlah Tagihan',
-            '7. Bila data sudah sesuai, lakukan pembayaran',
-            '8. Setelah pembayaran selesai, refresh halaman beranda',
-          ]),
-          _langkah("Langkah-langkah pembayaran melalui Livin :", [
-            '1. Pilih: Bayar',
-            '2. Pilih: Pendidikan',
-            '3. Pilih Poltek Elka Negeri Sby (10088)',
-            '4. Masukkan nomor Virtual Account, tekan lanjut',
-            '5. Muncul nama akun FoodLAB dan Jumlah Tagihan',
-            '6. Bila data sudah sesuai, lakukan pembayaran',
-            '7. Setelah pembayaran selesai, refresh halaman beranda',
-          ]),
-        ],
-      ),
-    );
-  }
-
-  Widget _langkah(String title, List<String> steps) {
-    return Container(
-      margin: const EdgeInsets.only(left: 8, top: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: GoogleFonts.poppins(
-                color: AppColors.blackColor,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              )),
-          ...steps.map((s) => Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(s, style: GoogleFonts.poppins(fontSize: 13)),
-              )),
-        ],
-      ),
     );
   }
 }

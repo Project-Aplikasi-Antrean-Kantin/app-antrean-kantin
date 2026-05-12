@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
-import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/pembeli/home_page/widgets/card_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
@@ -38,8 +38,11 @@ class _ListTenantState extends State<ListTenant> {
             final bOnline = b.isOnline == true ? 1 : 0;
             if (aOnline != bOnline) return bOnline.compareTo(aOnline);
 
-            // Tambahkan sorting berdasarkan transaksiBerhasil
-            return (b.transaksiBerhasil).compareTo(a.transaksiBerhasil);
+            final txCompare =
+                (b.transaksiBerhasil).compareTo(a.transaksiBerhasil);
+            if (txCompare != 0) return txCompare;
+
+            return a.id.compareTo(b.id);
           });
     if (sortedTenant.isEmpty) {
       return Center(

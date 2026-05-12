@@ -9,7 +9,7 @@ import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/kasir_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
-import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/history_transaction_cashier_item.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 

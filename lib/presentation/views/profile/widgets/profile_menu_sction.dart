@@ -24,7 +24,7 @@ import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
 import 'package:testgetdata/presentation/views/pembeli/list_promo_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
-import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_profile_tenant.dart';
 import 'package:testgetdata/presentation/views/penjual/edit_rekening.dart';
 import 'package:testgetdata/presentation/views/penjual/form_operational.dart';

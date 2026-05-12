@@ -100,7 +100,7 @@ class _PenghasilanPageState extends State<PenghasilanPage> {
                           .selectedIncome!.listIncomeTransaksi[label]!;
 
                       final keteranganWaktu = incomeProvider.selectedIncome!
-                          .getLabelBySorInPendapatanSort(
+                          .getLabelBySortInPendapatanSort(
                               incomeProvider.selectedSort, label);
 
                       // hitung total pendapatan untuk label ini

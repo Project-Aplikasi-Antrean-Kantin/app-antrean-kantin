@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/detail_food_page.dart';
+import 'package:testgetdata/presentation/views/pembeli/detail_food_page/detail_food_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/organisms/item_cart/item_cart.dart';
 

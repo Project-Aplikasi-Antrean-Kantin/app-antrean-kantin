@@ -31,11 +31,10 @@ import 'presentation/views/pembeli/register_page.dart';
 import 'presentation/views/pembeli/reset_password_page.dart';
 import 'presentation/views/pembeli/riwayat_page/riwayat_page_as_role.dart';
 import 'presentation/views/penjual/katalog_menu_page.dart';
-import 'presentation/views/penjual/pesanan_tenant.dart';
+import 'presentation/views/penjual/pesanan_tenant/pesanan_tenant.dart';
 import 'presentation/views/pengantar/delivery_page.dart';
 import 'presentation/views/profile/profile_page.dart';
 import 'presentation/widgets/splash_screen.dart';
-import 'presentation/widgets/sukses_order.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 final appLinks = AppLinks(); // satu instance saja
@@ -221,11 +220,9 @@ class _MyAppState extends State<MyApp> {
           '/beranda': (_) => const HomePage(),
           '/pengantaran': (_) => const PerluPengantaran(),
           '/pesanan': (_) => const PesananTenant(),
-          // '/sukses_order': (_) => const OrderSuccess(),
           '/riwayat': (_) => const RiwayatPageAsRole(),
           '/profile': (_) => const ProfilePage(),
           '/katalog_menu': (_) => const KatalogMenu(),
-          // '/kasir': (_) => const KasirPage(),
         },
       ),
     );

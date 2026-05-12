@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
@@ -15,6 +12,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:testgetdata/presentation/widgets/organisms/image_picker_bottom_sheet/image_picker_bottom_sheet.dart';
 
 class EditProfileTenant extends StatefulWidget {
   const EditProfileTenant({Key? key}) : super(key: key);
@@ -24,7 +22,6 @@ class EditProfileTenant extends StatefulWidget {
 }
 
 class _EditProfileTenantState extends State<EditProfileTenant> {
-  late ImagePicker _imagePicker;
   late TextEditingController namaTenantController;
   late TextEditingController nomorKavlingController;
   late TextEditingController nomorRekeningTokoController;
@@ -48,7 +45,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
   @override
   void initState() {
     super.initState();
-    _imagePicker = ImagePicker();
     namaTenantController = TextEditingController();
     nomorKavlingController = TextEditingController();
     nomorRekeningTokoController = TextEditingController();
@@ -74,118 +70,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
     });
   }
 
-  Future<int> _getImageSize(String imagePath) async {
-    final imageFile = File(imagePath);
-    final sizeInBytes = await imageFile.length();
-    return sizeInBytes ~/ 1024; // Convert bytes to KB
-  }
-
-  Future<void> _getImageFromCamera(BuildContext context) async {
-    final pickedImage =
-        await _imagePicker.pickImage(source: ImageSource.camera);
-    if (pickedImage != null) {
-      final tempDir = await getTemporaryDirectory();
-      final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final tempPath = '${tempDir.path}/$tempFileName';
-
-      try {
-        final compressedImage = await FlutterImageCompress.compressAndGetFile(
-          pickedImage.path,
-          tempPath,
-          quality: 70,
-          minWidth: 1024,
-          minHeight: 1024,
-        );
-        if (compressedImage != null) {
-          selectedImagePath = compressedImage.path;
-          int imageSizeKB = await _getImageSize(selectedImagePath!);
-          if (imageSizeKB > 2048) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return CustomAlertDialog(
-                  title: "Peringatan!",
-                  message:
-                      "Gambar yang kamu ambil lebih dari 2MB bahkan setelah kompresi.",
-                  showCancelButton: false,
-                );
-              },
-            );
-            selectedImagePath = null;
-          }
-          Navigator.pop(context);
-          setState(() {});
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CustomAlertDialog(
-                title: "Gagal!",
-                message: "Gagal mengompresi gambar. Silakan coba lagi.",
-                showCancelButton: false,
-              );
-            },
-          );
-        }
-      } catch (e) {
-        debugPrint('Compression error: $e');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomAlertDialog(
-              title: "Error!",
-              message: "Terjadi kesalahan saat mengompresi gambar: $e",
-              showCancelButton: false,
-            );
-          },
-        );
-      }
-    }
-  }
-
-  Future<void> _getImageFromGallery(BuildContext context) async {
-    final pickedImage =
-        await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (pickedImage == null) return;
-
-    final tempDir = await getTemporaryDirectory();
-    final tempFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final tempPath = '${tempDir.path}/$tempFileName';
-
-    try {
-      final compressedImage = await FlutterImageCompress.compressAndGetFile(
-        pickedImage.path,
-        tempPath,
-        quality: 70,
-        minWidth: 1024,
-        minHeight: 1024,
-      );
-
-      if (compressedImage == null) {
-        _showErrorDialog(
-            'Gagal!', 'Gagal mengompresi gambar. Silakan coba lagi.');
-        return;
-      }
-
-      selectedImagePath = compressedImage.path;
-      final imageSizeKB = await _getImageSize(selectedImagePath!);
-
-      if (imageSizeKB > 2048) {
-        _showErrorDialog(
-          'Peringatan!',
-          'Gambar yang kamu pilih lebih dari 2MB bahkan setelah kompresi.',
-        );
-        selectedImagePath = null;
-      }
-      Navigator.pop(context);
-      setState(() {});
-    } catch (e) {
-      debugPrint('Compression error: $e');
-      _showErrorDialog(
-          'Error!', 'Terjadi kesalahan saat mengompresi gambar: $e');
-    }
-  }
-
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
@@ -194,6 +78,45 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
         message: message,
         showCancelButton: false,
       ),
+    );
+  }
+
+  Future<void> _openImagePicker() {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ImagePickerBottomSheet(
+          titleBottomSheet: 'Foto Tenant',
+          onImageSelected: (path) async {
+            if (path == null) {
+              setState(() {
+                selectedImagePath = null;
+              });
+              return;
+            }
+
+            // optional validasi size
+            final file = File(path);
+            final sizeKB = await file.length() ~/ 1024;
+
+            if (sizeKB > 2048) {
+              showDialog(
+                context: context,
+                builder: (_) => CustomAlertDialog(
+                  title: "Peringatan!",
+                  message: "Gambar lebih dari 2MB",
+                  showCancelButton: false,
+                ),
+              );
+              return;
+            }
+
+            setState(() {
+              selectedImagePath = path;
+            });
+          },
+        );
+      },
     );
   }
 
@@ -358,7 +281,7 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
             children: [
               GestureDetector(
                 onTap: () {
-                  _buildBottomSheetProfile(context, authProvider);
+                  _openImagePicker();
                 },
                 child: Text('Edit Foto',
                     style: GoogleFonts.poppins(
@@ -381,143 +304,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
     );
   }
 
-  Future<void> _buildBottomSheetProfile(
-      BuildContext context, AuthProvider authProvider) {
-    return showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return SafeArea(
-            child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
-                    color: AppColors.whiteColor400,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ]),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 5,
-                  child: Column(
-                    spacing: 16,
-                    children: [
-                      Text(
-                        'Foto Profil',
-                        style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: AppColors.primaryColor,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              _getImageFromCamera(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedCamera02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Kamera',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              _getImageFromGallery(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedImage02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Galeri',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              if (selectedImagePath != null &&
-                                  authProvider.user.gambar != null) {
-                                selectedImagePath = null;
-                                authProvider.user.gambar = null;
-                                setState(() {});
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                border: BoxBorder.all(
-                                    color: AppColors.blackColor100, width: 1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  HugeIcon(
-                                    icon: HugeIcons.strokeRoundedDelete02,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    'Hapus',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                )),
-          );
-        });
-  }
-
   Widget _buildEditForm(TenantProvider tenantProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,16 +315,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
           isRequired: true,
           controller: namaTenantController,
         ),
-        // TimePicker(
-        //   label: "Jam Buka",
-        //   selectedTime: selectedOpenTime,
-        //   onTimeChanged: (newTime) => handleTimeChanged("open", newTime),
-        // ),
-        // TimePicker(
-        //   label: "Jam Tutup",
-        //   selectedTime: selectedCloseTime,
-        //   onTimeChanged: (newTime) => handleTimeChanged("close", newTime),
-        // ),
         CustomTextFormField(
           labelColor: AppColors.primaryColor,
           label: 'Nomor Kavling Tenant',
@@ -546,18 +322,6 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
           isRequired: true,
           controller: nomorKavlingController,
         ),
-        // CustomTextFormField(
-        //   label: 'No Rekening Toko',
-        //   hintText: '8xxx-9xxx-4xxx',
-        //   inputType: TextInputType.number,
-        //   controller: nomorRekeningTokoController,
-        // ),
-        // CustomTextFormField(
-        //   label: 'No Rekening Pribadi',
-        //   hintText: '8xxx-9xxx-4xxx',
-        //   inputType: TextInputType.number,
-        //   controller: nomorRekeningPribadiController,
-        // ),
       ],
     );
   }

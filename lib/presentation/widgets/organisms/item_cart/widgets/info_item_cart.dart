@@ -22,7 +22,7 @@ class InfoItemCart extends StatelessWidget {
             softWrap: true,
             overflow: TextOverflow.visible,
           ),
-          item.catatan != ''
+          item.catatan != '' && item.catatan != null
               ? Text(
                   '${item.catatan}',
                   style:

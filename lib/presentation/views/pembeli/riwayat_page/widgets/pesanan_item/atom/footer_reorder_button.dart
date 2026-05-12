@@ -7,7 +7,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/menu_tenant.dart';
+import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';

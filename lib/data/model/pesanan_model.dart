@@ -27,7 +27,7 @@ class Pesanan {
   String? gedung;
   String? namaRuangan;
   int? biayaAdmin;
-  final List<ListTransaksiDetail> listTransaksiDetail;
+  final List<TransaksiDetail> listTransaksiDetail;
   Ruangan? ruangan;
   String? namaPembeli;
   String? phone;
@@ -126,7 +126,7 @@ class Pesanan {
       updatedAt: DateTime.now(),
     );
 
-    final detail = ListTransaksiDetail(
+    final detail = TransaksiDetail(
       id: 5 + 1,
       transaksiId: 5 + 1,
       jumlah: 2 + 5,
@@ -191,9 +191,8 @@ class Pesanan {
         namaRuangan: json["nama_ruangan"],
         namaDriver: json["nama_driver"],
         fotoDriver: json["foto_driver"],
-        listTransaksiDetail: List<ListTransaksiDetail>.from(
-          json["list_transaksi_detail"]
-              .map((x) => ListTransaksiDetail.fromJson(x)),
+        listTransaksiDetail: List<TransaksiDetail>.from(
+          json["list_transaksi_detail"].map((x) => TransaksiDetail.fromJson(x)),
         ),
         namaPembeli: json["nama_pembeli"],
         phone: json["user"]?["phone"] ?? "-",
@@ -223,7 +222,7 @@ class Pesanan {
     String? gedung,
     String? namaRuangan,
     int? biayaAdmin,
-    List<ListTransaksiDetail>? listTransaksiDetail,
+    List<TransaksiDetail>? listTransaksiDetail,
     Ruangan? ruangan,
     String? namaPembeli,
     String? phone,

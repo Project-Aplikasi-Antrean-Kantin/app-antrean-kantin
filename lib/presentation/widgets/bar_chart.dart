@@ -13,16 +13,13 @@ import 'package:testgetdata/presentation/views/common/format_currency.dart';
 class BarChartSample2 extends StatefulWidget {
   final Income income;
   BarChartSample2({super.key, required this.income});
-  final Color leftBarColor = AppColors.primaryColor;
-  final Color rightBarColor = AppColors.secondaryColor;
-  final Color avgColor = AppColors.warningColor;
+
   @override
   State<StatefulWidget> createState() => BarChartSample2State();
 }
 
 class BarChartSample2State extends State<BarChartSample2> {
   final double width = 20;
-
   final ScrollController _scrollController = ScrollController();
 
   int touchedGroupIndex = -1;
@@ -65,25 +62,6 @@ class BarChartSample2State extends State<BarChartSample2> {
             widget.income.totalPesananSelesai[i] > 0 ||
             widget.income.totalPesananRefund[i] > 0)
         .toList();
-
-    //  final barGroup1 = makeGroupData(10, 5, 12);
-    // final barGroup2 = makeGroupData(1, 16, 12);
-    // final barGroup3 = makeGroupData(2, 18, 5);
-    // final barGroup4 = makeGroupData(3, 20, 16);
-    // final barGroup5 = makeGroupData(4, 17, 6);
-    // final barGroup6 = makeGroupData(5, 19, 1.5);
-    // final barGroup7 = makeGroupData(6, 10, 1.5);
-    // final barGroup8 = makeGroupData(6, 10, 1.5);
-    // final barGroup9 = makeGroupData(6, 10, 1.5);
-    // final barGroup10 = makeGroupData(6, 10, 1.5);
-    // final barGroup11 = makeGroupData(6, 10, 1.5);
-    // final barGroup12 = makeGroupData(6, 10, 1.5);
-
-    // final items = [];
-
-    // rawBarGroups = items;
-
-    // showingBarGroups = rawBarGroups;
   }
 
   @override
@@ -530,25 +508,6 @@ class BarChartSample2State extends State<BarChartSample2> {
       meta: meta,
       space: 0,
       child: Text(text, style: style),
-    );
-  }
-
-  BarChartGroupData makeGroupData(int x, double y1, double y2) {
-    return BarChartGroupData(
-      barsSpace: 4,
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: y1,
-          color: widget.leftBarColor,
-          width: 10,
-        ),
-        BarChartRodData(
-          toY: y2,
-          color: widget.rightBarColor,
-          width: 10,
-        ),
-      ],
     );
   }
 }
