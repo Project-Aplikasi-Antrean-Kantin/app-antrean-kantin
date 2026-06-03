@@ -174,12 +174,11 @@ class PesananCardState extends State<PesananCard> {
       case OrderStatus.pesananMasuk:
         return ActionPesananMasuk(pesanan: pesanan);
       case OrderStatus.pesananDiproses:
-        ActionPesananDiproses(
+        return ActionPesananDiproses(
             pesanan: pesanan, listPesanan: widget.listPesanan);
       case OrderStatus.pesananSiapDiambil:
         return ActionPesananSiap(
             pesanan: pesanan, listPesanan: widget.listPesanan);
     }
-    return const SizedBox.shrink();
   }
 }
