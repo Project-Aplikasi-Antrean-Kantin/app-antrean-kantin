@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class BottomSheetPenolakan extends StatefulWidget {
@@ -127,20 +128,19 @@ class _BottomSheetPenolakanState extends State<BottomSheetPenolakan> {
                 ),
                 onPressed: () async {
                   if (textEditingController.text.isEmpty) {
-                    Fluttertoast.showToast(msg: 'Catatan tidak boleh kosong');
+                    CustomSnackbar.warning('Catatan tidak boleh kosong');
                     return;
                   }
 
                   if (pesanan.isPriority == 1 &&
                       kodePenolakanController.text.isEmpty) {
-                    Fluttertoast.showToast(
-                        msg: 'Kode penolakan tidak boleh kosong');
+                    CustomSnackbar.warning('Kode penolakan tidak boleh kosong');
                     return;
                   }
 
                   if (kodePenolakanController.text != pesanan.kodePenolakan &&
                       pesanan.isPriority == 1) {
-                    Fluttertoast.showToast(msg: 'Kode penolakan salah');
+                    CustomSnackbar.warning('Kode penolakan salah');
                     return;
                   }
 
@@ -157,16 +157,9 @@ class _BottomSheetPenolakanState extends State<BottomSheetPenolakan> {
 
                   if (success) {
                     Navigator.pop(context);
-                    Fluttertoast.showToast(
-                      msg: "Pesanan telah ditolak",
-                      gravity: ToastGravity.TOP,
-                    );
+                    CustomSnackbar.success('Pesanan berhasil ditolak');
                   } else {
-                    Fluttertoast.showToast(
-                      msg: "Gagal memperbarui pesanan",
-                      gravity: ToastGravity.TOP,
-                      backgroundColor: Colors.red,
-                    );
+                    CustomSnackbar.error('Pesanan gagal ditolak');
                   }
 
                   if (mounted) {

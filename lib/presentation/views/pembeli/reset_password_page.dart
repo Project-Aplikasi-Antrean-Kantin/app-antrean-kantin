@@ -7,6 +7,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   final String token;
@@ -44,7 +45,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   void _handleResetPassword(AuthProvider authProvider) async {
     if (isPasswordEqual == false) {
-      Fluttertoast.showToast(msg: 'Password tidak sama');
+      CustomSnackbar.info('Password tidak sama');
       return;
     }
     setState(() {
@@ -62,14 +63,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           setState(() {
             _isLoading = false;
           });
-          Fluttertoast.showToast(
-              msg: 'Reset password berhasil',
-              backgroundColor: Colors.green,
-              textColor: Colors.white);
+          CustomSnackbar.success('Reset password berhasil');
           Navigator.pop(context);
         }
       } on ApiException catch (e) {
-        Fluttertoast.showToast(msg: e.message);
+        CustomSnackbar.error(e.message);
       }
     }
     setState(() {

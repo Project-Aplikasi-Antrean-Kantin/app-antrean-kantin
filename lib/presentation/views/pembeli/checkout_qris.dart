@@ -19,6 +19,7 @@ import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 import 'package:testgetdata/presentation/widgets/organisms/qris_payment_card/qris_payment_card.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
@@ -100,15 +101,9 @@ class _CheckoutQrisState extends State<CheckoutQris>
 
           if (!mounted) return;
 
-          Fluttertoast.showToast(
-            msg: 'Cetak Berhasil',
-            backgroundColor: AppColors.successColor,
-            textColor: AppColors.whiteColor,
-          );
-
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
-            Fluttertoast.showToast(msg: 'Pesanan selesai');
+            CustomSnackbar.success('Pesanan terbuat');
           }
         } catch (e, s) {
           debugPrint('Print error: $e');
@@ -276,11 +271,7 @@ class _CheckoutQrisState extends State<CheckoutQris>
               onTap: () async {
                 final connectivityResult = await hasInternetAccess();
                 if (!connectivityResult) {
-                  Fluttertoast.showToast(
-                    msg: "Tidak ada koneksi internet",
-                    backgroundColor: AppColors.errorColor,
-                    textColor: Colors.white,
-                  );
+                  CustomSnackbar.error("Tidak ada koneksi internet");
                   return;
                 }
                 if (widget.cashierTransaction != null) {

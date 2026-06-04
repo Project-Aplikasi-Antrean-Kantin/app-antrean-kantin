@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:image/image.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -13,6 +12,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/income_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class DetailPenghasilan extends StatefulWidget {
   final String label;
@@ -192,8 +192,7 @@ class _DetailPenghasilanState extends State<DetailPenghasilan> {
                                             ShowBottomSheet(pesanan);
                                           });
                                         } catch (e) {
-                                          Fluttertoast.showToast(
-                                              msg: e.toString());
+                                          CustomSnackbar.error(e.toString());
                                         } finally {
                                           setState(() {
                                             isOpenDetail = false;

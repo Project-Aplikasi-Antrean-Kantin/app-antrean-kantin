@@ -9,6 +9,7 @@ import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page/detail_food_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/organisms/item_cart/item_cart.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -39,27 +40,10 @@ class BuildCartPerTenant extends StatelessWidget {
                 if (!fromCartPage) {
                   cartProvider.setSelectedCartTenant(cartPerTenant);
                 } else {
-                  if (cartProvider.totalActiveDriver == 0 &&
-                      cartProvider.selectedCartTenant.indexWhere((element) =>
-                              element.tenantId == cartPerTenant.tenantId) ==
-                          -1) {
-                    Fluttertoast.showToast(
-                        msg: "Driver tidak tersedia, tidak bisa multi tenant",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER,
-                        backgroundColor: AppColors.errorColor,
-                        textColor: Colors.white);
+                  if (tenant.isOnline!) {
+                    cartProvider.setSelectedCartTenant(cartPerTenant);
                   } else {
-                    if (tenant.isOnline!) {
-                      cartProvider.setSelectedCartTenant(cartPerTenant);
-                    } else {
-                      Fluttertoast.showToast(
-                          msg: "Tenant tutup",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER,
-                          backgroundColor: AppColors.errorColor,
-                          textColor: Colors.white);
-                    }
+                    CustomSnackbar.info('Tenant tutup');
                   }
                 }
                 if (fromCartPage &&
@@ -74,15 +58,12 @@ class BuildCartPerTenant extends StatelessWidget {
                 print('cek seh');
 
                 if (tenant.isOnline == false) {
-                  Fluttertoast.showToast(
-                      msg: 'Tenant tutup',
-                      backgroundColor: AppColors.errorColor,
-                      textColor: AppColors.backgroundColor);
+                  CustomSnackbar.info('Tenant tutup');
                   return;
                 }
                 final internetConnection = await hasInternetAccess();
                 if (!internetConnection) {
-                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  CustomSnackbar.warning("Tidak ada koneksi internet");
                   return;
                 }
                 Navigator.push(

@@ -12,6 +12,7 @@ import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class DetailVoucherPage extends StatefulWidget {
   final Voucher? voucher;
@@ -81,24 +82,17 @@ class _DetailVoucherPageState extends State<DetailVoucherPage> {
                 if (isThereVoucher &&
                     cartProvider.selectedVoucher?.id == voucher?.id) {
                   cartProvider.removeVoucher();
-                  Fluttertoast.showToast(
-                      msg: 'Voucher dibatalkan',
-                      backgroundColor: AppColors.errorColor,
-                      textColor: Colors.white);
+                  CustomSnackbar.error('Voucher dibatalkan');
                 } else if (isThereVoucher &&
                     cartProvider.selectedVoucher?.id != voucher?.id) {
                   if (cartProvider.selectedTenantDeliveryCost <
                       voucher!.cashback.minimalOrder) {
-                    Fluttertoast.showToast(
-                        msg:
-                            "Minimal Pembelian ${voucher!.cashback.minimalOrder ~/ 1000}rb");
+                    CustomSnackbar.info(
+                        "Minimal Pembelian ${voucher!.cashback.minimalOrder ~/ 1000}rb");
                     return;
                   }
                   cartProvider.setSelectedVoucher(voucher!);
-                  Fluttertoast.showToast(
-                      msg: 'Voucher terpakai',
-                      backgroundColor: AppColors.successColor,
-                      textColor: Colors.white);
+                  CustomSnackbar.success('Voucher terpilih');
                   Navigator.pop(context);
                 }
                 try {
@@ -111,13 +105,10 @@ class _DetailVoucherPageState extends State<DetailVoucherPage> {
                     setState(() {
                       cashback = null;
                     });
-                    Fluttertoast.showToast(
-                        msg: 'Voucher terklaim',
-                        backgroundColor: AppColors.successColor,
-                        textColor: Colors.white);
+                    CustomSnackbar.success('Voucher terklaim');
                   }
                 } catch (e) {
-                  Fluttertoast.showToast(msg: e.toString());
+                  CustomSnackbar.error(e.toString());
                 }
               },
               backgroundColor: cashback == null

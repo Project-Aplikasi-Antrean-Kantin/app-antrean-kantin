@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/data/model/review_selection.dart';
 import 'package:testgetdata/data/remote/public_remote_data_source.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class ReviewProvider extends ChangeNotifier {
   int selectedRating = 7;
@@ -37,11 +38,11 @@ class ReviewProvider extends ChangeNotifier {
         description,
         ratingMoods,
       );
-      Fluttertoast.showToast(msg: response);
+      CustomSnackbar.success(response);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('user_review', false);
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      CustomSnackbar.error(e.toString());
     } finally {
       isSubmitting = false;
     }
@@ -54,7 +55,7 @@ class ReviewProvider extends ChangeNotifier {
           await PublicRemoteDataSource().getReviewSelection(token);
       this.reviewSelection = reviewSelection;
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      CustomSnackbar.error(e.toString());
     }
     notifyListeners();
   }

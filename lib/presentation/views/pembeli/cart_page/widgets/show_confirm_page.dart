@@ -13,6 +13,7 @@ import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart'
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat/detail_riwayat.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 void showConfirmOrderBottomSheet(
@@ -155,13 +156,11 @@ void showConfirmOrderBottomSheet(
                                     } catch (e) {
                                       setState(() => isLoading = false);
 
-                                      Fluttertoast.showToast(
-                                          msg: e
-                                              .toString()
-                                              .replaceFirst('Exception: ', ''),
-                                          textColor: Colors.white,
-                                          backgroundColor: AppColors.errorColor,
-                                          toastLength: Toast.LENGTH_LONG);
+                                      CustomSnackbar.error(
+                                        e
+                                            .toString()
+                                            .replaceFirst('Exception: ', ''),
+                                      );
                                     } finally {
                                       setState(() => isLoading = false);
                                     }

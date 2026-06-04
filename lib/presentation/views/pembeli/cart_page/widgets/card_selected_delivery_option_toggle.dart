@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class CardSelectedDeliveryOptionToggle extends StatelessWidget {
   final double screenWidth;
@@ -28,14 +29,7 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
                     onPressed: cartProvider.isThereActiveDriver
                         ? () => cartProvider.setDeliveryOption(1)
                         : () {
-                            Fluttertoast.showToast(
-                              msg: "Driver tidak tersedia",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.TOP,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0,
-                            );
+                            CustomSnackbar.info("Driver tidak tersedia");
                           },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: AppColors.primaryColor),
@@ -63,14 +57,6 @@ class CardSelectedDeliveryOptionToggle extends StatelessWidget {
                   child: OutlinedButton(
                     key: const Key('Ambil Sendiri'),
                     onPressed: () {
-                      // if (cartProvider.selectedCartTenant.length >= 2) {
-                      //   Fluttertoast.showToast(
-                      //       backgroundColor: AppColors.warningColor,
-                      //       textColor: Colors.white,
-                      //       msg:
-                      //           "Multitenant hanya mendukung layanan pesan antar");
-                      //   return;
-                      // }
                       cartProvider.setDeliveryOption(0);
                     },
                     style: OutlinedButton.styleFrom(

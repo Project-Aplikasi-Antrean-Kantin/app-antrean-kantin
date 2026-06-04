@@ -9,10 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
-import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/open_email.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -111,15 +111,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     final success =
         await authProvider.sendEmailForgetPassword(_emailController.text);
     if (success) {
-      Fluttertoast.showToast(
-        msg: "Email berhasil dikirim",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+      CustomSnackbar.success("Email berhasil dikirim");
       Navigator.pushReplacement(
           context,
           CustomPageBuilder(
@@ -127,15 +119,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             isResetPassword: true,
           )));
     } else {
-      Fluttertoast.showToast(
-        msg: "Email tidak ditemukan",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+      CustomSnackbar.error("Email tidak ditemukan");
     }
     setState(() {
       _isLoading = false;
@@ -209,11 +193,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         if (_secondsRemaining <= 0) {
                           _handleSendEmail(authProvider, context);
                         } else {
-                          Fluttertoast.showToast(
-                              msg:
-                                  "Coba lagi dalam ${formatDuration(_secondsRemaining)}",
-                              backgroundColor: AppColors.errorColor,
-                              textColor: AppColors.whiteColor);
+                          CustomSnackbar.warning(
+                            "Coba lagi dalam ${formatDuration(_secondsRemaining)}",
+                          );
                         }
                       },
                       width: double.infinity,

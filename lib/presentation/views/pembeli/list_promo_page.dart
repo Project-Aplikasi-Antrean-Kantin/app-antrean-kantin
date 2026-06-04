@@ -13,6 +13,7 @@ import 'package:testgetdata/presentation/views/pembeli/detail_voucher_page.dart'
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class ListPromoPage extends StatefulWidget {
   final bool fromProfile;
@@ -273,8 +274,7 @@ class _ListPromoPageState extends State<ListPromoPage> {
                         final authProvider =
                             Provider.of<AuthProvider>(context, listen: false);
                         if (widget.fromProfile && isVoucher) {
-                          Fluttertoast.showToast(
-                              msg: "Pakai voucher saat checkout");
+                          CustomSnackbar.info("Pakai voucher saat checkout");
                           Navigator.pushAndRemoveUntil(
                             context,
                             CustomPageBuilder(
@@ -291,26 +291,19 @@ class _ListPromoPageState extends State<ListPromoPage> {
                           if (isVoucher) {
                             if (cartProvider.selectedTenantDeliveryCost <
                                 data.cashback.minimalOrder) {
-                              Fluttertoast.showToast(
-                                  msg:
-                                      'Minimal pembelian ${data.cashback.minimalOrder ~/ 1000}rb');
+                              CustomSnackbar.info(
+                                  'Minimal pembelian ${data.cashback.minimalOrder ~/ 1000}rb');
                               return;
                             }
                             cartProvider.setSelectedVoucher(data);
-                            Fluttertoast.showToast(
-                                msg: 'Voucher berhasil dipilih',
-                                backgroundColor: AppColors.successColor,
-                                textColor: Colors.white);
+                            CustomSnackbar.success('Voucher berhasil dipilih');
                           } else {
                             await cartProvider.getCashback(
                                 token, cashback.referralCode);
-                            Fluttertoast.showToast(
-                                msg: 'Voucher berhasil diklaim',
-                                backgroundColor: AppColors.successColor,
-                                textColor: Colors.white);
+                            CustomSnackbar.success('Voucher berhasil diklaim');
                           }
                         } catch (e) {
-                          Fluttertoast.showToast(msg: e.toString());
+                          CustomSnackbar.error(e.toString());
                         }
                       },
                       child: Container(

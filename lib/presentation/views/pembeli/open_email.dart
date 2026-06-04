@@ -11,6 +11,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class OpenEmail extends StatefulWidget {
   final bool isResetPassword;
@@ -201,11 +202,7 @@ class _OpenEmailState extends State<OpenEmail> {
                         onTap: () async {
                           if (isEmailSent) return;
                           if (!showButton) {
-                            Fluttertoast.showToast(
-                              msg: 'Cek Emailmu dulu',
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                            );
+                            CustomSnackbar.error('Cek Emailmu dulu');
                             return;
                           }
 
@@ -222,11 +219,7 @@ class _OpenEmailState extends State<OpenEmail> {
                                 'last_send_verify_email',
                                 DateTime.now().toString(),
                               );
-                              Fluttertoast.showToast(
-                                msg: 'Email berhasil dikirim',
-                                backgroundColor: Colors.green,
-                                textColor: Colors.white,
-                              );
+                              CustomSnackbar.success('Email berhasil dikirim');
                               checkTimeDifference();
                             }
                           } catch (e) {

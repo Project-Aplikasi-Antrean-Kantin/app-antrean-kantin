@@ -22,6 +22,7 @@ import 'package:testgetdata/presentation/views/pembeli/detail_voucher_page.dart'
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/bottom_navigation_cart_payment.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/shimmer_card.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/pilihan_lokasi_ruangan.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/ringkasan_pembayaran_cart.dart';
@@ -300,14 +301,14 @@ class _CartPageState extends State<CartPage> {
                             if (recommendedCashback != null) {
                               await cartProvider.getCashback(
                                   user.token, recommendedCashback.referralCode);
-                              Fluttertoast.showToast(
-                                  msg: 'Voucher berhasil diklaim',
-                                  backgroundColor: AppColors.successColor);
+                              CustomSnackbar.success(
+                                'Voucher berhasil diklaim',
+                              );
                             } else if (voucher != null) {
                               cartProvider.setSelectedVoucher(voucher);
-                              Fluttertoast.showToast(
-                                  msg: 'Voucher berhasil dipilih',
-                                  backgroundColor: AppColors.successColor);
+                              CustomSnackbar.success(
+                                'Voucher berhasil dipilih',
+                              );
                             }
                           },
                         ),

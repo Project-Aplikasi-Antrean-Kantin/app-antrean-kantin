@@ -12,6 +12,7 @@ import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_card/widgets/bottom_sheet_penolakan.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
@@ -66,8 +67,7 @@ class ActionPesananDiproses extends StatelessWidget {
                       onPressed: () async {
                         final connectivityResult = await hasInternetAccess();
                         if (!connectivityResult) {
-                          Fluttertoast.showToast(
-                              msg: 'Tidak ada koneksi internet');
+                          CustomSnackbar.warning('Tidak ada koneksi internet');
                           showNoConnectionBottomSheet(
                               context: context, onRetry: () {});
                           return;
@@ -131,26 +131,12 @@ class ActionPesananDiproses extends StatelessWidget {
 
                 if (success) {
                   listPesanan.remove(pesanan);
-                  Fluttertoast.showToast(
-                    msg: "Pesanan Siap",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.TOP,
-                    backgroundColor: Colors.grey,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
+                  CustomSnackbar.success("Pesanan siap");
                 } else {
                   await orderProvider.fetchOrders(
                       context, authProvider.user.token, statusPesanan);
-                  Fluttertoast.showToast(
-                    msg:
-                        "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.TOP,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
+                  CustomSnackbar.error(
+                      "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
                 }
               },
             ),

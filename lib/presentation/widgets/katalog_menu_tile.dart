@@ -15,6 +15,7 @@ import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/custom_toggle.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class KatalogMenuTile extends StatelessWidget {
@@ -128,8 +129,7 @@ class KatalogMenuTile extends StatelessWidget {
                       onTap: () async {
                         final internetConnection = await hasInternetAccess();
                         if (!internetConnection) {
-                          Fluttertoast.showToast(
-                              msg: "Tidak ada koneksi internet");
+                          CustomSnackbar.warning("Tidak ada koneksi internet");
                           return;
                         }
                         Navigator.push(
@@ -174,8 +174,8 @@ class KatalogMenuTile extends StatelessWidget {
                         onTap: () async {
                           final internetConnection = await hasInternetAccess();
                           if (!internetConnection) {
-                            Fluttertoast.showToast(
-                                msg: "Tidak ada koneksi internet");
+                            CustomSnackbar.warning(
+                                "Tidak ada koneksi internet");
                             return;
                           }
                           //show alert dialog
@@ -193,15 +193,12 @@ class KatalogMenuTile extends StatelessWidget {
                                       try {
                                         await katalogProvider.deleteFood(
                                             authProvider.user.token, item.id);
-                                        Fluttertoast.showToast(
-                                            msg: "Hapus menu berhasil",
-                                            textColor: Colors.white,
-                                            backgroundColor:
-                                                AppColors.successColor);
+                                        CustomSnackbar.success(
+                                          "Hapus menu berhasil",
+                                        );
                                         Navigator.pop(context);
                                       } catch (e) {
-                                        Fluttertoast.showToast(
-                                            msg: e.toString());
+                                        CustomSnackbar.error(e.toString());
                                       }
                                     },
                                   ));

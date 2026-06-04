@@ -12,6 +12,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/organisms/image_picker_bottom_sheet/image_picker_bottom_sheet.dart';
 
 class EditProfileTenant extends StatefulWidget {
@@ -142,10 +143,9 @@ class _EditProfileTenantState extends State<EditProfileTenant> {
         .updateProfileTenant(authProvider.user.token, data)
         .then((success) {
       if (success) {
-        Fluttertoast.showToast(
-            msg: 'Profil berhasil diperbarui',
-            backgroundColor: Colors.green,
-            textColor: Colors.white);
+        CustomSnackbar.success(
+          'Profil berhasil diperbarui',
+        );
         Navigator.of(context).pop();
       } else {
         _showErrorDialog(

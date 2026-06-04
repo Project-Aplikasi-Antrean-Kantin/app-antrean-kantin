@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -90,9 +91,8 @@ void showNoConnectionBottomSheet({
                               if (interneConnection) {
                                 Navigator.pop(context);
                               } else {
-                                Fluttertoast.showToast(
-                                    msg: 'Periksa koneksi internet',
-                                    backgroundColor: AppColors.errorColor);
+                                CustomSnackbar.warning(
+                                    'Tidak ada koneksi internet');
                               }
                             },
                           ),

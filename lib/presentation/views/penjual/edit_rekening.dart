@@ -9,6 +9,7 @@ import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class EditRekening extends StatefulWidget {
   const EditRekening({super.key});
@@ -226,10 +227,7 @@ class _EditRekeningState extends State<EditRekening> {
 
   void _saveProfile(TenantProvider tenantProvider, AuthProvider authProvider) {
     if (nomerRekeningPribadiController.text.isEmpty) {
-      Fluttertoast.showToast(
-          msg: "Tolong isi dengan benar",
-          backgroundColor: Colors.red,
-          textColor: Colors.white);
+      CustomSnackbar.warning("Tolong isi dengan benar");
       return;
     }
 
@@ -245,16 +243,10 @@ class _EditRekeningState extends State<EditRekening> {
         .updateProfileTenant(authProvider.user.token, data)
         .then((success) {
       if (success) {
-        Fluttertoast.showToast(
-            msg: 'Profil berhasil diperbarui',
-            backgroundColor: Colors.green,
-            textColor: Colors.white);
+        CustomSnackbar.success("Data rekening berhasil diperbarui");
         Navigator.of(context).pop();
       } else {
-        Fluttertoast.showToast(
-            msg: 'Profil gagal diperbarui',
-            backgroundColor: Colors.red,
-            textColor: Colors.white);
+        CustomSnackbar.error("Data rekening gagal diperbarui");
       }
     }).whenComplete(() => setState(() => isLoading = false));
   }

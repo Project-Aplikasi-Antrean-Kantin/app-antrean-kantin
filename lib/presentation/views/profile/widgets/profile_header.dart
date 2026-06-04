@@ -10,6 +10,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/edit_profil.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -97,7 +98,7 @@ class ProfileHeader extends StatelessWidget {
                 onTap: () async {
                   final internetConnection = await hasInternetAccess();
                   if (!internetConnection) {
-                    Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                    CustomSnackbar.warning("Tidak ada koneksi internet");
                     return;
                   }
                   Navigator.push(

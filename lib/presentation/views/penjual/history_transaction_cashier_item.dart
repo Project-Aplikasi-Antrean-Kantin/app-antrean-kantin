@@ -19,6 +19,8 @@ import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
+import 'package:testgetdata/presentation/widgets/molecules/status_pesanan.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class HistoryTransactionCashierItem extends StatefulWidget {
@@ -45,8 +47,6 @@ class _HistoryTransactionCashierItemState
   Widget build(BuildContext context) {
     final transaction = widget.transaction;
     final printer = widget.printer;
-    final cartMenuList = transaction.toCartMenuList();
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
     return GestureDetector(
       onTap: () {
@@ -99,33 +99,7 @@ class _HistoryTransactionCashierItemState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: getStatusColor(transaction.status)),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              spacing: 2,
-                              children: [
-                                Icon(
-                                  getIconByStatus(transaction.status),
-                                  size: 16,
-                                  color: getStatusColor(transaction.status),
-                                ),
-                                Text(
-                                  getStatus(transaction.status),
-                                  style: GoogleFonts.poppins(
-                                    color: getStatusColor(transaction.status),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          StatusPesanan(status: transaction.status),
                         ],
                       ),
                       Row(
@@ -250,9 +224,9 @@ class _HistoryTransactionCashierItemState
                           "selesai",
                           transaction.id,
                         );
-                        Fluttertoast.showToast(msg: "Selesai");
+                        CustomSnackbar.success("Selesai");
                       } catch (e) {
-                        Fluttertoast.showToast(msg: "Gagal");
+                        CustomSnackbar.error("Gagal");
                       } finally {
                         if (mounted) setState(() => isLoading = false);
                       }
@@ -292,9 +266,8 @@ class _HistoryTransactionCashierItemState
                           ),
                           (route) => false,
                         );
-                        Fluttertoast.showToast(
-                            msg:
-                                'Silahkan Pilih Printer, tekan Mesin Cetak terlebih dahulu');
+                        CustomSnackbar.info(
+                            'Silahkan Pilih Printer, tekan Mesin Cetak terlebih dahulu');
                         return;
                       }
 
@@ -313,13 +286,11 @@ class _HistoryTransactionCashierItemState
                           longData: true,
                         );
 
-                        Fluttertoast.showToast(
-                          msg: 'Cetak Berhasil',
-                          backgroundColor: AppColors.successColor,
-                          textColor: AppColors.whiteColor,
+                        CustomSnackbar.success(
+                          'Cetak Berhasil',
                         );
                       } catch (e) {
-                        Fluttertoast.showToast(msg: e.toString());
+                        CustomSnackbar.error(e.toString());
                       } finally {
                         if (mounted) setState(() => isPrinting = false);
                       }
@@ -340,81 +311,5 @@ class _HistoryTransactionCashierItemState
         ),
       ),
     );
-  }
-
-  String getStatus(String status) {
-    switch (status) {
-      case 'refund_selesai':
-        return 'Refund';
-      case 'gagal_bayar':
-        return 'Gagal Bayar';
-      case 'pending':
-        return 'Pending';
-      case 'selesai':
-        return 'Selesai';
-      case 'pesanan_ditolak':
-        return 'Ditolak';
-      case 'pesanan_diproses':
-        return 'Diproses';
-      case 'pesanan_masuk':
-        return 'Pesanan Masuk';
-      case 'diantar':
-        return 'Diantar';
-      case 'siap_diambil':
-        return 'Siap Diambil';
-      case 'siap_diantar':
-        return 'Siap Diantar';
-      default:
-        return '';
-    }
-  }
-
-  IconData getIconByStatus(String status) {
-    switch (status) {
-      case 'pesanan_masuk':
-        return Iconsax.login_1_copy;
-      case 'pesanan_diproses':
-        return Iconsax.repeat;
-      case 'siap_diantar':
-        return Iconsax.reserve;
-      case 'siap_diambil':
-        return Iconsax.flag_2;
-      case 'diantar':
-        return Iconsax.routing;
-      case 'selesai':
-        return Iconsax.tick_circle;
-      case 'gagal_bayar':
-        return Iconsax.money_remove;
-      case 'refund_selesai':
-        return Iconsax.directbox_send;
-      case 'pending':
-        return HugeIcons.strokeRoundedLoading03;
-      default:
-        return HugeIcons.strokeRoundedArrowReloadVertical;
-    }
-  }
-
-  Color getStatusColor(String status) {
-    switch (status) {
-      case 'pesanan_masuk':
-        return AppColors.warningColor400;
-      case 'pesanan_diproses':
-        return AppColors.warningColor;
-      case 'siap_diambil':
-        return AppColors.secondaryColor;
-      case 'siap_diantar':
-        return AppColors.primaryColor300;
-
-      case 'selesai':
-        return AppColors.successColor;
-      case 'pending':
-        return AppColors.whiteColor600;
-      case 'gagal_bayar':
-        return AppColors.errorColor;
-      case 'refund_selesai':
-        return AppColors.blackColor;
-      default:
-        return AppColors.primaryColor;
-    }
   }
 }

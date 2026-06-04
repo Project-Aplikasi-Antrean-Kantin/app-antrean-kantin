@@ -12,6 +12,7 @@ import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/bottom_navigation_button.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/pilih_tipe_pembayaran.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/show_bottom_sheet_usevoucher.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -64,7 +65,7 @@ class _BottomNavigationCartPaymentState
   void _navigateToTopup(BuildContext context) async {
     final internetConnection = await hasInternetAccess();
     if (!internetConnection) {
-      Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+      CustomSnackbar.warning("Tidak ada koneksi internet");
       return;
     }
     Navigator.push(

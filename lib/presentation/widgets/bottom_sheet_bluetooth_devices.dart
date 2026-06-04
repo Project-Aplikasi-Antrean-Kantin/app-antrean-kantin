@@ -13,6 +13,7 @@ import 'package:testgetdata/data/model/cashier_transaction.dart';
 import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 Future<void> showBottomSheetBluetoothDevices(
   BuildContext context,
@@ -76,10 +77,9 @@ Future<void> showBottomSheetBluetoothDevices(
                                   final selected = printerProvider.printer
                                       .firstWhere((p) => p.name == value);
                                   printerProvider.selectPrinter(selected);
-                                  Fluttertoast.showToast(
-                                      msg: '${selected.name} terpilih',
-                                      textColor: AppColors.whiteColor,
-                                      backgroundColor: AppColors.successColor);
+                                  CustomSnackbar.success(
+                                    '${selected.name} terpilih',
+                                  );
                                   Navigator.pop(context);
                                   // setState(() {}); // supaya update UI
                                 },

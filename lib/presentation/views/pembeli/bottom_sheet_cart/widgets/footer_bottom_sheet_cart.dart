@@ -9,6 +9,7 @@ import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/widgets/summary_price.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -63,27 +64,13 @@ class FooterBottomSheetCart extends StatelessWidget {
                       final internetConnection = await hasInternetAccess();
 
                       if (!internetConnection) {
-                        Fluttertoast.showToast(
-                            msg: "Tidak ada koneksi internet");
+                        CustomSnackbar.warning("Tidak ada koneksi internet");
                         return;
                       }
 
                       if (hasClosedTenant) {
-                        Fluttertoast.showToast(
-                          msg: 'Tenant Tutup',
-                          backgroundColor: AppColors.errorColor,
-                          textColor: AppColors.whiteColor,
-                        );
-                        return;
-                      }
-                      if (cartProvider.totalActiveDriver == 0 &&
-                          cartProvider.selectedCartTenant.length > 2) {
-                        Fluttertoast.showToast(
-                          msg:
-                              'Driver tidak tersedia, Mullti tenant hanya mendukung pesan antar',
-                          backgroundColor: AppColors.errorColor,
-                          textColor: AppColors.whiteColor,
-                        );
+                        CustomSnackbar.info(
+                            "Tenant sudah tutup, silahkan pilih tenant lain");
                         return;
                       }
 

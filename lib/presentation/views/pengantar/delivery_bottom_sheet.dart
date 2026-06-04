@@ -6,6 +6,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/organisms/image_picker_bottom_sheet/image_picker_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
@@ -177,8 +178,8 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
                           onPressed: () {
                             if (widget.onLoading) return;
                             if (selectedImagePath == null) {
-                              Fluttertoast.showToast(
-                                  msg: "Gambar belum diunggah");
+                              CustomSnackbar.warning(
+                                  "Silahkan pilih gambar terlebih dahulu");
                               return;
                             }
 

@@ -9,6 +9,7 @@ import 'package:testgetdata/data/model/pesanan_model.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/menu_tenant/menu_tenant.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -32,8 +33,7 @@ class FooterReorderButton extends StatelessWidget {
         final connectivityResult = await hasInternetAccess();
 
         if (!connectivityResult) {
-          Fluttertoast.showToast(msg: 'Tidak ada koneksi internet');
-
+          CustomSnackbar.warning('Tidak ada koneksi internet');
           showNoConnectionBottomSheet(
             context: context,
             onRetry: () {},

@@ -3,23 +3,14 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:saver_gallery/saver_gallery.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/data/model/top_up_model.dart';
-import 'package:testgetdata/presentation/provider/auth_provider.dart';
-import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/topup_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
-import 'package:http/http.dart' as http;
-import 'dart:typed_data';
-import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/widgets/organisms/qris_payment_card/qris_payment_card.dart';
-import 'package:testgetdata/utils/qris_image_saver.dart';
 
 class KodeVaPage extends StatefulWidget {
   final TopUpModel currentVa;
@@ -135,10 +126,7 @@ class _KodeVaPageState extends State<KodeVaPage> {
                   secondsRemaining: _secondsRemaining,
                   onGantiNominal: () {
                     final prefs = SharedPreferences.getInstance();
-                    final user = Provider.of<AuthProvider>(
-                      context,
-                      listen: false,
-                    ).user;
+
                     prefs.then((value) => value.remove('current_va'));
                     Navigator.pushReplacement(
                       context,
@@ -208,200 +196,5 @@ class _KodeVaPageState extends State<KodeVaPage> {
         ),
       ),
     ));
-  }
-
-  Widget _buildQrisPayment() {
-    return Center(
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 70),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: Colors.white,
-            ),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: ClipRRect(
-                    borderRadius: BorderRadiusGeometry.circular(20),
-                    child: Image.asset(
-                      'assets/images/watermark-foodlab.png',
-                      fit: BoxFit
-                          .cover, // atau BoxFit.contain tergantung kebutuhan
-                    ),
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          _rowText('Metode Bayar:', 'QRIS'),
-                          DashedDivider(
-                              height: 1.5, color: AppColors.blackColor100),
-                          _rowText(
-                              'Nominal:',
-                              FormatCurrency.intToStringCoin(
-                                  int.parse(widget.currentVa.nominal))),
-                          _rowText(
-                              'Admin:',
-                              FormatCurrency.intToStringCoin(int.parse(
-                                  widget.currentVa.biayaAdmin ?? '0'))),
-                          _rowText(
-                              'Total:',
-                              FormatCurrency.intToStringCoin(
-                                  int.parse(widget.currentVa.nominal) +
-                                      int.parse(
-                                          widget.currentVa.biayaAdmin ?? '0'))),
-                          DashedDivider(
-                              height: 1.5, color: AppColors.blackColor100),
-                          Center(
-                            child: Text('QR Bayar',
-                                style: GoogleFonts.poppins(
-                                    color: AppColors.blackColor400)),
-                          ),
-                          Center(
-                            child: Column(
-                              children: [
-                                if (_secondsRemaining > 0)
-                                  Image.network(
-                                    widget.currentVa.kodeBayar,
-                                    width: 200,
-                                    height: 200,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return SizedBox(
-                                        width: 200,
-                                        height: 200,
-                                        child: Image.asset(
-                                          'assets/images/dummy.jpeg', // placeholder statis
-                                          fit: BoxFit.cover,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                Text(
-                                  'Sisa waktu: ${formatDuration(_secondsRemaining)}',
-                                  style: GoogleFonts.poppins(
-                                    color: AppColors.primaryColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 64,
-          ),
-          Row(spacing: 8, children: [
-            Expanded(
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        backgroundColor: AppColors.primaryColor100,
-                        padding: EdgeInsets.all(16)),
-                    child: Text('Ganti Nominal',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.primaryColor,
-                          fontWeight: FontWeight.w600,
-                        )),
-                    onPressed: () {
-                      final prefs = SharedPreferences.getInstance();
-                      final user = Provider.of<AuthProvider>(
-                        context,
-                        listen: false,
-                      ).user;
-                      prefs.then((value) => value.remove('current_va'));
-                      Navigator.pushReplacement(
-                        context,
-                        CustomPageBuilder(page: TopupPage()),
-                      );
-                    })),
-            Expanded(
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        backgroundColor: AppColors.primaryColor700,
-                        padding: EdgeInsets.all(16)),
-                    child: Text('Unduh',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.whiteColor,
-                          fontWeight: FontWeight.w600,
-                        )),
-                    onPressed: () async {
-                      if (_secondsRemaining <= 0) {
-                        Fluttertoast.showToast(
-                            msg: "Waktu telah habis, silahkan ganti nominal");
-                        return;
-                      }
-                      final url = "${widget.currentVa.kodeBayar}";
-
-                      final response = await http.get(Uri.parse(url));
-
-                      if (response.statusCode == 200) {
-                        String imageName =
-                            "top_up_foodlab_qris_${DateTime.now().millisecondsSinceEpoch}";
-
-                        await SaverGallery.saveImage(
-                          Uint8List.fromList(response.bodyBytes),
-                          quality: 60,
-                          fileName: imageName,
-                          androidRelativePath: "Pictures/foodlab/images",
-                          skipIfExists: false,
-                        );
-
-                        Fluttertoast.showToast(
-                          msg: "Berhasil disimpan",
-                          backgroundColor: AppColors.successColor,
-                          textColor: AppColors.whiteColor,
-                        );
-                      } else {
-                        Fluttertoast.showToast(
-                          msg: "Gagal disimpan, silahkan coba lagi",
-                          backgroundColor: AppColors.errorColor,
-                          textColor: AppColors.whiteColor,
-                        );
-                      }
-                    })),
-          ])
-        ],
-      ),
-    );
-  }
-
-  Widget _rowText(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label,
-            style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: AppColors.blackColor,
-                fontWeight: FontWeight.w600)),
-        Text(value,
-            style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: AppColors.primaryColor,
-                fontWeight: FontWeight.w600)),
-      ],
-    );
   }
 }

@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class PrimaryButton extends StatelessWidget {
   final Widget child;
@@ -52,7 +53,7 @@ class PrimaryButton extends StatelessWidget {
               ? onPressed
               : () {}
           : () {
-              Fluttertoast.showToast(msg: waitingText ?? 'Tunggu sebentar');
+              CustomSnackbar.info(waitingText ?? 'Tunggu sebentar');
             },
       style: ElevatedButton.styleFrom(
         elevation: elevation ?? 1,

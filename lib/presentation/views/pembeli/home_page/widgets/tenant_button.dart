@@ -12,6 +12,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/data/model/user_model.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class TenantButton extends StatefulWidget {
@@ -199,11 +200,8 @@ class _TenantButtonState extends State<TenantButton> {
                                 prefs.remove("tenant_sibuk");
 
                                 setState(() {});
-                                Fluttertoast.showToast(
-                                    msg:
-                                        "Dalam 3 menit status tenantmu akan menjadi Buka",
-                                    backgroundColor: AppColors.successColor,
-                                    textColor: Colors.white);
+                                CustomSnackbar.success(
+                                    "Dalam 3 menit status tenantmu akan menjadi Buka");
                               }
                               setState(() {
                                 isInterrupted = false;

@@ -7,6 +7,7 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/tenant_provider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/presentation/widgets/slide_to_confirm.dart';
 import 'package:testgetdata/presentation/widgets/time_picker.dart';
@@ -310,10 +311,7 @@ class _FormOperationalState extends State<FormOperational> {
 
   void _saveProfile(TenantProvider tenantProvider, AuthProvider authProvider) {
     if (selectedCloseTime == '00:00:00' || selectedOpenTime == '00:00:00') {
-      Fluttertoast.showToast(
-          msg: "Tolong isi dengan benar",
-          backgroundColor: Colors.red,
-          textColor: Colors.white);
+      CustomSnackbar.warning("Tolong isi dengan benar");
       return;
     }
 
@@ -330,16 +328,10 @@ class _FormOperationalState extends State<FormOperational> {
         .updateProfileTenant(authProvider.user.token, data)
         .then((success) {
       if (success) {
-        Fluttertoast.showToast(
-            msg: 'Profil berhasil diperbarui',
-            backgroundColor: Colors.green,
-            textColor: Colors.white);
+        CustomSnackbar.success("Jam Operasional berhasil diperbarui");
         Navigator.of(context).pop();
       } else {
-        Fluttertoast.showToast(
-            msg: 'Profil gagal diperbarui',
-            backgroundColor: Colors.red,
-            textColor: Colors.white);
+        CustomSnackbar.error("Jam Operasional gagal diperbarui");
       }
     }).whenComplete(() => setState(() => isLoading = false));
   }

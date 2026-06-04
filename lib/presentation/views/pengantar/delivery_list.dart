@@ -14,6 +14,7 @@ import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_card/delivery_card.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_bottom_sheet.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class DeliveryList extends StatefulWidget {
@@ -267,9 +268,8 @@ class _DeliveryListState extends State<DeliveryList> {
                                           canSend: true,
                                           onFinish: () async {
                                             if (deliveryImagePath == null) {
-                                              Fluttertoast.showToast(
-                                                  msg:
-                                                      'Foto tidak boleh kosong');
+                                              CustomSnackbar.warning(
+                                                  'Foto tidak boleh kosong');
                                               return;
                                             }
 
@@ -290,27 +290,12 @@ class _DeliveryListState extends State<DeliveryList> {
                                               );
 
                                               if (result.success) {
-                                                Fluttertoast.showToast(
-                                                  msg: 'Pesanan selesai 🎉',
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.BOTTOM,
-                                                  backgroundColor:
-                                                      AppColors.successColor,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0,
-                                                );
+                                                CustomSnackbar.success(
+                                                    'Pesanan selesai 🎉');
                                               } else {
-                                                Fluttertoast.showToast(
-                                                  msg: result.error ??
-                                                      'ORDER-${pesananList.first.id} telah diantar oleh driver lain',
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.BOTTOM,
-                                                  backgroundColor: Colors.red,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0,
-                                                );
+                                                CustomSnackbar.error(result
+                                                        .error ??
+                                                    'ORDER-${pesananList.first.id} telah diantar oleh driver lain');
                                               }
                                               Navigator.pop(
                                                   context); // tutup sheet dulu
@@ -321,8 +306,8 @@ class _DeliveryListState extends State<DeliveryList> {
                                                 });
                                               }
                                             } catch (e) {
-                                              Fluttertoast.showToast(
-                                                  msg: e.toString());
+                                              CustomSnackbar.error(
+                                                  e.toString());
                                             }
                                           },
                                         );

@@ -17,6 +17,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_date.dart';
 import 'package:testgetdata/presentation/widgets/image_by_url.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatType;
@@ -196,7 +197,7 @@ class _ChatPageState extends State<ChatPage> {
                         final prefs = await SharedPreferences.getInstance();
                         print('unread message: ${prefs.getString('unread')}');
                         if (controller.text.trim().isEmpty) {
-                          Fluttertoast.showToast(msg: "Tidak boleh kosong");
+                          CustomSnackbar.warning("Tidak boleh kosong");
                           return;
                         }
 
@@ -220,7 +221,7 @@ class _ChatPageState extends State<ChatPage> {
                             );
                           });
                         } catch (e) {
-                          Fluttertoast.showToast(msg: e.toString());
+                          CustomSnackbar.error(e.toString());
                           print(e);
                         } finally {
                           setState(() {

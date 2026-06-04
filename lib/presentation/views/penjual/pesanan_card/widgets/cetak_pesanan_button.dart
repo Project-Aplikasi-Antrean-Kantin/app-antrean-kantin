@@ -11,6 +11,7 @@ import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class CetakPesananButton extends StatefulWidget {
   final FlutterThermalPrinter printer;
@@ -46,8 +47,7 @@ class _CetakPesananButtonState extends State<CetakPesananButton> {
                 (route) => false,
               );
               // showBottomSheetBluetoothDevices(context);
-              Fluttertoast.showToast(
-                  msg: 'Silahkan Pilih Printer, tekan Mesin Cetak');
+              CustomSnackbar.info('Silahkan Pilih Printer, tekan Mesin Cetak');
               return;
             }
             setState(() {
@@ -63,12 +63,9 @@ class _CetakPesananButtonState extends State<CetakPesananButton> {
                 data,
                 longData: true,
               );
-              Fluttertoast.showToast(
-                  msg: 'Cetak Berhasil',
-                  backgroundColor: AppColors.successColor,
-                  textColor: AppColors.whiteColor);
+              CustomSnackbar.success('Cetak berhasil');
             } catch (e) {
-              Fluttertoast.showToast(msg: e.toString());
+              CustomSnackbar.error(e.toString());
               print(e);
             } finally {
               setState(() {

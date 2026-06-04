@@ -11,6 +11,7 @@ import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class CetakNota extends StatefulWidget {
   final Pesanan pesanan;
@@ -50,8 +51,8 @@ class _CetakNotaState extends State<CetakNota> {
                   (route) => false,
                 );
 
-                Fluttertoast.showToast(
-                    msg: 'Silahkan Pilih Printer, tekan Mesin Cetak');
+                CustomSnackbar.info(
+                    'Silahkan Pilih Printer, tekan Mesin Cetak');
                 return;
               }
               setState(() {
@@ -69,12 +70,9 @@ class _CetakNotaState extends State<CetakNota> {
                   data,
                   longData: true,
                 );
-                Fluttertoast.showToast(
-                    msg: 'Cetak Berhasil',
-                    backgroundColor: AppColors.successColor,
-                    textColor: AppColors.whiteColor);
+                CustomSnackbar.success('Cetak Nota Berhasil');
               } catch (e) {
-                Fluttertoast.showToast(msg: e.toString());
+                CustomSnackbar.error(e.toString());
               } finally {
                 setState(() {
                   _isPrinting = false;

@@ -7,6 +7,7 @@ import 'package:testgetdata/data/model/tenant_model.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page/detail_food_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/organisms/menu_tile/widgets/menu_tile_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/organisms/menu_tile/widgets/menu_tile_food_details.dart';
 import 'package:testgetdata/presentation/widgets/organisms/menu_tile/widgets/menu_tile_image.dart';
@@ -60,10 +61,8 @@ class MenuTile extends StatelessWidget {
 
   void _onTap(BuildContext context, CartProvider cartProvider) {
     if (food.isReady == 0) {
-      Fluttertoast.showToast(
-        msg: "Menu belum tersedia",
-        backgroundColor: AppColors.errorColor,
-        textColor: AppColors.whiteColor,
+      CustomSnackbar.info(
+        "Menu belum tersedia",
       );
       cartProvider.clearItemByMenuIdFromCart(
         tenant.id.toString(),

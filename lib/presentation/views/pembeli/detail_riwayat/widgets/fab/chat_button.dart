@@ -6,6 +6,7 @@ import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_riwayat/widgets/fab/button_text.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class ChatButton extends StatelessWidget {
@@ -30,11 +31,7 @@ class ChatButton extends StatelessWidget {
       child: FloatingActionButton.extended(
         onPressed: () async {
           if (!await hasInternetAccess()) {
-            Fluttertoast.showToast(
-              msg: "Tidak ada koneksi internet",
-              backgroundColor: AppColors.errorColor,
-              textColor: Colors.white,
-            );
+            CustomSnackbar.warning('Tidak ada koneksi internet');
             return;
           }
 

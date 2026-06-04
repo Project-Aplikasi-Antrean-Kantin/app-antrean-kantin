@@ -7,9 +7,9 @@ import 'package:testgetdata/core/theme/colors_theme.dart';
 import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/views/common/token_manager.dart';
-import 'package:testgetdata/presentation/widgets/custom_snackbar.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/views/pembeli/login_page.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -100,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (token != null) {
       final result = await authProvider.authWithToken(
         errorCallback: (error) {
-          CustomSnackBar(message: error.toString(), status: error.toString());
+          CustomSnackbar.error(error.toString());
         },
       );
       if (!mounted) return;

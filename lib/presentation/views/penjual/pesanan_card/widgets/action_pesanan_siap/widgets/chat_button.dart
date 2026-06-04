@@ -9,6 +9,7 @@ import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/molecules/badge_chat.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
@@ -34,8 +35,8 @@ class ChatButton extends StatelessWidget {
           onPressed: () async {
             final connectivityResult = await hasInternetAccess();
             if (!connectivityResult) {
-              Fluttertoast.showToast(
-                msg: 'Tidak ada koneksi internet',
+              CustomSnackbar.warning(
+                'Tidak ada koneksi internet',
               );
               showNoConnectionBottomSheet(context: context, onRetry: () {});
               return;

@@ -17,6 +17,7 @@ import 'package:testgetdata/presentation/views/pembeli/navbar_home/widgets/exit_
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/widgets/tenant_busy_dialog.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_review.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/switch_route.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
@@ -61,11 +62,8 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
               if (statusTenant) {
                 prefs.remove("tenant_sibuk");
 
-                Fluttertoast.showToast(
-                  msg: "Dalam 3 menit status tenantmu akan menjadi Buka",
-                  backgroundColor: AppColors.successColor,
-                  textColor: Colors.white,
-                );
+                CustomSnackbar.success(
+                    "Dalam 3 menit status tenantmu akan menjadi Buka");
               }
             },
           );
@@ -146,11 +144,8 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
                   if (statusTenant) {
                     prefs.remove("tenant_sibuk");
 
-                    Fluttertoast.showToast(
-                      msg: "Dalam 3 menit status tenantmu akan menjadi Buka",
-                      backgroundColor: AppColors.successColor,
-                      textColor: Colors.white,
-                    );
+                    CustomSnackbar.success(
+                        "Dalam 3 menit status tenantmu akan menjadi Buka");
                   }
                 },
               );
@@ -201,11 +196,8 @@ class _NavbarHomeState extends State<NavbarHome> with WidgetsBindingObserver {
             if (statusTenant) {
               prefs.remove("tenant_sibuk");
 
-              Fluttertoast.showToast(
-                msg: "Dalam 3 menit status tenantmu akan menjadi Buka",
-                backgroundColor: AppColors.successColor,
-                textColor: Colors.white,
-              );
+              CustomSnackbar.success(
+                  "Dalam 3 menit status tenantmu akan menjadi Buka");
             }
           },
         );

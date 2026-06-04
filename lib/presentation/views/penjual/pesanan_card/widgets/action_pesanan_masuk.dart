@@ -8,6 +8,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/order_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/order_status.dart';
 import 'package:testgetdata/presentation/views/penjual/pesanan_card/widgets/bottom_sheet_penolakan.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class ActionPesananMasuk extends StatefulWidget {
@@ -77,26 +78,12 @@ class _ActionPesananMasukState extends State<ActionPesananMasuk> {
                     widget.pesanan);
 
                 if (success) {
-                  Fluttertoast.showToast(
-                    msg: "Segera proses pesanan!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.TOP,
-                    backgroundColor: Colors.grey,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
+                  CustomSnackbar.success("Segera proses pesanan!");
                 } else {
                   await orderProvider.fetchOrders(
                       context, authProvider.user.token, widget.status);
-                  Fluttertoast.showToast(
-                    msg:
-                        "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.TOP,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
+                  CustomSnackbar.error(
+                      "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
                 }
                 if (mounted) {
                   // Check if the widget is still mounted

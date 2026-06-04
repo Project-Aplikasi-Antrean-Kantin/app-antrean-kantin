@@ -33,6 +33,7 @@ import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.
 import 'package:testgetdata/presentation/widgets/bottom_sheet_review.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/profile_menu_item.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -117,7 +118,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               printerProvider.setPrinters(event);
             });
           } catch (e) {
-            Fluttertoast.showToast(msg: e.toString());
+            CustomSnackbar.error(e.toString());
           } finally {
             if (mounted) {
               setState(() {
@@ -128,8 +129,8 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
         } else {
           // 🚫 Bluetooth belum nyala
           if (mounted) {
-            Fluttertoast.showToast(
-              msg: "Bluetooth belum aktif, mohon nyalakan dulu...",
+            CustomSnackbar.info(
+              "Bluetooth belum aktif, mohon nyalakan dulu...",
             );
             // printer.turnOnBluetooth();
           }
@@ -215,16 +216,13 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
                 );
                 if (success.success) {
                   isOnline
-                      ? Fluttertoast.showToast(msg: 'Tenant Tutup')
-                      : Fluttertoast.showToast(msg: 'Tenant Buka');
+                      ? CustomSnackbar.success('Tenant Tutup')
+                      : CustomSnackbar.success('Tenant Buka');
                   setState(() {
                     isOnline = selectedStatus;
                   });
                 } else {
-                  Fluttertoast.showToast(
-                      msg: "${success.error}",
-                      backgroundColor: AppColors.errorColor,
-                      textColor: Colors.white);
+                  CustomSnackbar.error('${success.error}');
                 }
               },
               title: 'Tenant Buka',
@@ -245,7 +243,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               onTap: () async {
                 final internetConnection = await hasInternetAccess();
                 if (!internetConnection) {
-                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  CustomSnackbar.warning("Tidak ada koneksi internet");
                   return;
                 }
                 Navigator.of(context).push(
@@ -260,7 +258,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               onTap: () async {
                 final internetConnection = await hasInternetAccess();
                 if (!internetConnection) {
-                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  CustomSnackbar.warning("Tidak ada koneksi internet");
                   return;
                 }
                 Navigator.of(context).push(
@@ -275,7 +273,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               onTap: () async {
                 final internetConnection = await hasInternetAccess();
                 if (!internetConnection) {
-                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  CustomSnackbar.warning("Tidak ada koneksi internet");
                   return;
                 }
                 Navigator.of(context).push(
@@ -290,7 +288,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               onTap: () async {
                 final internetConnection = await hasInternetAccess();
                 if (!internetConnection) {
-                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  CustomSnackbar.warning("Tidak ada koneksi internet");
                   return;
                 }
                 Navigator.of(context).push(
@@ -304,12 +302,11 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
               titleColor: AppColors.blackColor,
               onTap: () async {
                 if (isLoadingBluetooth) {
-                  Fluttertoast.showToast(
-                      msg: "Memindai Perangkat Bluetooth...");
+                  CustomSnackbar.info("Memindai Perangkat Bluetooth...");
                   return;
                 }
                 if (!isBleTurnedOn) {
-                  Fluttertoast.showToast(msg: "Bluetooth belum diaktifkan");
+                  CustomSnackbar.info("Bluetooth belum diaktifkan");
 
                   await printer.turnOnBluetooth();
                   return;
@@ -325,9 +322,8 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
                 final kasirProvider =
                     Provider.of<KasirProvider>(context, listen: false);
                 if (kasirProvider.tenant == null) {
-                  Fluttertoast.showToast(
-                      msg:
-                          "Data tenant belum termuat, silahkan klik beranda terlebih dahulu");
+                  CustomSnackbar.info(
+                      "Data tenant belum termuat, silahkan klik beranda terlebih dahulu");
                   return;
                 }
                 Navigator.push(
@@ -361,16 +357,15 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
                 );
                 if (success.success) {
                   isOnline
-                      ? Fluttertoast.showToast(msg: 'Nonaktif')
-                      : Fluttertoast.showToast(msg: 'Aktif');
+                      ? CustomSnackbar.success('Nonaktif')
+                      : CustomSnackbar.success('Aktif');
                   setState(() {
                     isOnline = selectedStatus;
                   });
                 } else {
-                  Fluttertoast.showToast(
-                      msg: "${success.error}",
-                      backgroundColor: AppColors.errorColor,
-                      textColor: Colors.white);
+                  CustomSnackbar.error(
+                    "${success.error}",
+                  );
                 }
               },
               title: 'Status Driver',
@@ -461,7 +456,7 @@ class _ProfileMenuSectionState extends State<ProfileMenuSection>
         onOkPressed: () async {
           final internetConnection = await hasInternetAccess();
           if (!internetConnection) {
-            Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+            CustomSnackbar.warning("Tidak ada koneksi internet");
             return;
           }
           cartProvider.clearCart(false);

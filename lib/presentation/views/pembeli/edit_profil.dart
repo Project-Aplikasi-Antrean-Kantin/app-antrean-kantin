@@ -10,6 +10,7 @@ import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/organisms/image_picker_bottom_sheet/image_picker_bottom_sheet.dart';
 
 class EditProfil extends StatefulWidget {
@@ -99,10 +100,7 @@ class _EditProfilState extends State<EditProfil> {
         .then((value) {
       if (value) {
         Navigator.of(context).pop();
-        Fluttertoast.showToast(
-            msg: 'Profil berhasil diperbarui',
-            backgroundColor: Colors.green,
-            textColor: Colors.white);
+        CustomSnackbar.success('Profil berhasil diperbarui');
         authProvider.fetchUserData(authProvider.user.token);
       } else {
         showDialog(

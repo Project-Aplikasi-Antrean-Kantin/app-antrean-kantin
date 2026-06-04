@@ -16,6 +16,7 @@ import 'package:testgetdata/presentation/widgets/bottom_sheet_bluetooth_devices.
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
 import 'package:testgetdata/data/model/cashier_transaction.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/molecules/status_pesanan.dart';
 import 'package:testgetdata/presentation/widgets/pesanan_pembeli_tile.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
@@ -56,17 +57,12 @@ class _CashierTransactionItemWidgetState
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: getStatusColor(widget.transaksi.status)),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: StatusPesanan(status: widget.transaksi.status),
-                )),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                StatusPesanan(status: widget.transaksi.status),
+              ],
+            ),
           ),
           // Header transaksi
           Padding(
@@ -157,7 +153,7 @@ class _CashierTransactionItemWidgetState
           // List detail pesanan
           ...widget.transaksi.listTransaksiDetail.map(
             (pesanan) => Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: PesananItemWidget(isTenant: true, pesanan: pesanan),
             ),
           ),
@@ -249,9 +245,9 @@ class _CashierTransactionItemWidgetState
                               authProvider.user.token,
                               "selesai",
                               widget.transaksi.id);
-                          Fluttertoast.showToast(msg: "Selesai");
+                          CustomSnackbar.success("Selesai");
                         } catch (e) {
-                          Fluttertoast.showToast(msg: "${e.toString()}");
+                          CustomSnackbar.error("${e.toString()}");
                         } finally {
                           setState(() {
                             isLoading = false;
@@ -291,8 +287,8 @@ class _CashierTransactionItemWidgetState
                       (route) => false,
                     );
                     // showBottomSheetBluetoothDevices(context);
-                    Fluttertoast.showToast(
-                        msg: 'Silahkan Pilih Printer, tekan Mesin Cetak');
+                    CustomSnackbar.info(
+                        'Silahkan Pilih Printer, tekan Mesin Cetak');
                     return;
                   }
                   setState(() {
@@ -309,12 +305,11 @@ class _CashierTransactionItemWidgetState
                       data,
                       longData: true,
                     );
-                    Fluttertoast.showToast(
-                        msg: 'Cetak Berhasil',
-                        backgroundColor: AppColors.successColor,
-                        textColor: AppColors.whiteColor);
+                    CustomSnackbar.success(
+                      'Cetak Berhasil',
+                    );
                   } catch (e) {
-                    Fluttertoast.showToast(msg: e.toString());
+                    CustomSnackbar.error(e.toString());
                     print(e);
                   } finally {
                     setState(() {

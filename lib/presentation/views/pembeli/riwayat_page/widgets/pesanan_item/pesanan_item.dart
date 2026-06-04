@@ -13,6 +13,7 @@ import 'package:testgetdata/presentation/views/pembeli/riwayat_page/widgets/pesa
 import 'package:testgetdata/presentation/views/pembeli/riwayat_page/widgets/pesanan_item/molecule/header_pesanan_item.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/dashed_divider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
 class PesananItem extends StatelessWidget {
@@ -42,7 +43,7 @@ class PesananItem extends StatelessWidget {
             final internetConnection = await hasInternetAccess();
             // final prefs = await SharedPreferences.getInstance();
             if (!internetConnection) {
-              Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+              CustomSnackbar.warning('Tidak ada koneksi internet');
               return;
             }
             historyProvider.updateSelectedPesanan(pesanan);

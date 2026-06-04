@@ -15,6 +15,7 @@ import 'package:testgetdata/presentation/views/pengantar/delivery_card/widgets/a
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/views/pengantar/delivery_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/molecules/chat_ping_action.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
@@ -61,7 +62,7 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
   Future<void> _handleChat(HistoryProvider historyProvider) async {
     final hasInternet = await hasInternetAccess();
     if (!hasInternet) {
-      Fluttertoast.showToast(msg: 'Tidak ada koneksi internet');
+      CustomSnackbar.warning('Tidak ada koneksi internet');
       showNoConnectionBottomSheet(context: context, onRetry: () {});
       return;
     }
@@ -82,7 +83,7 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
   Future<void> _handlePing() async {
     final hasInternet = await hasInternetAccess();
     if (!hasInternet) {
-      Fluttertoast.showToast(msg: 'Tidak ada koneksi internet');
+      CustomSnackbar.warning('Tidak ada koneksi internet');
       showNoConnectionBottomSheet(context: context, onRetry: () {});
       return;
     }
@@ -92,14 +93,14 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
           .pingCustomer(widget.token, widget.pesanan.id.toString());
 
       if (result.success) {
-        Fluttertoast.showToast(msg: 'Ping terkirim');
+        CustomSnackbar.success('Ping terkirim');
         _startCooldown();
         Navigator.pop(context);
       } else {
-        Fluttertoast.showToast(msg: result.error ?? 'Ping gagal terkirim');
+        CustomSnackbar.error(result.error ?? 'Ping gagal terkirim');
       }
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      CustomSnackbar.error(e.toString());
     }
   }
 
@@ -198,12 +199,13 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
     // ✅ Tambah mounted check
     if (!mounted) return;
 
-    Fluttertoast.showToast(
-      msg: result.success
-          ? 'Berhasil'
-          : result.error ??
-              'ORDER-${widget.pesanan.id} telah diambil driver lain',
-    );
+    if (result.success) {
+      CustomSnackbar.success('Berhasil');
+    } else {
+      CustomSnackbar.error(result.error ??
+          'ORDER-${widget.pesanan.id} telah diambil driver lain');
+    }
+
     if (result.success) widget.onSuccess();
   }
 
@@ -229,7 +231,7 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
           canSend: true,
           onFinish: () async {
             if (deliveryImagePath == null) {
-              Fluttertoast.showToast(msg: 'Foto tidak boleh kosong');
+              CustomSnackbar.warning('Foto tidak boleh kosong');
               return;
             }
 
@@ -246,12 +248,11 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
             if (Navigator.of(sheetContext).canPop()) {
               Navigator.of(sheetContext).pop();
             }
-
-            Fluttertoast.showToast(
-              msg: result.success
-                  ? 'Pesanan selesai 🎉'
-                  : result.error ?? 'Gagal',
-            );
+            if (result.success) {
+              CustomSnackbar.success('Pesanan selesai 🎉');
+            } else {
+              CustomSnackbar.error(result.error ?? 'Gagal');
+            }
           },
         );
       },

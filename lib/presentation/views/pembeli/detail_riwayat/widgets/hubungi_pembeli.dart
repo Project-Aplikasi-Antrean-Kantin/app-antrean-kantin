@@ -14,6 +14,7 @@ import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/history_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/chat_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/no_connection_bottom_sheet.dart';
 import 'package:testgetdata/presentation/widgets/show_bottom_sheet_ping.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
@@ -85,9 +86,8 @@ class _HubungiPembeliState extends State<HubungiPembeli> {
                             final connectivityResult =
                                 await hasInternetAccess();
                             if (!connectivityResult) {
-                              Fluttertoast.showToast(
-                                msg: 'Tidak ada koneksi internet',
-                              );
+                              CustomSnackbar.warning(
+                                  "Tidak ada koneksi internet");
                               showNoConnectionBottomSheet(
                                 context: context,
                                 onRetry: () {},
@@ -169,7 +169,7 @@ class _HubungiPembeliState extends State<HubungiPembeli> {
     final connectivityResult = await hasInternetAccess();
     final user = Provider.of<AuthProvider>(context, listen: false).user;
     if (!connectivityResult) {
-      Fluttertoast.showToast(msg: 'Tidak ada koneksi internet');
+      CustomSnackbar.warning('Tidak ada koneksi internet');
       showNoConnectionBottomSheet(context: context, onRetry: () {});
       return;
     }
@@ -180,15 +180,14 @@ class _HubungiPembeliState extends State<HubungiPembeli> {
       );
 
       if (success.success) {
-        Fluttertoast.showToast(msg: 'Ping terkirim');
+        CustomSnackbar.success('Ping terkirim');
         _startCooldown(); // mulai cooldown kalau sukses
         Navigator.pop(context);
       } else {
-        Fluttertoast.showToast(
-            msg: '${success.error ?? 'Ping gagal terkirim'}');
+        CustomSnackbar.error('${success.error ?? 'Ping gagal terkirim'}');
       }
     } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
+      CustomSnackbar.error(e.toString());
     }
   }
 

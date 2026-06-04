@@ -15,6 +15,7 @@ import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/views/pembeli/navbar_home/navbar_home.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 class LoginPage extends StatefulWidget {
@@ -146,8 +147,7 @@ class _LoginPageState extends State<LoginPage> {
       await authProvider.fetchUserData(authProvider.user.token);
 
       if (mounted) {
-        showCustomSnackbar(ctx, "Login berhasil! Selamat datang.",
-            success: true);
+        CustomSnackbar.success("Login berhasil. Selamat datang!");
 
         // kasih jeda dikit biar snackbar muncul dulu sebelum pindah halaman
         await Future.delayed(const Duration(milliseconds: 800));

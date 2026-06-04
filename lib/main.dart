@@ -14,6 +14,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/presentation/provider/income_provider.dart';
 import 'package:testgetdata/presentation/provider/printer_provider.dart';
 import 'package:testgetdata/presentation/provider/review_provider.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'firebase/notification_service.dart';
 import 'presentation/provider/auth_provider.dart';
 import 'presentation/provider/cart_provider.dart';
@@ -46,6 +47,7 @@ Future<void> main() async {
   await initializeDateFormatting('id_ID', null);
   await Firebase.initializeApp();
   await NotificationService.initialize();
+  CustomSnackbar.init(navKey); // ← tambahkan ini, pakai navKey yang sudah ada
 
   runApp(const MyApp());
 

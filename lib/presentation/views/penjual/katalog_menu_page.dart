@@ -14,6 +14,7 @@ import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_form/katalog_menu_form.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/katalog_menu_tile.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/search_widget.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -85,7 +86,7 @@ class _KatalogMenuState extends State<KatalogMenu> {
           onPressed: () async {
             final internetConnection = await hasInternetAccess();
             if (!internetConnection) {
-              Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+              CustomSnackbar.warning("Tidak ada koneksi internet");
               return;
             }
             Navigator.push(
@@ -316,10 +317,10 @@ class _KatalogMenuState extends State<KatalogMenu> {
                                                         filteredData[index].id);
                                             if (result) {
                                               value == true
-                                                  ? Fluttertoast.showToast(
-                                                      msg: 'Menu Tersedia')
-                                                  : Fluttertoast.showToast(
-                                                      msg: 'Menu Habis');
+                                                  ? CustomSnackbar.info(
+                                                      'Menu Tersedia')
+                                                  : CustomSnackbar.info(
+                                                      'Menu Habis');
 
                                               provider.updateStatusReady(
                                                   filteredData[index].id);
@@ -335,8 +336,8 @@ class _KatalogMenuState extends State<KatalogMenu> {
                                           } catch (e) {
                                             debugPrint(
                                                 'Error updating status: $e');
-                                            Fluttertoast.showToast(
-                                                msg: "Gagal mengupdate");
+                                            CustomSnackbar.error(
+                                                "Gagal mengupdate");
                                           }
                                         },
                                       ),

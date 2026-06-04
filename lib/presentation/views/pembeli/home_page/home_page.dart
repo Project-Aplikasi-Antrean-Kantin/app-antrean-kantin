@@ -332,26 +332,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             onRetry: () => RetryFetch(true),
                           );
                         }
-                        fullTenant = snapshot.data ?? [];
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (mounted) {
+
+                        // Ambil data dari FutureBuilder
+                        final tenants = snapshot.data ?? [];
+
+                        // Inisialisasi hanya sekali
+                        if (fullTenant.isEmpty && tenants.isNotEmpty) {
+                          fullTenant = tenants;
+                          foundTenant = tenants;
+
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+
                             setState(() {
-                              yourTenant = fullTenant.firstWhereOrNull(
+                              yourTenant = tenants.firstWhereOrNull(
                                 (tenant) => tenant.emailPemilik == user.email,
                               );
-                            });
-                            setState(() {
+
                               isLoadingTenant = false;
                             });
-                          }
-                        });
-
-                        fullTenant.sort((a, b) {
-                          return (b.transaksiBerhasil)
-                              .compareTo(a.transaksiBerhasil);
-                        });
-
-                        foundTenant = fullTenant;
+                          });
+                        }
 
                         return foundTenant.isEmpty
                             ? HomeBodyNotFound()
@@ -362,7 +363,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 onNavigate: _handleNavigation,
                               );
                       },
-                    ),
+                    )
                   ],
                 ),
               ),

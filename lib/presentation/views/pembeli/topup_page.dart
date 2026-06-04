@@ -16,6 +16,7 @@ import 'package:testgetdata/presentation/provider/topup_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/kode_va_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
@@ -182,7 +183,7 @@ class _TopupPageState extends State<TopupPage> {
               onPressed: () async {
                 final internetConnection = await hasInternetAccess();
                 if (!internetConnection) {
-                  Fluttertoast.showToast(msg: "Tidak ada koneksi internet");
+                  CustomSnackbar.warning("Tidak ada koneksi internet");
                   return;
                 }
                 if (selectedValue != null && _selectedNominal != null) {
@@ -199,11 +200,7 @@ class _TopupPageState extends State<TopupPage> {
                             CustomPageBuilder(
                                 page: KodeVaPage(
                                     currentVa: topUpProvider.topUp!)));
-                        Fluttertoast.showToast(
-                          msg: "QRIS berhasil dibuat",
-                          backgroundColor: AppColors.successColor,
-                          textColor: Colors.white,
-                        );
+                        CustomSnackbar.success("QRIS berhasil dibuat");
                       }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

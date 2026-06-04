@@ -13,6 +13,7 @@ import 'package:testgetdata/presentation/provider/tenant_provider.dart';
 import 'package:testgetdata/presentation/views/common/format_currency.dart';
 import 'package:testgetdata/presentation/views/pembeli/bottom_sheet_cart/bottom_sheet_cart.dart';
 import 'package:testgetdata/presentation/widgets/bottom_sheet_cashier.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class FabMenuTenant extends StatelessWidget {
   final String? cashierTransactionId;
@@ -49,10 +50,7 @@ class FabMenuTenant extends StatelessWidget {
                   if (isThereUnavailableMenu) {
                     print(
                         'terdapat menu yang tidak tersedia ${cartProvider.cart}');
-                    Fluttertoast.showToast(
-                        msg: 'Terdapat menu yang tidak tersedia',
-                        backgroundColor: AppColors.errorColor,
-                        textColor: Colors.white);
+                    CustomSnackbar.warning('Terdapat menu yang tidak tersedia');
                     isThereUnavailableMenu = false;
                     return;
                   }
@@ -68,10 +66,7 @@ class FabMenuTenant extends StatelessWidget {
                   }
                   if (currentTenant != null &&
                       currentTenant!.isOnline == false) {
-                    Fluttertoast.showToast(
-                        msg: 'Tenant tutup',
-                        backgroundColor: AppColors.errorColor,
-                        textColor: Colors.white);
+                    CustomSnackbar.info('Tenant tutup');
                     return;
                   }
                   showBottomSheetCart(context, tenantProvider.tenants!,

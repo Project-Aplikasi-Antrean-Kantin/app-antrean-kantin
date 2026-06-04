@@ -4,11 +4,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class QrisImageSaver {
   static Future<void> save(String url, int secondsRemaining) async {
     if (secondsRemaining <= 0) {
-      Fluttertoast.showToast(msg: 'Waktu telah habis, silahkan ganti nominal');
+      CustomSnackbar.info('Waktu telah habis, silahkan ganti nominal');
       return;
     }
 
@@ -23,23 +24,17 @@ class QrisImageSaver {
           androidRelativePath: 'Pictures/foodlab/images',
           skipIfExists: false,
         );
-        Fluttertoast.showToast(
-          msg: 'Berhasil disimpan',
-          backgroundColor: AppColors.successColor,
-          textColor: AppColors.whiteColor,
+        CustomSnackbar.success(
+          'Berhasil disimpan',
         );
       } else {
-        Fluttertoast.showToast(
-          msg: 'Gagal disimpan, silahkan coba lagi',
-          backgroundColor: AppColors.errorColor,
-          textColor: AppColors.whiteColor,
+        CustomSnackbar.error(
+          'Gagal disimpan, silahkan coba lagi',
         );
       }
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: 'Terjadi kesalahan: $e',
-        backgroundColor: AppColors.errorColor,
-        textColor: AppColors.whiteColor,
+      CustomSnackbar.error(
+        'Terjadi kesalahan: $e',
       );
     }
   }

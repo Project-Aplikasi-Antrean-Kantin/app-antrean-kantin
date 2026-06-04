@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/text_theme.dart';
 import 'package:testgetdata/presentation/provider/cart_provider.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/cart_page.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 class BottomNavigationButton extends StatelessWidget {
   final bool isEnabled;
@@ -49,9 +50,9 @@ class BottomNavigationButton extends StatelessWidget {
               onTap: !isEnabled
                   ? () {
                       if (isCoinInsufficient) {
-                        Fluttertoast.showToast(msg: 'Koin kamu tidak cukup');
+                        CustomSnackbar.info('Koin kamu tidak cukup');
                       }
-                      Fluttertoast.showToast(msg: 'Tunggu Sebentar');
+                      CustomSnackbar.info('Tunggu Sebentar');
                     }
                   : onTap,
               child: Center(

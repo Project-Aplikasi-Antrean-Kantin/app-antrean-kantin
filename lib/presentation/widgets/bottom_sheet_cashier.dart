@@ -14,6 +14,7 @@ import 'package:testgetdata/presentation/views/pembeli/checkout_qris.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_food_page/detail_food_page.dart';
 import 'package:testgetdata/presentation/widgets/custom_form_field.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/presentation/widgets/organisms/item_cart/item_cart.dart';
 import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
@@ -311,9 +312,9 @@ Widget buildBottomSheetCartList(BuildContext context, bool isEdit, String? id,
                   );
                 }
 
-                Fluttertoast.showToast(msg: "Transaksi berhasil dicatat");
+                CustomSnackbar.success("Transaksi berhasil dicatat");
               } catch (e) {
-                Fluttertoast.showToast(msg: e.toString());
+                CustomSnackbar.error(e.toString());
               }
             },
             child: Text(

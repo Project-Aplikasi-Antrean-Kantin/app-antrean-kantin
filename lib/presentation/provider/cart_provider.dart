@@ -18,6 +18,7 @@ import 'package:testgetdata/data/remote/public_remote_data_source.dart';
 import 'package:testgetdata/data/remote/transaction_remote_data_source.dart';
 import 'package:testgetdata/data/model/ruangan_model.dart';
 import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
+import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 
 /// A provider class responsible for managing the cart functionality.
 class CartProvider extends ChangeNotifier {
@@ -122,14 +123,7 @@ class CartProvider extends ChangeNotifier {
       selectedCartTenant.removeAt(existingIndex);
     } else {
       if (selectedCartTenant.length >= 2) {
-        Fluttertoast.showToast(
-            msg: "Maksimal 2 Tenant",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: AppColors.warningColor,
-            textColor: Colors.white,
-            fontSize: 16.0);
+        CustomSnackbar.warning("Maksimal 2 Tenant");
         return;
       }
       selectedCartTenant.add(cart);
@@ -250,15 +244,8 @@ class CartProvider extends ChangeNotifier {
         cartMenuList: cartList,
       );
     } else {
-      Fluttertoast.showToast(
-          msg:
-              "Keranjang penuh, jika ingin menambah item silahkan hapus 1 tenant",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: AppColors.warningColor,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      CustomSnackbar.warning(
+          "Keranjang penuh, jika ingin menambah item silahkan hapus 1 tenant");
     }
 
     _cartMenu = cartList;
@@ -313,10 +300,7 @@ class CartProvider extends ChangeNotifier {
           selectedTenantDeliveryCost <
               selectedVoucher!.cashback!.minimalOrder) {
         selectedVoucher = null;
-        Fluttertoast.showToast(
-            msg: 'Minimal order belum terpenuhi, voucher dihapus',
-            backgroundColor: AppColors.errorColor,
-            textColor: Colors.white);
+        CustomSnackbar.error('Minimal order belum terpenuhi, voucher dihapus');
       }
       notifyListeners();
     }
@@ -367,11 +351,8 @@ class CartProvider extends ChangeNotifier {
       }
 
       if (isRemoved) {
-        Fluttertoast.showToast(
-          msg: "Menghapus item di cart karena menu sudah tidak tersedia",
-          backgroundColor: AppColors.errorColor,
-          textColor: Colors.white,
-        );
+        CustomSnackbar.error(
+            "Menghapus item di cart karena menu sudah tidak tersedia");
       }
 
       // Kalau updatedCart kosong → hapus dari selectedCartTenant dan _tenantCarts
@@ -575,10 +556,7 @@ class CartProvider extends ChangeNotifier {
     if (selectedVoucher != null &&
         selectedTenantDeliveryCost < selectedVoucher!.cashback.minimalOrder) {
       selectedVoucher = null;
-      Fluttertoast.showToast(
-          msg: 'Minimal order belum terpenuhi, voucher dihapus',
-          backgroundColor: AppColors.errorColor,
-          textColor: Colors.white);
+      CustomSnackbar.error('Minimal order belum terpenuhi, voucher dihapus');
     }
 
     await CartLocalDataSource()
@@ -754,13 +732,8 @@ class CartProvider extends ChangeNotifier {
     required TenantModel tenant,
   }) async {
     if (_tenantCarts.length >= 5 && !_tenantCarts.containsKey(tenantId)) {
-      Fluttertoast.showToast(
-          msg:
-              "Keranjang penuh, jika ingin menambah item silahkan hapus 1 tenant",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: AppColors.warningColor,
-          textColor: Colors.white);
+      CustomSnackbar.warning(
+          "Keranjang penuh, jika ingin menambah item silahkan hapus 1 tenant");
 
       return;
     }
@@ -852,10 +825,7 @@ class CartProvider extends ChangeNotifier {
     if (selectedVoucher != null &&
         selectedTenantDeliveryCost < selectedVoucher!.cashback!.minimalOrder) {
       selectedVoucher = null;
-      Fluttertoast.showToast(
-          msg: 'Minimal order belum terpenuhi, voucher dihapus',
-          backgroundColor: AppColors.errorColor,
-          textColor: Colors.white);
+      CustomSnackbar.error('Minimal order belum terpenuhi, voucher dihapus');
     }
 
     if (ongkir != 0 && totalItemCountSelected >= 10) {
@@ -1175,7 +1145,7 @@ class CartProvider extends ChangeNotifier {
 
   void setIsPriority(int selectedPriority) {
     if (roomId == null) {
-      Fluttertoast.showToast(msg: "Pilih ruangan terlebih dahulu");
+      CustomSnackbar.info("Pilih ruangan terlebih dahulu");
       return;
     }
     ;
