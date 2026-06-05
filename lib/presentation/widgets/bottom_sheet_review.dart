@@ -130,9 +130,10 @@ void showBottomSheetReview({
                         spacing: 8,
                         runSpacing: 8,
                         children: List.generate(
-                          reviewProvider.reviewSelection.length,
+                          reviewProvider.optionReviewSelection.length,
                           (index) {
-                            final item = reviewProvider.reviewSelection[index];
+                            final item =
+                                reviewProvider.optionReviewSelection[index];
                             return GestureDetector(
                               onTap: () {
                                 reviewProvider.selectReviewSelection(item);
@@ -163,6 +164,60 @@ void showBottomSheetReview({
                                     color: reviewProvider
                                             .selectedReviewSelection
                                             .contains(item)
+                                        ? Colors.white
+                                        : AppColors.blackColor,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Saat ini Anda beraktivitas di kampus sebagai apa?'),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: List.generate(
+                          reviewProvider.demographyReviewSelection.length,
+                          (index) {
+                            final item =
+                                reviewProvider.demographyReviewSelection[index];
+                            return GestureDetector(
+                              onTap: () {
+                                reviewProvider
+                                    .selectDemographyReviewSelection(item);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: reviewProvider
+                                                .selectedDemographyReviewSelection
+                                                ?.id ==
+                                            item.id
+                                        ? AppColors.primaryColor
+                                        : AppColors.blackColor100,
+                                    width: 1,
+                                  ),
+                                  color: reviewProvider
+                                              .selectedDemographyReviewSelection
+                                              ?.id ==
+                                          item.id
+                                      ? AppColors.primaryColor
+                                      : AppColors.whiteColor100,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  '${item.name}',
+                                  style: GoogleFonts.poppins(
+                                    color: reviewProvider
+                                                .selectedDemographyReviewSelection
+                                                ?.id ==
+                                            item.id
                                         ? Colors.white
                                         : AppColors.blackColor,
                                   ),

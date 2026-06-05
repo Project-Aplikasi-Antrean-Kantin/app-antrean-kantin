@@ -20,6 +20,7 @@ import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/show_co
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/voucher_section.dart';
 import 'package:testgetdata/presentation/views/pembeli/detail_voucher_page.dart';
 import 'package:testgetdata/presentation/views/pembeli/cart_page/widgets/bottom_navigation_cart_payment.dart';
+import 'package:testgetdata/presentation/widgets/custom_alert_new.dart';
 import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/custom_alert.dart';
 import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
@@ -46,13 +47,13 @@ class _CartPageState extends State<CartPage> {
   void _showIncompleteLocationDialog() {
     showDialog(
       context: context,
-      builder: (context) => CustomAlert(
+      builder: (context) => CustomAlertDialog(
         title: "Lokasi Kosong!",
         message: "Mohon pilih lokasi pengantaran untuk memudahkan driver 🫡",
-        onConfirmCancle: () => Navigator.of(context).pop(),
         textButtonCancel: "OK",
-        textButtonCancelColor: AppColors.primaryColor,
-        cancelBorderColor: AppColors.primaryColor,
+        onOkPressed: () => Navigator.of(context).pop(),
+        onCancelPressed: () => Navigator.of(context).pop(),
+        showCancelButton: false,
       ),
     );
   }

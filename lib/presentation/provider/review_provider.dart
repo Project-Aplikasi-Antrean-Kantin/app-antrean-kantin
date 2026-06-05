@@ -9,6 +9,9 @@ class ReviewProvider extends ChangeNotifier {
   int selectedRating = 7;
   List<ReviewSelection> reviewSelection = [];
   List<ReviewSelection> selectedReviewSelection = [];
+  ReviewSelection? selectedDemographyReviewSelection;
+  List<ReviewSelection> optionReviewSelection = [];
+  List<ReviewSelection> demographyReviewSelection = [];
   bool isSubmitting = false;
 
   void selectRating(int rating) {
@@ -25,9 +28,16 @@ class ReviewProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void selectDemographyReviewSelection(ReviewSelection reviewSelection) {
+    selectedDemographyReviewSelection = reviewSelection;
+    notifyListeners();
+  }
+
   Future<void> submitReview(String token, String description) async {
     final List<int> ratingMoods =
         selectedReviewSelection.map((e) => e.id).toList();
+
+    final ratings = [...ratingMoods, selectedDemographyReviewSelection!.id];
     isSubmitting = true;
     notifyListeners();
 
@@ -36,7 +46,7 @@ class ReviewProvider extends ChangeNotifier {
         token,
         selectedRating,
         description,
-        ratingMoods,
+        ratings,
       );
       CustomSnackbar.success(response);
       final prefs = await SharedPreferences.getInstance();
@@ -51,9 +61,17 @@ class ReviewProvider extends ChangeNotifier {
 
   Future<void> setReviewSelection(String token) async {
     try {
-      final List<ReviewSelection> reviewSelection =
+      final List<ReviewSelection> result =
           await PublicRemoteDataSource().getReviewSelection(token);
-      this.reviewSelection = reviewSelection;
+      this.reviewSelection = result;
+      optionReviewSelection = result.sublist(
+        0,
+        result.length - 3,
+      );
+      demographyReviewSelection = result.sublist(
+        result.length - 3,
+        result.length,
+      );
     } catch (e) {
       CustomSnackbar.error(e.toString());
     }
