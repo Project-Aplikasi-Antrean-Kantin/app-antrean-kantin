@@ -39,7 +39,7 @@ android {
     // compileSdkVersion flutter.compileSdkVersion
     compileSdkVersion 35
     // ndkVersion flutter.ndkVersion
-    ndkVersion = "25.1.8937393"
+    ndkVersion = "27.0.12077973"
     namespace "com.foodlab.pens"  // GANTI dengan nama paketmu!
 
 
@@ -69,6 +69,13 @@ android {
         versionName "1.1.3"
         multiDexEnabled true
     }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
 
     signingConfigs {
         release {
