@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.23'
+    ext.kotlin_version = '2.2.20'  // ← Update dari 2.0.21
     repositories {
         google()
         mavenCentral()
@@ -8,7 +8,7 @@ buildscript {
     dependencies {
         // START: FlutterFire Configuration
         classpath 'com.google.gms:google-services:4.4.2'      // ← Update dari 4.3.15
-        classpath 'com.android.tools.build:gradle:8.7.3'      // ← Update dari 8.3.0
+        classpath 'com.android.tools.build:gradle:8.11.1'  // ← Update dari 8.7.3
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // implementation 'com.google.android.material:material:1.11.0'
     }
