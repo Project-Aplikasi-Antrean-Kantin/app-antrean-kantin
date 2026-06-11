@@ -40,7 +40,7 @@ class SaldoInfo extends StatelessWidget {
           Expanded(
             flex: 60,
             child: Semantics(
-              label: 'Riwayat Saldo',
+              identifier: 'riwayatSaldoButton',
               button: true,
               child: Material(
                 key: const Key('riwayatSaldoButton'),
@@ -114,7 +114,7 @@ class SaldoInfo extends StatelessWidget {
           Expanded(
             flex: 30,
             child: Semantics(
-              label: 'TopUp',
+              identifier: 'topUpButton',
               button: true,
               child: Material(
                 key: const Key('topUpButton'),

@@ -264,11 +264,14 @@ class _MenuTenantState extends State<MenuTenant> {
           final cartItemCount = cartProvider.cart
               .where((item) => item.menuId == foodsToShow[index].id)
               .fold<int>(0, (sum, item) => sum + (item.count));
-          return MenuTile(
-            isOwner: authProvider.user.email == tenant.emailPemilik,
-            cartItemCount: cartItemCount,
-            tenant: tenant,
-            food: foodsToShow[index],
+          return Semantics(
+            identifier: 'menu-${index}',
+            child: MenuTile(
+              isOwner: authProvider.user.email == tenant.emailPemilik,
+              cartItemCount: cartItemCount,
+              tenant: tenant,
+              food: foodsToShow[index],
+            ),
           );
         },
         childCount: foodsToShow.length,

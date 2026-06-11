@@ -16,7 +16,7 @@ class Increment extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Tambah',
+      identifier: 'increment',
       child: Material(
         color: Colors.transparent,
         child: InkWell(

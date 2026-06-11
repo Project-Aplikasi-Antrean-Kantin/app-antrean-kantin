@@ -23,36 +23,39 @@ class SelesaiButton extends StatelessWidget {
     return Consumer3<HistoryProvider, AuthProvider, OrderProvider>(builder:
         (context, historyProvider, authProvider, orderProvider, child) {
       return Expanded(
-        child: PrimaryButton(
-          key: Key('selesaiButton${pesanan.id}'),
-          isLoading: orderProvider.isLoading,
-          elevation: 0,
-          borderRadius: 12,
-          color: AppColors.primaryColor,
-          child: Text(
-            'Selesai',
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
+        child: Semantics(
+          identifier: 'selesaiButton${pesanan.id}',
+          child: PrimaryButton(
+            key: Key('selesaiButton${pesanan.id}'),
+            isLoading: orderProvider.isLoading,
+            elevation: 0,
+            borderRadius: 12,
+            color: AppColors.primaryColor,
+            child: Text(
+              'Selesai',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
+            onPressed: () async {
+              final status = 'selesai';
+              final success = await orderProvider.updateOrder(
+                  status, authProvider.user.token, pesanan.id, pesanan);
+              historyProvider.removeUnreadMessages(pesanan.id);
+
+              if (success) {
+                listPesanan.remove(pesanan);
+
+                CustomSnackbar.success("Pesanan selesai");
+              } else {
+                await orderProvider.fetchOrders(
+                    context, authProvider.user.token, statusPesanan);
+                CustomSnackbar.error(
+                    "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
+              }
+            },
           ),
-          onPressed: () async {
-            final status = 'selesai';
-            final success = await orderProvider.updateOrder(
-                status, authProvider.user.token, pesanan.id, pesanan);
-            historyProvider.removeUnreadMessages(pesanan.id);
-
-            if (success) {
-              listPesanan.remove(pesanan);
-
-              CustomSnackbar.success("Pesanan selesai");
-            } else {
-              await orderProvider.fetchOrders(
-                  context, authProvider.user.token, statusPesanan);
-              CustomSnackbar.error(
-                  "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
-            }
-          },
         ),
       );
     });

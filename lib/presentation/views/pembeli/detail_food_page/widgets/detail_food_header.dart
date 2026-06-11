@@ -24,18 +24,21 @@ class DetailFoodHeader extends StatelessWidget {
         Positioned(
           top: 24,
           left: 16,
-          child: GestureDetector(
-            onTap: onClose,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const HugeIcon(
-                icon: HugeIcons.strokeRoundedCancel01,
-                color: Colors.white,
-                size: 24,
+          child: Semantics(
+            identifier: 'backButton',
+            child: GestureDetector(
+              onTap: onClose,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedCancel01,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
             ),
           ),

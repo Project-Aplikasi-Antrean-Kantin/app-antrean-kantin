@@ -16,7 +16,7 @@ class Decrement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Tombol -',
+      identifier: 'decrement',
       button: true,
       child: Material(
         color: Colors.transparent,

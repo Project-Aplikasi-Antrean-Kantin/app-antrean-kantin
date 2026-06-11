@@ -314,7 +314,7 @@ class _TopupPageState extends State<TopupPage> {
           itemBuilder: (context, index) {
             final isSelected = _selectedNominal == nominalList[index];
             return Semantics(
-              label: "${nominalList[index].toString()}Nominal",
+              identifier: "${nominalList[index].toString()}Nominal",
               button: true,
               child: GestureDetector(
                 key: Key("${nominalList[index].toString()}Nominal"),

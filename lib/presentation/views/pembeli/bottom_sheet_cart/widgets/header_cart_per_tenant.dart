@@ -29,7 +29,9 @@ class HeaderCartPerTenant extends StatelessWidget {
           child: Row(
             spacing: 8,
             children: [
-              CheckButton(onCheck: onCheck, onChecked: onChecked),
+              Semantics(
+                  identifier: 'Check Button ${tenantName}',
+                  child: CheckButton(onCheck: onCheck, onChecked: onChecked)),
               Expanded(
                 child: Text('${tenantName}',
                     softWrap: true,

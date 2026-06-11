@@ -26,7 +26,7 @@ class CustomToggle extends StatelessWidget {
           const SizedBox(width: 10),
         ],
         Semantics(
-          label: 'Toggle Button',
+          identifier: 'toggleButton',
           button: true,
           child: GestureDetector(
             key: const Key('toggleButton'),

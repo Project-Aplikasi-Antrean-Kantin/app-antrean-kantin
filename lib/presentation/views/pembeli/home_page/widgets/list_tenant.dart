@@ -64,27 +64,30 @@ class _ListTenantState extends State<ListTenant> {
       itemBuilder: (context, index) {
         final tenant = sortedTenant[index];
 
-        return CardTenant(
-          tenant: tenant,
-          fullTenant: widget.fullTenant,
-          foundTenant: widget.foundTenant,
-          onNavigate: (tenant) async {
-            if (_isNavigating) return;
-            _isNavigating = true;
-            final internetConnection = await hasInternetAccess();
-            if (!internetConnection) {
-              showNoConnectionBottomSheet(context: context, onRetry: () {});
-              return;
-            }
+        return Semantics(
+          identifier: 'tenant-${index}',
+          child: CardTenant(
+            tenant: tenant,
+            fullTenant: widget.fullTenant,
+            foundTenant: widget.foundTenant,
+            onNavigate: (tenant) async {
+              if (_isNavigating) return;
+              _isNavigating = true;
+              final internetConnection = await hasInternetAccess();
+              if (!internetConnection) {
+                showNoConnectionBottomSheet(context: context, onRetry: () {});
+                return;
+              }
 
-            Navigator.push(
-                context,
-                CustomPageBuilder(
-                  page: MenuTenant(
-                    url: '${widget.url}/${tenant.id}',
-                  ),
-                )).then((value) => _isNavigating = false);
-          },
+              Navigator.push(
+                  context,
+                  CustomPageBuilder(
+                    page: MenuTenant(
+                      url: '${widget.url}/${tenant.id}',
+                    ),
+                  )).then((value) => _isNavigating = false);
+            },
+          ),
         );
       },
     );

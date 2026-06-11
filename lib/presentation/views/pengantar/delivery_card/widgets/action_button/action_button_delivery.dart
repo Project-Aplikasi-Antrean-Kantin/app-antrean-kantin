@@ -145,28 +145,37 @@ class _ActionButtonDeliveryState extends State<ActionButtonDelivery> {
               if (!hasDriver && widget.status == DeliveryStatus.siapDiantar)
                 const Spacer(),
               if (showTakeButton)
-                PrimaryActionButton(
-                  screenSize: screenSize,
-                  isLoading: delivery.isLoading,
-                  text: _getPrimaryText(pesanan),
-                  onPressed: () => _handlePrimaryAction(
-                    delivery,
-                    auth,
+                Semantics(
+                  identifier: 'processDeliveryButton',
+                  child: PrimaryActionButton(
+                    screenSize: screenSize,
+                    isLoading: delivery.isLoading,
+                    text: _getPrimaryText(pesanan),
+                    onPressed: () => _handlePrimaryAction(
+                      delivery,
+                      auth,
+                    ),
                   ),
                 ),
               if (showPrioritySlider)
                 Expanded(
-                  child: PrioritySlider(
-                    onConfirm: () => _handlePriority(delivery, auth),
-                    status: pesanan.status,
+                  child: Semantics(
+                    identifier: 'prioritySlider',
+                    child: PrioritySlider(
+                      onConfirm: () => _handlePriority(delivery, auth),
+                      status: pesanan.status,
+                    ),
                   ),
                 ),
               if (isDiantar) ...[
                 const Spacer(),
-                FinishDeliveryButton(
-                  screenSize: screenSize,
-                  isLoading: delivery.isLoading,
-                  onFinish: () => _showFinishBottomSheet(delivery, auth),
+                Semantics(
+                  identifier: 'finishDeliveryButton',
+                  child: FinishDeliveryButton(
+                    screenSize: screenSize,
+                    isLoading: delivery.isLoading,
+                    onFinish: () => _showFinishBottomSheet(delivery, auth),
+                  ),
                 ),
               ]
             ],

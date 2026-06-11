@@ -256,61 +256,74 @@ class _LoginPageState extends State<LoginPage> {
                       fontWeight: regular,
                     ),
                   ),
-                  CustomTextFormField(
-                    labelColor: AppColors.primaryColor,
-                    label: 'Email',
-                    controller: _emailController,
-                    hintText: 'Alamat email kamu',
-                    inputType: TextInputType.emailAddress,
-                    isRequired: true,
-                    errorText: emailError,
-                  ),
-                  CustomTextFormField(
-                    label: 'Password',
-                    labelColor: AppColors.primaryColor,
-                    controller: _passwordController,
-                    hintText: 'Masukkan password kamu',
-                    obscureText: _showPassword,
-                    isRequired: true,
-                    errorText: passwordError,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _showPassword
-                            ? Icons.visibility_off_rounded
-                            : Icons.visibility_rounded,
-                        color: Colors.grey[500],
-                      ),
-                      onPressed: () =>
-                          setState(() => _showPassword = !_showPassword),
+                  Semantics(
+                    identifier: 'emailForm',
+                    child: CustomTextFormField(
+                      labelColor: AppColors.primaryColor,
+                      label: 'Email',
+                      controller: _emailController,
+                      hintText: 'Alamat email kamu',
+                      inputType: TextInputType.emailAddress,
+                      isRequired: true,
+                      errorText: emailError,
                     ),
                   ),
-                  GestureDetector(
-                    key: const Key('forgotPassword'),
-                    onTap: () => Navigator.push(
-                        context, CustomPageBuilder(page: ForgotPassword())),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Lupa Password?',
-                        style: GoogleFonts.poppins(
-                            color: AppColors.primaryColor,
-                            fontWeight: FontWeight.w700),
+                  Semantics(
+                    identifier: 'passwordForm',
+                    child: CustomTextFormField(
+                      label: 'Password',
+                      labelColor: AppColors.primaryColor,
+                      controller: _passwordController,
+                      hintText: 'Masukkan password kamu',
+                      obscureText: _showPassword,
+                      isRequired: true,
+                      errorText: passwordError,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _showPassword
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
+                          color: Colors.grey[500],
+                        ),
+                        onPressed: () =>
+                            setState(() => _showPassword = !_showPassword),
                       ),
                     ),
                   ),
-                  PrimaryButton(
-                    key: const Key('loginButton'),
-                    isLoading: _isLoading,
-                    borderRadius: 20,
-                    onPressed: () =>
-                        _isLoading ? null : _handleLogin(authProvider, context),
-                    child: Center(
-                      child: Text(
-                        "Masuk",
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: medium,
-                          fontSize: 16,
+                  Semantics(
+                    identifier: 'forgotPassword',
+                    child: GestureDetector(
+                      key: const Key('forgotPassword'),
+                      onTap: () => Navigator.push(
+                          context, CustomPageBuilder(page: ForgotPassword())),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'Lupa Password?',
+                          style: GoogleFonts.poppins(
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Semantics(
+                    identifier: 'loginButton',
+                    child: PrimaryButton(
+                      key: const Key('loginButton'),
+                      isLoading: _isLoading,
+                      borderRadius: 20,
+                      onPressed: () => _isLoading
+                          ? null
+                          : _handleLogin(authProvider, context),
+                      child: Center(
+                        child: Text(
+                          "Masuk",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: medium,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),

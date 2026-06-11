@@ -46,84 +46,80 @@ class PilihTipePembayaran extends StatelessWidget {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final total = cartProvider.getTotal();
 
-    return Semantics(
-      label:
-          'Metode pembayaran: ${_paymentOptions[selectedPaymentMethod]!['label']}',
-      child: GestureDetector(
-        // onTap: () => _showPaymentOptions(context),
-        child: Container(
-          padding: _padding,
-          child: Row(
-            spacing: 8,
-            children: [
-              Image.asset(
-                _paymentOptions[selectedPaymentMethod]!['icon'] as String,
-                width: _iconSize,
-                height: _iconSize,
-              ),
-              Expanded(
-                child: Semantics(
-                  label: 'Metode pembayaran',
-                  button: true,
-                  child: GestureDetector(
-                    key: const Key('showPaymentMethod'),
-                    onTap: () => showModalBottomSheet(
-                      context: context,
-                      builder: (context) => _PaymentOptionBottomSheet(
-                          selectedMethod: selectedPaymentMethod,
-                          onSelect: onPaymentMethodSelected),
-                    ),
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _paymentOptions[selectedPaymentMethod]![
-                                        'label'] as String,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      color: AppColors.textColorBlack,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.5,
-                                    ),
+    return GestureDetector(
+      // onTap: () => _showPaymentOptions(context),
+      child: Container(
+        padding: _padding,
+        child: Row(
+          spacing: 8,
+          children: [
+            Image.asset(
+              _paymentOptions[selectedPaymentMethod]!['icon'] as String,
+              width: _iconSize,
+              height: _iconSize,
+            ),
+            Expanded(
+              child: Semantics(
+                identifier: 'showPaymentMethod',
+                button: true,
+                child: GestureDetector(
+                  key: const Key('showPaymentMethod'),
+                  onTap: () => showModalBottomSheet(
+                    context: context,
+                    builder: (context) => _PaymentOptionBottomSheet(
+                        selectedMethod: selectedPaymentMethod,
+                        onSelect: onPaymentMethodSelected),
+                  ),
+                  child: Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _paymentOptions[selectedPaymentMethod]![
+                                      'label'] as String,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: AppColors.textColorBlack,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.5,
                                   ),
-                                  Text(
-                                    _formatTotal(total, selectedPaymentMethod),
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: semibold,
-                                      color: AppColors.textColorBlack,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Expanded(
-                                child: SizedBox(
-                                  width: double.infinity,
                                 ),
+                                Text(
+                                  _formatTotal(total, selectedPaymentMethod),
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: semibold,
+                                    color: AppColors.textColorBlack,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: SizedBox(
+                                width: double.infinity,
                               ),
-                              const HugeIcon(
-                                icon: HugeIcons
-                                    .strokeRoundedMoreHorizontalCircle02,
-                                size: _iconSize,
-                                color: AppColors.blackColor,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                            const HugeIcon(
+                              icon:
+                                  HugeIcons.strokeRoundedMoreHorizontalCircle02,
+                              size: _iconSize,
+                              color: AppColors.blackColor,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -181,7 +177,7 @@ class _PaymentOptionBottomSheetState extends State<_PaymentOptionBottomSheet> {
                 children: [
                   const SizedBox(height: 12),
                   Semantics(
-                    label: '${method}Metode pembayaran',
+                    identifier: '${method} Metode pembayaran',
                     child: GestureDetector(
                       key: Key('${method}PaymentMethod'),
                       onTap: () {

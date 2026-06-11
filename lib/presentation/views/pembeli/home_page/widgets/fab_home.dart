@@ -22,7 +22,7 @@ class FabHome extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Semantics(
-            label: 'Keranjang',
+            identifier: 'cartButton',
             button: true,
             child: InkWell(
               key: const Key('cartButton'),

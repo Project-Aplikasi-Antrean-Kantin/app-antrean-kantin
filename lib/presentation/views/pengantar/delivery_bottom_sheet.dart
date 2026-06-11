@@ -260,7 +260,7 @@ class _DeliveryBottomSheetState extends State<DeliveryBottomSheet> {
           right: 8,
           left: 8,
           child: Semantics(
-            label: 'Pilih Gambar',
+            identifier: 'pickImage',
             button: true,
             child: GestureDetector(
               key: const Key('pickImage'),

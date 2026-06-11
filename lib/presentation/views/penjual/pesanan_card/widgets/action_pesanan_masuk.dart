@@ -33,65 +33,71 @@ class _ActionPesananMasukState extends State<ActionPesananMasuk> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: PrimaryButton(
-              key: Key('tolakButton${widget.pesanan.id}'),
-              isEnabled: !_isLoading,
-              elevation: 0,
-              color: AppColors.errorColor100,
-              borderRadius: 12,
-              child: Text(
-                'Tolak',
-                style: GoogleFonts.poppins(
-                  color: !_isLoading
-                      ? AppColors.errorColor
-                      : AppColors.containerColorGrey,
-                  fontWeight: FontWeight.w600,
+            child: Semantics(
+              identifier: 'tolakButton${widget.pesanan.id}',
+              child: PrimaryButton(
+                key: Key('tolakButton${widget.pesanan.id}'),
+                isEnabled: !_isLoading,
+                elevation: 0,
+                color: AppColors.errorColor100,
+                borderRadius: 12,
+                child: Text(
+                  'Tolak',
+                  style: GoogleFonts.poppins(
+                    color: !_isLoading
+                        ? AppColors.errorColor
+                        : AppColors.containerColorGrey,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
+                onPressed: () async {
+                  bottomSheetPenolakan(context, widget.pesanan);
+                },
               ),
-              onPressed: () async {
-                bottomSheetPenolakan(context, widget.pesanan);
-              },
             ),
           ),
           SizedBox(width: screenSize.width * 0.03),
           Expanded(
-            child: PrimaryButton(
-              key: Key('terimaButton${widget.pesanan.id}'),
-              isLoading: _isLoading,
-              elevation: 0,
-              borderRadius: 12,
-              child: Text(
-                'Terima',
-                style: GoogleFonts.poppins(
-                  color: AppColors.whiteColor,
-                  fontWeight: FontWeight.w600,
+            child: Semantics(
+              identifier: 'terimaButton${widget.pesanan.id}',
+              child: PrimaryButton(
+                key: Key('terimaButton${widget.pesanan.id}'),
+                isLoading: _isLoading,
+                elevation: 0,
+                borderRadius: 12,
+                child: Text(
+                  'Terima',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.whiteColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              onPressed: () async {
-                setState(() {
-                  _isLoading = true;
-                });
-                final success = await orderProvider.updateOrder(
-                    'pesanan_diproses',
-                    authProvider.user.token,
-                    widget.pesanan.id,
-                    widget.pesanan);
-
-                if (success) {
-                  CustomSnackbar.success("Segera proses pesanan!");
-                } else {
-                  await orderProvider.fetchOrders(
-                      context, authProvider.user.token, widget.status);
-                  CustomSnackbar.error(
-                      "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
-                }
-                if (mounted) {
-                  // Check if the widget is still mounted
+                onPressed: () async {
                   setState(() {
-                    _isLoading = false;
+                    _isLoading = true;
                   });
-                }
-              },
+                  final success = await orderProvider.updateOrder(
+                      'pesanan_diproses',
+                      authProvider.user.token,
+                      widget.pesanan.id,
+                      widget.pesanan);
+
+                  if (success) {
+                    CustomSnackbar.success("Segera proses pesanan!");
+                  } else {
+                    await orderProvider.fetchOrders(
+                        context, authProvider.user.token, widget.status);
+                    CustomSnackbar.error(
+                        "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
+                  }
+                  if (mounted) {
+                    // Check if the widget is still mounted
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                },
+              ),
             ),
           ),
         ],

@@ -59,29 +59,32 @@ class _HeaderMenuTenantState extends State<HeaderMenuTenant> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Tombol Back
-        GestureDetector(
-          onTap: () async {
-            if (widget.requiredExitCode == true) {
-              final result = await showExitDialogSelfService(context);
-              if (result == true) {
-                widget.cartProvider.popTenant();
-                Navigator.pop(context);
+        Semantics(
+          identifier: 'backButton',
+          child: GestureDetector(
+            onTap: () async {
+              if (widget.requiredExitCode == true) {
+                final result = await showExitDialogSelfService(context);
+                if (result == true) {
+                  widget.cartProvider.popTenant();
+                  Navigator.pop(context);
+                }
+                return;
               }
-              return;
-            }
-            widget.cartProvider.popTenant();
-            Navigator.pop(context);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.whiteColor,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            padding: EdgeInsets.all(12),
-            child: HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowLeft02,
-              color: AppColors.whiteColor900,
-              size: 20,
+              widget.cartProvider.popTenant();
+              Navigator.pop(context);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.whiteColor,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              padding: EdgeInsets.all(12),
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedArrowLeft02,
+                color: AppColors.whiteColor900,
+                size: 20,
+              ),
             ),
           ),
         ),

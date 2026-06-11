@@ -106,11 +106,14 @@ class _PerluPengantaranState extends State<PerluPengantaran>
               fontWeight: medium,
             ),
             tabs: DeliveryStatus.values
-                .map((status) => Tab(
-                      child: Text(
-                        status.label,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
+                .map((status) => Semantics(
+                      identifier: '${status.label}-Tab',
+                      child: Tab(
+                        child: Text(
+                          status.label,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ))

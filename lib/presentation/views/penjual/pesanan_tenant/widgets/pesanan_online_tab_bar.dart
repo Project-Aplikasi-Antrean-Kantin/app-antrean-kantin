@@ -27,13 +27,16 @@ class PesananOnlineTabBar extends StatelessWidget {
       labelColor: AppColors.primaryColor,
       labelStyle: GoogleFonts.poppins(fontSize: 14, fontWeight: medium),
       tabs: OrderStatus.values
-          .map((status) => Tab(
-                key: Key(status.name),
-                child: Text(
-                  status.label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+          .map((status) => Semantics(
+                identifier: 'tab-${status.name}',
+                child: Tab(
+                  key: Key(status.name),
+                  child: Text(
+                    status.label,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ))

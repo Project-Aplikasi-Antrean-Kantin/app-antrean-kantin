@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
+import 'package:testgetdata/data/model/cart_menu_modelllll.dart';
 import 'package:testgetdata/presentation/widgets/molecules/counter/widgets/count_change.dart';
 import 'package:testgetdata/presentation/widgets/molecules/counter/widgets/decrement.dart';
 import 'package:testgetdata/presentation/widgets/molecules/counter/widgets/increment.dart';
 
 class Counter extends StatelessWidget {
   final VoidCallback onDecrement;
+  final CartMenuModel? cartItem;
   final int count;
   final ValueChanged<int> onCountChanged;
   final VoidCallback onIncrement;
@@ -16,6 +18,7 @@ class Counter extends StatelessWidget {
   const Counter(
       {super.key,
       this.withBorderSeparator = false,
+      this.cartItem,
       this.widthEachButton = 48,
       this.heightEachButton = 48,
       required this.onDecrement,
@@ -43,12 +46,15 @@ class Counter extends StatelessWidget {
                 width: widthEachButton),
 
             // Counter
-            CountChange(
-              withBorderSeparator: withBorderSeparator,
-              width: widthEachButton,
-              height: heightEachButton,
-              count: count,
-              onChanged: onCountChanged,
+            Semantics(
+              identifier: 'counter-${cartItem?.menuNama}-${cartItem?.menuId}',
+              child: CountChange(
+                withBorderSeparator: withBorderSeparator,
+                width: widthEachButton,
+                height: heightEachButton,
+                count: count,
+                onChanged: onCountChanged,
+              ),
             ),
 
             // Tombol +

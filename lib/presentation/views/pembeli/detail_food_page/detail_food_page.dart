@@ -131,6 +131,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                   DetailFoodNote(controller: _textEditingController),
                   Center(
                     child: Counter(
+                      cartItem: item,
                       count: count,
                       onCountChanged: (v) => setState(() => count = v),
                       onIncrement: () => setState(() => count++),

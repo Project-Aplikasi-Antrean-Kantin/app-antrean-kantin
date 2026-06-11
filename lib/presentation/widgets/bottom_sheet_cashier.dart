@@ -20,6 +20,8 @@ import 'package:testgetdata/presentation/widgets/primary_button.dart';
 
 Future<void> showBottomSheetCashier(BuildContext parentContext,
     TenantModel tenant, bool isEdit, String? id, bool? fromCashier) {
+  final isNavigating = ValueNotifier<bool>(false);
+
   return showModalBottomSheet(
     enableDrag: true,
     backgroundColor: AppColors.backgroundColor,
@@ -74,15 +76,18 @@ Future<void> showBottomSheetCashier(BuildContext parentContext,
                         child: Consumer<CartProvider>(
                             builder: (context, cartProvider, _) {
                           final activeCart = cartProvider.cart;
-                          if (activeCart.isEmpty && Navigator.canPop(context)) {
+
+                          if (activeCart.isEmpty &&
+                              Navigator.canPop(context) &&
+                              !isNavigating.value) {
                             Future.microtask(() {
-                              if (Navigator.canPop(context)) {
+                              if (Navigator.canPop(context) &&
+                                  !isNavigating.value) {
                                 Navigator.pop(context);
                               }
                             });
-                            return const SizedBox(); // return widget kosong biar nggak error
+                            return const SizedBox();
                           }
-
                           return ListView.separated(
                               separatorBuilder: (context, index) {
                                 return SizedBox(height: 12);
@@ -140,7 +145,14 @@ Future<void> showBottomSheetCashier(BuildContext parentContext,
                       ),
                     ),
                     buildBottomSheetCartList(
-                        context, isEdit, id, fromCashier, parentContext),
+                      context,
+                      isEdit,
+                      id,
+                      fromCashier,
+                      parentContext,
+                      isNavigating:
+                          isNavigating, // ✅ pass ValueNotifier langsung
+                    ),
                   ],
                 ),
               );
@@ -231,8 +243,14 @@ Future<String?> showInputNameDialog(BuildContext dialogContext) {
   );
 }
 
-Widget buildBottomSheetCartList(BuildContext context, bool isEdit, String? id,
-    bool? fromCashier, BuildContext parentContext) {
+Widget buildBottomSheetCartList(
+  BuildContext context,
+  bool isEdit,
+  String? id,
+  bool? fromCashier,
+  BuildContext parentContext, {
+  required ValueNotifier<bool> isNavigating, // ✅ ValueNotifier
+}) {
   return Consumer3<CartProvider, AuthProvider, KasirProvider>(builder:
       (innerContext, cartProvider, authProvider, kasirProvider, child) {
     final listCart = cartProvider.cart;
@@ -280,40 +298,38 @@ Widget buildBottomSheetCartList(BuildContext context, bool isEdit, String? id,
             onPressed: () async {
               try {
                 final namaPemesan = await showInputNameDialog(context);
-
                 if (namaPemesan == null) return;
+
+                isNavigating.value = true;
 
                 final result = await cartProvider.createCashierTransaction(
                   context,
                   authProvider.user.token,
-                  namaPemesan, // 👈 PASS KE API
+                  namaPemesan,
                 );
 
                 kasirProvider.addCashierTransaction(result);
 
-                // ============================
-                // 3️⃣ TUTUP BOTTOM SHEET
-                // ============================
-                Navigator.pop(context); // context bottom sheet
+                final navigator = Navigator.of(parentContext);
+                Navigator.pop(context);
 
-                if (fromCashier == true) {
-                  Navigator.pushReplacement(
-                    parentContext,
-                    CustomPageBuilder(
-                      page: CheckoutQris(cashierTransaction: result),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    parentContext,
-                    CustomPageBuilder(
-                      page: CheckoutQris(cashierTransaction: result),
-                    ),
-                  );
-                }
-
-                CustomSnackbar.success("Transaksi berhasil dicatat");
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  // ✅ Tidak ada reset flag di sini
+                  if (fromCashier != null && fromCashier) {
+                    navigator.pushReplacement(
+                      CustomPageBuilder(
+                          page: CheckoutQris(cashierTransaction: result)),
+                    );
+                  } else {
+                    navigator.push(
+                      CustomPageBuilder(
+                          page: CheckoutQris(cashierTransaction: result)),
+                    );
+                  }
+                  CustomSnackbar.success("Transaksi berhasil dicatat");
+                });
               } catch (e) {
+                isNavigating.value = false; // ✅ Reset hanya kalau error
                 CustomSnackbar.error(e.toString());
               }
             },

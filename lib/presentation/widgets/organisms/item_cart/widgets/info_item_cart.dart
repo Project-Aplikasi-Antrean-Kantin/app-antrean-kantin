@@ -35,27 +35,30 @@ class InfoItemCart extends StatelessWidget {
                   style:
                       TextStyle(color: AppColors.blackColor200, fontSize: 12),
                 ),
-          GestureDetector(
-            onTap: onEdit,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                  color: AppColors.infoColor,
-                  borderRadius: BorderRadius.circular(8)),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 4,
-                children: [
-                  Icon(
-                    Iconsax.edit,
-                    size: 16,
-                    color: AppColors.whiteColor,
-                  ),
-                  Text(
-                    'Edit',
-                    style: GoogleFonts.poppins(color: AppColors.whiteColor),
-                  ),
-                ],
+          Semantics(
+            identifier: 'Edit-${item.menuNama}-${item.catatan}',
+            child: GestureDetector(
+              onTap: onEdit,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                    color: AppColors.infoColor,
+                    borderRadius: BorderRadius.circular(8)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 4,
+                  children: [
+                    Icon(
+                      Iconsax.edit,
+                      size: 16,
+                      color: AppColors.whiteColor,
+                    ),
+                    Text(
+                      'Edit',
+                      style: GoogleFonts.poppins(color: AppColors.whiteColor),
+                    ),
+                  ],
+                ),
               ),
             ),
           )

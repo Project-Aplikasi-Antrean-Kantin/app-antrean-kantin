@@ -39,17 +39,20 @@ class ActionPesananDiproses extends StatelessWidget {
             spacing: 8,
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                key: Key('tolakButton${pesanan.id}'),
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.errorColor100,
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(12),
-                ),
-                onPressed: () => bottomSheetPenolakan(context, pesanan),
-                icon: Icon(
-                  Iconsax.close_circle,
-                  color: AppColors.errorColor,
+              Semantics(
+                identifier: 'tolakButton${pesanan.id}',
+                child: IconButton(
+                  key: Key('tolakButton${pesanan.id}'),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppColors.errorColor100,
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(12),
+                  ),
+                  onPressed: () => bottomSheetPenolakan(context, pesanan),
+                  icon: Icon(
+                    Iconsax.close_circle,
+                    color: AppColors.errorColor,
+                  ),
                 ),
               ),
               if (pesanan.driverId == null)
@@ -110,35 +113,38 @@ class ActionPesananDiproses extends StatelessWidget {
             ],
           )),
           Expanded(
-            child: PrimaryButton(
-              key: Key('siapButton${pesanan.id}'),
-              isLoading: orderProvider.isLoading,
-              elevation: 0,
-              borderRadius: 12,
-              color: AppColors.primaryColor,
-              child: Text(
-                'Pesanan Siap',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+            child: Semantics(
+              identifier: 'siapButton${pesanan.id}',
+              child: PrimaryButton(
+                key: Key('siapButton${pesanan.id}'),
+                isLoading: orderProvider.isLoading,
+                elevation: 0,
+                borderRadius: 12,
+                color: AppColors.primaryColor,
+                child: Text(
+                  'Pesanan Siap',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              onPressed: () async {
-                final status =
-                    pesanan.isAntar == 1 ? 'siap_diantar' : 'siap_diambil';
-                final success = await orderProvider.updateOrder(
-                    status, authProvider.user.token, pesanan.id, pesanan);
+                onPressed: () async {
+                  final status =
+                      pesanan.isAntar == 1 ? 'siap_diantar' : 'siap_diambil';
+                  final success = await orderProvider.updateOrder(
+                      status, authProvider.user.token, pesanan.id, pesanan);
 
-                if (success) {
-                  listPesanan.remove(pesanan);
-                  CustomSnackbar.success("Pesanan siap");
-                } else {
-                  await orderProvider.fetchOrders(
-                      context, authProvider.user.token, statusPesanan);
-                  CustomSnackbar.error(
-                      "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
-                }
-              },
+                  if (success) {
+                    listPesanan.remove(pesanan);
+                    CustomSnackbar.success("Pesanan siap");
+                  } else {
+                    await orderProvider.fetchOrders(
+                        context, authProvider.user.token, statusPesanan);
+                    CustomSnackbar.error(
+                        "Gagal memperbarui pesanan, ${orderProvider.errorUpdate ?? 'terjadi kesalahan'}");
+                  }
+                },
+              ),
             ),
           ),
         ],

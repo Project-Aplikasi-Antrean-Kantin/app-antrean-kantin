@@ -50,6 +50,7 @@ class ItemCart extends StatelessWidget {
               style: GoogleFonts.poppins(),
             ),
             Counter(
+                cartItem: item,
                 onDecrement: onDecrement,
                 count: item.count,
                 onCountChanged: onCountChanged,

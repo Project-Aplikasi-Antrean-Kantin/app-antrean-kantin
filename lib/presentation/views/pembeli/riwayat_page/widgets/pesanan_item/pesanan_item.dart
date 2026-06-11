@@ -34,7 +34,7 @@ class PesananItem extends StatelessWidget {
       bool isLoading = false;
       return Semantics(
         button: true,
-        label: 'Buka pesanan ${pesanan.id}',
+        identifier: 'Buka pesanan ${pesanan.id}',
         child: GestureDetector(
           key: Key("${pesanan.id.toString()}pesananItem"),
           onTap: () async {

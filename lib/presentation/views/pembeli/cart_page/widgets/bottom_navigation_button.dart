@@ -43,7 +43,7 @@ class BottomNavigationButton extends StatelessWidget {
       child: Consumer<CartProvider>(
         builder: (context, cartProvider, child) {
           return Semantics(
-            label: 'Navigasi pembayaran keranjang',
+            identifier: 'Navigasi pembayaran keranjang',
             button: true,
             child: InkWell(
               key: Key("checkoutButton"),

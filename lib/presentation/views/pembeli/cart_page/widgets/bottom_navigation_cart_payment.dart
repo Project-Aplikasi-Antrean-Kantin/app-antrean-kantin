@@ -170,7 +170,7 @@ class _LowCoinWarning extends StatelessWidget {
             ),
           ),
           Semantics(
-            label: 'Top up saldo koin',
+            identifier: 'Top-up',
             child: GestureDetector(
               onTap: onTopup,
               child: Container(
