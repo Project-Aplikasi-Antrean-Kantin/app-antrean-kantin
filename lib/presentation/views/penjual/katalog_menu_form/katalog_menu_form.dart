@@ -9,6 +9,7 @@ import 'package:testgetdata/data/constants.dart';
 import 'package:testgetdata/data/model/kategori_menu_model.dart';
 import 'package:testgetdata/data/model/tenant_foods.dart';
 import 'package:testgetdata/data/model/user_model.dart';
+import 'package:testgetdata/data/remote/tenant_remote_data_source.dart';
 import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:testgetdata/presentation/provider/katalog_menu_provider.dart';
 import 'package:testgetdata/presentation/views/penjual/katalog_menu_form/widgets/app_bar_form.dart';
@@ -29,6 +30,7 @@ class KatalogMenuForm extends StatefulWidget {
 class _KatalogMenuFormState extends State<KatalogMenuForm> {
   String? selectedImagePath;
   int? selectedCategory;
+  bool isLoading = false;
 
   late TextEditingController namaMenuController;
   late TextEditingController deskripsiMenuController;
@@ -66,7 +68,6 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
 
   Future<void> _saveForm(UserModel user, BuildContext context) async {
     String message = '';
-
     if (namaMenuController.text.isEmpty) {
       message = 'Nama menu belum diisi.';
     } else if (hargaMenuController.text.isEmpty) {
@@ -90,9 +91,19 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
       return;
     }
 
-    final provider = Provider.of<KatalogMenuProvider>(context, listen: false);
+    setState(() {
+      isLoading = true;
+    });
 
-    final data = {
+    final dataCreate = {
+      'kategori_id': selectedCategory,
+      'nama_menu': namaMenuController.text,
+      'deskripsi_menu': deskripsiMenuController.text,
+      'harga': hargaMenuController.text,
+      'gambar': selectedImagePath,
+    };
+
+    final dataEdit = {
       'kategori_id': selectedCategory,
       'nama_menu': namaMenuController.text,
       'deskripsi': deskripsiMenuController.text,
@@ -100,23 +111,43 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
       'gambar': selectedImagePath,
     };
 
-    final result = await provider.saveMenu(
-      token: user.token,
-      data: data,
-      id: widget.initialData?.id,
-    );
+    try {
+      final source = TenantRemoteDataSource();
+      final provider = Provider.of<KatalogMenuProvider>(context, listen: false);
+      final success = widget.initialData == null
+          ? await source.createMenuTenant(user.token, dataCreate)
+          : await source.updateMenuTenant(
+              user.token, dataEdit, widget.initialData!.id);
 
-    if (result != null) {
-      Navigator.of(context).pop(true);
-    } else {
+      if (success != null) {
+        if (widget.initialData != null) {
+          provider.updateDataById(success);
+        }
+        Navigator.of(context).pop(true);
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => CustomAlertDialog(
+            title: 'Gagal!',
+            message: 'Gagal menyimpan menu. Coba lagi.',
+            showCancelButton: false,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error saving menu: $e');
       showDialog(
         context: context,
         builder: (context) => CustomAlertDialog(
-          title: 'Gagal!',
-          message: provider.errorMessage ?? 'Terjadi kesalahan',
+          title: 'Error!',
+          message: 'Terjadi kesalahan. Coba lagi nanti.',
           showCancelButton: false,
         ),
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -303,7 +334,7 @@ class _KatalogMenuFormState extends State<KatalogMenuForm> {
             Consumer<KatalogMenuProvider>(builder: (context, provider, _) {
           return BottomNavigationBarForm(
               confirmText: isEditMode ? 'Simpan' : 'Tambah',
-              isLoading: provider.isLoading,
+              isLoading: isLoading,
               onConfirm: () => _saveForm(user, context));
         }));
   }

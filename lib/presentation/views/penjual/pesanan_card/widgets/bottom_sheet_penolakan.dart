@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:testgetdata/presentation/provider/auth_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testgetdata/core/theme/colors_theme.dart';
@@ -127,6 +127,8 @@ class _BottomSheetPenolakanState extends State<BottomSheetPenolakan> {
                   ),
                 ),
                 onPressed: () async {
+                  final user =
+                      Provider.of<AuthProvider>(context, listen: false).user;
                   if (textEditingController.text.isEmpty) {
                     CustomSnackbar.warning('Catatan tidak boleh kosong');
                     return;
@@ -149,7 +151,7 @@ class _BottomSheetPenolakanState extends State<BottomSheetPenolakan> {
                   });
 
                   final success = await orderProvider.cancelOrder(
-                    "token",
+                    user.token,
                     pesanan.id,
                     pesanan,
                     textEditingController.text,

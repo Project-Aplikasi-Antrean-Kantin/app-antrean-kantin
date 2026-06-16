@@ -177,7 +177,7 @@ class _PaymentOptionBottomSheetState extends State<_PaymentOptionBottomSheet> {
                 children: [
                   const SizedBox(height: 12),
                   Semantics(
-                    identifier: '${method} Metode pembayaran',
+                    identifier: '${method.name} Metode pembayaran',
                     child: GestureDetector(
                       key: Key('${method}PaymentMethod'),
                       onTap: () {

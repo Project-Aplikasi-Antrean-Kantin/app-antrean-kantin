@@ -34,6 +34,9 @@ class FooterChatButton extends StatelessWidget {
       key: Key('chat${pesanan.id}'),
       onTap: () async {
         final connectivityResult = await hasInternetAccess();
+        final canChatTenant =
+            historyProvider.availableChatList.contains(pesanan.id) &&
+                chatType == 'tenant';
 
         if (!connectivityResult) {
           CustomSnackbar.warning('Tidak ada koneksi internet');
@@ -46,6 +49,13 @@ class FooterChatButton extends StatelessWidget {
         }
 
         await historyProvider.removeUnreadMessages(pesanan.id);
+
+        if (chatType == 'tenant') {
+          if (!canChatTenant) {
+            CustomSnackbar.warning('Penjual harus chat terlebih dahulu');
+            return;
+          }
+        }
 
         Navigator.push(
           context,

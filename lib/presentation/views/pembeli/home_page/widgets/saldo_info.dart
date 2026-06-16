@@ -16,8 +16,15 @@ import 'package:testgetdata/presentation/widgets/custom_page_builder.dart';
 import 'package:testgetdata/presentation/widgets/molecules/custom_snackbar.dart';
 import 'package:testgetdata/utils/has_internet_access.dart';
 
-class SaldoInfo extends StatelessWidget {
+class SaldoInfo extends StatefulWidget {
   const SaldoInfo({super.key});
+
+  @override
+  State<SaldoInfo> createState() => _SaldoInfoState();
+}
+
+class _SaldoInfoState extends State<SaldoInfo> {
+  bool _isNavigating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +55,15 @@ class SaldoInfo extends StatelessWidget {
                 child: InkWell(
                   splashColor: Colors.transparent, // hilangkan efek ripple
                   onTap: () async {
+                    if (_isNavigating) return;
+                    _isNavigating = true;
                     final internetConnection = await hasInternetAccess();
                     if (!internetConnection) {
                       CustomSnackbar.warning('Tidak ada koneksi internet');
                       return;
                     }
                     Navigator.push(
-                        context, CustomPageBuilder(page: const KoinInfoPage()));
+                        context, CustomPageBuilder(page: const KoinInfoPage())).then((value) => _isNavigating = false);
                   },
                   child: Consumer<CoinProvider>(
                       builder: (context, coinProvider, child) {
@@ -125,6 +134,8 @@ class SaldoInfo extends StatelessWidget {
                   //     .opaque, // ✅ area tap jadi selebar parent-nya
 
                   onTap: () async {
+                     if (_isNavigating) return;
+                    _isNavigating = true;
                     final prefs = await SharedPreferences.getInstance();
                     final jsonCurrentVa = prefs.getString('current_va');
                     TopUpModel? currentVa;
@@ -155,10 +166,10 @@ class SaldoInfo extends StatelessWidget {
                             currentVa: currentVa,
                           ),
                         ),
-                      );
+                      ).then((value) => _isNavigating = false);
                     } else {
                       Navigator.push(
-                          context, CustomPageBuilder(page: TopupPage()));
+                          context, CustomPageBuilder(page: TopupPage())).then((value) => _isNavigating = false);
                     }
                   },
                   child: Container(

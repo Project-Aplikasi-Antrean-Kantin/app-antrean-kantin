@@ -37,6 +37,13 @@ class ChatButton extends StatelessWidget {
 
           await historyProvider.removeUnreadMessages(pesanan.id);
 
+          if (chatType == 'tenant') {
+            if (!canChatTenant) {
+              CustomSnackbar.warning('Penjual harus chat terlebih dahulu');
+              return;
+            }
+          }
+
           Navigator.push(
             context,
             CustomPageBuilder(

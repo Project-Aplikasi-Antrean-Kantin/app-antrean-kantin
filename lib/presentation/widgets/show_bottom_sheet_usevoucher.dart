@@ -91,21 +91,25 @@ void showBottomSheetUseVoucher(
                         ),
                         SizedBox(width: screenSize.width * 0.03),
                         Expanded(
-                          child: PrimaryButton(
-                            color:
-                                canSend ? AppColors.primaryColor : Colors.grey,
-                            elevation: 0,
-                            height: screenSize.height * 0.06,
-                            borderRadius: 100,
-                            child: Text(
-                              "Lanjut",
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: isSmallScreen ? 12 : 14,
-                                color: AppColors.textColorwhite,
+                          child: Semantics(
+                            identifier: "Lanjut",
+                            child: PrimaryButton(
+                              color: canSend
+                                  ? AppColors.primaryColor
+                                  : Colors.grey,
+                              elevation: 0,
+                              height: screenSize.height * 0.06,
+                              borderRadius: 100,
+                              child: Text(
+                                "Lanjut",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: isSmallScreen ? 12 : 14,
+                                  color: AppColors.textColorwhite,
+                                ),
                               ),
+                              onPressed: onFinish,
                             ),
-                            onPressed: onFinish,
                           ),
                         ),
                       ],

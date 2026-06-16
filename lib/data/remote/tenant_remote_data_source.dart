@@ -39,7 +39,7 @@ class TenantRemoteDataSource {
         final responseBody = await response.stream.bytesToString();
         final data = jsonDecode(responseBody);
 
-        return TenantFoods.fromJson(data["data"]["menu"]);
+        return TenantFoods.fromJson(data["data"]["newMenu"]);
       } else {
         throw Exception('Failed to create menu');
       }

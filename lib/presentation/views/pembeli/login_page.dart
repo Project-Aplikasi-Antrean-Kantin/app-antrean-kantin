@@ -136,8 +136,7 @@ class _LoginPageState extends State<LoginPage> {
       final token = await FirebaseMessaging.instance.getToken();
       log("Token fcm: " + token.toString());
       if (token == null) {
-        showCustomSnackbar(ctx, "Gagal mengakses perangkat. Silakan coba lagi.",
-            success: false);
+        CustomSnackbar.error("Gagal mengakses perangkat. Silakan coba lagi.");
         setState(() => _isLoading = false);
         return;
       }
@@ -166,17 +165,13 @@ class _LoginPageState extends State<LoginPage> {
       if (e.message.toLowerCase().contains('tidak ditemukan') ||
           e.message.toLowerCase().contains('not found') ||
           e.message.toLowerCase().contains('belum terdaftar')) {
-        showCustomSnackbar(
-          ctx,
+        CustomSnackbar.error(
           "Email belum terdaftar. Silakan daftar akun terlebih dahulu.",
-          success: false,
         );
       } else {
         if (e.message.isNotEmpty && e.message.contains('verifikasi')) {
-          showCustomSnackbar(
-            ctx,
+          CustomSnackbar.error(
             "Email belum diverifikasi. Silakan periksa email anda.",
-            success: false,
           );
           Navigator.push(
               context,
@@ -187,19 +182,15 @@ class _LoginPageState extends State<LoginPage> {
               )));
           return;
         }
-        showCustomSnackbar(
-          ctx,
+        CustomSnackbar.error(
           e.message.isNotEmpty
               ? e.message
               : "Email atau password salah. Silakan periksa kembali.",
-          success: false,
         );
       }
     } catch (e) {
-      showCustomSnackbar(
-        ctx,
+      CustomSnackbar.error(
         "Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.",
-        success: false,
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);

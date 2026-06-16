@@ -129,42 +129,45 @@ void showConfirmOrderBottomSheet(
                               ),
                               SizedBox(width: screenSize.width * 0.03),
                               Expanded(
-                                child: PrimaryButton(
-                                  isLoading: isLoading,
-                                  elevation: 0,
-                                  height: screenSize.height * 0.06,
-                                  borderRadius: 100,
-                                  child: Text(
-                                    "Buat Pesanan!",
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: isSmallScreen ? 12 : 14,
-                                      color: AppColors.textColorwhite,
+                                child: Semantics(
+                                  identifier: "Buat Pesanan!",
+                                  child: PrimaryButton(
+                                    isLoading: isLoading,
+                                    elevation: 0,
+                                    height: screenSize.height * 0.06,
+                                    borderRadius: 100,
+                                    child: Text(
+                                      "Buat Pesanan!",
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: isSmallScreen ? 12 : 14,
+                                        color: AppColors.textColorwhite,
+                                      ),
                                     ),
-                                  ),
-                                  onPressed: () async {
-                                    setState(() => isLoading = true);
-                                    try {
-                                      await _handleTransaction(
-                                        context,
-                                        cartProvider,
-                                        coinProvider,
-                                        user,
-                                        paymentMethod,
-                                        saldoCoin,
-                                      );
-                                    } catch (e) {
-                                      setState(() => isLoading = false);
+                                    onPressed: () async {
+                                      setState(() => isLoading = true);
+                                      try {
+                                        await _handleTransaction(
+                                          context,
+                                          cartProvider,
+                                          coinProvider,
+                                          user,
+                                          paymentMethod,
+                                          saldoCoin,
+                                        );
+                                      } catch (e) {
+                                        setState(() => isLoading = false);
 
-                                      CustomSnackbar.error(
-                                        e
-                                            .toString()
-                                            .replaceFirst('Exception: ', ''),
-                                      );
-                                    } finally {
-                                      setState(() => isLoading = false);
-                                    }
-                                  },
+                                        CustomSnackbar.error(
+                                          e
+                                              .toString()
+                                              .replaceFirst('Exception: ', ''),
+                                        );
+                                      } finally {
+                                        setState(() => isLoading = false);
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
