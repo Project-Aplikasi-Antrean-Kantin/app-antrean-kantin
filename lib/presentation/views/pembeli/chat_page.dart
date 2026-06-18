@@ -158,8 +158,8 @@ class _ChatPageState extends State<ChatPage> {
                     Expanded(
                       child: TextField(
                         onChanged: (value) {
-                          if (value.isNotEmpty)
-                            setState(() => isThereText = true);
+                          setState(() => isThereText =
+                              value.isNotEmpty); // ← seharusnya begini
                         },
                         controller: controller,
                         decoration: InputDecoration(
@@ -191,15 +191,15 @@ class _ChatPageState extends State<ChatPage> {
                       onPressed: () async {
                         print("token: $token, message: ${controller.text}");
                         if (isSending) return;
-                        setState(() {
-                          isSending = true;
-                        });
                         final prefs = await SharedPreferences.getInstance();
                         print('unread message: ${prefs.getString('unread')}');
                         if (controller.text.trim().isEmpty) {
                           CustomSnackbar.warning("Tidak boleh kosong");
                           return;
                         }
+                        setState(() {
+                          isSending = true;
+                        });
 
                         try {
                           await ChatRemoteDataSource()

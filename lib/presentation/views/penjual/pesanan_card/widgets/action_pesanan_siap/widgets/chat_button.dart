@@ -41,6 +41,10 @@ class ChatButton extends StatelessWidget {
               showNoConnectionBottomSheet(context: context, onRetry: () {});
               return;
             }
+            if (pesanan.driverId != null) {
+              CustomSnackbar.info("Pesanan ini sudah ditangani oleh driver");
+              return;
+            }
             historyProvider.removeUnreadMessages(pesanan.id);
 
             Navigator.push(

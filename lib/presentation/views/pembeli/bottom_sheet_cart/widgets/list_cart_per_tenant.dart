@@ -24,8 +24,7 @@ class ListCartPerTenant extends StatelessWidget {
 
           final tenant =
               tenants.firstWhereOrNull((t) => t.id == int.parse(tenantId));
-          print(
-              "tenant: $tenant, cartProvider.tenantCarts: ${cartProvider.tenantCarts}");
+
           if (tenant == null) return [Container()];
 
           if (cartPerTenant.cartMenuList!.isEmpty) {
