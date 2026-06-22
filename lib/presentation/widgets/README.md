@@ -897,3 +897,14 @@ class MyApp extends StatelessWidget {
   }
 }
 ```
+```dart
+CustomSnackbar.success("Data berhasil disimpan ke database!");
+CustomSnackbar.info("Pembaruan sistem akan dilakukan pukul 00:00 WIB.");
+CustomSnackbar.warning("Koneksi internet Anda tidak stabil.");
+CustomSnackbar.error("Gagal memproses transaksi. Silakan coba lagi.");
+CustomSnackbar.success(
+  "Data dipulihkan!",
+  duration: const Duration(seconds: 5), // Tampil lebih lama
+);
+```
+
